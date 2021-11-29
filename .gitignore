@@ -1,0 +1,10 @@
+report.json
+**.pyc
+**.DS_Store
+
+.ipynb_checkpoints
+data/
+dask-worker-space/
+results/
+
+**.pkl
