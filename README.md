@@ -1,9 +1,7 @@
 
-# SDNist: Benchmarks for data synthesizers.
+# SDNist: Benchmark data and evaluation tools for data synthesizers.
 
-This package provides tools for standardized and reproducible comparison of synthetic generator models on real-world data and use cases. Both datasets and metrics were developed for and vetted through the *NIST PSCRDifferential Privacy Temporal Map Challenge*.
-
-See https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/current-and-upcoming-prize-challenges/2020-differential.
+This package provides tools for standardized and reproducible comparison of synthetic generator models on real-world data and use cases. Both datasets and metrics were developed for and vetted through the [*NIST PSCRDifferential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/current-and-upcoming-prize-challenges/2020-differential.).
 
 ## Quick introduction
 
