@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "SDNist: Benchmarks for Data Sythesizers"
+title: "SDNist: Benchmark data and evaluation tools for data sythesizers."
 message: >-
   If you use this repository or present information about it publicly, please cite us.
 type: dataset
