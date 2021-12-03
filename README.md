@@ -1,5 +1,5 @@
 
-# NIST 2020 Temporal map challenge, sprint 2&3
+# SDNist: Benchmarks for data synthesizers.
 
 This package provides tools for standardized and reproducible comparison of synthetic generator models on real-world data and use cases. Both datasets and metrics were developed for and vetted through the *NIST PSCRDifferential Privacy Temporal Map Challenge*.
 
@@ -12,6 +12,27 @@ You have two possible workflows:
 2) reproduce the setup of the challenge, i.e create a synthetizer subclass of `challenge.submission.Model` then call `run(model, challenge="census")`. This makes sure your synthetizer is scored against the same datasets as in the challenge.
 
 In all cases, the scoring does not numerically check whether your synthesizer is actually $\epsilon$-differentially private or not. You have to provide a formal proof yourself.
+
+## Installation
+
+- Install via `pip` from [PyPi](https://pypi.org/) directory:
+`python3 pip install SDNist`
+
+- Install from this repository locally:
+```
+git clone https://github.com/usnistgov/SDNist && cd SDNist
+pip install -r requirements.txt 
+```
+
+- Install from this repository in a virtual environment:
+
+```
+git clone https://github.com/usnistgov/SDNist && cd SDNist
+python3 -m venv venv
+. venv/bin/activate
+pip install -r requirements.txt
+```
+- 
 
 ## Examples
 
