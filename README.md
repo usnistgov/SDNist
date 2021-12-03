@@ -20,7 +20,7 @@ Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
 
 ```
-python3 pip install SDNist
+pip install SDNist
 ```
 
 - Install from this repository locally:
