@@ -15,7 +15,7 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 
 ## Installation
 
-Requirements:  (Python >=3.6)[https://www.python.org/downloads/]
+Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
 
