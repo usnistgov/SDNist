@@ -16,6 +16,7 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 ## Installation
 
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
+
 `python3 pip install SDNist`
 
 - Install from this repository locally:
@@ -32,7 +33,6 @@ python3 -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 ```
-- 
 
 ## Examples
 
