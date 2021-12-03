@@ -23,13 +23,13 @@ Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 pip install SDNist
 ```
 
-- Install from this repository locally:
+- Install repository locally:
 ```
 git clone https://github.com/usnistgov/SDNist && cd SDNist
 pip install -r requirements.txt 
 ```
 
-- Install from this repository in a virtual environment:
+- Install repository in a virtual environment:
 
 ```
 git clone https://github.com/usnistgov/SDNist && cd SDNist
