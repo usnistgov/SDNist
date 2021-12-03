@@ -24,7 +24,7 @@ pip install SDNist
 - Install repository locally:
 ```
 git clone https://github.com/usnistgov/SDNist && cd SDNist
-pip install -r requirements.txt 
+pip install .
 ```
 
 - Install repository in a virtual environment:
@@ -33,7 +33,7 @@ pip install -r requirements.txt
 git clone https://github.com/usnistgov/SDNist && cd SDNist
 python3 -m venv venv
 . venv/bin/activate
-pip install -r requirements.txt
+pip install .
 ```
 
 ## Contributions
