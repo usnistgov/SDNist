@@ -1,37 +1,33 @@
 cff-version: 1.2.0
-title: SDNist: Benchmarks for Data Sythesizers
+title: "SDNist: Benchmarks for Data Sythesizers"
 message: >-
   If you use this repository or present information about it publicly, please cite us.
 type: dataset
-version: 0.1.1
-#doi: 10.18434/mds2-2416 not yet active
+version: 1.0.0
+doi: 10.18434/mds2-2416
 date-released: 2021-12-03
 authors:
- - family-names: Lothe
-   given-names: Grégoire 
-   affiliation: Sarus Technology
-   email: gl@sarus.tech
- - family-names: Nicolas
-   given-names: Grislain
-   affiliation: Sarus Technology
-   email: ng@sarus.tech
- - family-names: Task
-   given-names: Christine
-   affiliation: Knexus Research Corporation
-   email: christine.task@knexusresearch.com
- - family-names: Slavitt
-   given-names: Isaac
-   affiliation: DrivenData
- - family-names: Lipstein
-   given-names: Greg
-   affiliation: DrivenData
- - family-names: Bhagat
-   given-names: Karan
-   affiliation: Knexus Research Corporation
- - family-names: Streat
-   given-names: Damon
-   affiliation: Knexus Research Corporation
- - family-names: Howarth
-   given-names: Gary
-   affiliation: Public Safety Communications Division, National Institute of Standards and Technology
-   email: gary.howarth@nist.gov
+- family-names: Nicolas
+  given-names: Grislain
+  affiliation: Sarus Technology
+  email: ng@sarus.tech
+- family-names: Task
+  given-names: Christine
+  affiliation: Knexus Research Corporation
+  email: christine.task@knexusresearch.com
+- family-names: Slavitt
+  given-names: Isaac
+  affiliation: DrivenData
+- family-names: Lipstein
+  given-names: Greg
+  affiliation: DrivenData
+- family-names: Bhagat
+  given-names: Karan
+  affiliation: Knexus Research Corporation
+- family-names: Streat
+  given-names: Damon
+  affiliation: Knexus Research Corporation
+- family-names: Howarth
+  given-names: Gary
+  affiliation: Public Safety Communications Division, National Institute of Standards and Technology
+  email: gary.howarth@nist.gov
