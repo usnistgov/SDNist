@@ -4,7 +4,7 @@ message: >-
   If you use this repository or present information about it publicly, please cite us.
 type: dataset
 version: 0.1.1
-doi: 10.18434/mds2-2416 #not yet active
+#doi: 10.18434/mds2-2416 not yet active
 date-released: 2021-12-03
 authors:
  - family-names: Lothe
