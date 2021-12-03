@@ -42,7 +42,7 @@ pip install -r requirements.txt
 
 This repository is being actively developed, and we welcome contributions.
 
-If you encounter a bug, (please create an issue)[https://github.com/usnistgov/SDNist/issues/new].
+If you encounter a bug, [please create an issue](https://github.com/usnistgov/SDNist/issues/new).
 
 Please feel free to create a Pull Request to help us correct bugs and other issues. 
 
