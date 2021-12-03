@@ -17,7 +17,9 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
 
-`python3 pip install SDNist`
+```
+python3 pip install SDNist
+```
 
 - Install from this repository locally:
 ```
