@@ -52,6 +52,7 @@ Please contact us if you wish to augment or expand existing features.
 ### Quickest example (option 1)
 
 ```
+Python 3.x>=8
 >>> import sdnist
 
 >>> dataset, schema = sdnist.census()  # Retrieve public dataset
