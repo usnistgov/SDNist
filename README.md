@@ -38,6 +38,17 @@ python3 -m venv venv
 pip install -r requirements.txt
 ```
 
+## Contributions
+
+This repository is being actively developed, and we welcome contributions.
+
+If you encounter a bug, (please create an issue)[https://github.com/usnistgov/SDNist/issues/new].
+
+Please feel free to create a Pull Request to help us correct bugs and other issues. 
+
+Please contact us if you wish to augment or expand existing features.  
+
+
 ## Examples
 
 ### Quickest example (option 1)
