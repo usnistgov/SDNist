@@ -18,16 +18,16 @@ Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
 
 ```
-pip install SDNist
+pip install sdnist
 ```
 
-- Install repository locally:
+- Install `sdnist` Python module through git repository:
 ```
 git clone https://github.com/usnistgov/SDNist && cd SDNist
 pip install .
 ```
 
-- Install repository in a virtual environment:
+- Install `sdnist` Python module through git in a virtual environment:
 
 ```
 git clone https://github.com/usnistgov/SDNist && cd SDNist
