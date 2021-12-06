@@ -1,16 +1,16 @@
 cff-version: 1.2.0
-title: "SDNist: Benchmark data and evaluation tools for data sythesizers."
+title: "SDNist: Benchmarks for Data Sythesizers"
 message: >-
   If you use this repository or present information about it publicly, please cite us.
 type: dataset
 version: 1.0.0
-doi: 10.18434/mds2-2416
+doi: 10.18434/mds2-2515
 date-released: 2021-12-03
 authors:
-- family-names: Nicolas
-  given-names: Grislain
+- family-names: Grégorie
+  given-names: Lothe
   affiliation: Sarus Technology
-  email: ng@sarus.tech
+  email: gl@sarus.tech
 - family-names: Task
   given-names: Christine
   affiliation: Knexus Research Corporation
@@ -18,9 +18,10 @@ authors:
 - family-names: Slavitt
   given-names: Isaac
   affiliation: DrivenData
-- family-names: Lipstein
-  given-names: Greg
-  affiliation: DrivenData
+- family-names: Nicolas
+  given-names: Grislain
+  affiliation: Sarus Technology
+  email: ng@sarus.tech
 - family-names: Bhagat
   given-names: Karan
   affiliation: Knexus Research Corporation
@@ -31,3 +32,4 @@ authors:
   given-names: Gary
   affiliation: Public Safety Communications Division, National Institute of Standards and Technology
   email: gary.howarth@nist.gov
+  ORCID:  0000-0002-3587-0546
