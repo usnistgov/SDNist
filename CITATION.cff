@@ -1,11 +1,17 @@
 cff-version: 1.2.0
 title: "SDNist: Benchmark Data and Evaluation Tools for Data Sythesizers"
+abstract: "We present a set of benchmark data and metrics for the evaluation of synthetic data generators on structured tabular data. These benchmarks are distributed as a simple open-source Python package to allow standardized and reproducible comparison of synthetic generator models on real-world data and use cases. These data and metrics were developed for and vetted through the NIST PSCR Differential Privacy Temporal Map Challenge; the evaluation tools, k-marginal and Higher Order Conjunction, proved effective in distinguishing competing models in the competition environment."
 message: >-
   If you use this repository or present information about it publicly, please cite us.
 type: software
 version: 1.0.0
 doi: 10.18434/mds2-2515
-date-released: 2021-12-03
+date-released: 2021-12-16
+contact:
+  - affiliation: "Public Safety Communications Division, National Institute of Standards and Technology"
+    email: gary.howarth@nist.gov
+    family-names: Gary
+    given-names: Howarth
 authors:
 - family-names: Grégorie
   given-names: Lothe
