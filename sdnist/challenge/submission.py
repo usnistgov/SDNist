@@ -1,6 +1,8 @@
-import os 
+import os
 import abc
 from pathlib import Path
+
+from loguru import logger
 
 import pandas as pd
 
@@ -27,14 +29,14 @@ class Model(abc.ABC):
         pass
 
 
-def run(submission: Model, 
+def run(submission: Model,
         challenge: str = "census",
-        root: Path = Path("data"), 
+        root: Path = Path("data"),
         results: Path = Path("results"),
         override_results: bool = False,
-        test: bool = False, 
+        test: bool = False,
         download: bool = True):
-    """ Runs a full experiment following the protocol of second sprint of the 
+    """ Runs a full experiment following the protocol of second sprint of the
         NIST 2020 Challenge
     """
     if challenge == "census":
@@ -56,7 +58,7 @@ def run(submission: Model,
 
     # train and score on private data with differential privacy
     private, schema = load_dataset(challenge, root, public=False, test=test, download=download)
-    
+
     for eps in EPS:
         # Attempt to skip already computed scores
         score_location = results / f"eps={eps}.json"
@@ -89,8 +91,6 @@ def run(submission: Model,
         # TODO score object can be reused for marginal speed gains.
         score = sdnist.score(private, synthetic, schema, challenge)
         logger.success(f"eps={eps}\tscore={score.score:.2f}")
-    
+
         if results is not None:
             score.save(score_location)
-
-    

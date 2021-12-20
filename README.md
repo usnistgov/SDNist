@@ -1,9 +1,7 @@
 
-# NIST 2020 Temporal map challenge, sprint 2&3
+# SDNist: Benchmark data and evaluation tools for data synthesizers.
 
-This package provides tools for standardized and reproducible comparison of synthetic generator models on real-world data and use cases. Both datasets and metrics were developed for and vetted through the *NIST PSCRDifferential Privacy Temporal Map Challenge*.
-
-See https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/current-and-upcoming-prize-challenges/2020-differential.
+This package provides tools for standardized and reproducible comparison of synthetic generator models on real-world data and use cases. Both datasets and metrics were developed for and vetted through the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/current-and-upcoming-prize-challenges/2020-differential.).
 
 ## Quick introduction
 
@@ -12,6 +10,42 @@ You have two possible workflows:
 2) reproduce the setup of the challenge, i.e create a synthetizer subclass of `challenge.submission.Model` then call `run(model, challenge="census")`. This makes sure your synthetizer is scored against the same datasets as in the challenge.
 
 In all cases, the scoring does not numerically check whether your synthesizer is actually $\epsilon$-differentially private or not. You have to provide a formal proof yourself.
+
+## Installation
+
+Requirements:  [Python >=3.6](https://www.python.org/downloads/)
+
+- Install via `pip` from [PyPi](https://pypi.org/) directory (NOT AVAILABLE UNTIL PUBLIC RELEASE):
+
+```
+pip install sdnist
+```
+
+- Install `sdnist` Python module through git repository:
+```
+git clone https://github.com/usnistgov/SDNist && cd SDNist
+pip install .
+```
+
+- Install `sdnist` Python module through git in a virtual environment:
+
+```
+git clone https://github.com/usnistgov/SDNist && cd SDNist
+python3 -m venv venv
+. venv/bin/activate
+pip install .
+```
+
+## Contributions
+
+This repository is being actively developed, and we welcome contributions.
+
+If you encounter a bug, [please create an issue](https://github.com/usnistgov/SDNist/issues/new).
+
+Please feel free to create a Pull Request to help us correct bugs and other issues. 
+
+Please contact us if you wish to augment or expand existing features.  
+
 
 ## Examples
 
