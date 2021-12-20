@@ -11,11 +11,15 @@ def check_exists(name: Path, download: bool):
         print(f"{name} does not exist." )
         if download:
             print(f"Downloading {name.name}...")
-            urllib.request.urlretrieve(f"https://storage.googleapis.com/sdnist-sarus/{name.name}", name.as_posix())
+            urllib.request.urlretrieve(
+                f"https://storage.googleapis.com/sdnist-sarus/{name.name}", 
+                name.as_posix()
+            )
         else:
             raise ValueError(f"{name} does not exist.")
 
 def build_name(challenge: str, root: Path = Path("data"), public: bool = False, test: bool = False):
+    root = root.expanduser()
     if challenge == "census":
         directory = root / "census" / "final"
 
@@ -49,7 +53,36 @@ def load_dataset(
         download: bool = True, 
         format_: str = "parquet"
     ) -> Tuple[pd.DataFrame, dict]:
-    """ Load one of the SDNIST datasets. """
+    """ Load one of the original SDNist datasets.
+
+    :param challenge str: base challenge. Must be `census` or `taxi`.
+    :param root Path: directory of the dataset.
+    :param public bool: whether to use the public dataset or the private dataset 
+        (see below).
+    :param test bool: retrieve the additinal private dataset (see below).
+    :param download bool: download files if not present in the `root` directory.
+    :param format_ str: prefered format when retrieving the files. Must be `parquet` or `csv`.
+        Note that only `parquet` files are actually available for download.
+    :return: A tuple containing the requested dataset as a `pandas.DataFrame`, along with 
+        its corresponding schema, i.e a `dict` description of each feature of the dataset.
+
+    Regarding the public/private/test datasets:
+    - during the challenge, the participants were given access to the "public" 
+    dataset (`public=True`, `test=False) to make experiments and inspect data.
+    - their synthesizers were evaluated against two new datasets which they
+    were not allowed to see before:
+        1) The (`public=False`, `test=False`) corresponds to a dataset to privatize.
+        The results were published on the public leaderboard. The participants
+        were allowed to make several submission. In traditional machine learning scenarios,
+        this would somewhat correspond to a 'validation' dataset.
+        2) The (`public=False`, `test=True`) corresponds to another dataset to privatize.
+        This time, the results were kepts secret until the end of the challenge. 
+        In traditional machine learning scenarios, this would correspond to a 'test' dataset.
+        Your synthesizer should not be finetuned for the best score on this dataset.
+    - using any information available in the 'public' dataset is allowed.
+    - manually inspecting any of the two 'private' dataset is not allowed within the challenge,
+    even though there is nothing preventing you from doing so.
+    """
 
     if isinstance(root, str):
         root = Path(root)

@@ -8,14 +8,15 @@ See https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/current-and-u
 ## Quick introduction
 
 You have two possible workflows:
-1) manually manage the public and private datasets, directy generate your synthetic data and directly compute the score
+1) manually manage the public and private datasets as `pandas.DataFrame` objects, directy generate your synthetic data and directly compute the score
 2) reproduce the setup of the challenge, i.e create a synthetizer subclass of `challenge.submission.Model` then call `run(model, challenge="census")`. This makes sure your synthetizer is scored against the same datasets as in the challenge.
 
 In all cases, the scoring does not numerically check whether your synthesizer is actually $\epsilon$-differentially private or not. You have to provide a formal proof yourself.
 
 ## Examples
 
-### Quickest example (option 1)
+### 1) Quickest example (option 1)
+#### Loading and scoring
 
 ```
 >>> import sdnist
@@ -38,7 +39,55 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 CensusKMarginalScore(847)
 ```
 
-### Reproducing the baselines from the challenge by sublasscing `challenge.submission.Model` (option 2)
+#### Discretizing a dataset
+Many synthesizers require working on categorical/discretized data, yet many features of in `sdnist` datasets are actually 
+integer or floating point valued. `sdnist` provide a simple tool to discretize/undiscretize `sdnist` datasets.
+
+First, note that the k-marginal score itself works on categorical data under the hood. For fairness, the bins that are used can be considered public. They are available at
+
+```
+>>> bins = sdnist.kmarginal.CensusKMarginalScore.BINS
+```
+
+for the ACS (American Community Survey) dataset or 
+
+```
+>>> bins = sdnist.kmarginal.TaxiKmarginalScore.BINS
+```
+
+for the Chicago taxi dataset.
+
+The `pd.DataFrame` datasets can then be discretized using 
+
+```
+>>> dataset_binned = sdnist.utils.discretize(dataset, schema, bins)
+```
+
+`sdnist.utils.discretize` returns a `pd.DataFrame` where each value is remapped to `(0, n-1)` where `n` is the number of distinct values. Note that the even though the `score` functions should be given *unbinned* datasets, i.e if your synthesizer works on discretized dataset, you should first undiscretize your synthetic data. This can be done using
+
+```
+>>> synthetic_dataset_binned = ... # generate your synthetic data using your own method
+>>> synthetic_dataset = sdnist.utils.undo_discretize(synthetic_dataset_binned, schema, bins)
+```
+
+### Directly computing the score on a given `.csv` file
+
+You can directly run from a terminal 
+
+```
+% python -m sdnist your_file.csv
+```
+
+This will score against the public census (ACS) dataset and display the result in an HTML page:  
+
+![](examples/score_example.png)
+
+Other options are available by calling `--help`.
+
+### 2) Reproducing the baselines from the challenge by sublasscing `challenge.submission.Model` (option 2, slightly more advanced and time-consuming)
+
+Some examples of subclasssing `challenge.submission.Model` are available in the library.
+
 #### Subsample
 
 Build a synthetic dataset by randomly subsampling 10% of the private dataset:

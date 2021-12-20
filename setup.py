@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='sdnist',
@@ -8,7 +8,8 @@ setup(
     url='https://github.com/usnistgov/SDNist',
     author='gl',
     author_email='gl@sarus.tech',
-    packages=['sdnist'],
-    install_requires=["numpy", "pandas", "matplotlib", "pyarrow", "tqdm"],
+    packages=find_packages(),
+    install_requires=["numpy", "pandas", "matplotlib", "pyarrow", "tqdm", 
+        "loguru", "requests", "jinja2"],
     classifiers=['Development Status :: 1 - Planning'],
 )

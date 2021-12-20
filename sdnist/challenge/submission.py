@@ -8,6 +8,8 @@ import sdnist
 from sdnist.load import load_dataset
 from sdnist.kmarginal import CensusKMarginalScore
 
+from loguru import logger
+
 
 class Model(abc.ABC):
     """ Base class for running experiments in the same setting as the challenge. """

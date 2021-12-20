@@ -2,18 +2,35 @@ import numpy as np
 import pandas as pd
 
 
-def discretize(dataset, schema, bins, copy: bool = True):
-    """ Digitize the float columns. """
+def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = True):
+    """ Discretizes `dataset` using `pandas.CategoricalDtypes`. All values are remapped
+    from 0 to `n-1` where `n` is the number of distinct values.
+
+    :param dataset pandas.DataFrame: dataset to discretize
+    :param schema dict: dataset schema, as provided by `sdnist.census` for instance.
+    :param bins dict: a dict containing (`feature`, `bins) key-value pairs.
+        The bins used to compute the k-marginal score are available at 
+        `sdnist.kmarginal.CensusKMarginalScore.BINS` and 
+        `sdnist.kmarginal.TaxiKMarginalScore.BINS`.
+    :param copy bool: whether the original `dataset` should be copied before discretization.
+    :return: the discretized input `pandas.DataFrame`.
+
+    """
     if copy:
         dataset = dataset.copy()
 
-    for column, desc in schema.items():
+    for column in dataset:
         if column in bins:
             dataset[column] = pd.cut(dataset[column], bins[column], right=False).cat.codes
-        elif "values" in desc:
-            dataset[column] = dataset[column].astype(pd.CategoricalDtype(desc["values"])).cat.codes
+        elif column in schema:
+            desc = schema[column]
+            if "values" in desc:
+                dataset[column] = dataset[column].astype(pd.CategoricalDtype(desc["values"])).cat.codes
+            else:
+                dataset[column] = (dataset[column] - desc["min"]).astype(int)
         else:
-            dataset[column] = (dataset[column] - desc["min"]).astype(int)
+            # Feature is not modified.
+            pass
 
     return dataset
 
