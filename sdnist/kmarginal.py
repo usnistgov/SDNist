@@ -28,8 +28,8 @@ class KMarginalScore():
     N_PERMUTATIONS = 50
     BIAS_PENALTY_CUTOFF = None
 
-    def __init__(self, 
-            private_dataset: pd.DataFrame, 
+    def __init__(self,
+            private_dataset: pd.DataFrame,
             synthetic_dataset: pd.DataFrame,
             schema: dict,
             seed: int = None):
@@ -84,7 +84,7 @@ class KMarginalScore():
             idx = tuple(columns)
             if idx not in self._p0_cache:
                 self._p0_cache[idx] = compute_marginal_grouped(self._private_dataset, columns, self.ALWAYS_GROUPBY)
-            
+
             p0 = self._p0_cache[idx]
             p1 = compute_marginal_grouped(self._synthetic_dataset, columns, self.ALWAYS_GROUPBY)
             tv = p0.subtract(p1, fill_value=0).abs().groupby(self.ALWAYS_GROUPBY).sum()
@@ -121,7 +121,7 @@ class KMarginalScore():
         self.score = self.scores.mean()
 
         return self.score
-        
+
     def _compute_score(self):
         total_tv = 0
 
@@ -196,7 +196,7 @@ class CensusKMarginalScore(KMarginalScore):
         "PUMA",
         "YEAR"
     ]
-
+    #TODO: move report template to NIST server
     JINJA_TEMPLATE_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/report2.jinja2"
 
     def report(self, column: str = None):
@@ -246,7 +246,7 @@ class CensusKMarginalScore(KMarginalScore):
 
         r = requests.get(self.JINJA_TEMPLATE_URL)
         template_text = r.content.decode("utf-8")
-    
+
         env = jinja2.Environment()
         template = env.from_string(template_text)
 
@@ -312,12 +312,12 @@ class TaxiKMarginalScore(KMarginalScore):
     ]
 
     ALWAYS_GROUPBY = [
-        "pickup_community_area", 
+        "pickup_community_area",
         "shift"
     ]
 
     def report(self, column: str = None):
-        # TODO 
+        # TODO
         return ""
 
     def save(self, path: str = "report.json", column: str = None):
@@ -344,8 +344,8 @@ class CensusLongitudinalKMarginalScore(CensusKMarginalScore):
         self._private_dataset = sdnist.utils.unstack(sdnist.utils.discretize(private_dataset, schema, self.BINS), flat=True)
         self._synthetic_dataset = sdnist.utils.unstack(sdnist.utils.discretize(synthetic_dataset, schema, self.BINS), flat=True)
         self.schema = schema
-        
-        self.seed = seed if seed is not None else 12345    
+
+        self.seed = seed if seed is not None else 12345
 
     def columns(self):
         random_state = np.random.RandomState(seed=self.seed)

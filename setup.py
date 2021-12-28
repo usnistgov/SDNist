@@ -1,15 +1,24 @@
 from setuptools import setup, find_packages
 
+# read the contents of your README file
+from pathlib import Path
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 setup(
     name='sdnist',
-    version='0.1.1',
-    description='SDNist datasets and evaluation tools for data synthesizers',
+    version='1.0.0',
+    description='SDNist: datasets and evaluation tools for data synthesizers',
     long_description='',
     url='https://github.com/usnistgov/SDNist',
-    author='gl',
-    author_email='gl@sarus.tech',
+    DOI='10.18434/mds2-2515',
+    author='National Institute of Standards and Technology',
+    author_email='gary.howawrth@nist.gov',
     packages=["sdnist", "sdnist.challenge", "sdnist.preprocess"],
-    install_requires=["numpy", "pandas", "matplotlib", "pyarrow", "tqdm", 
+    install_requires=["numpy", "pandas", "matplotlib", "pyarrow", "tqdm",
         "loguru", "requests", "jinja2"],
-    classifiers=['Development Status :: 4 - Beta testing'],
+    classifiers=['Development Status :: 5 - Stable Release',
+                 'Programming Language :: Python :: 3.8',
+                 'Topic :: Synthetic Data :: Evaluation',],
 )
