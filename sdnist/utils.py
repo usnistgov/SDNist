@@ -29,7 +29,7 @@ def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = Tru
             elif  "min" in desc.keys():
                 dataset[column] = (dataset[column] - desc["min"]).astype(int)
             else:
-                #feature unmodified, e.g., 'ID' columns
+                #feature unmodified, e.g., 'kind == "ID"' columns
                 pass
 
 
