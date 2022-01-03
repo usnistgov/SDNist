@@ -196,8 +196,8 @@ class CensusKMarginalScore(KMarginalScore):
         "PUMA",
         "YEAR"
     ]
-    #TODO: move report template to NIST server
-    JINJA_TEMPLATE_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/report2.jinja2"
+    # JINJA_TEMPLATE_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/report2.jinja2"
+    JINJA_TEMPLATE_URL = "https://data.nist.gov/od/ds/mds2-2515/report2.jinja2"
 
     def report(self, column: str = None):
         """ Return a serializable report.  """
