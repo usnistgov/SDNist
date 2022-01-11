@@ -15,7 +15,9 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 
 Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 
-- Install via `pip` from [PyPi](https://pypi.org/) directory (NOT AVAILABLE UNTIL PUBLIC RELEASE):
+Code is hosted on Github and data tables will be downloaded as needed from the [NIST Data Repository](https://data.nist.gov/od/id/mds2-2515).
+
+- Install via `pip` from [PyPi](https://pypi.org/) directory:
 
 ```
 pip install sdnist
