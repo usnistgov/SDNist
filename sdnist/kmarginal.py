@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 import json
 
 import numpy as np
@@ -20,18 +22,19 @@ def compute_marginal_grouped(df, columns, groups):
 
 
 class KMarginalScore():
-    BINS = None
-    COLUMNS = None
-    ALWAYS_GROUPBY = []
+    BINS: Dict = None
+    COLUMNS: List = None
+    ALWAYS_GROUPBY: List[str] = []
 
-    RANK = 2 # Actual rank is RANK + len(ALWAYS_GROUPBY)
-    N_PERMUTATIONS = 50
-    BIAS_PENALTY_CUTOFF = None
+    RANK: int = 2 # Actual rank is RANK + len(ALWAYS_GROUPBY)
+    N_PERMUTATIONS: int = 50
+    BIAS_PENALTY_CUTOFF: int = None
 
     def __init__(self, 
             private_dataset: pd.DataFrame, 
             synthetic_dataset: pd.DataFrame,
             schema: dict,
+            drop_columns: List[str] = None,
             seed: int = None):
 
         if set(self.COLUMNS) - set(private_dataset.columns):
@@ -40,6 +43,7 @@ class KMarginalScore():
         if set(self.COLUMNS) - set(synthetic_dataset.columns):
             raise ValueError("The columns of the synthetic dataset does not match the columns of the score")
 
+        self.drop_columns = drop_columns or []
         self._private_dataset = sdnist.utils.discretize(private_dataset, schema, self.BINS)
         self._synthetic_dataset = sdnist.utils.discretize(synthetic_dataset, schema, self.BINS)
         self.schema = schema
@@ -64,8 +68,10 @@ class KMarginalScore():
         assert self.COLUMNS is not None
         random_state = np.random.RandomState(seed=self.seed)
 
+        cols = list(set(self.COLUMNS) - set(self.drop_columns))
+
         for _ in range(self.N_PERMUTATIONS):
-            yield list(random_state.choice(self.COLUMNS, size=self.RANK))
+            yield list(random_state.choice(cols, size=self.RANK))
 
     def compute_score(self):
         if self.ALWAYS_GROUPBY:

@@ -14,15 +14,31 @@ def test_score():
 
     synthetic = public.sample(frac=0.1)
 
-    score = sdnist.kmarginal.CensusKMarginalScore(public, synthetic, schema)
+    # Directly building score object
+    score = sdnist.kmarginal.CensusKMarginalScore(public, synthetic, schema, drop_columns=["HHWT", "DEPARTS", "ARRIVES"])
     score.compute_score()
-    print(score)
+    for perm in score.columns():
+        assert "HHWT" not in perm
+        assert "DEPARTS" not in perm
+        assert "ARRIVES" not in perm
+
+    assert score.scores is not None
+    assert score.score is not None
+    assert 0 <= score.score <= 1000
+
+    # Calling from top level 
+    score = sdnist.score(public, synthetic, schema, drop_columns=["HHWT", "DEPARTS", "ARRIVES"])
+    for perm in score.columns():
+        assert "HHWT" not in perm
+        assert "DEPARTS" not in perm
+        assert "ARRIVES" not in perm
 
     assert score.scores is not None
     assert score.score is not None
     assert 0 <= score.score <= 1000
 
     assert isinstance(score.report(), dict)
+
 
 def _test_score_taxi():
     def compute_df_score(df, frac, benchmark="private"):
@@ -105,7 +121,7 @@ def test_flat():
 def test_report():
     public, schema = sdnist.census(public=True)
 
-    score = sdnist.score(public, public.sample(frac=.1), schema, n_permutations=10)
+    score = sdnist.score(public, public.sample(frac=.1), schema, n_permutations=20)
     score.html(browser=False)
 
     print(score.column_scores)
@@ -132,4 +148,4 @@ def test_boxplot_columns():
    
 
 if __name__ == "__main__":
-    test_score_census()
+    test_score()

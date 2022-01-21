@@ -1,3 +1,4 @@
+from typing import List
 import functools
 
 import pandas as pd
@@ -18,6 +19,7 @@ def score(
         synthetic_dataset: pd.DataFrame, 
         schema: dict,
         challenge: str = "census",
+        drop_columns: List[str] = None,
         n_permutations: int = None):
     """Computes the k-marginal score between `private_dataset` and `synthetic_dataset`.
 
@@ -36,7 +38,7 @@ def score(
         "taxi": sdnist.kmarginal.TaxiKMarginalScore
     }
 
-    score = score_cls[challenge](private_dataset, synthetic_dataset, schema)
+    score = score_cls[challenge](private_dataset, synthetic_dataset, schema, drop_columns)
     if n_permutations is not None:
         score.N_PERMUTATIONS = n_permutations
 
