@@ -41,7 +41,7 @@ class DataLoader:
 
         # load public data
         logger.info("Loading public data")
-        self.public_data, self.general_schema = sdnist.census(public=True)
+        self.public_data, self.general_schema = sdnist.census(root="~/datasets", public=False)
         self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
         self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
         self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
@@ -50,7 +50,7 @@ class DataLoader:
 
         # load private data
         logger.info("Loading private data")
-        self.private_data, self.general_schema = sdnist.census(public=False)
+        self.private_data, self.general_schema = sdnist.census(root="~/datasets", public=True)
         self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
         self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
         self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
