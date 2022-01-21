@@ -16,9 +16,11 @@ setup(
     author='National Institute of Standards and Technology',
     author_email='gary.howawrth@nist.gov',
     packages=["sdnist", "sdnist.challenge", "sdnist.preprocess"],
+    # data_files=[('', ['sdnist/report2.jinja2'])],
     install_requires=["numpy", "pandas", "matplotlib", "pyarrow", "tqdm",
         "loguru", "requests", "jinja2"],
     classifiers=['Development Status :: 5 - Stable Release',
                  'Programming Language :: Python :: 3.8',
                  'Topic :: Synthetic Data :: Evaluation',],
+    include_package_data = True
 )

@@ -5,9 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 from tqdm import tqdm
-
 import sdnist.utils
 
 
@@ -203,7 +201,11 @@ class CensusKMarginalScore(KMarginalScore):
         "YEAR"
     ]
     # JINJA_TEMPLATE_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/report2.jinja2"
-    JINJA_TEMPLATE_URL = "https://data.nist.gov/od/ds/mds2-2515/report2.jinja2"
+#TODO change to local report in kmarginal directory
+    # JINJA_TEMPLATE_URL = "https://data.nist.gov/od/ds/mds2-2515/report2.jinja2"
+
+
+    # JINJA_TEMPLATE_URL = "report2.jinja2"
 
     def report(self, column: str = None):
         """ Return a serializable report.  """
@@ -249,12 +251,19 @@ class CensusKMarginalScore(KMarginalScore):
         import tempfile
         import requests
         import jinja2
+        import os
+        from importlib_resources import files
 
-        r = requests.get(self.JINJA_TEMPLATE_URL)
-        template_text = r.content.decode("utf-8")
+        report_path =files(sdnist).joinpath('report2.jinja2')
+
+        with open(report_path) as file_: #local refrence
+            template = jinja2.Template(file_.read())
+
+        # r = requests.get(self.JINJA_TEMPLATE_URL)  # moving to local refrence
+        # template_text = r.content.decode("utf-8")
 
         env = jinja2.Environment()
-        template = env.from_string(template_text)
+        # template = env.from_string(template_text)
 
         report = self.report(column)
         # The jinja template expects an epsilon=10 parameter per puma/year
