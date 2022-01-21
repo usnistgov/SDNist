@@ -9,8 +9,8 @@ def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = Tru
     :param dataset pandas.DataFrame: dataset to discretize
     :param schema dict: dataset schema, as provided by `sdnist.census` for instance.
     :param bins dict: a dict containing (`feature`, `bins) key-value pairs.
-        The bins used to compute the k-marginal score are available at 
-        `sdnist.kmarginal.CensusKMarginalScore.BINS` and 
+        The bins used to compute the k-marginal score are available at
+        `sdnist.kmarginal.CensusKMarginalScore.BINS` and
         `sdnist.kmarginal.TaxiKMarginalScore.BINS`.
     :param copy bool: whether the original `dataset` should be copied before discretization.
     :return: the discretized input `pandas.DataFrame`.
@@ -26,8 +26,13 @@ def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = Tru
             desc = schema[column]
             if "values" in desc:
                 dataset[column] = dataset[column].astype(pd.CategoricalDtype(desc["values"])).cat.codes
-            else:
+            elif  "min" in desc.keys():
                 dataset[column] = (dataset[column] - desc["min"]).astype(int)
+            else:
+                #feature unmodified, e.g., 'kind == "ID"' columns
+                pass
+
+
         else:
             # Feature is not modified.
             pass
@@ -78,7 +83,7 @@ def stack(dataset, user_id: str = "sim_individual_id", time: str = "YEAR"):
         col_names[0]: user_id,
         col_names[1]: time
     }, inplace=True)
-    
+
     # Remove empty rows
     keep = (df != -1).all(axis="columns")
     return df[keep]
