@@ -42,6 +42,8 @@ def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = Tru
 def undo_discretize(dataset, schema, bins, copy: bool = True, handle_inf: bool = True):
     """ Return an unbinned dataset. """
     if handle_inf:
+        # In some cases, the bin interval includes infinity
+        # In that case, undoing the discretization is slightly harder
         original_bins = bins
         bins = {}
 
@@ -52,14 +54,24 @@ def undo_discretize(dataset, schema, bins, copy: bool = True, handle_inf: bool =
     if copy:
         dataset = dataset.copy()
 
-    for column, desc in schema.items():
+    for column in dataset:
         if column in bins:
             bin = bins[column]
             dataset[column] = bin[dataset[column].values]
-        elif "values" in desc:
-            dataset[column] = np.array(desc["values"])[dataset[column].values]
+
+        elif column in schema:
+            desc = schema[column]
+            if "values" in desc:
+                dataset[column] = np.array(desc["values"])[dataset[column].values]
+            elif "min" in desc:
+                dataset[column] += desc["min"]
+            else:
+                raise ValueError("Unknown column, probably due to invalid schema")
+        
         else:
-            dataset[column] += desc["min"]
+            # Column is not known to bins or schema 
+            # -> do not do anything
+            pass
 
     return dataset
 
