@@ -254,7 +254,7 @@ class CensusKMarginalScore(KMarginalScore):
         import os
         from importlib_resources import files
 
-        report_path =files(sdnist).joinpath('report2.jinja2')
+        report_path =files(sdnist).joinpath('visualizer_resources','report2.jinja2')
 
         with open(report_path) as file_: #local refrence
             template = jinja2.Template(file_.read())
