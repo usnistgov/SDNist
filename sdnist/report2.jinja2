@@ -62,7 +62,8 @@
           <p class="text-muted">
             <span>
               >600
-              <img src="https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/viridis.png" style="max-width: 200px; opacity: 0.5;"/>
+              <!-- <img src="https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/viridis.png" style="max-width: 200px; opacity: 0.5;"/> -->
+              <img src="https://raw.githubusercontent.com/usnistgov/SDNist/main/sdnist/magma.png" style="max-width: 200px; opacity: 0.5;"/>
               1000.0
             </span>
             <br>
@@ -92,7 +93,8 @@
   Adapted from https://leafletjs.com/examples/geojson/
    */
   const GEOJSON_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/il_oh.geojson";
-  let COLOR_SCALE = d3.scaleSequential().domain([599, 1000]).interpolator(d3.interpolateViridis);
+  // let COLOR_SCALE = d3.scaleSequential().domain([599, 1000]).interpolator(d3.interpolateViridis);
+  let COLOR_SCALE = d3.scaleSequential().domain([599, 1000]).interpolator(d3.interpolateMagma);
   var MAP = L.map('chart');
   MAP.setView([39.8, -86.17], 7);
   L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
