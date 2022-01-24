@@ -35,7 +35,8 @@ def main():
     postprocessor = RecordPostprocessor()
     synthetic_data = postprocessor.post_process(synthetic_data, args.config, dataloader.decode_mapping)
     logger.info("post-processed synthetic data")
-
+    synthetic_data.to_csv("DP_synth.csv") #output saved to working directory
+    
     public_data, schema = sdnist.census(root="~/datasets", public=True)
     score = sdnist.score(public_data, synthetic_data, schema)
     print(score)
