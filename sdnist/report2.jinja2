@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scoring report</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"/>
+  <link rel="stylesheet"
+        href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style type="text/css">
+      #chart {
+          height: 100%;
+      }
+
+      body {
+          padding-top: 2em;
+      }
+
+      .chart-col {
+          min-height: 720px;
+      }
+
+      .biased {
+          color: red;
+      }
+  </style>
+</head>
+<body>
+
+{% raw %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col chart-col">
+      <div id="chart"></div>
+      <div id="app" align="center">
+        <!-- <div v-if="loading">
+          Loading... &nbsp;
+          <img
+              src="https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/spinner.gif"/>
+        </div> -->
+        <div v-else>
+          <span>Epsilon:</span>
+          <select v-model="epsilon" @change="redraw">
+            <option v-for="epsilon in availableEpsilons" v-bind:value="epsilon">
+              {{ epsilon }}
+            </option>
+          </select>
+
+          <span>Year:</span>
+          <select v-model="year" @change="redraw">
+            <option v-for="year in availableYears" v-bind:value="+year">
+              {{ year }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div v-else>
+        <div id="data-table"></div>
+        <div id="none-selected">
+          <p class="text-muted">
+            <span>
+              2012 score: >600
+              <!-- <img src="https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/viridis.png" style="max-width: 200px; opacity: 0.5;"/> -->
+              <img src="https://raw.githubusercontent.com/usnistgov/SDNist/main/sdnist/visualizer_resources/magma.png" style="max-width: 200px; opacity: 0.5;"/>
+              1000.0
+            </span>
+            <br>
+            Hover over a PUMA for details ...
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endraw %}
+
+<script src="https://unpkg.com/jquery@3.3.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script>
+  const REPORT = {{ report }};
+  const PARAMETERS = {{ parameters }};
+</script>
+
+{% raw %}
+<script>
+  /*
+  Adapted from https://leafletjs.com/examples/geojson/
+   */
+  const GEOJSON_URL = " https://raw.githubusercontent.com/usnistgov/SDNist/main/sdnist/visualizer_resources/il_oh.geojson";
+  // let COLOR_SCALE = d3.scaleSequential().domain([599, 1000]).interpolator(d3.interpolateViridis);
+  let COLOR_SCALE = d3.scaleSequential().domain([599, 1000]).interpolator(d3.interpolateMagma);
+  var MAP = L.map('chart');
+  MAP.setView([39.8, -86.17], 7);
+  L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(MAP);
+
+  var app = new Vue({
+    el: '#app',
+    data: {
+      loading: true,
+      year: 2012,
+      epsilon: 10.0,
+      pumas: {},
+      scores: [],
+      geo: null,
+      map: null,
+      layer: null,
+      currentFeature: {},
+    },
+    created() {
+      this.scores = REPORT.details;
+      this.$http.get(GEOJSON_URL).then(response => {
+        this.geo = response.body;
+        this.initialize(this.geo);
+        this.redraw();
+      });
+    },
+    computed: {
+      availableYears() {
+        return PARAMETERS.schema.YEAR.values;
+      },
+      availableEpsilons() {
+        return PARAMETERS.runs.map(x => +x.epsilon);
+      },
+      epsilonRecords() {
+        return this.scores.filter(x => x.epsilon == +this.epsilon);
+      },
+      currentRecords() {
+        return this.epsilonRecords.filter(x => x.YEAR == +this.year)
+      },
+      currentPumaColors() {
+        var lookup = {};
+        this.currentRecords.forEach(function (d) {
+          lookup[d.PUMA] = COLOR_SCALE(d.score);
+        });
+        return lookup;
+      }
+    },
+    methods: {
+      initialize(geodata) {
+        console.log(geodata);
+        var vm = this;
+        this.layer = L.geoJSON(geodata, {
+          onEachFeature: vm.onEachFeature,
+        });
+        this.layer.setStyle(function (feature) {
+          return {
+            color: "#000",
+            opacity: 0.6,
+            weight: 1,
+            fillColor: "#ccc",
+            fillOpacity: 0.5
+          };
+        });
+        this.layer.addTo(MAP);
+        MAP.fitBounds(this.layer.getBounds())
+        this.loading = false;
+      },
+      redraw() {
+        if (this.scores.length < 1) return;
+        console.log("redraw");
+        var vm = this;
+        this.layer.setStyle(function (feature) {
+          return {
+            fillColor: vm.getColor(feature),
+          };
+        });
+      },
+      getColor(feature) {
+        if (!this.currentPumaColors) return "#ccc";
+        return this.currentPumaColors[this.getCombinedPuma(feature)];
+      },
+      getCombinedPuma(feature) {
+        return "" + +feature.properties.STATEFIP + "-" + +feature.properties.PUMA;
+      },
+      onEachFeature(feature, layer) {
+        layer.bindPopup(`<strong>${feature.properties.Name}</strong><br>${feature.properties.State}`);
+        layer.on({ mouseover: this.onLayerClick, mouseout: this.onMouseOut });
+      },
+      tableRow(d) {
+        var trTag = "<tr>";
+        if (d.year == this.year) {
+          trTag = `<tr class="table-primary">`;
+        }
+        let bias = d.bias_penalty ? '<span class="biased">yes</span>' : 'no';
+        return trTag + `<td>${d.YEAR}</td><td>${d.score.toFixed(4)}</td><td>${bias}</td></td></tr>` + "\n"
+      },
+      tableHTML(feature) {
+        let puma = this.getCombinedPuma(feature);
+        let code = this.pumas[feature.properties.LABEL];
+        var html = `<h5>${feature.properties.Name} (${puma})</h5>
+<p class="text-muted">${feature.properties.State}</p>
+<table class="table table-sm table-striped">
+<thead><tr><th>year</th><th>score</th><th>bias penalty?</th></tr></thead>
+<tbody>`;
+        this.epsilonRecords.filter(d => d.PUMA == puma).forEach(d => html += this.tableRow(d));
+        html += `</tbody></table>`;
+        return html;
+      },
+      onLayerClick(event) {
+        this.currentFeature = event.target.feature;
+        $("#data-table").html(this.tableHTML(this.currentFeature));
+        $("#none-selected").hide();
+        $("#data-table").show();
+      },
+      onMouseOut() {
+        this.currentFeature = null;
+        $("#none-selected").show();
+        $("#data-table").hide();
+      }
+    }
+  });
+</script>
+{% endraw %}
+
+</body>
+</html>
