@@ -18,7 +18,7 @@ def check_exists(name: Path, download: bool):
                     name.as_posix()
                 )
             except:
-                raise RuntimeError(f"Unable to download {name}. \n You can attempt to download manually from https://data.nist.gov/od/ds/mds2-2515 and install to {name}")
+                raise RuntimeError(f"Unable to download {name}. \n You can attempt to download manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}")
         else:
             raise ValueError(f"{name} does not exist.")
 
