@@ -15,7 +15,8 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 
 Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 
-Code is hosted on Github and data tables will be downloaded as needed from the [NIST Data Repository](https://data.nist.gov/od/id/mds2-2515).
+The SDNist source code is hosted on Github and data tables will be downloaded as needed from the [NIST Data Repository](https://data.nist.gov/od/id/mds2-2515).
+Alternatively, the data can be downloaded as part of [SDNist Release 1.2.0](https://github.com/usnistgov/SDNist/releases/tag/v1.2.0)
 
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
 
@@ -44,7 +45,7 @@ This repository is being actively developed, and we welcome contributions.
 
 If you encounter a bug, [please create an issue](https://github.com/usnistgov/SDNist/issues/new).
 
-Please feel free to create a Pull Request to help us correct bugs and other issues. 
+Please feel free to create a Pull Request to help us correct bugs and other issues.
 
 Please contact us if you wish to augment or expand existing features.  
 
@@ -76,7 +77,7 @@ CensusKMarginalScore(847)
 ```
 
 #### Discretizing a dataset
-Many synthesizers require working on categorical/discretized data, yet many features of in `sdnist` datasets are actually 
+Many synthesizers require working on categorical/discretized data, yet many features of in `sdnist` datasets are actually
 integer or floating point valued. `sdnist` provide a simple tool to discretize/undiscretize `sdnist` datasets.
 
 First, note that the k-marginal score itself works on categorical data under the hood. For fairness, the bins that are used can be considered public. They are available at
@@ -85,7 +86,7 @@ First, note that the k-marginal score itself works on categorical data under the
 >>> bins = sdnist.kmarginal.CensusKMarginalScore.BINS
 ```
 
-for the ACS (American Community Survey) dataset or 
+for the ACS (American Community Survey) dataset or
 
 ```
 >>> bins = sdnist.kmarginal.TaxiKmarginalScore.BINS
@@ -93,7 +94,7 @@ for the ACS (American Community Survey) dataset or
 
 for the Chicago taxi dataset.
 
-The `pd.DataFrame` datasets can then be discretized using 
+The `pd.DataFrame` datasets can then be discretized using
 
 ```
 >>> dataset_binned = sdnist.utils.discretize(dataset, schema, bins)
@@ -108,7 +109,7 @@ The `pd.DataFrame` datasets can then be discretized using
 
 ### Directly computing the score on a given `.csv` file
 
-You can directly run from a terminal 
+You can directly run from a terminal
 
 ```
 % python -m sdnist your_file.csv
@@ -132,7 +133,7 @@ Build a synthetic dataset by randomly subsampling 10% of the private dataset:
 python -m sdnist.challenge.subsample
 ```
 
-Output : 
+Output :
 
 ```
 python -m sdnist.challenge.subsample
@@ -186,5 +187,5 @@ Generation: 100%|█████████████████████
 
 ### Other examples
 Other examples are available in the `examples/` folder. The DPSyn and Minutemen are directly adapted from the public repo of their author:
-- DPSyn : https://github.com/agl-c/deid2_dpsyn 
+- DPSyn : https://github.com/agl-c/deid2_dpsyn
 - Minutemen : https://github.com/ryan112358/nist-synthetic-data-2021. This examples requires the `private-pgm` library (https://github.com/ryan112358/private-pgm)
