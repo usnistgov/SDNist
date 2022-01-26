@@ -15,10 +15,12 @@ def check_exists(name: Path, download: bool):
                 urllib.request.urlretrieve(
                     # f"https://storage.googleapis.com/sdnist-sarus/{name.name}",  #moved resources to NIST servers
                     f"https://data.nist.gov/od/ds/mds2-2515/{name.name}",
-                    name.as_posix()
+                    name.as_posix(),
+                    cbk
                 )
+                print('Success!')
             except:
-                raise RuntimeError(f"Unable to download {name}. \n You can attempt to download manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}")
+                raise RuntimeError(f"Unable to download {name}. Try: \n re-running the command, \n downloading manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}, \n or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
         else:
             raise ValueError(f"{name} does not exist.")
 
