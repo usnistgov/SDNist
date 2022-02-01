@@ -18,8 +18,8 @@ def reporthook(count, block_size, total_size):
     progress = int(count * block_size * 100 / total_size)
     percent = min(progress, 100) #keeps from exceeding 100% for small data
     sys.stdout.flush()
-    sys.stdout.write("\r...%d%%, %d MB, %d KB/s, %d seconds elapsed" %
-                    (percent, progress_size / (1024 * 1024), speed, duration))
+    sys.stdout.write("\r...%d%%, %d KB, %d KB/s, %d seconds elapsed" %
+                    (percent, progress_size / 1024, speed, duration))
 
 def check_exists(name: Path, download: bool):
     if not name.exists():
@@ -34,7 +34,7 @@ def check_exists(name: Path, download: bool):
                 )
                 print('\n Success! Downloaded {}'.format(name.as_posix()))
             except:
-                raise RuntimeError(f"Unable to download {name}. Try: \n     - re-running the command, \n   - downloading manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}, \n   - or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
+                raise RuntimeError(f"Unable to download {name}. Try: \n   - re-running the command, \n   - downloading manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}, \n   - or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
         else:
             raise ValueError(f"{name} does not exist.")
 
