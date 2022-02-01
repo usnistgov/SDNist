@@ -2,9 +2,24 @@ import json
 from pathlib import Path
 from typing import Tuple
 import urllib.request
+import sys
+import time
 
 import pandas as pd
 
+def reporthook(count, block_size, total_size):
+    global start_time
+    if count == 0:
+        start_time = time.time()
+        return
+    duration = time.time() - start_time
+    progress_size = int(count * block_size)
+    speed = int(progress_size / (1024 * duration))
+    progress = int(count * block_size * 100 / total_size)
+    percent = min(progress, 100) #keeps from exceeding 100% for small data
+    sys.stdout.flush()
+    sys.stdout.write("\r...%d%%, %d MB, %d KB/s, %d seconds elapsed" %
+                    (percent, progress_size / (1024 * 1024), speed, duration))
 
 def check_exists(name: Path, download: bool):
     if not name.exists():
@@ -13,14 +28,13 @@ def check_exists(name: Path, download: bool):
             print(f"Downloading https://data.nist.gov/od/ds/mds2-2515/{name.name} ...")
             try:
                 urllib.request.urlretrieve(
-                    # f"https://storage.googleapis.com/sdnist-sarus/{name.name}",  #moved resources to NIST servers
                     f"https://data.nist.gov/od/ds/mds2-2515/{name.name}",
                     name.as_posix(),
-                    cbk
+                    reporthook
                 )
-                print('Success!')
+                print('\n Success! Downloaded {}'.format(name.as_posix()))
             except:
-                raise RuntimeError(f"Unable to download {name}. Try: \n re-running the command, \n downloading manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}, \n or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
+                raise RuntimeError(f"Unable to download {name}. Try: \n     - re-running the command, \n   - downloading manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}, \n   - or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
         else:
             raise ValueError(f"{name} does not exist.")
 
@@ -50,6 +64,7 @@ def build_name(challenge: str, root: Path = Path("data"), public: bool = False, 
         raise ValueError("Unrecognized challenge {challenge}")
 
     return directory / fname
+
 
 def load_dataset(
         challenge: str,

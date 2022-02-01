@@ -6,6 +6,10 @@ report.json
 data/
 dask-worker-space/
 results/
+build/
+sdnist.egg-info/
 
 **.pkl
 *.csv
+
+build
