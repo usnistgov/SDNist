@@ -12,8 +12,9 @@ import sdnist.utils
 def compute_marginal(df, columns):
     return df.groupby(columns).size() / len(df)
 
+
 def compute_marginal_grouped(df, columns, groups):
-    counts =  df.groupby(groups + columns).size()
+    counts = df.groupby(groups + columns).size()
 
     # https://stackoverflow.com/questions/47876663/pandas-divide-two-multi-index-series
     return counts / counts.groupby(groups).transform("sum")
@@ -24,16 +25,16 @@ class KMarginalScore():
     COLUMNS: List = None
     ALWAYS_GROUPBY: List[str] = []
 
-    RANK: int = 2 # Actual rank is RANK + len(ALWAYS_GROUPBY)
+    RANK: int = 2  # Actual rank is RANK + len(ALWAYS_GROUPBY)
     N_PERMUTATIONS: int = 50
     BIAS_PENALTY_CUTOFF: int = None
 
     def __init__(self,
-            private_dataset: pd.DataFrame,
-            synthetic_dataset: pd.DataFrame,
-            schema: dict,
-            drop_columns: List[str] = None,
-            seed: int = None):
+                 private_dataset: pd.DataFrame,
+                 synthetic_dataset: pd.DataFrame,
+                 schema: dict,
+                 drop_columns: List[str] = None,
+                 seed: int = None):
 
         if set(self.COLUMNS) - set(private_dataset.columns):
             raise ValueError("The columns of the private dataset does not match the columns of the score")
@@ -58,7 +59,6 @@ class KMarginalScore():
         if self.score is not None:
             return f"{type(self).__name__}({int(self.score)})"
         return f"{type(self).__name__}(None)"
-
 
     __repr__ = __str__
 
@@ -243,7 +243,7 @@ class CensusKMarginalScore(KMarginalScore):
             json.dump(self.report(), f_handler, indent=2)
 
     # Visualizations
-    def html(self, browser=True, column=None):
+    def html(self, target_dataset_name: str, browser=True, column=None):
         """ Renders the score to a beautiful html page. """
         # TODO : this only works on the public dataset (IL-OH)
 
@@ -252,14 +252,15 @@ class CensusKMarginalScore(KMarginalScore):
         import requests
         import jinja2
         import os
-        from importlib_resources import files
+        from pathlib import Path
 
-        report_path =files(sdnist).joinpath('visualizer_resources','report2.jinja2')
+        this_dir = Path(__file__).parent
+        report_path = Path(this_dir, 'visualizer_resources', 'report2.jinja2')
 
-        with open(report_path) as file_: #local refrence
+        with open(report_path) as file_:  # local reference
             template = jinja2.Template(file_.read())
 
-        # r = requests.get(self.JINJA_TEMPLATE_URL)  # moving to local refrence
+        # r = requests.get(self.JINJA_TEMPLATE_URL)  # moving to local reference
         # template_text = r.content.decode("utf-8")
 
         env = jinja2.Environment()
@@ -272,8 +273,14 @@ class CensusKMarginalScore(KMarginalScore):
         report = json.dumps(report)
 
         if browser:
+            # geojson path
+            gj_p = Path(this_dir, '..', 'data',
+                        'census', 'geojson', f'{target_dataset_name}.geojson')
+            # geojson data
+            gj_d = json.load(gj_p.open('r'))
+            gj_d = {'data': gj_d}
             tmp = tempfile.NamedTemporaryFile("w+", suffix=".html", delete=False)
-            tmp.write(template.render(report=report, parameters=self.schema))
+            tmp.write(template.render(report=report, parameters=self.schema, geojson=gj_d))
             webbrowser.open(f"file://{tmp.name}", new=True)
 
     def violin(self, idx: int = 0, name : str = None):

@@ -85,6 +85,7 @@
 <script>
   const REPORT = {{ report }};
   const PARAMETERS = {{ parameters }};
+  const GEOJSON = {{ geojson }}
 </script>
 
 {% raw %}
@@ -92,7 +93,7 @@
   /*
   Adapted from https://leafletjs.com/examples/geojson/
    */
-  const GEOJSON_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/il_oh.geojson";
+  // const GEOJSON_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/il_oh.geojson";
   // let COLOR_SCALE = d3.scaleSequential().domain([599, 1000]).interpolator(d3.interpolateViridis);
   let COLOR_SCALE = d3.scaleSequential().domain([599, 1000]).interpolator(d3.interpolateMagma);
   var MAP = L.map('chart');
@@ -118,11 +119,9 @@
     },
     created() {
       this.scores = REPORT.details;
-      this.$http.get(GEOJSON_URL).then(response => {
-        this.geo = response.body;
-        this.initialize(this.geo);
-        this.redraw();
-      });
+      this.geo = GEOJSON.data;
+      this.initialize(this.geo);
+      this.redraw();
     },
     computed: {
       availableYears() {

@@ -7,6 +7,7 @@ import time
 
 import pandas as pd
 
+
 def reporthook(count, block_size, total_size):
     global start_time
     if count == 0:
@@ -20,6 +21,7 @@ def reporthook(count, block_size, total_size):
     sys.stdout.flush()
     sys.stdout.write("\r...%d%%, %d KB, %d KB/s, %d seconds elapsed" %
                     (percent, progress_size / 1024, speed, duration))
+
 
 def check_exists(name: Path, download: bool):
     if not name.exists():
@@ -37,6 +39,7 @@ def check_exists(name: Path, download: bool):
                 raise RuntimeError(f"Unable to download {name}. Try: \n   - re-running the command, \n   - downloading manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}, \n   - or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
         else:
             raise ValueError(f"{name} does not exist.")
+
 
 def build_name(challenge: str, root: Path = Path("data"), public: bool = False, test: bool = False):
     root = root.expanduser()
@@ -73,7 +76,7 @@ def load_dataset(
         test: bool = False,
         download: bool = True,
         format_: str = "parquet"
-    ) -> Tuple[pd.DataFrame, dict]:
+    ) -> Tuple[pd.DataFrame, dict, str]:
     """ Load one of the original SDNist datasets.
 
     :param challenge str: base challenge. Must be `census` or `taxi`.
@@ -85,7 +88,8 @@ def load_dataset(
     :param format_ str: prefered format when retrieving the files. Must be `parquet` or `csv`.
         Note that only `parquet` files are actually available for download.
     :return: A tuple containing the requested dataset as a `pandas.DataFrame`, along with
-        its corresponding schema, i.e a `dict` description of each feature of the dataset.
+        its corresponding schema, i.e a `dict` description of each feature of the dataset, and
+        name of the loaded dataset.
 
     Regarding the public/private/test datasets:
     - during the challenge, the participants were given access to the "public"
@@ -138,7 +142,7 @@ def load_dataset(
     else:
         raise ValueError(f"Unknown format {format_}")
 
-    return dataset, schema
+    return dataset, schema, name.stem
 
 
 if __name__ == "__main__":

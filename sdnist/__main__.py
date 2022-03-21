@@ -18,7 +18,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Load target dataset
-    target, schema = sdnist.load.load_dataset(
+    target, schema, dataset_name = sdnist.load.load_dataset(
         challenge=args.challenge,
         root=args.root,
         download=args.download,
@@ -31,8 +31,9 @@ if __name__ == "__main__":
 
     # Compute and print score
     score = sdnist.score(target, synthetic, 
-        schema = schema, 
-        challenge=args.challenge)
+                         schema=schema,
+                         challenge=args.challenge)
 
     if args.html:
-        score.html(browser=True)
+        score.html(target_dataset_name=dataset_name,
+                   browser=True)
