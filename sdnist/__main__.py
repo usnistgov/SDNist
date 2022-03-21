@@ -25,8 +25,10 @@ if __name__ == "__main__":
                              "Test datasets for the taxi challenge: \n"
                              "[\"taxi2016\", \n"
                              "\"taxi2015\"]")
-    parser.add_argument("--download", type=bool, default=True, help="Download target dataset in 'root' if not present")
-    parser.add_argument("--html", type=bool, default=True, help="Output the result to an html page (only available on the ACS public dataset). ")
+    parser.add_argument("--download", type=bool, default=True,
+                        help="Download all datasets in 'root' if the target dataset is not present")
+    parser.add_argument("--html", type=bool, default=True,
+                        help="Output the result to an html page (only available on the ACS public dataset). ")
 
     args = parser.parse_args()
 

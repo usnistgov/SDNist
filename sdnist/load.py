@@ -1,10 +1,15 @@
 import json
+import os
+import shutil
 from enum import Enum
 from pathlib import Path
 from typing import Tuple
 import urllib.request
 import sys
 import time
+import zipfile
+from tqdm import tqdm
+from distutils.dir_util import copy_tree
 
 import pandas as pd
 
@@ -14,38 +19,62 @@ class TestDatasetName(Enum):
     GA_NC_SC_10Y_PUMS = 2
     NY_PA_10Y_PUMS = 3
     taxi2016 = 4
-    taxi2010 = 5
+    taxi2020 = 5
 
 
 def reporthook(count, block_size, total_size):
     global start_time
     if count == 0:
-        start_time = time.time()
+        start_time = time.time() - 1
         return
     duration = time.time() - start_time
     progress_size = int(count * block_size)
     speed = int(progress_size / (1024 * duration))
     progress = int(count * block_size * 100 / total_size)
-    percent = min(progress, 100) #keeps from exceeding 100% for small data
+    percent = min(progress, 100)  # keeps from exceeding 100% for small data
     sys.stdout.flush()
     sys.stdout.write("\r...%d%%, %d KB, %d KB/s, %d seconds elapsed" %
-                    (percent, progress_size / 1024, speed, duration))
+                     (percent, progress_size / 1024, speed, duration))
 
 
-def check_exists(name: Path, download: bool):
+def check_exists(root: Path, name: Path, download: bool):
+    root = root.expanduser()
     if not name.exists():
-        print(f"{name} does not exist." )
-        if download:
-            print(f"Downloading https://data.nist.gov/od/ds/mds2-2515/{name.name} ...")
+        print(f"{name} does not exist.")
+        zip_path = Path(root.parent, 'data.zip')
+        if not zip_path.exists() and download:
+            print(f"Downloading all SDNist datasets from: \n"
+                  f"https://github.com/usnistgov/SDNist/releases/download/v1.2.0/SDNist-data-1.2.0.zip ...")
             try:
                 urllib.request.urlretrieve(
-                    f"https://data.nist.gov/od/ds/mds2-2515/{name.name}",
-                    name.as_posix(),
+                    f"https://github.com/usnistgov/SDNist/releases/download/v1.2.0/SDNist-data-1.2.0.zip",
+                    zip_path.as_posix(),
                     reporthook
                 )
-                print('\n Success! Downloaded {}'.format(name.as_posix()))
+                print('\n Success! Downloaded all datasets zipfile to'.format(zip_path))
             except:
-                raise RuntimeError(f"Unable to download {name}. Try: \n   - re-running the command, \n   - downloading manually from https://data.nist.gov/od/id/mds2-2515 and install to {name}, \n   - or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
+                shutil.rmtree(zip_path)
+                raise RuntimeError(f"Unable to download {name}. Try: \n   "
+                                   f"- re-running the command, \n   "
+                                   f"- downloading manually from https://github.com/usnistgov/SDNist/releases/download/v1.2.0/SDNist-data-1.2.0.zip "
+                                   f"and unpack the zip, and copy 'data' directory in the root/working-directory, \n   "
+                                   f"- or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
+
+        if zip_path.exists():
+            # extract zipfile
+            extract_path = Path(root.parent, 'sdnist_data')
+            with zipfile.ZipFile(zip_path, 'r') as f:
+                for member in tqdm(f.infolist(), desc='Extracting '):
+                    try:
+                        f.extract(member, extract_path)
+                    except zipfile.error as e:
+                        raise e
+            # delete zipfile
+            os.remove(zip_path)
+            copy_from_path = str(Path(extract_path, 'SDNist-data-1.2.0', 'data'))
+            copy_to_path = str(Path(root))
+            copy_tree(copy_from_path, copy_to_path)
+            shutil.rmtree(extract_path)
         else:
             raise ValueError(f"{name} does not exist.")
 
@@ -62,7 +91,7 @@ def build_name(challenge: str,
         if public:
             fname = "IL_OH_10Y_PUMS"
         elif test != TestDatasetName.NONE:
-            if test in [TestDatasetName.taxi2010, TestDatasetName.taxi2016]:
+            if test in [TestDatasetName.taxi2020, TestDatasetName.taxi2016]:
                 raise ValueError(f'Invalid challenge and test-dataset combination:'
                                  f'challenge: {challenge} | test-dataset: {test.name}. '
                                  f'Available test datasets for the census challenge: '
@@ -83,10 +112,10 @@ def build_name(challenge: str,
                                  f'challenge: {challenge} | test-dataset: {test.name}. '
                                  f'Available test datasets for the taxi challenge: '
                                  f'{TestDatasetName.taxi2016.name}',
-                                 f'{TestDatasetName.taxi2010.name}')
+                                 f'{TestDatasetName.taxi2020.name}')
             fname = test.name
         else:
-            fname = TestDatasetName.taxi2010.name
+            fname = TestDatasetName.taxi2020.name
 
     else:
         raise ValueError(f"Unrecognized challenge {challenge}")
@@ -99,7 +128,7 @@ def load_dataset(challenge: str,
                  public: bool = True,
                  test: TestDatasetName = TestDatasetName.NONE,
                  download: bool = True,
-                 format_: str = "parquet") -> Tuple[pd.DataFrame, dict, Path]:
+                 format_: str = "parquet") -> Tuple[pd.DataFrame, dict]:
     """ Load one of the original SDNist datasets.
 
     :param challenge: str: base challenge. Must be `census` or `taxi`.
@@ -111,8 +140,7 @@ def load_dataset(challenge: str,
     :param format_: str: preferred format when retrieving the files. Must be `parquet` or `csv`.
         Note that only `parquet` files are actually available for download.
     :return: A tuple containing the requested dataset as a `pandas.DataFrame`, along with
-        its corresponding schema, i.e a `dict` description of each feature of the dataset, and
-        path of the loaded dataset.
+        its corresponding schema, i.e a `dict` description of each feature of the dataset
 
     Regarding the public/private/test datasets:
     - during the challenge, the participants were given access to the "public"
@@ -143,7 +171,7 @@ def load_dataset(challenge: str,
 
     # Load schema
     schema_name = name.with_suffix(".json")
-    check_exists(schema_name, download)
+    check_exists(root, schema_name, download)
     with schema_name.open("r") as handler:
         schema = json.load(handler)["schema"]
 
@@ -152,12 +180,12 @@ def load_dataset(challenge: str,
     # Load dataset
     if format_ == "parquet":
         dataset_name = name.with_suffix(".parquet")
-        check_exists(dataset_name, download)
+        check_exists(root, dataset_name, download)
         dataset = pd.read_parquet(dataset_name)
 
     elif format_ == "csv":
         dataset_name = name.with_suffix(".csv")
-        check_exists(dataset_name, download)
+        check_exists(root, dataset_name, download)
 
         columns = {name: schema[name]["dtype"] for name in schema}
         dataset = pd.read_csv(dataset_name, dtype=columns)
@@ -165,7 +193,7 @@ def load_dataset(challenge: str,
     else:
         raise ValueError(f"Unknown format {format_}")
 
-    return dataset, schema, name
+    return dataset, schema
 
 
 if __name__ == "__main__":
