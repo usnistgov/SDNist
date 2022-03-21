@@ -1,4 +1,5 @@
 import json
+from enum import Enum
 from pathlib import Path
 from typing import Tuple
 import urllib.request
@@ -6,6 +7,14 @@ import sys
 import time
 
 import pandas as pd
+
+
+class TestDatasetName(Enum):
+    NONE = 1
+    GA_NC_SC_10Y_PUMS = 2
+    NY_PA_10Y_PUMS = 3
+    taxi2016 = 4
+    taxi2010 = 5
 
 
 def reporthook(count, block_size, total_size):
@@ -41,55 +50,69 @@ def check_exists(name: Path, download: bool):
             raise ValueError(f"{name} does not exist.")
 
 
-def build_name(challenge: str, root: Path = Path("data"), public: bool = False, test: bool = False):
+def build_name(challenge: str,
+               root: Path = Path("data"),
+               public: bool = False,
+               test: TestDatasetName = TestDatasetName.NONE):
     root = root.expanduser()
+
     if challenge == "census":
         directory = root / "census" / "final"
 
         if public:
             fname = "IL_OH_10Y_PUMS"
-        elif test:
-            fname = "GA_NC_SC_10Y_PUMS"
+        elif test != TestDatasetName.NONE:
+            if test in [TestDatasetName.taxi2010, TestDatasetName.taxi2016]:
+                raise ValueError(f'Invalid challenge and test-dataset combination:'
+                                 f'challenge: {challenge} | test-dataset: {test.name}. '
+                                 f'Available test datasets for the census challenge: '
+                                 f'{TestDatasetName.GA_NC_SC_10Y_PUMS.name}',
+                                 f'{TestDatasetName.NY_PA_10Y_PUMS.name}')
+            fname = test.name
         else:
-            fname = "NY_PA_10Y_PUMS"
+            fname = TestDatasetName.NY_PA_10Y_PUMS.name
 
     elif challenge == "taxi":
         directory = root / "taxi"
 
         if public:
             fname = "taxi"
-        elif test:
-            fname = "taxi2016"
+        elif test != TestDatasetName.NONE:
+            if test in [TestDatasetName.GA_NC_SC_10Y_PUMS, TestDatasetName.NY_PA_10Y_PUMS]:
+                raise ValueError(f'Invalid challenge and test-dataset combination: '
+                                 f'challenge: {challenge} | test-dataset: {test.name}. '
+                                 f'Available test datasets for the taxi challenge: '
+                                 f'{TestDatasetName.taxi2016.name}',
+                                 f'{TestDatasetName.taxi2010.name}')
+            fname = test.name
         else:
-            fname = "taxi2020"
+            fname = TestDatasetName.taxi2010.name
 
     else:
-        raise ValueError("Unrecognized challenge {challenge}")
+        raise ValueError(f"Unrecognized challenge {challenge}")
 
     return directory / fname
 
 
-def load_dataset(
-        challenge: str,
-        root: Path = Path("data"),
-        public: bool = True,
-        test: bool = False,
-        download: bool = True,
-        format_: str = "parquet"
-    ) -> Tuple[pd.DataFrame, dict, str]:
+def load_dataset(challenge: str,
+                 root: Path = Path("data"),
+                 public: bool = True,
+                 test: TestDatasetName = TestDatasetName.NONE,
+                 download: bool = True,
+                 format_: str = "parquet") -> Tuple[pd.DataFrame, dict, Path]:
     """ Load one of the original SDNist datasets.
 
-    :param challenge str: base challenge. Must be `census` or `taxi`.
-    :param root Path: directory of the dataset.
-    :param public bool: whether to use the public dataset or the private dataset
+    :param challenge: str: base challenge. Must be `census` or `taxi`.
+    :param root: Path: directory of the dataset.
+    :param public: bool: whether to use the public dataset or the private dataset
         (see below).
-    :param test bool: retrieve the additinal private dataset (see below).
-    :param download bool: download files if not present in the `root` directory.
-    :param format_ str: prefered format when retrieving the files. Must be `parquet` or `csv`.
+    :param test: TestDatasetName: if not None, retrieve the given private dataset (see below).
+    :param download: bool: download files if not present in the `root` directory.
+    :param format_: str: preferred format when retrieving the files. Must be `parquet` or `csv`.
         Note that only `parquet` files are actually available for download.
     :return: A tuple containing the requested dataset as a `pandas.DataFrame`, along with
         its corresponding schema, i.e a `dict` description of each feature of the dataset, and
-        name of the loaded dataset.
+        path of the loaded dataset.
 
     Regarding the public/private/test datasets:
     - during the challenge, the participants were given access to the "public"
@@ -103,16 +126,16 @@ def load_dataset(
         2) The (`public=False`, `test=True`) corresponds to another dataset to privatize.
         This time, the results were kepts secret until the end of the challenge.
         In traditional machine learning scenarios, this would correspond to a 'test' dataset.
-        Your synthesizer should not be finetuned for the best score on this dataset.
+        Your synthesizer should not be fine-tuned for the best score on this dataset.
     - using any information available in the 'public' dataset is allowed.
     - manually inspecting any of the two 'private' dataset is not allowed within the challenge,
-    even though there is nothing preventing you from doing so.
+        even though there is nothing preventing you from doing so.
     """
 
     if isinstance(root, str):
         root = Path(root)
 
-    if public and test:
+    if public and test != TestDatasetName.NONE:
         raise ValueError("A public test dataset does not make sense.")
 
     name = build_name(challenge, root, public, test)
@@ -142,7 +165,7 @@ def load_dataset(
     else:
         raise ValueError(f"Unknown format {format_}")
 
-    return dataset, schema, name.stem
+    return dataset, schema, name
 
 
 if __name__ == "__main__":

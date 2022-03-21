@@ -34,7 +34,7 @@ def run(submission: Model,
         root: Path = Path("data"),
         results: Path = Path("results"),
         override_results: bool = False,
-        test: bool = False,
+        test: sdnist.load.TestDatasetName = sdnist.load.TestDatasetName.NONE,
         download: bool = True):
     """ Runs a full experiment following the protocol of second sprint of the
         NIST 2020 Challenge
@@ -53,11 +53,11 @@ def run(submission: Model,
 
     # [optional] train on public data
     if submission.REQUIRES_PRETRAINING:
-        public, schema = load_dataset(challenge, root, public=True, download=download)
+        public, schema, _ = load_dataset(challenge, root, public=True, download=download)
         submission.pretrain(public, schema)
 
     # train and score on private data with differential privacy
-    private, schema = load_dataset(challenge, root, public=False, test=test, download=download)
+    private, schema, _ = load_dataset(challenge, root, public=False, test=test, download=download)
 
     for eps in EPS:
         # Attempt to skip already computed scores
