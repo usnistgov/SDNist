@@ -15,9 +15,17 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 
 Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 
-The SDNist source code is hosted on Github and data tables will be downloaded as needed from the [NIST Data Repository](https://data.nist.gov/od/id/mds2-2515).
-Alternatively, the data can be downloaded as part of [SDNist Release 1.2.0](https://github.com/usnistgov/SDNist/releases/tag/v1.2.0)
+The SDNist source code is hosted on Github and all the data tables will be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
+Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.2.0](https://github.com/usnistgov/SDNist/releases/tag/v1.2.0)
 
+* Data Download Notes: 
+  * SDNist does not just download specific dataset instead it downloads all the available datasets that are provided by the library.  
+  * If data is manually downloaded, copy the contents inside the 'data' directory from the extracted zip file to your data root directory.
+  * Default root data directory of SDNist is `<your-current-working-directory>/data`. Current working directory
+  is the directory in which the user runs SDNist library through console/terminal, or the directory that contains your python or ipython files
+  that imports SDNist library.
+   
+    
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
 
 ```
@@ -32,6 +40,7 @@ pip install .
 
 - Install `sdnist` Python module through git in a virtual environment:
 
+MAC OS / Linux
 ```
 git clone https://github.com/usnistgov/SDNist && cd SDNist
 python3 -m venv venv
@@ -39,6 +48,13 @@ python3 -m venv venv
 pip install .
 ```
 
+Windows
+```
+git clone https://github.com/usnistgov/SDNist && cd SDNist
+python3 -m venv venv
+. venv/Scripts/activate
+pip install .
+```
 ## Contributions
 
 This repository is being actively developed, and we welcome contributions.
@@ -119,11 +135,15 @@ This will score against the public census (ACS) dataset and display the result i
 
 ![](examples/score_example.png)
 
+To score the synthetic dataset against one of the test datasets
+```
+% python -m sdnist your_synthetic_ga_nc_sc.csv --test-dataset GA_NC_SC_10Y_PUMS
+```
 Other options are available by calling `--help`.
 
 ### 2) Reproducing the baselines from the challenge by sublasscing `challenge.submission.Model` (option 2, slightly more advanced and time-consuming)
 
-Some examples of subclasssing `challenge.submission.Model` are available in the library.
+Some examples of subclassing `challenge.submission.Model` are available in the library.
 
 #### Subsample
 
