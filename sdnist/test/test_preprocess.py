@@ -14,3 +14,7 @@ def test_user_id():
 
     sizes = public.groupby(["YEAR", "sim_individual_id"]).size()
     assert (sizes == 1).all()
+
+
+if __name__ == "__main__":
+    test_user_id()

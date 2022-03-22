@@ -53,11 +53,11 @@ def run(submission: Model,
 
     # [optional] train on public data
     if submission.REQUIRES_PRETRAINING:
-        public, schema, _ = load_dataset(challenge, root, public=True, download=download)
+        public, schema = load_dataset(challenge, root, public=True, download=download)
         submission.pretrain(public, schema)
 
     # train and score on private data with differential privacy
-    private, schema, _ = load_dataset(challenge, root, public=False, test=test, download=download)
+    private, schema = load_dataset(challenge, root, public=False, test=test, download=download)
 
     for eps in EPS:
         # Attempt to skip already computed scores

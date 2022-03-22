@@ -59,8 +59,9 @@ def _test_score_taxi():
         compute_df_score(df, frac, "2020")
 
         # 2016
-        df, schema = sdnist.taxi(public=False, test=True)
+        df, schema = sdnist.taxi(public=False, test=sdnist.load.TestDatasetName.taxi2016)
         compute_df_score(df, frac, "2016")
+
 
 def _test_score_census():
     def compute_df_score(df, frac, benchmark="private"):
@@ -75,15 +76,15 @@ def _test_score_census():
         std = math.sqrt(sum([(x - mean)**2 for x in s]) / len(s))
         print(f"{frac*100}%, {benchmark}: {mean} +/- {std}")
 
-
     for frac in (0.01, 0.1, 0.5):
         # 2020
         df, schema = sdnist.census(public=False)
         compute_df_score(df, frac, "public_leaderboard/NY-PA")
 
         # 2016
-        df, schema = sdnist.census(public=False, test=True)
+        df, schema = sdnist.census(public=False, test=sdnist.load.TestDatasetName.GA_NC_SC_10Y_PUMS)
         compute_df_score(df, frac, "private_leaderboard/GA-NC-SC")
+
 
 def test_flat_score():
     public, schema = sdnist.census()
@@ -103,6 +104,7 @@ def test_flat_score():
     assert score.score is not None
     assert 0 <= score.score <= 1000
 
+
 def test_flat():
     """ Make sure that stacking/unstacking does not change the dataset. """
     public, schema = sdnist.census()
@@ -118,27 +120,31 @@ def test_flat():
     score = sdnist.score(public, stacked, schema, challenge="census")
     assert score.score > 999
 
+
 def test_report():
     public, schema = sdnist.census(public=True)
-
+    dataset_path = sdnist.load.build_name(challenge="census", public=True)
     score = sdnist.score(public, public.sample(frac=.1), schema, n_permutations=20)
-    score.html(browser=False)
+    score.html(target_dataset_path=dataset_path, browser=False)
 
     print(score.column_scores)
-    score.html(browser=False, column="DEPARTS")
+    score.html(target_dataset_path=dataset_path, browser=False, column="DEPARTS")
+
 
 def test_violin():
     public, schema = sdnist.census(public=True)
 
     score = sdnist.score(public, public.sample(frac=.1), schema, n_permutations=10)
     score.violin()
-   
+
+
 def test_boxplot():
     public, schema = sdnist.census(public=True)
 
     score = sdnist.score(public, public.sample(frac=.1), schema, n_permutations=10)
     score.boxplot(idx=0, name="First")
     score.boxplot(idx=1, name="Second")
+
 
 def test_boxplot_columns():
     public, schema = sdnist.census(public=True)
@@ -149,3 +155,11 @@ def test_boxplot_columns():
 
 if __name__ == "__main__":
     test_score()
+    # _test_score_taxi()
+    # _test_score_census()
+    test_flat_score()
+    test_flat()
+    test_report()
+    test_violin()
+    test_boxplot()
+    test_boxplot_columns()

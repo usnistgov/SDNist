@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from pathlib import Path
+
 import sdnist.utils
 
 
@@ -243,17 +245,14 @@ class CensusKMarginalScore(KMarginalScore):
             json.dump(self.report(), f_handler, indent=2)
 
     # Visualizations
-    def html(self, target_dataset_name: str, browser=True, column=None):
+    def html(self, target_dataset_path: Path, browser=True, column=None):
         """ Renders the score to a beautiful html page. """
         # TODO : this only works on the public dataset (IL-OH)
 
         import webbrowser
         import tempfile
-        import requests
         import jinja2
-        import os
-        from pathlib import Path
-
+        cwdir = Path.cwd()
         this_dir = Path(__file__).parent
         report_path = Path(this_dir, 'visualizer_resources', 'report2.jinja2')
 
@@ -274,8 +273,7 @@ class CensusKMarginalScore(KMarginalScore):
 
         if browser:
             # geojson path
-            gj_p = Path(this_dir, '..', 'data',
-                        'census', 'geojson', f'{target_dataset_name}.geojson')
+            gj_p = Path(cwdir, target_dataset_path.parent.parent, 'geojson', f'{target_dataset_path.stem}.geojson')
             # geojson data
             gj_d = json.load(gj_p.open('r'))
             gj_d = {'data': gj_d}

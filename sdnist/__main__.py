@@ -24,7 +24,7 @@ if __name__ == "__main__":
                              "\"NY_PA_10Y_PUMS\"]. \n"
                              "Test datasets for the taxi challenge: \n"
                              "[\"taxi2016\", \n"
-                             "\"taxi2015\"]")
+                             "\"taxi2020\"]")
     parser.add_argument("--download", type=bool, default=True,
                         help="Download all datasets in 'root' if the target dataset is not present")
     parser.add_argument("--html", type=bool, default=True,
@@ -35,13 +35,18 @@ if __name__ == "__main__":
     is_public = True if args.test_dataset == "NONE" else False
 
     # Load target dataset
-    target, schema, dataset_path = sdnist.load.load_dataset(
+    target, schema = sdnist.load.load_dataset(
         challenge=args.challenge,
         root=args.root,
         download=args.download,
         public=is_public,
         test=sdnist.load.TestDatasetName[args.test_dataset]
     )
+
+    dataset_path = sdnist.load.build_name(challenge=args.challenge,
+                                          root=args.root,
+                                          public=is_public,
+                                          test=sdnist.load.TestDatasetName[args.test_dataset])
 
     print(f'Loaded dataset at path: {dataset_path}')
 
@@ -55,5 +60,5 @@ if __name__ == "__main__":
                          challenge=args.challenge)
 
     if args.html:
-        score.html(target_dataset_name=dataset_path.stem,
+        score.html(target_dataset_path=dataset_path,
                    browser=True)

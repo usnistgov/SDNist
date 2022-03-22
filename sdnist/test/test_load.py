@@ -9,8 +9,10 @@ def test_load():
     sdnist.schema.check_compliance(df, schema)
     assert len(df.columns) == 36 # 35 + sim_individual_id
 
+
 def test_expanduser():
     df, schema = sdnist.census(root="~/datasets")
+
 
 def test_discretize():
     df, schema = sdnist.census(root="~/datasets")
@@ -20,5 +22,8 @@ def test_discretize():
 
     df_bin = sdnist.utils.discretize(df, schema, bins)
 
+
 if __name__ == "__main__":
+    test_load()
+    test_expanduser()
     test_discretize()

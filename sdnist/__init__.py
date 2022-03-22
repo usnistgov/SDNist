@@ -11,7 +11,7 @@ import sdnist.challenge.submission
 
 census = functools.partial(sdnist.load.load_dataset, challenge="census")
 taxi = functools.partial(sdnist.load.load_dataset, challenge="taxi")
-run  = sdnist.challenge.submission.run
+run = sdnist.challenge.submission.run
 
 
 def score(
