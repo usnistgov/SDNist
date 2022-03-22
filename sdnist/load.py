@@ -42,12 +42,16 @@ def check_exists(root: Path, name: Path, download: bool):
     if not name.exists():
         print(f"{name} does not exist.")
         zip_path = Path(root.parent, 'data.zip')
+        version = "1.3.0"
+        version_v = f"v{version}"
+        sdnist_version = f"SDNist-data-{version}"
+        download_link = f"https://github.com/usnistgov/SDNist/releases/download/{version_v}/{sdnist_version}.zip"
         if not zip_path.exists() and download:
             print(f"Downloading all SDNist datasets from: \n"
-                  f"https://github.com/usnistgov/SDNist/releases/download/v1.2.0/SDNist-data-1.2.0.zip ...")
+                  f"{download_link} ...")
             try:
                 urllib.request.urlretrieve(
-                    f"https://github.com/usnistgov/SDNist/releases/download/v1.2.0/SDNist-data-1.2.0.zip",
+                    download_link,
                     zip_path.as_posix(),
                     reporthook
                 )
@@ -56,7 +60,7 @@ def check_exists(root: Path, name: Path, download: bool):
                 shutil.rmtree(zip_path)
                 raise RuntimeError(f"Unable to download {name}. Try: \n   "
                                    f"- re-running the command, \n   "
-                                   f"- downloading manually from https://github.com/usnistgov/SDNist/releases/download/v1.2.0/SDNist-data-1.2.0.zip "
+                                   f"- downloading manually from {download_link} "
                                    f"and unpack the zip, and copy 'data' directory in the root/working-directory, \n   "
                                    f"- or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
 
@@ -71,7 +75,7 @@ def check_exists(root: Path, name: Path, download: bool):
                         raise e
             # delete zipfile
             os.remove(zip_path)
-            copy_from_path = str(Path(extract_path, 'SDNist-data-1.2.0', 'data'))
+            copy_from_path = str(Path(extract_path, sdnist_version, 'data'))
             copy_to_path = str(Path(root))
             copy_tree(copy_from_path, copy_to_path)
             shutil.rmtree(extract_path)
