@@ -139,6 +139,12 @@ To score the synthetic dataset against one of the test datasets
 ```
 % python -m sdnist your_synthetic_ga_nc_sc.csv --test-dataset GA_NC_SC_10Y_PUMS
 ```
+
+To score the synthetic dataset with different number of k-marginal permutations
+```
+% python -m sdnist your_file.csv --n-permutations 100
+```
+
 Other options are available by calling `--help`.
 
 ### 2) Reproducing the baselines from the challenge by sublasscing `challenge.submission.Model` (option 2, slightly more advanced and time-consuming)

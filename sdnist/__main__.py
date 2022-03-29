@@ -25,6 +25,8 @@ if __name__ == "__main__":
                              "Test datasets for the taxi challenge: \n"
                              "[\"taxi2016\", \n"
                              "\"taxi2020\"]")
+    parser.add_argument('--n-permutations', type=int, default=50,
+                        help="Number of k-marginal permutations to use")
     parser.add_argument("--download", type=bool, default=True,
                         help="Download all datasets in 'root' if the target dataset is not present")
     parser.add_argument("--html", type=bool, default=True,
@@ -57,8 +59,10 @@ if __name__ == "__main__":
     # Compute and print score
     score = sdnist.score(target, synthetic, 
                          schema=schema,
-                         challenge=args.challenge)
+                         challenge=args.challenge,
+                         n_permutations=args.n_permutations)
 
     if args.html:
         score.html(target_dataset_path=dataset_path,
                    browser=True)
+
