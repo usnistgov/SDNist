@@ -16,7 +16,7 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 
 The SDNist source code is hosted on Github and all the data tables will be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
-Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.2.0](https://github.com/usnistgov/SDNist/releases/tag/v1.2.0)
+Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.3.0](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0)
 
 * Data Download Notes: 
   * SDNist does not just download specific dataset instead it downloads all the available datasets that are provided by the library.  
