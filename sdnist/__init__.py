@@ -7,7 +7,9 @@ import sdnist.load
 import sdnist.kmarginal
 import sdnist.schema
 import sdnist.challenge.submission
+import sdnist.utils
 
+from sdnist.hoc import TaxiHigherOrderConjunction
 
 census = functools.partial(sdnist.load.load_dataset, challenge="census")
 taxi = functools.partial(sdnist.load.load_dataset, challenge="taxi")
@@ -15,8 +17,8 @@ run = sdnist.challenge.submission.run
 
 
 def score(
-        private_dataset: pd.DataFrame, 
-        synthetic_dataset: pd.DataFrame, 
+        private_dataset: pd.DataFrame,
+        synthetic_dataset: pd.DataFrame,
         schema: dict,
         challenge: str = "census",
         drop_columns: List[str] = None,
@@ -38,9 +40,23 @@ def score(
         "taxi": sdnist.kmarginal.TaxiKMarginalScore
     }
 
+    print(f'Computing K-marginal for the challenge: {challenge}')
     score = score_cls[challenge](private_dataset, synthetic_dataset, schema, drop_columns)
     if n_permutations is not None:
         score.N_PERMUTATIONS = n_permutations
 
-    score.compute_score()
+    km_score = score.compute_score()
+
+    hoc_score = None
+    if challenge == 'taxi':
+        # compute higher order conjunction scores
+        print(f'Computing Higher Order Conjunction scores for the challenge: {challenge}')
+        hoc_score = TaxiHigherOrderConjunction(private_dataset, synthetic_dataset)
+        hoc_score.compute_score()
+
+    print('Final Scores: ')
+    print(f'K-marginal Scores: {km_score}')
+
+    if challenge == 'taxi':
+        print(f'Higher Order Conjunction Scores: {hoc_score.score}')
     return score

@@ -39,6 +39,7 @@ def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = Tru
 
     return dataset
 
+
 def undo_discretize(dataset, schema, bins, copy: bool = True, handle_inf: bool = True):
     """ Return an unbinned dataset. """
     if handle_inf:
@@ -75,6 +76,7 @@ def undo_discretize(dataset, schema, bins, copy: bool = True, handle_inf: bool =
 
     return dataset
 
+
 def unstack(dataset, user_id: str = "sim_individual_id", time: str = "YEAR", flat: bool = False):
     df = dataset.set_index([user_id, time]).unstack(time, fill_value=-1)
 
@@ -82,6 +84,7 @@ def unstack(dataset, user_id: str = "sim_individual_id", time: str = "YEAR", fla
         df.columns = df.columns.to_flat_index()
 
     return df
+
 
 def stack(dataset, user_id: str = "sim_individual_id", time: str = "YEAR"):
     if not isinstance(dataset.columns, pd.MultiIndex):

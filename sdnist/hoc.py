@@ -37,25 +37,23 @@ def count_shift_and_pickup_areas(df):
 
     return by_shift.join(by_pickup, rsuffix="p")
 
+
 def count_similar_individuals(counts, individual, threshold):
     abs_err = np.abs(counts - individual)
     return (abs_err < threshold).all(axis=1).sum()
 
 
-class TaxiHigherOrderConjunction():
+class TaxiHigherOrderConjunction:
     BINS = sdnist.kmarginal.TaxiKMarginalScore.BINS
 
     N_ITERATIONS = 50
 
     def __init__(self, 
-            private_dataset: pd.DataFrame,
-            synthetic_dataset: pd.DataFrame,
-            seed: int = None):
-
-        # TODO discritization is probably not needed
-        self._private_dataset = sdnist.utils.discretize(private_dataset, self.BINS)
-        self._synthetic_dataset = sdnist.utils.discretize(synthetic_dataset, self.BINS)
-
+                 private_dataset: pd.DataFrame,
+                 synthetic_dataset: pd.DataFrame,
+                 seed: int = None):
+        self._private_dataset = private_dataset
+        self._synthetic_dataset = synthetic_dataset
         self.seed = seed
 
     def compute_score(self):
@@ -65,7 +63,7 @@ class TaxiHigherOrderConjunction():
         # = count of shift and pickup areas per taxi_id
         private_pivot = count_shift_and_pickup_areas(self._private_dataset)
         n_taxi_private, n_cols = private_pivot.shape
-        assert n_cols == 99 # number of shifts + number of pickup_community_area
+        assert n_cols == 99  # number of shifts + number of pickup_community_area
 
         # Compute pivot table on synthetic dataset
         synthetic_pivot = count_shift_and_pickup_areas(self._synthetic_dataset).reindex(columns=private_pivot.columns).fillna(0)
@@ -85,6 +83,7 @@ class TaxiHigherOrderConjunction():
             # come up with varying "difficulties" for each feature of the count vector to count as similar
             # to the randomly selected individual
             threshold = rng.randint(MIN_HOC_DIFF, MAX_HOC_DIFF + 1, size=n_cols)
+
             n_similar_private[i] = count_similar_individuals(private_pivot, random_individual, threshold)
             n_similar_synthetic[i] = count_similar_individuals(synthetic_pivot, random_individual, threshold)
 
@@ -93,8 +92,11 @@ class TaxiHigherOrderConjunction():
         self.score = 1 - error
         return self.score
 
+
 if __name__ == "__main__":
     df, schema = sdnist.taxi()
 
-    score = HigherOrderConjunction(df, df.sample(frac=.1))
+    score = TaxiHigherOrderConjunction(df, df.sample(frac=0.1))
     print(score.compute_score())
+
+

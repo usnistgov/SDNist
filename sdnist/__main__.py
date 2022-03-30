@@ -59,7 +59,7 @@ if __name__ == "__main__":
                          schema=schema,
                          challenge=args.challenge)
 
-    if args.html:
+    if args.html and args.challenge == 'census':
         score.html(target_dataset_path=dataset_path,
                    browser=True)
 
