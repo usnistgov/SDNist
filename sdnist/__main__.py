@@ -7,7 +7,8 @@ import sdnist
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Compute the k-marginal score of a given .csv dataset")
+    parser = argparse.ArgumentParser("\nCompute the k-marginal score of a given .csv dataset for Census Challenge or, \n"
+                                     "Compute the k-marginal, HOC and Graph-Edge-Map score of a given .csv dataset for Taxi Challenge\n")
     parser.add_argument("dataset", type=argparse.FileType("r"),
                         help="Location of synthetic dataset to score (.csv file)")
     parser.add_argument("--challenge", choices=["census", "taxi"], default="census",
@@ -57,7 +58,8 @@ if __name__ == "__main__":
     # Compute and print score
     score = sdnist.score(target, synthetic, 
                          schema=schema,
-                         challenge=args.challenge)
+                         challenge=args.challenge,
+                         verbose=True)
 
     if args.html and args.challenge == 'census':
         score.html(target_dataset_path=dataset_path,

@@ -1,4 +1,4 @@
-import os
+import argparse
 import abc
 from pathlib import Path
 
@@ -25,6 +25,14 @@ class Model(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def generate(self, n: int = 20000):
+        pass
+
+
+class EmptyModel(Model):
+    def train(self, public_dataset: pd.DataFrame, schema: dict, eps: float = 0):
+        pass
+
     def generate(self, n: int = 20000):
         pass
 
@@ -59,12 +67,15 @@ def run(submission: Model,
     # train and score on private data with differential privacy
     private, schema = load_dataset(challenge, root, public=False, test=test, download=download)
 
+    score_per_eps = []
+
     for eps in EPS:
         # Attempt to skip already computed scores
         score_location = results / f"eps={eps}.json"
         if results is not None and not override_results:
             if score_location.exists():
-                logger.info(f"Skipping scoring for eps={eps}.")
+                logger.info(f"Skipping scoring for eps={eps}. "
+                            f"Score already exist at location: {score_location}")
                 continue
 
         # Attempt to retrieve a previously generated synthetic dataset
@@ -94,3 +105,39 @@ def run(submission: Model,
 
         if results is not None:
             score.save(score_location)
+        score_per_eps.append(score.score)
+
+    if len(score_per_eps):
+        # compute final aggregate score
+        agg_score = sum(score_per_eps) / len(score_per_eps)
+        logger.success(f"Final Score: {agg_score:.2f}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser("Compute final score for the leaderboard comparison \n")
+    parser.add_argument("--challenge", choices=["census", "taxi"], default="census",
+                        help="Select challenge for which to score the synthetic data file. \n"
+                             "Default private data file used by the census challenge: \"NY_PA_10Y_PUMS\".\n"
+                             "Default private data file used by the taxi challenge: \"taxi2020\"")
+    parser.add_argument("--root", type=Path,
+                        help="Root of target dataset", default=Path("data"))
+    parser.add_argument("--test-dataset", choices=[_.name for _ in sdnist.load.TestDatasetName],
+                        default="NONE",
+                        help="Select test target dataset against which to score the synthetic data file."
+                             "Test datasets for the census challenge: \n"
+                             "[\"GA_NC_SC_10Y_PUMS\", \n"
+                             "\"NY_PA_10Y_PUMS\"]. \n"
+                             "Test datasets for the taxi challenge: \n"
+                             "[\"taxi2016\", \n"
+                             "\"taxi2020\"]")
+    parser.add_argument("--download", type=bool, default=True,
+                        help="Download all datasets in 'root' if the target dataset is not present")
+
+    args = parser.parse_args()
+
+    m = EmptyModel()
+    run(submission=m,
+        challenge=args.challenge,
+        root=args.root,
+        test=sdnist.load.TestDatasetName[args.test_dataset],
+        download=args.download)
