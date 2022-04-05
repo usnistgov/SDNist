@@ -140,6 +140,30 @@ To score the synthetic dataset against one of the test datasets
 % python -m sdnist your_synthetic_ga_nc_sc.csv --test-dataset GA_NC_SC_10Y_PUMS
 ```
 
+To generate final aggregate score over all epsilon values for census challenge. 
+
+```
+% python -m sdnist.challenge.submission 
+```
+Above command assumes that synthetic files are at path, results/census, where results directory
+should be in the current working directory. And, each file should be named with respect to the epsilon value 
+used for its synthesis. For example, census challenge scoring is performed 
+for epsilons: 0.1, 1 and 10, so synthetic files should be named: eps=0.1.csv, eps=1.csv and eps=10.csv, 
+where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
+  
+
+To generate final aggregate score over all epsilon values for taxi challenge with private dataset other
+than default.
+```
+% python -m sdnist.challenge.submission --challenge taxi --test-dataset taxi2016 
+```
+
+Above command assumes that synthetic files are at path, results/taxi, where results directory
+should be in the current working directory. And, each file should be named with respect to the epsilon value 
+used for its synthesis. For example, taxi  challenge scoring is performed 
+for epsilons: 1 and 10, so synthetic files should be named: eps=1.csv and eps=10.csv, 
+where eps=1.csv is synthesized using epsilon value 1 and so on.
+
 Other options are available by calling `--help`.
 
 ### 2) Reproducing the baselines from the challenge by sublasscing `challenge.submission.Model` (option 2, slightly more advanced and time-consuming)
