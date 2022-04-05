@@ -10,6 +10,7 @@ import sdnist.challenge.submission
 import sdnist.utils
 
 from sdnist.hoc import TaxiHigherOrderConjunction
+from sdnist.graph_edge_map import TaxiGraphEdgeMapScore
 
 census = functools.partial(sdnist.load.load_dataset, challenge="census")
 taxi = functools.partial(sdnist.load.load_dataset, challenge="taxi")
@@ -45,18 +46,25 @@ def score(
     if n_permutations is not None:
         score.N_PERMUTATIONS = n_permutations
 
-    km_score = score.compute_score()
+    score.compute_score()
 
     hoc_score = None
+    gme_score = None
     if challenge == 'taxi':
         # compute higher order conjunction scores
         print(f'Computing Higher Order Conjunction scores for the challenge: {challenge}')
         hoc_score = TaxiHigherOrderConjunction(private_dataset, synthetic_dataset)
         hoc_score.compute_score()
 
+        # compute graph edge map scores
+        print(f'Computing Graph Edge Map scores for the challenge: {challenge}')
+        gme_score = TaxiGraphEdgeMapScore(private_dataset, synthetic_dataset, schema)
+        gme_score.compute_score()
+
     print('Final Scores: ')
-    print(f'K-marginal Scores: {km_score}')
+    print(f'K-marginal Scores: {score.score}')
 
     if challenge == 'taxi':
         print(f'Higher Order Conjunction Scores: {hoc_score.score}')
+        print(f'Graph Edge Map Scores: {gme_score.score}')
     return score

@@ -17,7 +17,6 @@ def compute_marginal(df, columns):
 
 def compute_marginal_grouped(df, columns, groups):
     counts = df.groupby(groups + columns).size()
-
     # https://stackoverflow.com/questions/47876663/pandas-divide-two-multi-index-series
     return counts / counts.groupby(groups).transform("sum")
 
@@ -203,9 +202,8 @@ class CensusKMarginalScore(KMarginalScore):
         "YEAR"
     ]
     # JINJA_TEMPLATE_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/report2.jinja2"
-#TODO change to local report in kmarginal directory
+    # TODO change to local report in kmarginal directory
     # JINJA_TEMPLATE_URL = "https://data.nist.gov/od/ds/mds2-2515/report2.jinja2"
-
 
     # JINJA_TEMPLATE_URL = "report2.jinja2"
 
