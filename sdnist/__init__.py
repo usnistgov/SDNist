@@ -17,21 +17,28 @@ taxi = functools.partial(sdnist.load.load_dataset, challenge="taxi")
 run = sdnist.challenge.submission.run
 
 
-def score(
-        private_dataset: pd.DataFrame,
-        synthetic_dataset: pd.DataFrame,
-        schema: dict,
-        challenge: str = "census",
-        drop_columns: List[str] = None,
-        n_permutations: int = None):
+def log(message: str, verbose: bool = False):
+    if verbose:
+        print(message)
+
+
+def score(private_dataset: pd.DataFrame,
+          synthetic_dataset: pd.DataFrame,
+          schema: dict,
+          challenge: str = "census",
+          drop_columns: List[str] = None,
+          n_permutations: int = None,
+          verbose: bool = False):
     """Computes the k-marginal score between `private_dataset` and `synthetic_dataset`.
 
-    :param private_dataset pd.DataFrame: original dataset, as provided by `sdnist.census` for instance.
-    :param synthetic_data pd.DataFrame: synthetic dataset, computed using your own method.
-    :param schema dict: dataset schema, as provided by `sdnist.census` for instance.
-    :param challenge str: challenge rules to define the scoring method. Must be `census` or `taxi`.
-    :param n_permutations int: number of k-marginal permutations to use. By default, the number of 
+    :param private_dataset: pd.DataFrame: original dataset, as provided by `sdnist.census` for instance.
+    :param synthetic_dataset: pd.DataFrame: synthetic dataset, computed using your own method.
+    :param schema: dict: dataset schema, as provided by `sdnist.census` for instance.
+    :param challenge: str: challenge rules to define the scoring method. Must be `census` or `taxi`.
+    :param drop_columns: List: columns to remove from dataset before scoring.
+    :param n_permutations: int: number of k-marginal permutations to use. By default, the number of
         permutations used corresponds to the default value of the chosen challenge.
+    :param verbose: bool: print scoring steps and outputs
 
     :return: score object containing several score-related metrics.
     """
@@ -41,30 +48,45 @@ def score(
         "taxi": sdnist.kmarginal.TaxiKMarginalScore
     }
 
-    print(f'Computing K-marginal for the challenge: {challenge}')
-    score = score_cls[challenge](private_dataset, synthetic_dataset, schema, drop_columns)
+    log(f'Computing K-marginal for the challenge: {challenge}', verbose)
+    k_marg_score = score_cls[challenge](private_dataset, synthetic_dataset, schema, drop_columns)
     if n_permutations is not None:
         score.N_PERMUTATIONS = n_permutations
 
-    score.compute_score()
+    k_marg_score.compute_score()
 
     hoc_score = None
     gme_score = None
     if challenge == 'taxi':
         # compute higher order conjunction scores
-        print(f'Computing Higher Order Conjunction scores for the challenge: {challenge}')
+        log(f'Computing Higher Order Conjunction scores for the challenge: {challenge}', verbose)
         hoc_score = TaxiHigherOrderConjunction(private_dataset, synthetic_dataset)
         hoc_score.compute_score()
 
         # compute graph edge map scores
-        print(f'Computing Graph Edge Map scores for the challenge: {challenge}')
+        log(f'Computing Graph Edge Map scores for the challenge: {challenge}', verbose)
         gme_score = TaxiGraphEdgeMapScore(private_dataset, synthetic_dataset, schema)
         gme_score.compute_score()
 
-    print('Final Scores: ')
-    print(f'K-marginal Scores: {score.score}')
+    log('Final Scores: ', verbose)
+    log(f'K-marginal Scores: {k_marg_score.score}', verbose)
 
+    net_score = 0
     if challenge == 'taxi':
-        print(f'Higher Order Conjunction Scores: {hoc_score.score}')
-        print(f'Graph Edge Map Scores: {gme_score.score}')
-    return score
+        net_score = (k_marg_score.score + hoc_score.score + gme_score.score) / 3
+
+        log(f'Higher Order Conjunction Scores: {hoc_score.score}', verbose)
+        log(f'Graph Edge Map Scores: {gme_score.score}', verbose)
+        log(f'Net Score: {net_score}', verbose)
+    elif challenge == "census":
+        net_score = k_marg_score.score
+        log(f'Net Score: {net_score}', verbose)
+
+    # TODO: saving net compute score that is aggregate of k-marginal ,hoc and graph edge map
+    # TODO: to the k-marginal score object, and this is a hack, ideally there should be
+    # TODO: a higher level score object that saves all the scores separately and can
+    # TODO: provide functions for saving report from each scoring metric separately or
+    # TODO: combined. And, can also provide function for k-marginal html visualization
+    k_marg_score.score = net_score
+
+    return k_marg_score

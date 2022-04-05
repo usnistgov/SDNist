@@ -89,7 +89,7 @@ class TaxiHigherOrderConjunction:
 
         error = np.abs(n_similar_private / n_taxi_private - n_similar_synthetic / n_taxi_synthetic).mean()
 
-        self.score = 1 - error
+        self.score = (1 - error) * 1000
         return self.score
 
 
