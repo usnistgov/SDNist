@@ -1,5 +1,24 @@
 # Change Log
 
+## v1.3.1 - 2022-04-05
+
+### Added
+* Graph Map Edge scoring for taxi challenge.
+* Apparent Match Distribution privacy metric.
+* Support for running sdnist.challenge.submission module
+for commandline. sdnist.challenge.submssion module generates
+final score which can be compared to leaderboard scores
+
+### Changed
+
+* Score function computes aggregate score over all scoring metrics
+available for a challenge.
+  * k-marginal for census challenge.
+  * k-marginal, hoc and graph-edge-map for taxi challenge
+
+### Fixed
+* Higher Order Conjunction Metric
+
 ## v1.3.0 - 2022-03-23
 
 ### Added
