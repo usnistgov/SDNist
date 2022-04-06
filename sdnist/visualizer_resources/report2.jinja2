@@ -38,7 +38,7 @@
           <img
               src="https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/spinner.gif"/>
         </div> -->
-        <div v-else>
+        <div>
           <span>Epsilon:</span>
           <select v-model="epsilon" @change="redraw">
             <option v-for="epsilon in availableEpsilons" v-bind:value="epsilon">
@@ -56,7 +56,7 @@
       </div>
     </div>
     <div class="col">
-      <div v-else>
+      <div>
         <div id="data-table"></div>
         <div id="none-selected">
           <p class="text-muted">
@@ -146,7 +146,6 @@
     },
     methods: {
       initialize(geodata) {
-        console.log(geodata);
         var vm = this;
         this.layer = L.geoJSON(geodata, {
           onEachFeature: vm.onEachFeature,
@@ -166,7 +165,6 @@
       },
       redraw() {
         if (this.scores.length < 1) return;
-        console.log("redraw");
         var vm = this;
         this.layer.setStyle(function (feature) {
           return {
