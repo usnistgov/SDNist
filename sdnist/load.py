@@ -127,6 +127,20 @@ def build_name(challenge: str,
     return directory / fname
 
 
+def load_parameters(challenge: str,
+                    root: Path = Path("data"),
+                    public: bool = True,
+                    test: TestDatasetName = TestDatasetName.NONE,
+                    download: bool = True) -> dict:
+    dataset_path = build_name(challenge=challenge, root=root, public=public, test=test)
+    dataset_parameters = dataset_path.with_suffix('.json')
+    check_exists(root, dataset_parameters, download)
+
+    with dataset_parameters.open("r") as handler:
+        params = json.load(handler)
+    return params
+
+
 def load_dataset(challenge: str,
                  root: Path = Path("data"),
                  public: bool = True,
@@ -174,10 +188,8 @@ def load_dataset(challenge: str,
     name.parent.mkdir(exist_ok=True, parents=True)
 
     # Load schema
-    schema_name = name.with_suffix(".json")
-    check_exists(root, schema_name, download)
-    with schema_name.open("r") as handler:
-        schema = json.load(handler)["schema"]
+    params = load_parameters(challenge, root, public, test, download)
+    schema = params["schema"]
 
     # TODO: remove .csv option
 

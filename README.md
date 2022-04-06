@@ -140,17 +140,19 @@ To score the synthetic dataset against one of the test datasets
 % python -m sdnist your_synthetic_ga_nc_sc.csv --test-dataset GA_NC_SC_10Y_PUMS
 ```
 
+### Computing aggregate score for all synthetic files generated using different epsilon values
 To generate final aggregate score over all epsilon values for census challenge. 
 
 ```
 % python -m sdnist.challenge.submission 
 ```
-Above command assumes that synthetic files are at path, results/census, where results directory
-should be in the current working directory. And, each file should be named with respect to the epsilon value 
-used for its synthesis. For example, census challenge scoring is performed 
-for epsilons: 0.1, 1 and 10, so synthetic files should be named: eps=0.1.csv, eps=1.csv and eps=10.csv, 
-where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
-  
+The above commands assume that the synthetic data is located in the directory: 
+`[current-working-directory]/results/census/`.  
+Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
+In its default settings, SDNist performs scoring for epsilons: 0.1, 1.0 and 10.0, so synthetic files would be named: 
+eps=0.1.csv, eps=1.0.csv and eps=10.0.csv
+Where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
+ 
 
 To generate final aggregate score over all epsilon values for taxi challenge with private dataset other
 than default.
@@ -158,11 +160,17 @@ than default.
 % python -m sdnist.challenge.submission --challenge taxi --test-dataset taxi2016 
 ```
 
-Above command assumes that synthetic files are at path, results/taxi, where results directory
-should be in the current working directory. And, each file should be named with respect to the epsilon value 
-used for its synthesis. For example, taxi  challenge scoring is performed 
-for epsilons: 1 and 10, so synthetic files should be named: eps=1.csv and eps=10.csv, 
-where eps=1.csv is synthesized using epsilon value 1 and so on.
+The above commands assume that the synthetic data is located in the directory: 
+`[current-working-directory]/results/census/`.  
+Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
+In its default settings, SDNist performs scoring for epsilons: 1.0 and 10.0, so synthetic files would be named: 
+eps=1.0.csv and eps=10.0.csv
+Where eps=1.0.csv is synthesized using epsilon value 1.0 and so on.
+
+NOTE: filename of the synthetic data should exactly match epsilon value provided in the parameters json file
+of the public or private dataset. If an epsilon value mentioned in the parameters.json file is `1` 
+then the synthetic data filename should be `esp=1.csv` or else, 
+if an epsilon value mentioned is 1.0 then the synthetic data filename should be `eps=1.0.csv`.
 
 Other options are available by calling `--help`.
 

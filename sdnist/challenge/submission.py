@@ -47,13 +47,6 @@ def run(submission: Model,
     """ Runs a full experiment following the protocol of second sprint of the
         NIST 2020 Challenge
     """
-    if challenge == "census":
-        EPS = [0.1, 1, 10]
-    elif challenge == "taxi":
-        EPS = [1, 10]
-    else:
-        raise ValueError(f"Unknown challenge {challenge}")
-
     if results is not None:
         results = results / challenge
         if not results.is_dir():
@@ -66,6 +59,17 @@ def run(submission: Model,
 
     # train and score on private data with differential privacy
     private, schema = load_dataset(challenge, root, public=False, test=test, download=download)
+    # get parameters file
+    params = sdnist.load.load_parameters(challenge, root,
+                                         public=False,
+                                         test=test,
+                                         download=download)
+    # get epsilon values from parameters file
+    runs = params["runs"]
+    if challenge in ["census", "taxi"]:
+        EPS = [r["epsilon"] for r in runs]
+    else:
+        raise ValueError(f"Unknown challenge {challenge}")
 
     score_per_eps = []
 
