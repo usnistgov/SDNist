@@ -206,6 +206,7 @@ class CensusKMarginalScore(KMarginalScore):
     # JINJA_TEMPLATE_URL = "https://data.nist.gov/od/ds/mds2-2515/report2.jinja2"
 
     # JINJA_TEMPLATE_URL = "report2.jinja2"
+    report_data = None
 
     def report(self, column: str = None):
         """ Return a serializable report.  """
@@ -263,20 +264,27 @@ class CensusKMarginalScore(KMarginalScore):
         env = jinja2.Environment()
         # template = env.from_string(template_text)
 
-        report = self.report(column)
+        if self.report_data is None:
+            report = self.report(column)
+        else:
+            report = self.report_data
+
         # The jinja template expects an epsilon=10 parameter per puma/year
         for pumayear in report["details"]:
-            pumayear["epsilon"] = 10
+            if "epsilon" not in pumayear:
+                pumayear["epsilon"] = 10
         report = json.dumps(report)
 
         if browser:
             # geojson path
             gj_p = Path(cwdir, target_dataset_path.parent.parent, 'geojson', f'{target_dataset_path.stem}.geojson')
+            parameters_p = Path(cwdir, f'{target_dataset_path}.json')
             # geojson data
+            params = json.load(parameters_p.open('r'))
             gj_d = json.load(gj_p.open('r'))
             gj_d = {'data': gj_d}
             tmp = tempfile.NamedTemporaryFile("w+", suffix=".html", delete=False)
-            tmp.write(template.render(report=report, parameters=self.schema, geojson=gj_d))
+            tmp.write(template.render(report=report, parameters=params, geojson=gj_d))
             webbrowser.open(f"file://{tmp.name}", new=True)
 
     def violin(self, idx: int = 0, name : str = None):

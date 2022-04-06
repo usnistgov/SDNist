@@ -73,6 +73,16 @@ def run(submission: Model,
 
     score_per_eps = []
 
+    # use this CensusKMaringalScore instance for just saving collective report
+    # of all individual census k-marginal runs for every epsilon value. This is
+    # not used for computing score instead it just used for saving report data
+    # for the visualization.
+    report_kmarg = None
+    if challenge == "census":
+        report_kmarg = sdnist.kmarginal.CensusKMarginalScore(private,
+                                                             private,
+                                                             schema)
+
     for eps in EPS:
         # Attempt to skip already computed scores
         score_location = results / f"eps={eps}.json"
@@ -111,10 +121,23 @@ def run(submission: Model,
             score.save(score_location)
         score_per_eps.append(score.score)
 
+        if report_kmarg:
+            score_report = score.report()
+            for puma_year in score_report["details"]:
+                puma_year["epsilon"] = eps
+            if report_kmarg.report_data:
+                report_kmarg.report_data["details"].extend(score_report["details"])
+            else:
+                report_kmarg.report_data = score_report
+
     if len(score_per_eps):
         # compute final aggregate score
         agg_score = sum(score_per_eps) / len(score_per_eps)
         logger.success(f"Final Score: {agg_score:.2f}")
+        if report_kmarg:
+            report_kmarg.report_data["score"] = agg_score
+            private_dataset_path = sdnist.load.build_name(challenge, root, public=False, test=test)
+            report_kmarg.html(private_dataset_path, browser=True)
 
 
 if __name__ == "__main__":
