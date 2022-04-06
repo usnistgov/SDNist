@@ -43,7 +43,8 @@ def run(submission: Model,
         results: Path = Path("results"),
         override_results: bool = False,
         test: sdnist.load.TestDatasetName = sdnist.load.TestDatasetName.NONE,
-        download: bool = True):
+        download: bool = True,
+        html: bool = False):
     """ Runs a full experiment following the protocol of second sprint of the
         NIST 2020 Challenge
     """
@@ -78,7 +79,7 @@ def run(submission: Model,
     # not used for computing score instead it just used for saving report data
     # for the visualization.
     report_kmarg = None
-    if challenge == "census":
+    if challenge == "census" and html:
         report_kmarg = sdnist.kmarginal.CensusKMarginalScore(private,
                                                              private,
                                                              schema)
@@ -134,7 +135,7 @@ def run(submission: Model,
         # compute final aggregate score
         agg_score = sum(score_per_eps) / len(score_per_eps)
         logger.success(f"Final Score: {agg_score:.2f}")
-        if report_kmarg:
+        if report_kmarg and html:
             report_kmarg.report_data["score"] = agg_score
             private_dataset_path = sdnist.load.build_name(challenge, root, public=False, test=test)
             report_kmarg.html(private_dataset_path, browser=True)
@@ -159,6 +160,9 @@ if __name__ == "__main__":
                              "\"taxi2020\"]")
     parser.add_argument("--download", type=bool, default=True,
                         help="Download all datasets in 'root' if the target dataset is not present")
+    parser.add_argument("--html", action='store_true',
+                        help="Output the result to an html page (only available on the ACS "
+                             "public dataset). ")
 
     args = parser.parse_args()
 
@@ -167,4 +171,5 @@ if __name__ == "__main__":
         challenge=args.challenge,
         root=args.root,
         test=sdnist.load.TestDatasetName[args.test_dataset],
-        download=args.download)
+        download=args.download,
+        html=args.html)

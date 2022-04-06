@@ -139,6 +139,7 @@ To score the synthetic dataset against one of the test datasets
 ```
 % python -m sdnist your_synthetic_ga_nc_sc.csv --test-dataset GA_NC_SC_10Y_PUMS
 ```
+Other options are available by calling `--help`.
 
 ### Computing aggregate score for all synthetic files generated using different epsilon values
 To generate final aggregate score over all epsilon values for census challenge. 
@@ -171,6 +172,14 @@ NOTE: filename of the synthetic data should exactly match epsilon value provided
 of the public or private dataset. If an epsilon value mentioned in the parameters.json file is `1` 
 then the synthetic data filename should be `esp=1.csv` or else, 
 if an epsilon value mentioned is 1.0 then the synthetic data filename should be `eps=1.0.csv`.
+
+`sdnist.challenge.submission` module is mainly used for computing aggregate scores over different 
+epsilon values, but it can also be used to inspect scores for each epsilon value separately.  
+To visualize scores over different values of epsilon, year or puma.
+(only available for census challenge):
+```
+% python -m sdnist.challenge.submission --html
+```
 
 Other options are available by calling `--help`.
 
