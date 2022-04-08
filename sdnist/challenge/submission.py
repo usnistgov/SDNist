@@ -42,6 +42,7 @@ def run(submission: Model,
         root: Path = Path("data"),
         results: Path = Path("results"),
         override_results: bool = False,
+        public: bool = False,
         test: sdnist.load.TestDatasetName = sdnist.load.TestDatasetName.NONE,
         download: bool = True,
         html: bool = False):
@@ -55,14 +56,15 @@ def run(submission: Model,
 
     # [optional] train on public data
     if submission.REQUIRES_PRETRAINING:
-        public, schema = load_dataset(challenge, root, public=True, download=download)
-        submission.pretrain(public, schema)
+        public_dataset, schema = load_dataset(challenge, root, public=True, download=download)
+        submission.pretrain(public_dataset, schema)
 
     # train and score on private data with differential privacy
-    private, schema = load_dataset(challenge, root, public=False, test=test, download=download)
+    private, schema = load_dataset(challenge, root, public=public, test=test, download=download)
     # get parameters file
-    params = sdnist.load.load_parameters(challenge, root,
-                                         public=False,
+    params = sdnist.load.load_parameters(challenge,
+                                         root,
+                                         public=public,
                                          test=test,
                                          download=download)
     # get epsilon values from parameters file
@@ -137,7 +139,7 @@ def run(submission: Model,
         logger.success(f"Final Score: {agg_score:.2f}")
         if report_kmarg and html:
             report_kmarg.report_data["score"] = agg_score
-            private_dataset_path = sdnist.load.build_name(challenge, root, public=False, test=test)
+            private_dataset_path = sdnist.load.build_name(challenge, root, public=public, test=test)
             report_kmarg.html(private_dataset_path, browser=True)
 
 
@@ -162,14 +164,18 @@ if __name__ == "__main__":
                         help="Download all datasets in 'root' if the target dataset is not present")
     parser.add_argument("--html", action='store_true',
                         help="Output the result to an html page (only available on the ACS "
-                             "public dataset). ")
+                             "dataset). ")
+    parser.add_argument("--public", action='store_true',
+                        help="Score using the public dataset")
 
     args = parser.parse_args()
 
     m = EmptyModel()
+
     run(submission=m,
         challenge=args.challenge,
         root=args.root,
+        public=args.public,
         test=sdnist.load.TestDatasetName[args.test_dataset],
         download=args.download,
         html=args.html)
