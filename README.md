@@ -147,6 +147,22 @@ To generate final aggregate score over all epsilon values for census challenge.
 ```
 % python -m sdnist.challenge.submission 
 ```
+
+To score synthetic data file for dataset GA_NC_SC_10Y_PUMS
+```
+% python -m sdnist.challenge.submission --test-dataset GA_NC_SC_10Y_PUMS
+```
+
+To score synthetic data files and visualize scores on an interactive map-based html visualizer
+```
+% python -m sdnist.challenge.submission --html
+```
+
+To score synthetic data files during algorithm development (uses public dataset IL_OH_10Y_PUMS)
+```
+python -m sdnist.challenge.submission --public --html
+```
+
 The above commands assume that the synthetic data is located in the directory: 
 `[current-working-directory]/results/census/`.  
 Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
@@ -162,7 +178,7 @@ than default.
 ```
 
 The above commands assume that the synthetic data is located in the directory: 
-`[current-working-directory]/results/census/`.  
+`[current-working-directory]/results/taxi/`.  
 Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
 In its default settings, SDNist performs scoring for epsilons: 1.0 and 10.0, so synthetic files would be named: 
 eps=1.0.csv and eps=10.0.csv
