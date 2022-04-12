@@ -147,6 +147,7 @@ class KMarginalScore():
 
 
 class CensusKMarginalScore(KMarginalScore):
+    BIAS_PENALTY_CUTOFF = 250
     BINS = {
         "AGE": np.r_[-np.inf, np.arange(20, 105, 5), np.inf],
         "INCTOT": np.r_[-np.inf, np.arange(0, 105_000, 5_000), np.inf],
@@ -233,7 +234,8 @@ class CensusKMarginalScore(KMarginalScore):
                 "PUMA": puma_name,
                 "YEAR": year_name,
                 "score": score[(puma, year)],
-                "bias_penalty": self.bias_mask.get((puma, year), False) if self.BIAS_PENALTY_CUTOFF is not None else False,
+                "bias_penalty": bool(self.bias_mask.get((puma, year), False))
+                                if self.BIAS_PENALTY_CUTOFF is not None else False,
             })
 
         return report
