@@ -21,7 +21,8 @@ def compute_marginal_grouped(df, columns, groups):
     return counts / counts.groupby(groups).transform("sum")
 
 
-class KMarginalScore():
+class KMarginalScore:
+    NAME = 'K-Marginal'
     BINS: Dict = None
     COLUMNS: List = None
     ALWAYS_GROUPBY: List[str] = []
@@ -255,7 +256,7 @@ class CensusKMarginalScore(KMarginalScore):
         import jinja2
         cwdir = Path.cwd()
         this_dir = Path(__file__).parent
-        report_path = Path(this_dir, 'visualizer_resources', 'report2.jinja2')
+        report_path = Path(this_dir, '../visualizer_resources', 'report2.jinja2')
 
         with open(report_path) as file_:  # local reference
             template = jinja2.Template(file_.read())

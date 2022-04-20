@@ -3,7 +3,7 @@ import pandas as pd
 
 import sdnist
 
-from tqdm import tqdm, trange
+from tqdm import trange
 
 
 MIN_HOC_DIFF = 5
@@ -44,7 +44,8 @@ def count_similar_individuals(counts, individual, threshold):
 
 
 class TaxiHigherOrderConjunction:
-    BINS = sdnist.kmarginal.TaxiKMarginalScore.BINS
+    NAME = 'Higher Order Conjunction'
+    BINS = sdnist.metrics.kmarginal.TaxiKMarginalScore.BINS
 
     N_ITERATIONS = 50
 

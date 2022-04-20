@@ -1,7 +1,8 @@
-from sdnist.kmarginal import KMarginalScore
+from sdnist.metrics.kmarginal import KMarginalScore
 
 
 class TaxiGraphEdgeMapScore(KMarginalScore):
+    NAME = 'Graph Edge Map'
     COLUMNS = [
         "pickup_community_area",
         "dropoff_community_area"

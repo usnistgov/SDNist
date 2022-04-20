@@ -16,7 +16,7 @@ def test_expanduser():
 
 def test_discretize():
     df, schema = sdnist.census(root="~/datasets")
-    bins = sdnist.kmarginal.CensusKMarginalScore.BINS
+    bins = sdnist.metrics.kmarginal.CensusKMarginalScore.BINS
     del df["HHWT"]
     df["this is a test"] = 5
 

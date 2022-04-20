@@ -4,13 +4,13 @@ import functools
 import pandas as pd
 
 import sdnist.load
-import sdnist.kmarginal
+import sdnist.metrics.kmarginal
 import sdnist.schema
 import sdnist.challenge.submission
 import sdnist.utils
 
-from sdnist.hoc import TaxiHigherOrderConjunction
-from sdnist.graph_edge_map import TaxiGraphEdgeMapScore
+from sdnist.metrics.hoc import TaxiHigherOrderConjunction
+from sdnist.metrics.graph_edge_map import TaxiGraphEdgeMapScore
 
 census = functools.partial(sdnist.load.load_dataset, challenge="census")
 taxi = functools.partial(sdnist.load.load_dataset, challenge="taxi")
@@ -44,8 +44,8 @@ def score(private_dataset: pd.DataFrame,
     """
     # TODO : infer challenge from schema
     score_cls = {
-        "census": sdnist.kmarginal.CensusKMarginalScore,
-        "taxi": sdnist.kmarginal.TaxiKMarginalScore
+        "census": sdnist.metrics.kmarginal.CensusKMarginalScore,
+        "taxi": sdnist.metrics.kmarginal.TaxiKMarginalScore
     }
 
     log(f'Computing K-marginal for the challenge: {challenge}', verbose)

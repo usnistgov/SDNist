@@ -15,13 +15,24 @@ setup(
     url='https://github.com/usnistgov/SDNist',
     author='National Institute of Standards and Technology',
     author_email='gary.howawrth@nist.gov',
-    packages=["sdnist", "sdnist.challenge", "sdnist.preprocess"],
+    packages=["sdnist",
+              "sdnist.challenge",
+              "sdnist.metrics",
+              "sdnist.preprocess"],
     # data_files=[('', ['sdnist/report2.jinja2'])],
-    install_requires=["requests>=2", "numpy>=1", "pandas>=1", "matplotlib>=3", "pyarrow>=6", "tqdm>=4",
-        "loguru>=0.5", "jinja2>=2"],
+    install_requires=[
+        "jinja2>=3",
+        "loguru>=0.6",
+        "matplotlib>=3",
+        "numpy>=1",
+        "pandas>=1",
+        "pyarrow>=7",
+        "requests>=2",
+        "tqdm>=4",
+    ],
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Programming Language :: Python :: 3.8',
                  'License :: Other/Proprietary License',
                  'Intended Audience :: Science/Research'],
-    include_package_data = True
+    include_package_data=True
 )
