@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>My Webpage</title>
+    <title>Data Utility Report</title>
     <style>
         @page {
             size: A4 portrait;
@@ -105,6 +105,12 @@
     {% endif %}
 {% endmacro %}
 
+{% macro draw_images(data) %}
+    {% for image_link in data %}
+        <img src={{ image_link['path'] }} alt={{ image_link['image_name'] }}>
+    {% endfor %}
+{% endmacro %}
+
 {% macro data_description(title, key) %}
     {{ heading_3(title) }}
     <div class="table-div">
@@ -131,13 +137,19 @@
 
 {% macro evaluation(data) %}
     {{ heading_3(data['metric_name']) }}
-    <p>Score: {{ data['scores'] }}</p>
+    {% if 'scores' in data %}
+        <p>Score: {{ data['scores'] }}</p>
+    {% endif %}
     {% for a in data['attachments'] %}
-        {{ heading_4(a.name) }}
+        {%  if a.name %}
+            {{ heading_4(a.name) }}
+        {% endif %}
         {% if a.type == "table" %}
             <div class="table-div">
                 {{ table(a.data) }}
             </div>
+        {% elif a.type == "image_links" %}
+            {{ draw_images(a.data) }}
         {% endif %}
     {% endfor %}
 {% endmacro %}

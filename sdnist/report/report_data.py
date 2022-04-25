@@ -1,5 +1,5 @@
 import json
-from typing import List, Dict
+from typing import List, Dict, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -12,11 +12,12 @@ class DatasetType(Enum):
 
 class AttachmentType(Enum):
     Table = "table"
+    ImageLinks = "image_links"
 
 
 @dataclass
 class Attachment:
-    name: str
+    name: Optional[str]
     _data: any
     _type: AttachmentType = field(default=AttachmentType.Table)
 
@@ -32,16 +33,19 @@ class Attachment:
 @dataclass
 class ScorePacket:
     metric_name: str
-    score: int
+    score: Optional[int] = None,
     attachment: List[Attachment] = field(default_factory=list)
 
     @property
     def data(self) -> Dict[str, any]:
-        return {
+        d = {
             'metric_name': self.metric_name,
             'scores': self.score,
             'attachments': [a.data for a in self.attachment]
         }
+        if self.score is None:
+            del d['scores']
+        return d
 
 
 @dataclass
@@ -57,14 +61,12 @@ class DataDescriptionPacket:
                 'columns': self.columns}
 
 
+@dataclass
 class ReportData:
     # dictionary containing description of datasets
-    datasets: Dict[str, DataDescriptionPacket] = dict()
+    datasets: Dict[str, DataDescriptionPacket] = field(default_factory=dict)
     # list containing ScorePacket objects
-    scores: List[ScorePacket] = []
-
-    def __init__(self, output_path: Path):
-        self.output_path = output_path
+    scores: List[ScorePacket] = field(default_factory=list)
 
     def add(self, score_packet: ScorePacket):
         self.scores.append(score_packet)
@@ -87,9 +89,9 @@ class ReportData:
 
         return d
 
-    def save(self):
+    def save(self, output_path: Path):
         d = self.data
-        with open(self.output_path, 'w') as f:
+        with open(output_path, 'w') as f:
             json.dump(d, f, indent=4)
 
 

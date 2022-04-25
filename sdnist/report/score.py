@@ -10,22 +10,24 @@ from sdnist.metrics.hoc import \
 from sdnist.metrics.graph_edge_map import \
     TaxiGraphEdgeMapScore
 
-from sdnist.report import REPORTS_DIR
 from sdnist.report import Path
 from sdnist.report.report_data import \
     ReportData, ScorePacket, Attachment, AttachmentType, \
     DatasetType, DataDescriptionPacket
+from sdnist.report.plots import UnivariatePlots
+from sdnist.report.plots import CorrelationDifferencePlot
+
 from sdnist.report.strs import *
 
 
 def score(challenge: str,
           synthetic_filepath: Path,
+          output_directory: Path,
           public: bool = True,
           test: TestDatasetName = TestDatasetName.NONE,
-          data_root: Path = 'data',
-          output_path: Path = REPORTS_DIR) -> ReportData:
+          data_root: Path = 'data') -> ReportData:
 
-    rep_data = ReportData(output_path)
+    rep_data = ReportData()
     # load target dataset that is used to score synthetic dataset
     target_dataset, schema = load_dataset(
         challenge=challenge,
@@ -53,13 +55,30 @@ def score(challenge: str,
 
     scorers = []
     if challenge == CENSUS:
+
+        up = UnivariatePlots(synthetic_dataset, target_dataset, schema, output_directory, challenge)
+        up_saved_file_paths = up.save()
+
+        cdp = CorrelationDifferencePlot(synthetic_dataset, target_dataset, output_directory,
+                                        ['SEX', 'INCTOT', 'RACE', 'CITIZEN', 'EDUC'])
+        cdp_saved_file_paths = cdp.save()
+
         scorers = [CensusKMarginalScore(target_dataset,
                                         synthetic_dataset,
                                         schema)]
     elif challenge == TAXI:
+        up = UnivariatePlots(synthetic_dataset, target_dataset, schema, output_directory, challenge)
+        up_saved_file_paths = up.save()
+
+        cdp = CorrelationDifferencePlot(synthetic_dataset, target_dataset, output_directory,
+                                        ['fare', 'trip_miles', 'trip_seconds', 'trip_hour_of_day'])
+        cdp_saved_file_paths = cdp.save()
+
         scorers = [TaxiKMarginalScore(target_dataset, synthetic_dataset, schema),
                    TaxiHigherOrderConjunction(target_dataset, synthetic_dataset),
                    TaxiGraphEdgeMapScore(target_dataset, synthetic_dataset, schema)]
+    else:
+        raise Exception(f'Unknown challenge type: {challenge}')
 
     for s in scorers:
         s.compute_score()
@@ -101,5 +120,23 @@ def score(challenge: str,
         rep_data.add(ScorePacket(metric_name,
                                  metric_score,
                                  metric_attachments))
+    rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
+                               for p in up_saved_file_paths]
+    rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
+                                for p in cdp_saved_file_paths]
+
+    rep_data.add(ScorePacket("Univariate Distributions",
+                             None,
+                             [Attachment(name="Three Worst Performing Features",
+                                         _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+                                                for p in rel_up_saved_file_paths],
+                                         _type=AttachmentType.ImageLinks)]))
+
+    rep_data.add(ScorePacket("Correlation Coefficient Difference",
+                             None,
+                             [Attachment(name=None,
+                                         _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+                                                for p in rel_cdp_saved_file_paths],
+                                         _type=AttachmentType.ImageLinks)]))
 
     return rep_data
