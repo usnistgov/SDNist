@@ -28,7 +28,10 @@ setup(
         "pandas>=1",
         "pyarrow>=7",
         "requests>=2",
+        "scipy>=1"
         "tqdm>=4",
+        "PyQt5>=5",
+        "PyQtWebEngine>=5"
     ],
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Programming Language :: Python :: 3.8',
