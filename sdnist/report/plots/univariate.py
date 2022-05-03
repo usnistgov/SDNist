@@ -33,7 +33,7 @@ class UnivariatePlots:
             schema : Dict[str, any]
                 schema containing description of datasets
             output_directory: pd.Dataframe
-                path of the directory to which plots will will be saved
+                path of the directory to which plots will be saved
             challenge: str
                 For which challenge type to compute univariates for, CENSUS or TAXI
             n : pd.Dataframe

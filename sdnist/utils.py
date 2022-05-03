@@ -26,7 +26,7 @@ def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = Tru
             desc = schema[column]
             if "values" in desc:
                 dataset[column] = dataset[column].astype(pd.CategoricalDtype(desc["values"])).cat.codes
-            elif  "min" in desc.keys():
+            elif "min" in desc.keys():
                 dataset[column] = (dataset[column] - desc["min"]).astype(int)
             else:
                 #feature unmodified, e.g., 'kind == "ID"' columns
