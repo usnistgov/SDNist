@@ -62,6 +62,12 @@
     </style>
 </head>
 
+{% macro section_title(title) %}
+    <div class="title-div">
+        <h2 class="title-text">{{ title }}</h2>
+    </div>
+{% endmacro %}
+
 {% macro heading_2(title) %}
     <span class="underline">
         <h2 class="heading-2-text">{{ title }}</h2>
@@ -158,16 +164,25 @@
 <body>
     <div class="content-area">
         <div class="title-div">
-            <h1 class="title-text">Data Utility Report</h1>
+            <h1 class="title-text">Data Evaluation Report</h1>
         </div>
+        <br>
         <div class="heading-2-div">
-            {{ heading_2('Data Description') }}
+            {{ section_title('Data Description') }}
             {{ data_description('Synthetic Data', 'synthetic') }}
             {{ data_description('Target Data', 'target')}}
         </div>
+        <br>
         <div class="heading-2-div">
-            {{ heading_2('Evaluation') }}
-            {% for item in data['evaluation'] %}
+            {{ section_title('Utility Evaluation') }}
+            {% for item in data['utility'] %}
+                {{ evaluation(item) }}
+            {% endfor %}
+        </div>
+        <br>
+        <div class="heading-2-div">
+            {{ section_title('Privacy Evaluation') }}
+            {% for item in data['privacy'] %}
                 {{ evaluation(item) }}
             {% endfor %}
         </div>

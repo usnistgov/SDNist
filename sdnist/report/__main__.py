@@ -3,7 +3,8 @@ import os
 import datetime
 
 from sdnist.report import \
-    generate, Path, score, REPORTS_DIR, ReportData
+    generate, Path, utility_score, REPORTS_DIR, ReportData, Dataset
+from sdnist.report.dataset import data_description
 from sdnist.load import TestDatasetName
 
 from sdnist.report.strs import *
@@ -16,11 +17,15 @@ def run(challenge: str,
         test: TestDatasetName = TestDatasetName.NONE,
         data_root: Path = 'data'):
     outfile = Path(output_directory, 'report.json')
+    report_data = ReportData(output_directory=output_directory)
 
     if not outfile.exists():
+        dataset = Dataset(synthetic_filepath, challenge, public, test, data_root)
+        report_data = data_description(dataset, report_data)
         # Create scores
-        report_data = score(challenge, synthetic_filepath, output_directory, public, test, data_root)
-        report_data.save(outfile)
+        report_data = utility_score(dataset, report_data)
+        # report_data = privacy_score(dataset, report_data)
+        report_data.save()
         report_data = report_data.data
     else:
         with open(outfile, 'r') as f:
@@ -38,7 +43,12 @@ if __name__ == "__main__":
 
     # create directory for current report run
     time_now = datetime.datetime.now().strftime('%m-%d-%YT%H.%M.%S')
-    this_report_dir = Path(REPORTS_DIR, f'{_challenge}_{time_now}')
+    testing = True
+    if testing:
+        this_report_dir = Path(REPORTS_DIR, f'{_challenge}')
+    else:
+        this_report_dir = Path(REPORTS_DIR, f'{_challenge}_{time_now}')
+
     if not this_report_dir.exists():
         os.mkdir(this_report_dir)
 
