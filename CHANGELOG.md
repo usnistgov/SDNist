@@ -1,12 +1,28 @@
 # Change Log
 
+## v1.3.2 - 2022-05-03
+
+### Added
+* html and public, commandline parameters to `sdnist.challenge.submission` module to allow using this
+module for scoring with public data sets.
+
+### Changed
+
+
+### Fixed
+* `sdnist.challenge.submission` to read epsilon from dataset's parameters json file 
+instead of using hard-coded values.
+* Generating collective html visualization of all synthetic datasets scored using `sdnist.challenge.submission`
+module.
+* Jinja template to render drop-down selection of year and puma for census challenge visualization.
+
 ## v1.3.1 - 2022-04-05
 
 ### Added
 * Graph Map Edge scoring for taxi challenge.
 * Apparent Match Distribution privacy metric.
-* Support for running sdnist.challenge.submission module
-for commandline. sdnist.challenge.submssion module generates
+* Support for running `sdnist.challenge.submission` module
+for commandline. `sdnist.challenge.submission` module generates
 final score which can be compared to leaderboard scores
 
 ### Changed
