@@ -14,8 +14,10 @@ from sdnist.report import Path
 from sdnist.report.report_data import \
     ReportData, ScorePacket, Attachment, AttachmentType, \
     DatasetType, DataDescriptionPacket
-from sdnist.report.plots import UnivariatePlots
-from sdnist.report.plots import CorrelationDifferencePlot
+from sdnist.report.plots import \
+    UnivariatePlots, CorrelationDifferencePlot, \
+    GridPlot
+
 
 from sdnist.report.strs import *
 
@@ -55,7 +57,6 @@ def score(challenge: str,
 
     scorers = []
     if challenge == CENSUS:
-
         up = UnivariatePlots(synthetic_dataset, target_dataset, schema, output_directory, challenge)
         up_saved_file_paths = up.save()
 
@@ -101,6 +102,23 @@ def score(challenge: str,
                 Attachment(name="10 Worst Performing PUMA - YEAR",
                            _data=worst_puma_years)
             )
+
+            scores_df = pd.DataFrame(s.scores, columns=['score']).reset_index()
+            puma_val_dict = {i: v for i, v in enumerate(schema['PUMA']['values'])}
+            year_val_dict = {i: v for i, v in enumerate(schema['YEAR']['values'])}
+
+            scores_df = scores_df.replace({"PUMA": puma_val_dict, "YEAR": year_val_dict})
+            puma_year = 2015
+            gp = GridPlot(scores_df, 'PUMA', {'YEAR': puma_year}, output_directory)
+            gp_paths = gp.save()
+            rel_gp_path = ["/".join(list(p.parts)[-2:])
+                            for p in gp_paths]
+            metric_attachments.append(
+                Attachment(name=f'PUMA wise k-marginal score in YEAR {puma_year}',
+                           _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+                                  for p in rel_gp_path],
+                           _type=AttachmentType.ImageLinks)
+            )
         elif s.NAME == TaxiKMarginalScore.NAME \
                 and challenge == TAXI:
             # 10 worst performing pickup_community_area and shift
@@ -116,6 +134,7 @@ def score(challenge: str,
                 Attachment(name="10 Worst Performing PICKUP_COMMUNITY_AREA - SHIFT",
                            _data=worst_pickup_shifts)
             )
+
 
         rep_data.add(ScorePacket(metric_name,
                                  metric_score,
