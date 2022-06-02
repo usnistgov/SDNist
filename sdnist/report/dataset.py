@@ -31,7 +31,8 @@ class Dataset:
             root=self.data_root,
             download=True,
             public=self.public,
-            test=self.test
+            test=self.test,
+            format_="csv"
         )
         self.target_data_path = build_name(
             challenge=self.challenge,
@@ -42,7 +43,7 @@ class Dataset:
 
         # load synthetic dataset
         dtypes = {feature: desc["dtype"] for feature, desc in self.schema.items()}
-        self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes)
+        self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes, index_col=0)
 
 
 def data_description(dataset: Dataset, report_data: ReportData) -> ReportData:

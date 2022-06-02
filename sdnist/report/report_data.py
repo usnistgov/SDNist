@@ -20,6 +20,7 @@ class EvaluationType(Enum):
 class AttachmentType(Enum):
     Table = "table"
     ImageLinks = "image_links"
+    Number = 'number'
 
 
 @dataclass
@@ -30,9 +31,13 @@ class Attachment:
 
     @property
     def data(self) -> Dict[str, any]:
+        if self._type == AttachmentType.Number:
+            d = f"score: {self._data}"
+        else:
+            d = self._data
         return {
             'name': self.name,
-            'data': self._data,
+            'data': d,
             'type': self._type.value
         }
 
@@ -40,7 +45,7 @@ class Attachment:
 @dataclass
 class ScorePacket:
     metric_name: str
-    score: Optional[int] = None,
+    score: Optional[float] = None,
     attachment: List[Attachment] = field(default_factory=list)
     evaluation_type = None
 

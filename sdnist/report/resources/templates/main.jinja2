@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Data Utility Report</title>
+    <title>Data Evaluation Report</title>
     <style>
         @page {
             size: A4 portrait;
@@ -156,6 +156,8 @@
             </div>
         {% elif a.type == "image_links" %}
             {{ draw_images(a.data) }}
+        {% elif a.type == "number" %}
+            {{a.data}}
         {% endif %}
     {% endfor %}
 {% endmacro %}

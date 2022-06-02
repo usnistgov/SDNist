@@ -2,6 +2,8 @@ import os
 import math
 from typing import List, Dict, Tuple
 from pathlib import Path
+
+import matplotlib.cm
 import matplotlib.pyplot as plt
 from matplotlib import colors
 
@@ -80,6 +82,7 @@ def save_grid_plots(title: str, grid_data, grid_labels, output_directory: Path) 
     fig, ax = plt.subplots(figsize=(8, 8))
     plt.imshow(gd, cmap='GnBu')
     im_ratio = gd.shape[0]/gd.shape[1]
+    print('im_ratio: ', im_ratio)
     cbar = plt.colorbar(fraction=0.047 * im_ratio,
                         boundaries=np.linspace(0, 1000),
                         ticks=np.arange(0, 1000, 200))

@@ -1,16 +1,32 @@
 """
 Author: Mary Ann Wall
 """
-
 import argparse
+from pathlib import Path
+
 import pandas as pd
 import matplotlib.pyplot as plt
+
+
+def apparent_match_distribution_plot(match_percentages: pd.Series,
+                                     output_directory: Path) -> Path:
+    plt.figure(figsize=(10, 10))
+    plt.title(
+        'Percentage of Matched Records')
+    match_percentages.hist()
+    plt.xlim(0, 100)
+    plt.xlabel('Match Percentage', fontsize=14)
+    plt.ylabel('Number of Records', fontsize=14)
+    out_file = Path(output_directory, f'apparent_match_distribution.jpg')
+    plt.savefig(out_file)
+    plt.close()
+    return out_file
 
 
 def cellchange(df1, df2, quasi, exclude_cols):
     uniques1 = df1.drop_duplicates(subset=quasi, keep=False)
     uniques2 = df2.drop_duplicates(subset=quasi, keep=False)
-    matcheduniq = uniques1.merge(uniques2, how='inner', on = quasi)
+    matcheduniq = uniques1.merge(uniques2, how='inner', on=quasi)
     allcols = set(df1.columns).intersection(set(df2.columns))
     cols = allcols - set(quasi) - set(exclude_cols)
     return match(matcheduniq, cols), uniques1, uniques2, matcheduniq
@@ -22,7 +38,7 @@ def match(df, cols):
         c_x = c + "_x"
         c_y = c + "_y"
         S = S + (df[c_x] == df[c_y]).astype(int)
-    S = (S/len(cols))*100
+    S = (S/len(cols)) * 100
     return S
 
 
