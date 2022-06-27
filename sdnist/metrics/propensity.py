@@ -1,83 +1,40 @@
 import math
 from typing import List, Optional
-from enum import Enum
-import itertools
 
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
 from sklearn import tree
-
-
-class ModelType(Enum):
-    LogisticRegression = 'logistic_regression'
-    DecisionTree = "decision_tree"
-
+from scipy.stats import ks_2samp
 
 class PropensityMSE:
     NAME = 'Propensity Mean Square Error'
+    bins = 100
 
     def __init__(self,
                  target: pd.DataFrame,
                  synthetic: pd.DataFrame,
-                 model: ModelType = ModelType.LogisticRegression,
-                 features: Optional[List[str]] = None,
-                 complete: bool = True):
-        self.model = model
+                 features: Optional[List[str]] = None):
         self.features = features if features \
             else target.columns.tolist()
         self.target = target[self.features]
         self.synthetic = synthetic[self.features]
-        self.complete = complete
+
         # probability of classifying a sample as belong
         # to the synthetic data set
         self.syn_prob: List[int] = []
-        self.score: float = 0  # propensity mean square error score
-        # self.one_way_scores: pd.DataFrame = pd.DataFrame()
-        self.two_way_scores: pd.DataFrame = pd.DataFrame()
-
-        self.std_score: float = 0  # standardized propensity mean square error score
-        # self.std_one_way_scores: pd.DataFrame = pd.DataFrame()
-        self.std_two_way_scores: pd.DataFrame = pd.DataFrame()
+        self.pmse_score: float = 0  # propensity mean square error score
+        self.ks_score: float = 0  # kolmogorov-smirnov test score
+        self.prob_dist = pd.DataFrame()
 
     def compute_score(self):
         t, s = self.target, self.synthetic
 
         # compute for all features
-        score, std_score = self._pmse(t, s)
+        score = self.pmse(t, s)
         self.score = score
-        self.std_score = std_score
+        return self.score
 
-        if self.complete:
-            # compute for each feature separately
-            # f_scores = []  # final scores
-            # fs_scores = []  # final standardized scores
-            # for f in self.features:
-            #     score, std_score = self._pmse(t[[f]], s[[f]])
-            #     f_scores.append([f, score])
-            #     fs_scores.append([f, std_score])
-            # self.one_way_scores = pd.DataFrame(f_scores, columns=["feature", "pmse"])
-            # self.std_one_way_scores = pd.DataFrame(fs_scores, columns=['feature', 'spmse'])
-
-            # compute for each combination of two from features
-            fim = {f: i for i, f in enumerate(self.features)}  # feature index map
-            f_scores = [[0 for _ in self.features]
-                        for _ in self.features]
-            fs_scores = [[0 for _ in self.features]
-                         for _ in self.features]
-            for fc in itertools.combinations(self.features, 2):
-                f1, f2 = fc
-                score, std_score = self._pmse(t[[f1, f2]], s[[f1, f2]])
-                i1, i2 = fim[f1], fim[f2]
-                f_scores[i1][i2] = score
-                fs_scores[i1][i2] = std_score
-                if f1 != f2:
-                    f_scores[i2][i1] = score
-                    fs_scores[i2][i1] = std_score
-            self.two_way_scores = pd.DataFrame(f_scores, columns=self.features, index=self.features)
-            self.std_two_way_scores = pd.DataFrame(fs_scores, columns=self.features, index=self.features)
-
-    def _pmse(self, t: pd.DataFrame, s: pd.DataFrame):
+    def pmse(self, t: pd.DataFrame, s: pd.DataFrame):
         t, s = t.copy(), s.copy()
         f = t.columns.tolist()
         # 'i' is an indicator column to indicate either a row
@@ -89,31 +46,37 @@ class PropensityMSE:
         # form one single training dataset
         N = pd.concat([t, s]).reset_index(drop=True)
 
-        if self.model == ModelType.LogisticRegression:
-            clf = LogisticRegression(random_state=0)
-        else:
-            clf = tree.DecisionTreeClassifier()
-        print(N.shape, t.shape, s.shape)
+        clf = tree.DecisionTreeClassifier()
         clf.fit(N[f].values, N['i'].values)
-        print('fitted')
-        pprob = clf.predict_proba(N[f].values)  # prediction probabilities
-        syn_prob = np.transpose(pprob)[1]
 
-        # propensity
+        pprob = clf.predict_proba(N[f].values)  # prediction probabilities
+        syn_prob = np.transpose(pprob)[1]  # probability of being a synthetic sample
+
+        oc = [[0, 0] for _ in range(self.bins)]
+        sc = [[0, 0] for _ in range(self.bins)]
+
+        for ir, r in N.iterrows():
+            p = round(syn_prob[ir], 2)
+            pi = math.floor(p * self.bins)
+            pi = pi - 1 if pi == self.bins else pi
+            # print(pi)
+            if N.iloc[ir]['ai'] == 0:
+                oc[pi][0] += 1
+            else:
+                sc[pi][0] += 1
+        self.prob_dist = pd.DataFrame([[o[0], s[0]]
+                                      for o, s in zip(oc, sc)],
+                                      columns=['original records', 'synthetic records'],
+                                      index=range(self.bins))
         N_size = N.shape[0]
         s_size = s.shape[0]  # size of synthetic data
 
-        c = s_size/N_size
-        print(syn_prob)
-        score = 1/N_size * sum([(_pi - c)**2
-                                for _pi in syn_prob])
-        print(score, c)
-        k = len(t.columns) - 1
-        mean = np.mean(syn_prob)
+        c = s_size / N_size
+        # print(syn_prob)
+        self.pmse_score = 1 / N_size * sum([(_pi - c) ** 2
+                                            for _pi in syn_prob])
+        orig_syn_prob = syn_prob[:t.shape[0]]
+        syn_syn_prob = syn_prob[t.shape[0]:]
+        self.ks_score = ks_2samp(orig_syn_prob, syn_syn_prob)
 
-        exp_mean = (k - 1) * ((1 - c)**2) * c / N_size
-        stdev_score = math.sqrt(2 * (k - 1)) * ((1 - c) ** 2) * c / N_size
-
-        std_score = (mean - exp_mean) / stdev_score
-        print(f"Mean: {mean}", k, exp_mean, stdev_score, std_score)
-        return score, std_score
+        return self.pmse_score

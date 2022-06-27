@@ -9,7 +9,7 @@ from sdnist.metrics.hoc import \
 from sdnist.metrics.graph_edge_map import \
     TaxiGraphEdgeMapScore
 from sdnist.metrics.propensity import \
-    PropensityMSE, ModelType
+    PropensityMSE
 
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
@@ -42,8 +42,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                                         ds.schema),
                    PropensityMSE(ds.target_data,
                                  ds.synthetic_data,
-                                 features=['SEX', 'INCTOT'],
-                                 model=ModelType.DecisionTree)]
+                                 features=['SEX', 'INCTOT'])]
     elif ds.challenge == TAXI:
         up = UnivariatePlots(ds.synthetic_data, ds.target_data,
                              ds.schema, rd.output_directory, ds.challenge)
@@ -58,8 +57,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                    TaxiGraphEdgeMapScore(ds.target_data, ds.synthetic_data, ds.schema),
                    PropensityMSE(ds.target_data,
                                  ds.synthetic_data,
-                                 features=['fare', 'trip_miles', 'trip_seconds', 'trip_hour_of_day'],
-                                 model=ModelType.DecisionTree)
+                                 features=['fare', 'trip_miles', 'trip_seconds', 'trip_hour_of_day'])
                    ]
     else:
         raise Exception(f'Unknown challenge type: {ds.challenge}')
@@ -68,7 +66,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
         s.compute_score()
         metric_name = s.NAME
 
-        metric_score = int(s.score) if s.score > 100 else round(s.score, 2)
+        metric_score = int(s.score) if s.score > 100 else round(s.score, 5)
         metric_attachments = []
 
         if s.NAME == CensusKMarginalScore.NAME \
@@ -103,6 +101,9 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                                   for p in rel_gp_path],
                            _type=AttachmentType.ImageLinks)
             )
+            rd.add(UtilityScorePacket(metric_name,
+                                      metric_score,
+                                      metric_attachments))
         elif s.NAME == TaxiKMarginalScore.NAME \
                 and ds.challenge == TAXI:
             # 10 worst performing pickup_community_area and shift
@@ -118,39 +119,37 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                 Attachment(name="10 Worst Performing PICKUP_COMMUNITY_AREA - SHIFT",
                            _data=worst_pickup_shifts)
             )
+            rd.add(UtilityScorePacket(metric_name,
+                                      metric_score,
+                                      metric_attachments))
         elif s.NAME == PropensityMSE.NAME:
             metric_attachments.append(
-                Attachment(name=f'Standardized Propensity Mean Square Error',
-                           _data=s.std_score,
-                           _type=AttachmentType.Number)
+                Attachment(name=f'')
             )
+            # pp = PropensityPairPlot(s.two_way_scores, rd.output_directory)
+            # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
+            #
+            # pp_paths = pp.save()
+            # pps_paths = pps.save('spmse',
+            #                      'Two-Way Standardized Propensity Mean Square Error')
+            # rel_gp_path = ["/".join(list(p.parts)[-2:])
+            #                 for p in pp_paths]
+            # rel_pps_path = ["/".join(list(p.parts)[-2:])
+            #                 for p in pps_paths]
+            # metric_attachments.append(
+            #     Attachment(name=f'Two way propensity mean square error',
+            #                _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+            #                       for p in rel_gp_path],
+            #                _type=AttachmentType.ImageLinks)
+            # )
+            # metric_attachments.append(
+            #     Attachment(name=f'Two way standardized propensity mean square error',
+            #                _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+            #                       for p in rel_pps_path],
+            #                _type=AttachmentType.ImageLinks)
+            # )
 
-            pp = PropensityPairPlot(s.two_way_scores, rd.output_directory)
-            pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
 
-            pp_paths = pp.save()
-            pps_paths = pps.save('spmse',
-                                 'Two-Way Standardized Propensity Mean Square Error')
-            rel_gp_path = ["/".join(list(p.parts)[-2:])
-                            for p in pp_paths]
-            rel_pps_path = ["/".join(list(p.parts)[-2:])
-                            for p in pps_paths]
-            metric_attachments.append(
-                Attachment(name=f'Two way propensity mean square error',
-                           _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
-                                  for p in rel_gp_path],
-                           _type=AttachmentType.ImageLinks)
-            )
-            metric_attachments.append(
-                Attachment(name=f'Two way standardized propensity mean square error',
-                           _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
-                                  for p in rel_pps_path],
-                           _type=AttachmentType.ImageLinks)
-            )
-
-        rd.add(UtilityScorePacket(metric_name,
-                                  metric_score,
-                                  metric_attachments))
     rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
                                for p in up_saved_file_paths]
     rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
