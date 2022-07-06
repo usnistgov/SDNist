@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn import tree
 from scipy.stats import ks_2samp
 
+
 class PropensityMSE:
     NAME = 'Propensity Mean Square Error'
     bins = 100
@@ -24,7 +25,7 @@ class PropensityMSE:
         self.syn_prob: List[int] = []
         self.pmse_score: float = 0  # propensity mean square error score
         self.ks_score: float = 0  # kolmogorov-smirnov test score
-        self.prob_dist = pd.DataFrame()
+        self.prob_dist = pd.DataFrame()  # sample distribution over propensity bins
 
     def compute_score(self):
         t, s = self.target, self.synthetic
@@ -60,13 +61,13 @@ class PropensityMSE:
             pi = math.floor(p * self.bins)
             pi = pi - 1 if pi == self.bins else pi
             # print(pi)
-            if N.iloc[ir]['ai'] == 0:
+            if N.iloc[ir]['i'] == 0:
                 oc[pi][0] += 1
             else:
                 sc[pi][0] += 1
         self.prob_dist = pd.DataFrame([[o[0], s[0]]
                                       for o, s in zip(oc, sc)],
-                                      columns=['original records', 'synthetic records'],
+                                      columns=['target samples', 'synthetic samples'],
                                       index=range(self.bins))
         N_size = N.shape[0]
         s_size = s.shape[0]  # size of synthetic data
