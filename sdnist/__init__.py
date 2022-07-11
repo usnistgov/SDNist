@@ -8,6 +8,7 @@ import sdnist.metrics.kmarginal
 import sdnist.schema
 import sdnist.challenge.submission
 import sdnist.utils
+import sdnist.strs as strs
 
 from sdnist.metrics.hoc import TaxiHigherOrderConjunction
 from sdnist.metrics.graph_edge_map import TaxiGraphEdgeMapScore
@@ -25,6 +26,7 @@ def log(message: str, verbose: bool = False):
 def score(private_dataset: pd.DataFrame,
           synthetic_dataset: pd.DataFrame,
           schema: dict,
+          config: dict,
           challenge: str = "census",
           drop_columns: List[str] = None,
           n_permutations: int = None,
@@ -34,6 +36,7 @@ def score(private_dataset: pd.DataFrame,
     :param private_dataset: pd.DataFrame: original dataset, as provided by `sdnist.census` for instance.
     :param synthetic_dataset: pd.DataFrame: synthetic dataset, computed using your own method.
     :param schema: dict: dataset schema, as provided by `sdnist.census` for instance.
+    :param config: dict: configurations for k-marginal scorer class
     :param challenge: str: challenge rules to define the scoring method. Must be `census` or `taxi`.
     :param drop_columns: List: columns to remove from dataset before scoring.
     :param n_permutations: int: number of k-marginal permutations to use. By default, the number of
@@ -49,7 +52,8 @@ def score(private_dataset: pd.DataFrame,
     }
 
     log(f'Computing K-marginal for the challenge: {challenge}', verbose)
-    k_marg_score = score_cls[challenge](private_dataset, synthetic_dataset, schema, drop_columns)
+    k_marg_score = score_cls[challenge](private_dataset, synthetic_dataset,
+                                        schema, **config[strs.K_MARGINAL])
     if n_permutations is not None:
         score.N_PERMUTATIONS = n_permutations
 

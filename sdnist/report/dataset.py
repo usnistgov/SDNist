@@ -10,6 +10,8 @@ from sdnist.report.report_data import \
 from sdnist.load import \
     TestDatasetName, load_dataset, build_name
 
+import sdnist.strs as strs
+
 
 @dataclass
 class Dataset:
@@ -26,7 +28,7 @@ class Dataset:
 
     def __post_init__(self):
         # load target dataset which is used to score synthetic dataset
-        self.target_data, self.schema = load_dataset(
+        self.target_data, params = load_dataset(
             challenge=self.challenge,
             root=self.data_root,
             download=True,
@@ -40,10 +42,15 @@ class Dataset:
             public=self.public,
             test=self.test
         )
-
+        self.schema = params[strs.SCHEMA]
+        self.config = params[strs.CONFIG]
         # load synthetic dataset
         dtypes = {feature: desc["dtype"] for feature, desc in self.schema.items()}
-        self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes, index_col=0)
+        if str(self.synthetic_filepath).endswith('.csv'):
+            self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes, index_col=0)
+        elif str(self.synthetic_filepath).endswith('.parquet'):
+            self.synthetic_data = pd.read_parquet(self.synthetic_filepath)
+            print(self.synthetic_data.columns.tolist())
 
 
 def data_description(dataset: Dataset, report_data: ReportData) -> ReportData:

@@ -1,3 +1,4 @@
+from typing import List, Dict, Tuple
 from pathlib import Path
 
 import pandas as pd
@@ -22,7 +23,38 @@ from sdnist.report.plots import \
     GridPlot, PropensityDistribution, PearsonCorrelationPlot
 
 
-from sdnist.report.strs import *
+import sdnist.strs as strs
+
+
+def best_worst_performing(scores: pd.Series,
+                          group_features: List[str],
+                          feature_values: Dict[str, Dict]) -> Tuple[List, List]:
+    ss = scores.sort_values()
+    total_ss = len(ss)
+    total_scores = 10 if total_ss > 10 else total_ss
+
+    worst_scores = []
+    best_scores = []
+
+    for wf in ss[0: 10].index:  # worst score features
+        f_values = {f: (feature_values[f][wf[i]]
+                        if type(wf) == tuple else feature_values[f][wf])
+                    for i, f in enumerate(group_features)}
+        worst_scores.append({
+            **f_values,
+            "SCORE": int(ss[wf])
+        })
+
+    for bf in ss[total_ss - total_scores: total_ss].index:
+        f_values = {f: (feature_values[f][bf[i]]
+                        if type(bf) == tuple else feature_values[f][bf])
+                    for i, f in enumerate(group_features)}
+        best_scores.append({
+            **f_values,
+            "SCORE": int(ss[bf])
+        })
+
+    return worst_scores, best_scores
 
 
 def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
@@ -30,12 +62,12 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
     rd = report_data
 
     scorers = []
-
-    if ds.challenge == CENSUS:
+    features = ds.config[strs.CORRELATION_FEATURES]
+    if ds.challenge == strs.CENSUS:
         up = UnivariatePlots(ds.synthetic_data, ds.target_data,
                              ds.schema, rd.output_directory, ds.challenge)
         up_saved_file_paths = up.save()
-        features = ['SEX', 'INCTOT', 'RACE', 'CITIZEN', 'EDUC']
+
         cdp = CorrelationDifferencePlot(ds.synthetic_data, ds.target_data, rd.output_directory,
                                         features)
         cdp_saved_file_paths = cdp.save()
@@ -48,15 +80,15 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
 
         scorers = [CensusKMarginalScore(ds.target_data,
                                         ds.synthetic_data,
-                                        ds.schema),
+                                        ds.schema, **ds.config[strs.K_MARGINAL]),
                    PropensityMSE(ds.target_data,
                                  ds.synthetic_data,
                                  features)]
-    elif ds.challenge == TAXI:
+    elif ds.challenge == strs.TAXI:
         up = UnivariatePlots(ds.synthetic_data, ds.target_data,
                              ds.schema, rd.output_directory, ds.challenge)
         up_saved_file_paths = up.save()
-        features = ['fare', 'trip_miles', 'trip_seconds', 'trip_hour_of_day']
+
         cdp = CorrelationDifferencePlot(ds.synthetic_data, ds.target_data, rd.output_directory,
                                         features)
         cdp_saved_file_paths = cdp.save()
@@ -67,8 +99,10 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
         pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, rd.output_directory)
         pcp_saved_file_paths = pcp.save()
 
-        scorers = [TaxiKMarginalScore(ds.target_data, ds.synthetic_data, ds.schema),
-                   TaxiHigherOrderConjunction(ds.target_data, ds.synthetic_data),
+        scorers = [TaxiKMarginalScore(ds.target_data, ds.synthetic_data,
+                                      ds.schema, **ds.config[strs.K_MARGINAL]),
+                   TaxiHigherOrderConjunction(ds.target_data, ds.synthetic_data,
+                                              ds.config[strs.K_MARGINAL][strs.BINS]),
                    TaxiGraphEdgeMapScore(ds.target_data, ds.synthetic_data, ds.schema),
                    PropensityMSE(ds.target_data,
                                  ds.synthetic_data,
@@ -76,6 +110,12 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                    ]
     else:
         raise Exception(f'Unknown challenge type: {ds.challenge}')
+
+    group_features = ds.config[strs.K_MARGINAL][strs.GROUP_FEATURES]
+    f_val_dict = {
+        f: {i: v for i, v in enumerate(ds.schema[f]['values'])}
+        for f in group_features
+    }
 
     for s in scorers:
         s.compute_score()
@@ -85,54 +125,55 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
         metric_attachments = []
 
         if s.NAME == CensusKMarginalScore.NAME \
-                and ds.challenge == CENSUS:
-            # 10 worst performing puma-years
-            ss = s.scores.sort_values()
-            worst_puma_years = []
-            for (puma, year) in ss[0: 10].index:
-                worst_puma_years.append({
-                    "PUMA": puma,
-                    "YEAR": year,
-                    "SCORE": int(ss[(puma, year)])
-                })
+                and ds.challenge == strs.CENSUS:
+            # N worst and best performing puma-years
+
+            worst_scores, best_scores = best_worst_performing(s.scores,
+                                                              group_features,
+                                                              f_val_dict)
             metric_attachments.append(
-                Attachment(name="10 Worst Performing PUMA - YEAR",
-                           _data=worst_puma_years)
+                Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
+                           _data=worst_scores)
+            )
+            metric_attachments.append(
+                Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
+                           _data=best_scores)
             )
 
-            scores_df = pd.DataFrame(s.scores, columns=['score']).reset_index()
-            puma_val_dict = {i: v for i, v in enumerate(ds.schema['PUMA']['values'])}
-            year_val_dict = {i: v for i, v in enumerate(ds.schema['YEAR']['values'])}
+            if len(group_features) > 1:
+                scores_df = pd.DataFrame(s.scores, columns=['score']).reset_index()
 
-            scores_df = scores_df.replace({"PUMA": puma_val_dict, "YEAR": year_val_dict})
-            puma_year = 2015
-            gp = GridPlot(scores_df, 'PUMA', {'YEAR': puma_year}, rd.output_directory)
-            gp_paths = gp.save()
-            rel_gp_path = ["/".join(list(p.parts)[-2:])
-                            for p in gp_paths]
-            metric_attachments.append(
-                Attachment(name=f'PUMA wise k-marginal score in YEAR {puma_year}',
-                           _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
-                                  for p in rel_gp_path],
-                           _type=AttachmentType.ImageLinks)
-            )
+                scores_df = scores_df.replace(f_val_dict)
+                # fixed values for features except first in group features
+                fixed_val = {f: scores_df[f].unique()[0] for f in group_features[1:]}
+                gp = GridPlot(scores_df, group_features[0], fixed_val, rd.output_directory)
+                gp_paths = gp.save()
+                rel_gp_path = ["/".join(list(p.parts)[-2:])
+                               for p in gp_paths]
+                metric_attachments.append(
+                    Attachment(name=f'{group_features[0]} '
+                                    f'wise k-marginal score in '
+                                    f'{", ".join([f"{k}: {v}" for k, v in fixed_val.items()])}',
+                               _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                                      for p in rel_gp_path],
+                               _type=AttachmentType.ImageLinks)
+                )
             rd.add(UtilityScorePacket(metric_name,
                                       metric_score,
                                       metric_attachments))
         elif s.NAME == TaxiKMarginalScore.NAME \
-                and ds.challenge == TAXI:
-            # 10 worst performing pickup_community_area and shift
-            ss = s.scores.sort_values()
-            worst_pickup_shifts = []
-            for (pickup, shift) in ss[0: 10].index:
-                worst_pickup_shifts.append({
-                    "PICKUP_COMMUNITY_AREA": pickup,
-                    "SHIFT": shift,
-                    "SCORE": int(ss[(pickup, shift)])
-                })
+                and ds.challenge == strs.TAXI:
+            # N worst and best performing pickup_community_area and shift
+            worst_scores, best_scores = best_worst_performing(s.scores,
+                                                              group_features,
+                                                              f_val_dict)
             metric_attachments.append(
-                Attachment(name="10 Worst Performing PICKUP_COMMUNITY_AREA - SHIFT",
-                           _data=worst_pickup_shifts)
+                Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
+                           _data=worst_scores)
+            )
+            metric_attachments.append(
+                Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
+                           _data=best_scores)
             )
             rd.add(UtilityScorePacket(metric_name,
                                       metric_score,
@@ -150,7 +191,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
             #                 for p in pps_paths]
             metric_attachments.append(
                 Attachment(name=f'Propensities Distribution',
-                           _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+                           _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                   for p in rel_pd_path],
                            _type=AttachmentType.ImageLinks)
             )
@@ -174,20 +215,20 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
     rd.add(UtilityScorePacket("Univariate Distributions",
                               None,
                               [Attachment(name="Three Worst Performing Features",
-                                          _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+                                          _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                                   for p in rel_up_saved_file_paths],
                                           _type=AttachmentType.ImageLinks)]))
 
-    rd.add(UtilityScorePacket("Correlation Coefficient Difference",
+    rd.add(UtilityScorePacket("Kendall Tau Correlation Coefficient Difference",
                               None,
                               [Attachment(name=None,
-                                          _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+                                          _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                                  for p in rel_cdp_saved_file_paths],
                                           _type=AttachmentType.ImageLinks)]))
     rd.add(UtilityScorePacket("Pearson Correlation Coefficient Difference",
                               None,
                               [Attachment(name=None,
-                                          _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+                                          _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                                  for p in rel_pcp_saved_file_paths],
                                           _type=AttachmentType.ImageLinks)]))
 

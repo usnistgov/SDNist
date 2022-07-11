@@ -156,8 +156,10 @@
             </div>
         {% elif a.type == "image_links" %}
             {{ draw_images(a.data) }}
-        {% elif a.type == "number" %}
-            {{a.data}}
+        {% elif a.type == "string" %}
+            <div>
+                {{ a.data }}
+            </div>
         {% endif %}
     {% endfor %}
 {% endmacro %}

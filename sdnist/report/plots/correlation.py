@@ -1,13 +1,11 @@
 import os
-from typing import Dict, List, Optional
+from typing import List
 from pathlib import Path
-import itertools
-
 
 import matplotlib.pyplot as plt
+from matplotlib import colors
+import numpy as np
 import pandas as pd
-
-from sdnist.report.strs import *
 
 plt.style.use('seaborn-deep')
 
@@ -57,7 +55,7 @@ def correlations(data: pd.DataFrame, features: List[str]):
     for f_a in features:
         f_a_corr = []
         for f_b in features:
-            c_val = data[f_a].corr(data[f_b])
+            c_val = data[f_a].corr(data[f_b], method='kendall')
             f_a_corr.append(c_val)
         corr_list.append(f_a_corr)
 
@@ -78,10 +76,9 @@ def correlation_difference(synthetic: pd.DataFrame,
 
 def save_correlation_difference_plot(correlation_data: pd.DataFrame,
                                      output_directory: Path) -> List[Path]:
-    cd = correlation_data[reversed(correlation_data.columns)]
-    plt.imshow(cd, cmap='RdBu')
+    cd = correlation_data[reversed(correlation_data.columns)].abs()
+    plt.imshow(cd, cmap='Blues', interpolation='none')
     plt.colorbar()
-
     plt.xticks(range(cd.shape[1]), cd.columns)
     plt.yticks(range(cd.shape[0]), cd.index)
     file_path = Path(output_directory, 'corr_diff.jpg')

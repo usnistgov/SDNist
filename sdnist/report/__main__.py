@@ -8,7 +8,7 @@ from sdnist.report import \
 from sdnist.report.dataset import data_description
 from sdnist.load import TestDatasetName
 
-from sdnist.report.strs import *
+from strs import *
 
 
 def run(challenge: str,
@@ -56,8 +56,8 @@ if __name__ == "__main__":
     input_cnf = {
         CENSUS: {
             PUBLIC: False,
-            TEST: TestDatasetName.GA_NC_SC_10Y_PUMS,
-            SYNTHETIC_FILEPATH: Path('myfile_ga.csv'),
+            TEST: TestDatasetName.MA_ACS_EXCERPT_2019,
+            SYNTHETIC_FILEPATH: Path('syn_data/ma/syn_ma_acs_2019.parquet'),
             DATA_ROOT: Path('data'),
             OUTPUT_DIRECTORY: this_report_dir
         },

@@ -1,3 +1,4 @@
+from typing import Dict
 import numpy as np
 import pandas as pd
 
@@ -45,16 +46,17 @@ def count_similar_individuals(counts, individual, threshold):
 
 class TaxiHigherOrderConjunction:
     NAME = 'Higher Order Conjunction'
-    BINS = sdnist.metrics.kmarginal.TaxiKMarginalScore.BINS
 
     N_ITERATIONS = 50
 
     def __init__(self, 
                  private_dataset: pd.DataFrame,
                  synthetic_dataset: pd.DataFrame,
+                 bins: Dict,
                  seed: int = None):
         self._private_dataset = private_dataset
         self._synthetic_dataset = synthetic_dataset
+        self.BINS = bins
         self.seed = seed
 
     def compute_score(self):

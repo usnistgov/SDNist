@@ -6,11 +6,27 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from sdnist.metrics.apparent_match_dist import \
-    cellchange, apparent_match_distribution_plot
-from sdnist.report.strs import *
+from sdnist.metrics.apparent_match_dist import cellchange
 
-plt.style.use('seaborn-deep')
+# plt.style.use('seaborn-deep')
+
+
+def plot_apparent_match_dist(match_percentages: pd.Series,
+                             output_directory: Path) -> Path:
+    plt.figure(figsize=(8, 6))
+    plt.title(
+        'Percentage of Matched Records')
+    match_percentages.hist()
+    plt.xlim(0, 100)
+    ax = plt.gca()
+    ax.grid(False)
+    ax.locator_params(axis='y', integer=True)
+    plt.xlabel('Match Percentage', fontsize=14)
+    plt.ylabel('Number of Records', fontsize=14)
+    out_file = Path(output_directory, f'apparent_match_distribution.jpg')
+    plt.savefig(out_file)
+    plt.close()
+    return out_file
 
 
 class ApparentMatchDistributionPlot:
@@ -43,7 +59,7 @@ class ApparentMatchDistributionPlot:
         self.plots_path = Path(self.o_dir, 'apparent_match_distribution')
         self.quasi_features = quasi_features
         self.exclude_features = exclude_features
-
+        self.quasi_matched_df = pd.DataFrame()
         self._setup()
 
     def _setup(self):
@@ -56,6 +72,7 @@ class ApparentMatchDistributionPlot:
         percents, u1, u2, mu = cellchange(self.syn, self.tar,
                                           self.quasi_features,
                                           self.exclude_features)
-        save_file_path = apparent_match_distribution_plot(percents,
-                                                          self.plots_path)
+        self.quasi_matched_df = mu
+        save_file_path = plot_apparent_match_dist(percents,
+                                                  self.plots_path)
         return [save_file_path]

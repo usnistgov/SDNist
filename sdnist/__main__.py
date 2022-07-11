@@ -4,6 +4,7 @@ import pathlib
 import pandas as pd
 
 import sdnist
+import sdnist.strs as strs
 
 
 if __name__ == "__main__":
@@ -52,12 +53,13 @@ if __name__ == "__main__":
     print(f'Loaded dataset at path: {dataset_path}')
 
     # Load actual dataset
-    dtypes = {feature: desc["dtype"] for feature, desc in schema.items()}
+    dtypes = {feature: desc["dtype"] for feature, desc in schema[strs.SCHEMA].items()}
     synthetic = pd.read_csv(args.dataset, dtype=dtypes)
 
     # Compute and print score
     score = sdnist.score(target, synthetic, 
-                         schema=schema,
+                         schema=schema[strs.SCHEMA],
+                         config=schema[strs.CONFIG],
                          challenge=args.challenge,
                          verbose=True)
 

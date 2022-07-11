@@ -23,8 +23,8 @@ class PearsonCorrelationPlot:
     def save(self) -> List[Path]:
         file_path = Path(self.plot_path, 'pearson_corr_diff.jpg')
         print(file_path)
-        cd = self.cd[reversed(self.cd.columns)]
-        plt.imshow(cd, cmap='RdBu')
+        cd = self.cd[reversed(self.cd.columns)].abs()
+        plt.imshow(cd, cmap='Blues', interpolation='none')
         plt.colorbar()
 
         plt.xticks(range(cd.shape[1]), cd.columns)

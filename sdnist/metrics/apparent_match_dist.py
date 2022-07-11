@@ -8,21 +8,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def apparent_match_distribution_plot(match_percentages: pd.Series,
-                                     output_directory: Path) -> Path:
-    plt.figure(figsize=(10, 10))
-    plt.title(
-        'Percentage of Matched Records')
-    match_percentages.hist()
-    plt.xlim(0, 100)
-    plt.xlabel('Match Percentage', fontsize=14)
-    plt.ylabel('Number of Records', fontsize=14)
-    out_file = Path(output_directory, f'apparent_match_distribution.jpg')
-    plt.savefig(out_file)
-    plt.close()
-    return out_file
-
-
 def cellchange(df1, df2, quasi, exclude_cols):
     uniques1 = df1.drop_duplicates(subset=quasi, keep=False)
     uniques2 = df2.drop_duplicates(subset=quasi, keep=False)

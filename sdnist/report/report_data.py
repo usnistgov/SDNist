@@ -20,7 +20,7 @@ class EvaluationType(Enum):
 class AttachmentType(Enum):
     Table = "table"
     ImageLinks = "image_links"
-    Number = 'number'
+    String = 'string'
 
 
 @dataclass
@@ -31,10 +31,7 @@ class Attachment:
 
     @property
     def data(self) -> Dict[str, any]:
-        if self._type == AttachmentType.Number:
-            d = f"score: {self._data}"
-        else:
-            d = self._data
+        d = self._data
         return {
             'name': self.name,
             'data': d,
