@@ -15,15 +15,15 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 
 Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 
-The SDNist source code is hosted on Github, and all the data tables will be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
-Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.3.0](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0)
+The SDNist source code is hosted on Github, and all the data tables should be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
+Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.3.0](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0).
 
 * Data Download Notes: 
-  * SDNist does not just download specific dataset instead it downloads all the available datasets that are provided by the library.  
+  * SDNist does not  download just a specific dataset; instead, it downloads all the available datasets in the library.  
   * If data is manually downloaded, copy the contents inside the 'data' directory from the extracted zip file to your data root directory.
-  * Default root data directory of SDNist is `<your-current-working-directory>/data`. Current working directory
-  is the directory in which the user runs SDNist library through console/terminal, or the directory that contains your python or ipython files
-  that imports SDNist library.
+  * The default root data directory of SDNist is `<your-current-working-directory>/data`. The current working directory
+  is the directory in which you run the SDNist library through a console/terminal, or the directory that contains your Python or IPython files
+  that imports the SDNist library.
    
     
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
