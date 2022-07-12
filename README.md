@@ -168,7 +168,7 @@ python -m sdnist.challenge.submission --public --html
 The above commands assume that the synthetic data is located in the following directory: 
 `[current-working-directory]/results/census/`.  
 Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
-In its default settings, SDNist performs scoring for epsilons 0.1, 1.0 and 10.0, so the synthetic files would be named 
+In its default settings, SDNist performs scoring for epsilons 0.1, 1.0, and 10.0, so the synthetic files would be named 
 eps=0.1.csv, eps=1.0.csv and eps=10.0.csv, where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
  
 
@@ -263,6 +263,6 @@ Generation: 100%|█████████████████████
 ```
 
 ### Other examples
-Other examples are available in the `examples/` folder. The DPSyn and Minutemen are directly adapted from the public repo of their author:
+Other examples are available in the `examples/` folder.  DPSyn and Minutemen are directly adapted from the public repos of their authors:
 - DPSyn : https://github.com/agl-c/deid2_dpsyn
 - Minutemen : https://github.com/ryan112358/nist-synthetic-data-2021. This examples requires the `private-pgm` library (https://github.com/ryan112358/private-pgm)
