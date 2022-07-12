@@ -7,7 +7,7 @@ This package provides tools for standardized and reproducible comparison of synt
 
 You have two possible workflows:
 1) Manually manage the public and private datasets as `pandas.DataFrame` objects, directly generate your synthetic data, and directly compute the score.
-2) Reproduce the setup of the challenge---i.e., create a synthetizer subclass of `challenge.submission.Model`, then call `run(model, challenge="census")`. This makes sure your synthetizer is scored against the same datasets as in the Challenge.
+2) Reproduce the setup of the challenge---i.e., create a synthesizer subclass of `challenge.submission.Model`, then call `run(model, challenge="census")`. This makes sure your synthesizer is scored against the same datasets as in the Challenge.
 
 In all cases, the scoring does not numerically check whether your synthesizer is actually $\epsilon$-differentially private or not. You have to provide a formal proof yourself.
 
