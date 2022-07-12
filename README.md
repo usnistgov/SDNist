@@ -94,22 +94,23 @@ CensusKMarginalScore(847)
 ```
 
 #### Discretizing a dataset
-Many synthesizers require working on categorical/discretized data, yet many features of in `sdnist` datasets are actually
+Many synthesizers require working on categorical/discretized data, yet many features of `sdnist` datasets are actually
 integer or floating point valued. `sdnist` provide a simple tool to discretize/undiscretize `sdnist` datasets.
 
-First, note that the k-marginal score itself works on categorical data under the hood. For fairness, the bins that are used can be considered public. They are available at
+First, note that the k-marginal score itself works on categorical data under the hood. For fairness, the bins that are used can be considered public. They are available as follows:
+
+The ACS (American Community Survey) dataset:
 
 ```
 >>> bins = sdnist.kmarginal.CensusKMarginalScore.BINS
 ```
 
-for the ACS (American Community Survey) dataset or
-
+The Chicago taxi dataset:
 ```
 >>> bins = sdnist.kmarginal.TaxiKmarginalScore.BINS
 ```
 
-for the Chicago taxi dataset.
+
 
 The `pd.DataFrame` datasets can then be discretized using
 
