@@ -24,6 +24,7 @@ Alternatively, the data can be manually downloaded as part of the latest release
   * The default root data directory of SDNist is `<your-current-working-directory>/data`. The current working directory
   is the directory in which you run the SDNist library through a console/terminal, or the directory that contains your Python or IPython files
   that imports the SDNist library.
+<!--  last part of sentence above, referring to Python files and importing SDNist library: is it correctly worded?  seems confusing -->
    
     
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
@@ -61,14 +62,14 @@ This repository is being actively developed, and we welcome contributions.
 
 If you encounter a bug, [please create an issue](https://github.com/usnistgov/SDNist/issues/new).
 
-Please feel free to create a Pull Request to help us correct bugs and other issues.
+Feel free to create a Pull Request to help us correct bugs and other issues.
 
 Please contact us if you wish to augment or expand existing features.  
 
 
 ## Examples
 
-### 1) Quickest example (option 1)
+### 1) Option 1 (quickest)
 #### Loading and scoring
 
 ```
@@ -199,7 +200,8 @@ To visualize scores over different values of epsilon, year or puma.
 
 Other options are available by calling `--help`.
 
-### 2) Reproducing the baselines from the challenge by sublasscing `challenge.submission.Model` (option 2, slightly more advanced and time-consuming)
+### 2) Option 2 (slightly more advanced and time-consuming)
+#### Reproducing the baselines from the challenge by subclassing `challenge.submission.Model`
 
 Some examples of subclassing `challenge.submission.Model` are available in the library.
 
@@ -228,7 +230,7 @@ python -m sdnist.challenge.subsample
 
 ```
 
-Note that the resulting synthetic dataset is not differentillally private.
+Note that the resulting synthetic dataset is not differentially private.
 
 #### Random values
 
@@ -238,7 +240,7 @@ Build a synthetic dataset by chosing random valid values:
 python -m sdnist.challenge.baseline
 ```
 
-This corresponds to the baseline of the sprint 2 or the 2020 challenge. The output can be considered 0-differentially private if the schema itself is public.
+This corresponds to the baseline of Sprint 2 (the 2020 Challenge). The output can be considered 0-differentially private if the schema itself is public.
 
 Output:
 ```
