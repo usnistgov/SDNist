@@ -6,8 +6,8 @@ This package provides tools for standardized and reproducible comparison of synt
 ## Quick introduction
 
 You have two possible workflows:
-1) manually manage the public and private datasets as `pandas.DataFrame` objects, directy generate your synthetic data and directly compute the score
-2) reproduce the setup of the challenge, i.e create a synthetizer subclass of `challenge.submission.Model` then call `run(model, challenge="census")`. This makes sure your synthetizer is scored against the same datasets as in the challenge.
+1) Manually manage the public and private datasets as `pandas.DataFrame` objects, directly generate your synthetic data, and directly compute the score.
+2) Reproduce the setup of the challenge---i.e., create a synthetizer subclass of `challenge.submission.Model`, then call `run(model, challenge="census")`. This makes sure your synthetizer is scored against the same datasets as in the challenge.
 
 In all cases, the scoring does not numerically check whether your synthesizer is actually $\epsilon$-differentially private or not. You have to provide a formal proof yourself.
 
@@ -15,7 +15,7 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 
 Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 
-The SDNist source code is hosted on Github and all the data tables will be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
+The SDNist source code is hosted on Github, and all the data tables will be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
 Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.3.0](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0)
 
 * Data Download Notes: 
