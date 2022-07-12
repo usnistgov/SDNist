@@ -118,7 +118,7 @@ The `pd.DataFrame` datasets can then be discretized using
 >>> dataset_binned = sdnist.utils.discretize(dataset, schema, bins)
 ```
 
-`sdnist.utils.discretize` returns a `pd.DataFrame` where each value is remapped to `(0, n-1)` where `n` is the number of distinct values. Note that the even though the `score` functions should be given *unbinned* datasets, i.e if your synthesizer works on discretized dataset, you should first undiscretize your synthetic data. This can be done using
+`sdnist.utils.discretize` returns a `pd.DataFrame` where each value is remapped to `(0, n-1)` where `n` is the number of distinct values. Note that the even though the `score` functions should be given *unbinned* datasets (i.e., if your synthesizer works on discretized dataset), you should first undiscretize your synthetic data. This can be done using
 
 ```
 >>> synthetic_dataset_binned = ... # generate your synthetic data using your own method
@@ -127,74 +127,70 @@ The `pd.DataFrame` datasets can then be discretized using
 
 ### Directly computing the score on a given `.csv` file
 
-You can directly run from a terminal
+You can directly run from a terminal:
 
 ```
 % python -m sdnist your_file.csv
 ```
 
-This will score against the public census (ACS) dataset and display the result in an HTML page:  
+This will score against the public census (ACS) dataset and display the results on an html page:  
 
 ![](examples/score_example.png)
 
-To score the synthetic dataset against one of the test datasets
+To score the synthetic dataset against one of the test datasets:
 ```
 % python -m sdnist your_synthetic_ga_nc_sc.csv --test-dataset GA_NC_SC_10Y_PUMS
 ```
 Other options are available by calling `--help`.
 
 ### Computing aggregate score for all synthetic files generated using different epsilon values
-To generate final aggregate score over all epsilon values for census challenge. 
+To generate a final aggregate score over all epsilon values for the Census Challenge: 
 
 ```
 % python -m sdnist.challenge.submission 
 ```
 
-To score synthetic data file for dataset GA_NC_SC_10Y_PUMS
+To score synthetic data file for dataset GA_NC_SC_10Y_PUMS:
 ```
 % python -m sdnist.challenge.submission --test-dataset GA_NC_SC_10Y_PUMS
 ```
 
-To score synthetic data files and visualize scores on an interactive map-based html visualizer
+To score synthetic data files and visualize scores on an interactive map-based html visualizer:
 ```
 % python -m sdnist.challenge.submission --html
 ```
 
-To score synthetic data files during algorithm development (uses public dataset IL_OH_10Y_PUMS)
+To score synthetic data files during algorithm development (uses public dataset IL_OH_10Y_PUMS):
 ```
 python -m sdnist.challenge.submission --public --html
 ```
 
-The above commands assume that the synthetic data is located in the directory: 
+The above commands assume that the synthetic data is located in the following directory: 
 `[current-working-directory]/results/census/`.  
 Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
-In its default settings, SDNist performs scoring for epsilons: 0.1, 1.0 and 10.0, so synthetic files would be named: 
-eps=0.1.csv, eps=1.0.csv and eps=10.0.csv
-Where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
+In its default settings, SDNist performs scoring for epsilons 0.1, 1.0 and 10.0, so the synthetic files would be named 
+eps=0.1.csv, eps=1.0.csv and eps=10.0.csv, where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
  
 
-To generate final aggregate score over all epsilon values for taxi challenge with private dataset other
-than default.
+To generate a final aggregate score over all epsilon values for the Taxi Challenge with a private dataset other
+than the default:
 ```
 % python -m sdnist.challenge.submission --challenge taxi --test-dataset taxi2016 
 ```
 
-The above commands assume that the synthetic data is located in the directory: 
+The above commands assume that the synthetic data is located in the following directory: 
 `[current-working-directory]/results/taxi/`.  
 Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
-In its default settings, SDNist performs scoring for epsilons: 1.0 and 10.0, so synthetic files would be named: 
-eps=1.0.csv and eps=10.0.csv
-Where eps=1.0.csv is synthesized using epsilon value 1.0 and so on.
+In its default settings, SDNist performs scoring for epsilons 1.0 and 10.0, so the synthetic files would be named 
+eps=1.0.csv and eps=10.0.csv, where eps=1.0.csv is synthesized using epsilon value 1.0 and so on.
 
-NOTE: filename of the synthetic data should exactly match epsilon value provided in the parameters json file
-of the public or private dataset. If an epsilon value mentioned in the parameters.json file is `1` 
-then the synthetic data filename should be `esp=1.csv` or else, 
-if an epsilon value mentioned is 1.0 then the synthetic data filename should be `eps=1.0.csv`.
+NOTE: The filename of the synthetic data should exactly match the epsilon value provided in the parameters.json file
+of the public or private dataset. If an epsilon value mentioned in the parameters.json file is `1`, 
+then the synthetic data filename should be `esp=1.csv`; if an epsilon value mentioned is 1.0, then the synthetic data filename should be `eps=1.0.csv`.
 
-`sdnist.challenge.submission` module is mainly used for computing aggregate scores over different 
+The `sdnist.challenge.submission` module is  used mainly for computing aggregate scores over different 
 epsilon values, but it can also be used to inspect scores for each epsilon value separately.  
-To visualize scores over different values of epsilon, year or puma.
-(only available for census challenge):
+To visualize scores over different values of epsilon, year, or PUMA (available only for the Census Challenge):
 ```
 % python -m sdnist.challenge.submission --html
 ```
