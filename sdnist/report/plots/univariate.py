@@ -95,7 +95,8 @@ def save_distribution_plot(synthetic: pd.DataFrame,
         x_axis = np.arange(merged.shape[0])
         plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
         plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
-
+        plt.xlabel('Record Counts')
+        plt.ylabel(f'{f} Feature Values')
         plt.gca().set_xticks(x_axis, merged[f].values.tolist())
         plt.legend(loc='upper right')
         plt.title(f)

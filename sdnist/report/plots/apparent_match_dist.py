@@ -22,7 +22,7 @@ def plot_apparent_match_dist(match_percentages: pd.Series,
     ax.grid(False)
     ax.locator_params(axis='y', integer=True)
     plt.xlabel('Match Percentage', fontsize=14)
-    plt.ylabel('Number of Records', fontsize=14)
+    plt.ylabel('Record Counts', fontsize=14)
     out_file = Path(output_directory, f'apparent_match_distribution.jpg')
     plt.savefig(out_file)
     plt.close()

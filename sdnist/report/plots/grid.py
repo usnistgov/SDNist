@@ -80,23 +80,23 @@ def save_grid_plots(title: str, grid_data, grid_labels, output_directory: Path) 
     gl = grid_labels
 
     fig, ax = plt.subplots(figsize=(8, 8))
-    plt.imshow(gd, cmap='GnBu')
+    plt.imshow(gd, cmap='GnBu', vmin=0, vmax=1000)
     im_ratio = gd.shape[0]/gd.shape[1]
-    print('im_ratio: ', im_ratio)
+
     cbar = plt.colorbar(fraction=0.047 * im_ratio,
                         boundaries=np.linspace(0, 1000),
                         ticks=np.arange(0, 1000, 200))
     cbar.ax.tick_params(labelsize=10)
     # Create white grid.
-    ax.set_xticks(np.arange(gd.shape[1] + 1) - .5, minor=True)
-    ax.set_yticks(np.arange(gd.shape[0] + 1) - .5, minor=True)
+    # ax.set_xticks(np.arange(gd.shape[1] + 1) - .5, minor=True)
+    # ax.set_yticks(np.arange(gd.shape[0] + 1) - .5, minor=True)
     ax.grid(which="minor", color="w", linestyle='-', linewidth=2)
     ax.grid(which="major", visible=False)
 
     # Loop over data dimensions and create text annotations.
     for i in range(gd.shape[0]):
         for j in range(gd.shape[1]):
-            if gd[i, j] > 500:
+            if gd[i, j] > 800:
                 text = ax.text(j, i, gl[i, j],
                                ha="center", va="center", color="w", fontsize=7)
             else:
@@ -106,6 +106,7 @@ def save_grid_plots(title: str, grid_data, grid_labels, output_directory: Path) 
     ax.set_title(title, fontsize=12)
     plt.xticks(fontsize=10)
     plt.yticks(fontsize=10)
+    plt.axis('off')
     file_path = Path(output_directory, f'k_marginal_grid.jpg')
     fig.tight_layout()
     plt.savefig(file_path)
