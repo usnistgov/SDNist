@@ -1,3 +1,4 @@
+import os
 from typing import List, Dict, Tuple
 from pathlib import Path
 
@@ -30,31 +31,96 @@ def best_worst_performing(scores: pd.Series,
                           group_features: List[str],
                           feature_values: Dict[str, Dict]) -> Tuple[List, List]:
     ss = scores.sort_values()
-    total_ss = len(ss)
-    total_scores = 10 if total_ss > 10 else total_ss
+    # total_ss = len(ss)
+    # total_scores = 10 if total_ss > 10 else total_ss
 
     worst_scores = []
     best_scores = []
 
-    for wf in ss[0: 10].index:  # worst score features
+    for wf in ss.index:  # worst score features
         f_values = {f: (feature_values[f][wf[i]]
                         if type(wf) == tuple else feature_values[f][wf])
                     for i, f in enumerate(group_features)}
         worst_scores.append({
             **f_values,
-            "SCORE": int(ss[wf])
+            strs.SCORE: int(ss[wf])
         })
 
-    for bf in ss[total_ss - total_scores: total_ss].index:
+    ss = scores.sort_values(ascending=False)
+
+    for bf in ss.index:
         f_values = {f: (feature_values[f][bf[i]]
                         if type(bf) == tuple else feature_values[f][bf])
                     for i, f in enumerate(group_features)}
         best_scores.append({
             **f_values,
-            "SCORE": int(ss[bf])
+            strs.SCORE: int(ss[bf])
         })
 
     return worst_scores, best_scores
+
+
+def worst_score_breakdown(worst_scores: List,
+                          dataset: Dataset,
+                          report_data: ReportData,
+                          feature: str) -> UtilityScorePacket:
+    ds = dataset
+    rd = report_data
+
+    wsh = pd.DataFrame(worst_scores)
+    wpf = wsh[feature].unique().tolist()[:5]  # worst performing feature values
+    t = dataset.target_data.copy()
+    s = dataset.synthetic_data.copy()
+
+    t = t[t[feature].isin(wpf)]
+    s = s[s[feature].isin(wpf)]
+
+    out_dir = Path(rd.output_directory, 'k_marginal_breakdown')
+    if not out_dir.exists():
+        os.mkdir(out_dir)
+
+    up = UnivariatePlots(t, s,
+                         ds.schema, out_dir, ds.challenge)
+    up_saved_file_paths = up.save()
+
+    pcd = PearsonCorrelationDifference(t, s,
+                                       ds.config[strs.CORRELATION_FEATURES])
+    pcd.compute()
+    pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, out_dir)
+    pcp_saved_file_paths = pcp.save()
+
+    rel_up_saved_file_paths = ["/".join(list(p.parts)[-3:])
+                               for p in up_saved_file_paths]
+    rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-3:])
+                                for p in pcp_saved_file_paths]
+    # attachment for worst feature names
+    a_wf = Attachment(name='Five Worst Performing ' + feature,
+                      _data=", ".join(wpf),
+                      _type=AttachmentType.String)
+
+    # attachment for records in each data for worst performing feature
+    a_rt = Attachment(name='Record Counts in Five Worst Performing ' + feature,
+                      _data=[{"Dataset": "Target", "Record Counts": t.shape[0]},
+                             {"Dataset": "Synthetic", "Record Counts": s.shape[0]}],
+                      _type=AttachmentType.Table)
+    a_up = Attachment(name="Univariate Distribution of Worst "
+                           "Performing Features in Five Worst Performing "
+                           + feature,
+                      _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                             for p in rel_up_saved_file_paths],
+                      _type=AttachmentType.ImageLinks)
+
+    a_pc = Attachment(name="Pearson Correlation Coefficient Difference in Five Worst Performing "
+                           + feature,
+                      _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                             for p in rel_pcp_saved_file_paths],
+                      _type=AttachmentType.ImageLinks)
+
+    # worst performing k-marginal utility scores
+    wus = UtilityScorePacket("K-Marginal Worst Score Breakdown",
+                             None,
+                             [a_wf, a_rt, a_up, a_pc])
+    return wus
 
 
 def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
@@ -131,6 +197,10 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
             worst_scores, best_scores = best_worst_performing(s.scores,
                                                               group_features,
                                                               f_val_dict)
+            w_b_n = 10 if len(worst_scores) > 10 else len(worst_scores)
+            worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
+
+            worst_break_down = worst_score_breakdown(worst_scores, ds, rd, 'PUMA')
             metric_attachments.append(
                 Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
                            _data=worst_scores)
@@ -161,6 +231,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
             rd.add(UtilityScorePacket(metric_name,
                                       metric_score,
                                       metric_attachments))
+            rd.add(worst_break_down)
         elif s.NAME == TaxiKMarginalScore.NAME \
                 and ds.challenge == strs.TAXI:
             # N worst and best performing pickup_community_area and shift

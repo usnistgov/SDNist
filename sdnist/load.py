@@ -16,6 +16,7 @@ import numpy as np
 
 import sdnist.strs as strs
 
+
 class TestDatasetName(Enum):
     NONE = 1
     GA_NC_SC_10Y_PUMS = 2
@@ -23,6 +24,8 @@ class TestDatasetName(Enum):
     taxi2016 = 4
     taxi2020 = 5
     MA_ACS_EXCERPT_2019 = 6
+    TX_ACS_EXCERPT_2019 = 7
+    OUTLIER_ACS_EXCERPT_2019 = 8
 
 
 def reporthook(count, block_size, total_size):
