@@ -62,7 +62,7 @@ def check_exists(root: Path, name: Path, download: bool):
     if not name.exists():
         print(f"{name} does not exist.")
         zip_path = Path(root.parent, 'data.zip')
-        version = "1.3.0"
+        version = "1.4.0-a.1"
         version_v = f"v{version}"
         sdnist_version = f"SDNist-data-{version}"
         download_link = f"https://github.com/usnistgov/SDNist/releases/download/{version_v}/{sdnist_version}.zip"
@@ -110,7 +110,7 @@ def build_name(challenge: str,
     root = root.expanduser()
 
     if challenge == "census":
-        directory = root / "census" / "final"
+        directory = root / "census" / "dataset"
 
         if public:
             fname = "IL_OH_10Y_PUMS"
