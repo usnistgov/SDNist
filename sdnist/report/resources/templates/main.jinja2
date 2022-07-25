@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<br lang="en">
 
 <head>
     <title>Data Evaluation Report</title>
@@ -103,7 +103,18 @@
         {% for row in data %}
             <tr>
             {% for _, val in row.items() %}
-                <td>{{ val }}</td>
+                {% if val is iterable and val is not string  %}
+                    {% set out = val[0] %}
+                    {% if val[2] %}
+                        <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
+                    {% elif val[1] %}
+                        <td><p>{{ out }}: {{ val[1] }}</p></td>
+                    {% elif val[2] %}
+                        <td>{{ val }}</td>
+                    {% endif %}
+                {% else %}
+                    <td>{{ val }}</td>
+                {% endif %}
             {% endfor %}
             </tr>
         {% endfor %}
@@ -149,6 +160,8 @@
     {% for a in data['attachments'] %}
         {%  if a.name %}
             {{ heading_4(a.name) }}
+        {% else %}
+            <br>
         {% endif %}
         {% if a.type == "table" %}
             <div class="table-div">

@@ -35,15 +35,14 @@ class KMarginalScore:
                  bins: Optional[Dict] = None,
                  group_features: Optional[List[str]] = None,
                  ignore_features: Optional[List[str]] = None,
-                 bias_penalty_cutoff: Optional[int] = None):
+                 bias_penalty_cutoff: Optional[int] = None,
+                 loading_bar: bool = False):
         self.BINS = bins
         self.ALWAYS_GROUPBY = group_features or []
         self.drop_columns = ignore_features or []
         self.COLUMNS = list(set(private_dataset.columns.tolist())
                             .difference(set(self.ALWAYS_GROUPBY + self.drop_columns)))
-        print(self.COLUMNS)
-        print(private_dataset.columns.tolist())
-        print(synthetic_dataset.columns.tolist())
+
         if set(self.COLUMNS) - set(private_dataset.columns):
             raise ValueError("The columns of the private dataset does not match the columns of the score")
 
@@ -54,7 +53,7 @@ class KMarginalScore:
         self._private_dataset = sdnist.utils.discretize(private_dataset, schema, self.BINS)
         self._synthetic_dataset = sdnist.utils.discretize(synthetic_dataset, schema, self.BINS)
         self.schema = schema
-
+        self.loading_bar = loading_bar
         if len(synthetic_dataset) / len(private_dataset) < .5 and self.BIAS_PENALTY_CUTOFF:
             print("Score is computed on two dataset of largely different sizes with a bias penalty.")
 
@@ -92,7 +91,12 @@ class KMarginalScore:
         column_score_counts = {}
 
         # Compute KMarginal per group in ALWAYS_GROUPBY
-        for columns in tqdm(self.columns(), total=self.N_PERMUTATIONS):
+        if self.loading_bar:
+            c_list = tqdm(self.columns(), total=self.N_PERMUTATIONS)
+        else:
+            c_list = self.columns()
+
+        for columns in c_list:
             idx = tuple(columns)
             if idx not in self._p0_cache:
                 self._p0_cache[idx] = compute_marginal_grouped(self._private_dataset, columns, self.ALWAYS_GROUPBY)

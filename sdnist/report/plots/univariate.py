@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import entropy
 
-from strs import *
+from sdnist.strs import *
 
 plt.style.use('seaborn-deep')
 
@@ -115,7 +115,11 @@ def divergence(synthetic: pd.DataFrame,
         ignore_features = []
 
     div_data = []  # divergence data
+    tfeats = target.columns.tolist()
+    sfeats = synthetic.columns.tolist()
     for var, var_schema in schema.items():
+        if var not in tfeats or var not in sfeats:
+            continue
         if VALUES not in var_schema or var in ignore_features:
             continue
         values = var_schema[VALUES]

@@ -1,13 +1,13 @@
 
-# SDNist: Benchmark data and evaluation tools for data synthesizers.
+# SDNist: Benchmark Data and Evaluation Tools for Data Synthesizers
 
-This package provides tools for standardized and reproducible comparison of synthetic generator models on real-world data and use cases. Both datasets and metrics were developed for and vetted through the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/current-and-upcoming-prize-challenges/2020-differential.).
+This package provides tools for standardized and reproducible comparison of synthetic generator models on real-world data and use cases. Both datasets and metrics were developed for and vetted through the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal).
 
 ## Quick introduction
 
 You have two possible workflows:
-1) manually manage the public and private datasets as `pandas.DataFrame` objects, directy generate your synthetic data and directly compute the score
-2) reproduce the setup of the challenge, i.e create a synthetizer subclass of `challenge.submission.Model` then call `run(model, challenge="census")`. This makes sure your synthetizer is scored against the same datasets as in the challenge.
+1) Manually manage the public and private datasets as `pandas.DataFrame` objects, directly generate your synthetic data, and directly compute the score.
+2) Reproduce the setup of the challenge---i.e., create a synthesizer subclass of `challenge.submission.Model`, then call `run(model, challenge="census")`. This makes sure your synthesizer is scored against the same datasets as in the Challenge.
 
 In all cases, the scoring does not numerically check whether your synthesizer is actually $\epsilon$-differentially private or not. You have to provide a formal proof yourself.
 
@@ -15,15 +15,16 @@ In all cases, the scoring does not numerically check whether your synthesizer is
 
 Requirements:  [Python >=3.6](https://www.python.org/downloads/)
 
-The SDNist source code is hosted on Github and all the data tables will be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
-Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.3.0](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0)
+The SDNist source code is hosted on Github, and all the data tables should be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
+Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.3.0](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0).
 
 * Data Download Notes: 
-  * SDNist does not just download specific dataset instead it downloads all the available datasets that are provided by the library.  
+  * SDNist does not  download just a specific dataset; instead, it downloads all the available datasets in the library.  
   * If data is manually downloaded, copy the contents inside the 'data' directory from the extracted zip file to your data root directory.
-  * Default root data directory of SDNist is `<your-current-working-directory>/data`. Current working directory
-  is the directory in which the user runs SDNist library through console/terminal, or the directory that contains your python or ipython files
-  that imports SDNist library.
+  * The default root data directory of SDNist is `<your-current-working-directory>/data`. The current working directory
+  is the directory in which you run the SDNist library through a console/terminal, or the directory that contains your Python or IPython files
+  that imports the SDNist library.
+<!--  last part of sentence above, referring to Python files and importing SDNist library: is it correctly worded?  seems confusing -->
    
     
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
@@ -61,14 +62,14 @@ This repository is being actively developed, and we welcome contributions.
 
 If you encounter a bug, [please create an issue](https://github.com/usnistgov/SDNist/issues/new).
 
-Please feel free to create a Pull Request to help us correct bugs and other issues.
+Feel free to create a Pull Request to help us correct bugs and other issues.
 
 Please contact us if you wish to augment or expand existing features.  
 
 
 ## Examples
 
-### 1) Quickest example (option 1)
+### 1) Option 1 (quickest)
 #### Loading and scoring
 
 ```
@@ -93,22 +94,23 @@ CensusKMarginalScore(847)
 ```
 
 #### Discretizing a dataset
-Many synthesizers require working on categorical/discretized data, yet many features of in `sdnist` datasets are actually
+Many synthesizers require working on categorical/discretized data, yet many features of `sdnist` datasets are actually
 integer or floating point valued. `sdnist` provide a simple tool to discretize/undiscretize `sdnist` datasets.
 
-First, note that the k-marginal score itself works on categorical data under the hood. For fairness, the bins that are used can be considered public. They are available at
+First, note that the k-marginal score itself works on categorical data under the hood. For fairness, the bins that are used can be considered public. They are available as follows:
+
+The ACS (American Community Survey) dataset:
 
 ```
 >>> bins = sdnist.kmarginal.CensusKMarginalScore.BINS
 ```
 
-for the ACS (American Community Survey) dataset or
-
+The Chicago taxi dataset:
 ```
 >>> bins = sdnist.kmarginal.TaxiKmarginalScore.BINS
 ```
 
-for the Chicago taxi dataset.
+
 
 The `pd.DataFrame` datasets can then be discretized using
 
@@ -116,7 +118,7 @@ The `pd.DataFrame` datasets can then be discretized using
 >>> dataset_binned = sdnist.utils.discretize(dataset, schema, bins)
 ```
 
-`sdnist.utils.discretize` returns a `pd.DataFrame` where each value is remapped to `(0, n-1)` where `n` is the number of distinct values. Note that the even though the `score` functions should be given *unbinned* datasets, i.e if your synthesizer works on discretized dataset, you should first undiscretize your synthetic data. This can be done using
+`sdnist.utils.discretize` returns a `pd.DataFrame` where each value is remapped to `(0, n-1)` where `n` is the number of distinct values. Note that the even though the `score` functions should be given *unbinned* datasets (i.e., if your synthesizer works on discretized dataset), you should first undiscretize your synthetic data. This can be done using
 
 ```
 >>> synthetic_dataset_binned = ... # generate your synthetic data using your own method
@@ -125,81 +127,78 @@ The `pd.DataFrame` datasets can then be discretized using
 
 ### Directly computing the score on a given `.csv` file
 
-You can directly run from a terminal
+You can directly run from a terminal:
 
 ```
 % python -m sdnist your_file.csv
 ```
 
-This will score against the public census (ACS) dataset and display the result in an HTML page:  
+This will score against the public census (ACS) dataset and display the results on an html page:  
 
 ![](examples/score_example.png)
 
-To score the synthetic dataset against one of the test datasets
+To score the synthetic dataset against one of the test datasets:
 ```
 % python -m sdnist your_synthetic_ga_nc_sc.csv --test-dataset GA_NC_SC_10Y_PUMS
 ```
 Other options are available by calling `--help`.
 
 ### Computing aggregate score for all synthetic files generated using different epsilon values
-To generate final aggregate score over all epsilon values for census challenge. 
+To generate a final aggregate score over all epsilon values for the Census Challenge: 
 
 ```
 % python -m sdnist.challenge.submission 
 ```
 
-To score synthetic data file for dataset GA_NC_SC_10Y_PUMS
+To score synthetic data file for dataset GA_NC_SC_10Y_PUMS:
 ```
 % python -m sdnist.challenge.submission --test-dataset GA_NC_SC_10Y_PUMS
 ```
 
-To score synthetic data files and visualize scores on an interactive map-based html visualizer
+To score synthetic data files and visualize scores on an interactive map-based html visualizer:
 ```
 % python -m sdnist.challenge.submission --html
 ```
 
-To score synthetic data files during algorithm development (uses public dataset IL_OH_10Y_PUMS)
+To score synthetic data files during algorithm development (uses public dataset IL_OH_10Y_PUMS):
 ```
 python -m sdnist.challenge.submission --public --html
 ```
 
-The above commands assume that the synthetic data is located in the directory: 
+The above commands assume that the synthetic data is located in the following directory: 
 `[current-working-directory]/results/census/`.  
 Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
-In its default settings, SDNist performs scoring for epsilons: 0.1, 1.0 and 10.0, so synthetic files would be named: 
-eps=0.1.csv, eps=1.0.csv and eps=10.0.csv
-Where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
+In its default settings, SDNist performs scoring for epsilons 0.1, 1.0, and 10.0, so the synthetic files would be named 
+eps=0.1.csv, eps=1.0.csv and eps=10.0.csv, where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
  
 
-To generate final aggregate score over all epsilon values for taxi challenge with private dataset other
-than default.
+To generate a final aggregate score over all epsilon values for the Taxi Challenge with a private dataset other
+than the default:
 ```
 % python -m sdnist.challenge.submission --challenge taxi --test-dataset taxi2016 
 ```
 
-The above commands assume that the synthetic data is located in the directory: 
+The above commands assume that the synthetic data is located in the following directory: 
 `[current-working-directory]/results/taxi/`.  
 Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
-In its default settings, SDNist performs scoring for epsilons: 1.0 and 10.0, so synthetic files would be named: 
-eps=1.0.csv and eps=10.0.csv
-Where eps=1.0.csv is synthesized using epsilon value 1.0 and so on.
+In its default settings, SDNist performs scoring for epsilons 1.0 and 10.0, so the synthetic files would be named 
+eps=1.0.csv and eps=10.0.csv, where eps=1.0.csv is synthesized using epsilon value 1.0 and so on.
 
-NOTE: filename of the synthetic data should exactly match epsilon value provided in the parameters json file
-of the public or private dataset. If an epsilon value mentioned in the parameters.json file is `1` 
-then the synthetic data filename should be `esp=1.csv` or else, 
-if an epsilon value mentioned is 1.0 then the synthetic data filename should be `eps=1.0.csv`.
+NOTE: The filename of the synthetic data should exactly match the epsilon value provided in the parameters.json file
+of the public or private dataset. If an epsilon value mentioned in the parameters.json file is `1`, 
+then the synthetic data filename should be `esp=1.csv`; if an epsilon value mentioned is 1.0, then the synthetic data filename should be `eps=1.0.csv`.
 
-`sdnist.challenge.submission` module is mainly used for computing aggregate scores over different 
+The `sdnist.challenge.submission` module is  used mainly for computing aggregate scores over different 
 epsilon values, but it can also be used to inspect scores for each epsilon value separately.  
-To visualize scores over different values of epsilon, year or puma.
-(only available for census challenge):
+To visualize scores over different values of epsilon, year, or PUMA (available only for the Census Challenge):
 ```
 % python -m sdnist.challenge.submission --html
 ```
 
 Other options are available by calling `--help`.
 
-### 2) Reproducing the baselines from the challenge by sublasscing `challenge.submission.Model` (option 2, slightly more advanced and time-consuming)
+### 2) Option 2 (slightly more advanced and time-consuming)
+#### Reproducing the baselines from the Challenge by subclassing `challenge.submission.Model`
 
 Some examples of subclassing `challenge.submission.Model` are available in the library.
 
@@ -228,7 +227,7 @@ python -m sdnist.challenge.subsample
 
 ```
 
-Note that the resulting synthetic dataset is not differentillally private.
+Note that the resulting synthetic dataset is not differentially private.
 
 #### Random values
 
@@ -238,7 +237,7 @@ Build a synthetic dataset by chosing random valid values:
 python -m sdnist.challenge.baseline
 ```
 
-This corresponds to the baseline of the sprint 2 or the 2020 challenge. The output can be considered 0-differentially private if the schema itself is public.
+This corresponds to the baseline of Sprint 2 (the 2020 Challenge). The output can be considered 0-differentially private if the schema itself is public.
 
 Output:
 ```
@@ -264,6 +263,6 @@ Generation: 100%|█████████████████████
 ```
 
 ### Other examples
-Other examples are available in the `examples/` folder. The DPSyn and Minutemen are directly adapted from the public repo of their author:
+Other examples are available in the `examples/` folder.  DPSyn and Minutemen are directly adapted from the public repos of their authors:
 - DPSyn : https://github.com/agl-c/deid2_dpsyn
 - Minutemen : https://github.com/ryan112358/nist-synthetic-data-2021. This examples requires the `private-pgm` library (https://github.com/ryan112358/private-pgm)

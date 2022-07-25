@@ -28,7 +28,6 @@ def score(private_dataset: pd.DataFrame,
           schema: dict,
           config: dict,
           challenge: str = "census",
-          drop_columns: List[str] = None,
           n_permutations: int = None,
           verbose: bool = False):
     """Computes the k-marginal score between `private_dataset` and `synthetic_dataset`.
@@ -38,7 +37,6 @@ def score(private_dataset: pd.DataFrame,
     :param schema: dict: dataset schema, as provided by `sdnist.census` for instance.
     :param config: dict: configurations for k-marginal scorer class
     :param challenge: str: challenge rules to define the scoring method. Must be `census` or `taxi`.
-    :param drop_columns: List: columns to remove from dataset before scoring.
     :param n_permutations: int: number of k-marginal permutations to use. By default, the number of
         permutations used corresponds to the default value of the chosen challenge.
     :param verbose: bool: print scoring steps and outputs
@@ -53,7 +51,8 @@ def score(private_dataset: pd.DataFrame,
 
     log(f'Computing K-marginal for the challenge: {challenge}', verbose)
     k_marg_score = score_cls[challenge](private_dataset, synthetic_dataset,
-                                        schema, **config[strs.K_MARGINAL])
+                                        schema, loading_bar=True,
+                                        **config[strs.K_MARGINAL])
     if n_permutations is not None:
         score.N_PERMUTATIONS = n_permutations
 
@@ -64,7 +63,8 @@ def score(private_dataset: pd.DataFrame,
     if challenge == 'taxi':
         # compute higher order conjunction scores
         log(f'Computing Higher Order Conjunction scores for the challenge: {challenge}', verbose)
-        hoc_score = TaxiHigherOrderConjunction(private_dataset, synthetic_dataset)
+        hoc_score = TaxiHigherOrderConjunction(private_dataset, synthetic_dataset,
+                                               **config[strs.K_MARGINAL])
         hoc_score.compute_score()
 
         # compute graph edge map scores

@@ -5,7 +5,7 @@ from sdnist.report.plots import ApparentMatchDistributionPlot
 from sdnist.report.report_data import \
     PrivacyScorePacket, Attachment, AttachmentType
 
-from strs import *
+from sdnist.strs import *
 
 
 def privacy_score(dataset: Dataset, report_data: ReportData) -> ReportData:
@@ -44,7 +44,6 @@ def privacy_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                                  _data=', '.join(quasi_idf),
                                  _type=AttachmentType.String)
     # Total rows matched on quasi-identifiers as attachment
-    print(amd_plot.quasi_matched_df.shape[0])
     total_quasi_matched = Attachment(name='Records matched on quasi-identifiers',
                                      _data=str(amd_plot.quasi_matched_df.shape[0]),
                                      _type=AttachmentType.String)

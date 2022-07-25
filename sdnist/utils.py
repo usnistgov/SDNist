@@ -2,13 +2,31 @@ import numpy as np
 import pandas as pd
 
 
-def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = True):
+def create_bins(bins_range: dict):
+    bins = dict()
+    for f, br in bins_range.items():
+        if 'type' not in br:
+            fbm = br['first_bin_max']
+            lbm = br['last_bin_min']
+            bs = br['bin_size']
+            bins[f] = np.r_[-np.inf, np.arange(fbm, lbm, bs), np.inf]
+        elif 'type' in br and br['type'] == 'time':
+            fbm = br['first_bin_max_hour']
+            lbm = br['last_bin_min_hour']
+            bs = br['bin_size_minutes']
+            bins[f] = np.r_[-np.inf, [h * 100 + m for h in range(fbm, lbm) for m in range(0, 60, bs)],
+                            np.inf]
+    return bins
+
+
+def discretize(dataset: pd.DataFrame, schema: dict, bins_range: dict, copy: bool = True):
     """ Discretizes `dataset` using `pandas.CategoricalDtypes`. All values are remapped
     from 0 to `n-1` where `n` is the number of distinct values.
 
     :param dataset pandas.DataFrame: dataset to discretize
     :param schema dict: dataset schema, as provided by `sdnist.census` for instance.
-    :param bins dict: a dict containing (`feature`, `bins) key-value pairs.
+    :param bins_range dict: a dict containing
+        (`feature`, `Dict('first_bin_max', 'last_bin_max', 'bin_size', 'type')) key-value pairs`.
         The bins used to compute the k-marginal score are available at
         `sdnist.kmarginal.CensusKMarginalScore.BINS` and
         `sdnist.kmarginal.TaxiKMarginalScore.BINS`.
@@ -16,6 +34,7 @@ def discretize(dataset: pd.DataFrame, schema: dict, bins: dict, copy: bool = Tru
     :return: the discretized input `pandas.DataFrame`.
 
     """
+    bins = create_bins(bins_range)
     if copy:
         dataset = dataset.copy()
 

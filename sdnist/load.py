@@ -21,11 +21,25 @@ class TestDatasetName(Enum):
     NONE = 1
     GA_NC_SC_10Y_PUMS = 2
     NY_PA_10Y_PUMS = 3
-    taxi2016 = 4
-    taxi2020 = 5
-    MA_ACS_EXCERPT_2019 = 6
-    TX_ACS_EXCERPT_2019 = 7
-    OUTLIER_ACS_EXCERPT_2019 = 8
+    IL_OH_10Y_PUMS = 4
+    taxi2016 = 5
+    taxi2020 = 6
+    MA_ACS_EXCERPT_2019 = 7
+    TX_ACS_EXCERPT_2019 = 8
+    OUTLIER_ACS_EXCERPT_2019 = 9
+
+
+data_challenge_map = {
+    TestDatasetName.NONE: None,
+    TestDatasetName.GA_NC_SC_10Y_PUMS: strs.CENSUS,
+    TestDatasetName.NY_PA_10Y_PUMS: strs.CENSUS,
+    TestDatasetName.IL_OH_10Y_PUMS: strs.CENSUS,
+    TestDatasetName.MA_ACS_EXCERPT_2019: strs.CENSUS,
+    TestDatasetName.TX_ACS_EXCERPT_2019: strs.CENSUS,
+    TestDatasetName.OUTLIER_ACS_EXCERPT_2019: strs.CENSUS,
+    TestDatasetName.taxi2016: strs.TAXI,
+    TestDatasetName.taxi2020: strs.TAXI
+}
 
 
 def reporthook(count, block_size, total_size):
