@@ -1,9 +1,10 @@
+from typing import Dict
 import numpy as np
 import pandas as pd
 
 import sdnist
 
-from tqdm import tqdm, trange
+from tqdm import trange
 
 
 MIN_HOC_DIFF = 5
@@ -44,16 +45,18 @@ def count_similar_individuals(counts, individual, threshold):
 
 
 class TaxiHigherOrderConjunction:
-    BINS = sdnist.kmarginal.TaxiKMarginalScore.BINS
+    NAME = 'Higher Order Conjunction'
 
     N_ITERATIONS = 50
 
     def __init__(self, 
                  private_dataset: pd.DataFrame,
                  synthetic_dataset: pd.DataFrame,
+                 bins: Dict,
                  seed: int = None):
         self._private_dataset = private_dataset
         self._synthetic_dataset = synthetic_dataset
+        self.BINS = bins
         self.seed = seed
 
     def compute_score(self):

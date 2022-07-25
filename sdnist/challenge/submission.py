@@ -2,13 +2,11 @@ import argparse
 import abc
 from pathlib import Path
 
-from loguru import logger
-
 import pandas as pd
 
 import sdnist
-from sdnist.load import load_dataset
-from sdnist.kmarginal import CensusKMarginalScore
+from sdnist.load import load_dataset, TestDatasetName
+from sdnist.metrics.kmarginal import CensusKMarginalScore
 
 from loguru import logger
 
@@ -43,7 +41,7 @@ def run(submission: Model,
         results: Path = Path("results"),
         override_results: bool = False,
         public: bool = False,
-        test: sdnist.load.TestDatasetName = sdnist.load.TestDatasetName.NONE,
+        test: TestDatasetName = TestDatasetName.NONE,
         download: bool = True,
         html: bool = False):
     """ Runs a full experiment following the protocol of second sprint of the
@@ -82,9 +80,9 @@ def run(submission: Model,
     # for the visualization.
     report_kmarg = None
     if challenge == "census" and html:
-        report_kmarg = sdnist.kmarginal.CensusKMarginalScore(private,
-                                                             private,
-                                                             schema)
+        report_kmarg = sdnist.metrics.kmarginal.CensusKMarginalScore(private,
+                                                                     private,
+                                                                     schema)
 
     for eps in EPS:
         # Attempt to skip already computed scores

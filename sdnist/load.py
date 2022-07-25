@@ -12,14 +12,34 @@ from tqdm import tqdm
 from distutils.dir_util import copy_tree
 
 import pandas as pd
+import numpy as np
+
+import sdnist.strs as strs
 
 
 class TestDatasetName(Enum):
     NONE = 1
     GA_NC_SC_10Y_PUMS = 2
     NY_PA_10Y_PUMS = 3
-    taxi2016 = 4
-    taxi2020 = 5
+    IL_OH_10Y_PUMS = 4
+    taxi2016 = 5
+    taxi2020 = 6
+    MA_ACS_EXCERPT_2019 = 7
+    TX_ACS_EXCERPT_2019 = 8
+    OUTLIER_ACS_EXCERPT_2019 = 9
+
+
+data_challenge_map = {
+    TestDatasetName.NONE: None,
+    TestDatasetName.GA_NC_SC_10Y_PUMS: strs.CENSUS,
+    TestDatasetName.NY_PA_10Y_PUMS: strs.CENSUS,
+    TestDatasetName.IL_OH_10Y_PUMS: strs.CENSUS,
+    TestDatasetName.MA_ACS_EXCERPT_2019: strs.CENSUS,
+    TestDatasetName.TX_ACS_EXCERPT_2019: strs.CENSUS,
+    TestDatasetName.OUTLIER_ACS_EXCERPT_2019: strs.CENSUS,
+    TestDatasetName.taxi2016: strs.TAXI,
+    TestDatasetName.taxi2020: strs.TAXI
+}
 
 
 def reporthook(count, block_size, total_size):
@@ -141,6 +161,27 @@ def load_parameters(challenge: str,
     return params
 
 
+def load_config(challenge: str,
+                root: Path = Path("data"),
+                public: bool = True,
+                test: TestDatasetName = TestDatasetName.NONE,
+                download: bool = True) -> dict:
+    dataset_path = build_name(challenge=challenge, root=root, public=public, test=test)
+    dataset_config_path = dataset_path.with_suffix('.config.json')
+    check_exists(root, dataset_config_path, download)
+
+    with dataset_config_path.open("r") as handler:
+        config = json.load(handler)
+
+    if strs.K_MARGINAL in config:
+        km_cnf = config[strs.K_MARGINAL]
+        if strs.BINS in km_cnf and len(km_cnf[strs.BINS]):
+            b_cnf = km_cnf[strs.BINS]
+            for f, b in b_cnf.items():
+                b_cnf[f] = eval(b)
+    return config
+
+
 def load_dataset(challenge: str,
                  root: Path = Path("data"),
                  public: bool = True,
@@ -189,7 +230,8 @@ def load_dataset(challenge: str,
 
     # Load schema
     params = load_parameters(challenge, root, public, test, download)
-    schema = params["schema"]
+    config = load_config(challenge, root, public, test, download)
+    params[strs.CONFIG] = config
 
     # TODO: remove .csv option
 
@@ -203,13 +245,14 @@ def load_dataset(challenge: str,
         dataset_name = name.with_suffix(".csv")
         check_exists(root, dataset_name, download)
 
-        columns = {name: schema[name]["dtype"] for name in schema}
-        dataset = pd.read_csv(dataset_name, dtype=columns)
+        columns = {name: params[strs.SCHEMA][name]["dtype"]
+                   for name in params[strs.SCHEMA]}
+        dataset = pd.read_csv(dataset_name, dtype=columns, index_col=0)
 
     else:
         raise ValueError(f"Unknown format {format_}")
 
-    return dataset, schema
+    return dataset, params
 
 
 if __name__ == "__main__":

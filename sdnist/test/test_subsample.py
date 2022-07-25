@@ -1,7 +1,5 @@
 import math
 
-import matplotlib.pyplot as plt
-
 import sdnist
 
 
@@ -15,7 +13,7 @@ def test_score():
     synthetic = public.sample(frac=0.1)
 
     # Directly building score object
-    score = sdnist.kmarginal.CensusKMarginalScore(public, synthetic, schema, drop_columns=["HHWT", "DEPARTS", "ARRIVES"])
+    score = sdnist.metrics.kmarginal.CensusKMarginalScore(public, synthetic, schema, drop_columns=["HHWT", "DEPARTS", "ARRIVES"])
     score.compute_score()
     for perm in score.columns():
         assert "HHWT" not in perm
@@ -98,7 +96,7 @@ def test_flat_score():
     synthetic = sdnist.utils.stack(synthetic_flat)
     assert synthetic.shape[1] == 36
 
-    score = sdnist.kmarginal.CensusLongitudinalKMarginalScore(public, synthetic, schema)
+    score = sdnist.metrics.kmarginal.CensusLongitudinalKMarginalScore(public, synthetic, schema)
     print(score.compute_score())
 
     assert score.score is not None

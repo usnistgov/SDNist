@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import json
 
@@ -21,21 +21,27 @@ def compute_marginal_grouped(df, columns, groups):
     return counts / counts.groupby(groups).transform("sum")
 
 
-class KMarginalScore():
-    BINS: Dict = None
-    COLUMNS: List = None
-    ALWAYS_GROUPBY: List[str] = []
+class KMarginalScore:
+    NAME = 'K-Marginal'
 
     RANK: int = 2  # Actual rank is RANK + len(ALWAYS_GROUPBY)
     N_PERMUTATIONS: int = 50
-    BIAS_PENALTY_CUTOFF: int = None
 
     def __init__(self,
                  private_dataset: pd.DataFrame,
                  synthetic_dataset: pd.DataFrame,
                  schema: dict,
-                 drop_columns: List[str] = None,
-                 seed: int = None):
+                 seed: int = None,
+                 bins: Optional[Dict] = None,
+                 group_features: Optional[List[str]] = None,
+                 ignore_features: Optional[List[str]] = None,
+                 bias_penalty_cutoff: Optional[int] = None,
+                 loading_bar: bool = False):
+        self.BINS = bins
+        self.ALWAYS_GROUPBY = group_features or []
+        self.drop_columns = ignore_features or []
+        self.COLUMNS = list(set(private_dataset.columns.tolist())
+                            .difference(set(self.ALWAYS_GROUPBY + self.drop_columns)))
 
         if set(self.COLUMNS) - set(private_dataset.columns):
             raise ValueError("The columns of the private dataset does not match the columns of the score")
@@ -43,11 +49,11 @@ class KMarginalScore():
         if set(self.COLUMNS) - set(synthetic_dataset.columns):
             raise ValueError("The columns of the synthetic dataset does not match the columns of the score")
 
-        self.drop_columns = drop_columns or []
+        self.BIAS_PENALTY_CUTOFF = bias_penalty_cutoff
         self._private_dataset = sdnist.utils.discretize(private_dataset, schema, self.BINS)
         self._synthetic_dataset = sdnist.utils.discretize(synthetic_dataset, schema, self.BINS)
         self.schema = schema
-
+        self.loading_bar = loading_bar
         if len(synthetic_dataset) / len(private_dataset) < .5 and self.BIAS_PENALTY_CUTOFF:
             print("Score is computed on two dataset of largely different sizes with a bias penalty.")
 
@@ -85,7 +91,12 @@ class KMarginalScore():
         column_score_counts = {}
 
         # Compute KMarginal per group in ALWAYS_GROUPBY
-        for columns in tqdm(self.columns(), total=self.N_PERMUTATIONS):
+        if self.loading_bar:
+            c_list = tqdm(self.columns(), total=self.N_PERMUTATIONS)
+        else:
+            c_list = self.columns()
+
+        for columns in c_list:
             idx = tuple(columns)
             if idx not in self._p0_cache:
                 self._p0_cache[idx] = compute_marginal_grouped(self._private_dataset, columns, self.ALWAYS_GROUPBY)
@@ -147,61 +158,6 @@ class KMarginalScore():
 
 
 class CensusKMarginalScore(KMarginalScore):
-    BIAS_PENALTY_CUTOFF = 250
-    BINS = {
-        "AGE": np.r_[-np.inf, np.arange(20, 105, 5), np.inf],
-        "INCTOT": np.r_[-np.inf, np.arange(0, 105_000, 5_000), np.inf],
-        "INCWAGE": np.r_[-np.inf, np.arange(0, 105_000, 5_000), np.inf],
-        "INCWELFR": np.r_[-np.inf, np.arange(0, 105_000, 5_000), np.inf],
-        "INCINVST": np.r_[-np.inf, np.arange(0, 105_000, 5_000), np.inf],
-        "INCEARN": np.r_[-np.inf, np.arange(0, 105_000, 5_000), np.inf],
-        "POVERTY": np.r_[-np.inf, np.arange(0, 520, 20), np.inf],
-        "HHWT": np.r_[-np.inf, np.arange(0, 520, 20), np.inf],
-        "PERWT": np.r_[-np.inf, np.arange(0, 520, 20), np.inf],
-        "DEPARTS": np.r_[-np.inf, [h * 100 + m for h in range(24) for m in (0, 15, 30, 45)], np.inf],
-        "ARRIVES": np.r_[-np.inf, [h * 100 + m for h in range(24) for m in (0, 15, 30, 45)], np.inf],
-    }
-
-    COLUMNS = [
-        "HHWT",
-        "GQ",
-        "PERWT",
-        "SEX",
-        "AGE",
-        "MARST",
-        "RACE",
-        "HISPAN",
-        "CITIZEN",
-        "SPEAKENG",
-        "HCOVANY",
-        "HCOVPRIV",
-        "HINSEMP",
-        "HINSCAID",
-        "HINSCARE",
-        "EDUC",
-        "EMPSTAT",
-        "EMPSTATD",
-        "LABFORCE",
-        "WRKLSTWK",
-        "ABSENT",
-        "LOOKING",
-        "AVAILBLE",
-        "WRKRECAL",
-        "WORKEDYR",
-        "INCTOT",
-        "INCWAGE",
-        "INCWELFR",
-        "INCINVST",
-        "INCEARN",
-        "POVERTY",
-        "DEPARTS",
-        "ARRIVES",
-    ]
-
-    ALWAYS_GROUPBY = [
-        "PUMA",
-        "YEAR"
-    ]
     # JINJA_TEMPLATE_URL = "https://drivendata-competition-deid2-public.s3.amazonaws.com/visualization/report2.jinja2"
     # TODO change to local report in kmarginal directory
     # JINJA_TEMPLATE_URL = "https://data.nist.gov/od/ds/mds2-2515/report2.jinja2"
@@ -255,7 +211,7 @@ class CensusKMarginalScore(KMarginalScore):
         import jinja2
         cwdir = Path.cwd()
         this_dir = Path(__file__).parent
-        report_path = Path(this_dir, 'visualizer_resources', 'report2.jinja2')
+        report_path = Path(this_dir, '../visualizer_resources', 'report2.jinja2')
 
         with open(report_path) as file_:  # local reference
             template = jinja2.Template(file_.read())
@@ -320,30 +276,6 @@ class CensusKMarginalScore(KMarginalScore):
 
 
 class TaxiKMarginalScore(KMarginalScore):
-    BINS = {
-        "fare": np.r_[-np.inf, np.arange(0, 100, step=10), np.inf],
-        "tips": np.r_[-np.inf, np.arange(0, 100, step=10), np.inf],
-        "trip_total": np.r_[-np.inf, np.arange(0, 100, step=10), np.inf],
-        "trip_seconds": np.r_[-np.inf, np.arange(0, 2000, step=200), np.inf],
-        "trip_miles": np.r_[-np.inf, np.arange(0, 100, step=10), np.inf],
-    }
-
-    COLUMNS = [
-        "company_id",
-        "dropoff_community_area",
-        "payment_type",
-        "fare",
-        "tips",
-        "trip_total",
-        "trip_seconds",
-        "trip_miles",
-    ]
-
-    ALWAYS_GROUPBY = [
-        "pickup_community_area",
-        "shift"
-    ]
-
     def report(self, column: str = None):
         # TODO
         return ""
@@ -355,10 +287,10 @@ class TaxiKMarginalScore(KMarginalScore):
 
 
 class CensusLongitudinalKMarginalScore(CensusKMarginalScore):
-    ALWAYS_GROUPBY = None
-
-    COLUMNS = CensusKMarginalScore.COLUMNS + ["PUMA", "YEAR"]
-    COLUMNS.remove("YEAR")
+    # ALWAYS_GROUPBY = None
+    #
+    # COLUMNS = CensusKMarginalScore.COLUMNS + ["PUMA", "YEAR"]
+    # COLUMNS.remove("YEAR")
 
     N_PERMUTATIONS = 300
     RANK = 3

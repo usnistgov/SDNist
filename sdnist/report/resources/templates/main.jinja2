@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<br lang="en">
+
+<head>
+    <title>Data Evaluation Report</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 2cm;
+        }
+        .content-area {
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+        .title-div {
+            text-align: center;
+            background: black;
+            color: wheat;
+        }
+        .title-text {
+            display: inline;
+        }
+        .heading-2-div {
+
+        }
+        .heading-2-text {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .heading-3-div {
+
+        }
+        .heading-3-text {
+            text-underline: black;
+        }
+        .heading-4-div {
+        }
+        .heading-4-text {
+        }
+        .table-div {
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            position: inherit;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 2px;
+        }
+        hr {
+            margin-top: -1%;
+        }
+        .underline{
+            border-bottom: 1px solid black;
+            width: 100%;
+            display: block;
+        }
+    </style>
+</head>
+
+{% macro section_title(title) %}
+    <div class="title-div">
+        <h2 class="title-text">{{ title }}</h2>
+    </div>
+{% endmacro %}
+
+{% macro heading_2(title) %}
+    <span class="underline">
+        <h2 class="heading-2-text">{{ title }}</h2>
+    </span>
+{% endmacro%}
+
+{% macro heading_3(title) %}
+    <div class="heading-3-div">
+        <h3 class="heading-3-text">
+            <u>{{ title }}:</u>
+        </h3>
+    </div>
+{% endmacro %}
+
+{% macro heading_4(title) %}
+    <div class="heading-4-div">
+        <h4 class="heading-4-text">
+            {{ title }}:
+        </h4>
+    </div>
+{% endmacro %}
+
+{% macro table(data) %}
+    {% if data|length > 0 %}
+        <table>
+            <tr>
+            {% for col, _ in data[0].items() %}
+                <th style="width: {{ (100/data[0].items()|length) }}%">
+                    {{ col }}
+                </th>
+            {% endfor %}
+            </tr>
+        {% for row in data %}
+            <tr>
+            {% for _, val in row.items() %}
+                {% if val is iterable and val is not string  %}
+                    {% set out = val[0] %}
+                    {% if val[2] %}
+                        <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
+                    {% elif val[1] %}
+                        <td><p>{{ out }}: {{ val[1] }}</p></td>
+                    {% elif val[2] %}
+                        <td>{{ val }}</td>
+                    {% endif %}
+                {% else %}
+                    <td>{{ val }}</td>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+{% endmacro %}
+
+{% macro draw_images(data) %}
+    {% for image_link in data %}
+        <img src={{ image_link['path'] }} alt={{ image_link['image_name'] }}>
+    {% endfor %}
+{% endmacro %}
+
+{% macro data_description(title, key) %}
+    {{ heading_3(title) }}
+    <div class="table-div">
+        <table>
+            <tr>
+                <th style="width: 50%">PROPERTY</th>
+                <th style="width: 50%">VALUE</th>
+            </tr>
+            <tr>
+                <td>Filename</td>
+                <td>{{ data['data_description'][key]['filename']}}</td>
+            </tr>
+            <tr>
+                <td>Total Records</td>
+                <td>{{ data['data_description'][key]['records']}}</td>
+            </tr>
+            <tr>
+                <td>Total Columns</td>
+                <td>{{ data['data_description'][key]['columns'] }}</td>
+            </tr>
+        </table>
+    </div>
+{% endmacro %}
+
+{% macro evaluation(data) %}
+    {{ heading_3(data['metric_name']) }}
+    {% if 'scores' in data %}
+        <p>Score: {{ data['scores'] }}</p>
+    {% endif %}
+    {% for a in data['attachments'] %}
+        {%  if a.name %}
+            {{ heading_4(a.name) }}
+        {% else %}
+            <br>
+        {% endif %}
+        {% if a.type == "table" %}
+            <div class="table-div">
+                {{ table(a.data) }}
+            </div>
+        {% elif a.type == "image_links" %}
+            {{ draw_images(a.data) }}
+        {% elif a.type == "string" %}
+            <div>
+                {{ a.data }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+
+<body>
+    <div class="content-area">
+        <div class="title-div">
+            <h1 class="title-text">Data Evaluation Report</h1>
+        </div>
+        <br>
+        <div class="heading-2-div">
+            {{ section_title('Data Description') }}
+            {{ data_description('Synthetic Data', 'synthetic') }}
+            {{ data_description('Target Data', 'target')}}
+        </div>
+        <br>
+        <div class="heading-2-div">
+            {{ section_title('Utility Evaluation') }}
+            {% for item in data['utility'] %}
+                {{ evaluation(item) }}
+            {% endfor %}
+        </div>
+        <br>
+        <div class="heading-2-div">
+            {{ section_title('Privacy Evaluation') }}
+            {% for item in data['privacy'] %}
+                {{ evaluation(item) }}
+            {% endfor %}
+        </div>
+    </div>
+
+    {# a comment #}
+
+</body>
+</html>
