@@ -19,7 +19,9 @@ setup(
               "sdnist.challenge",
               "sdnist.metrics",
               "sdnist.preprocess",
-              "sdnist.report"],
+              "sdnist.report",
+              "sdnist.report.score",
+              "sdnist.report.plots"],
     # data_files=[('', ['sdnist/report2.jinja2'])],
     install_requires=[
         "jinja2>=3",
@@ -29,8 +31,8 @@ setup(
         "pandas>=1",
         "pyarrow>=7",
         "requests>=2",
-        "scikit-learn>=1"
-        "scipy>=1"
+        "scikit-learn>=1",
+        "scipy>=1",
         "tqdm>=4",
         "PyQt5>=5",
         "PyQtWebEngine>=5"
