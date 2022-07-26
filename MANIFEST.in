@@ -1,2 +1,3 @@
 include sdnist/visualizer_resources/report2.jinja2
 include sdnist/report/resources/templates/main.jinja2
+include sdnist/report/config.json

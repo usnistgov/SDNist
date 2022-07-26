@@ -17,18 +17,17 @@ from sdnist.load import TestDatasetName
 from sdnist.strs import *
 
 
-def run(challenge: str,
-        synthetic_filepath: Path,
+def run(synthetic_filepath: Path,
         output_directory: Path = REPORTS_DIR,
-        public: bool = True,
         test: TestDatasetName = TestDatasetName.NONE,
-        data_root: Path = 'data'):
+        data_root: Path = 'sdnist_toy_data',
+        download: bool = False):
     outfile = Path(output_directory, 'report.json')
     report_data = ReportData(output_directory=output_directory)
 
     if not outfile.exists():
         print('Loading Dataset...')
-        dataset = Dataset(synthetic_filepath, challenge, public, test, data_root)
+        dataset = Dataset(synthetic_filepath, test, data_root, download)
         report_data = data_description(dataset, report_data)
         # Create scores
         print('Computing Utility Scores...')
@@ -67,9 +66,11 @@ if __name__ == "__main__":
                         help="Select name of the target dataset "
                              "that was used to generated given synthetic dataset")
     parser.add_argument("--data-root", type=Path,
-                        default=Path("data"),
+                        default=Path("sdnist_toy_data"),
                         help="Path of the directory "
                              "to be used as the root for the target datasets")
+    parser.add_argument("--download", type=bool, default=True,
+                        help="Download toy datasets if not present locally")
 
     group = parser.add_argument_group(title='Choices for Target Dataset Name:')
     for e in TestDatasetName:
@@ -84,27 +85,21 @@ if __name__ == "__main__":
     if not REPORTS_DIR.exists():
         os.mkdir(REPORTS_DIR)
     TARGET_DATA = TestDatasetName[target_name]
-    challenge = data_challenge_map[TARGET_DATA]
 
     # create directory for current report run
     time_now = datetime.datetime.now().strftime('%m-%d-%YT%H.%M.%S')
-    testing = False
-    if testing:
-        this_report_dir = Path(REPORTS_DIR, f'{challenge}')
-    else:
-        this_report_dir = Path(REPORTS_DIR, f'{challenge}_{time_now}')
+
+    this_report_dir = Path(REPORTS_DIR, f'{target_name}_{time_now}')
 
     if not this_report_dir.exists():
         os.mkdir(this_report_dir)
 
     input_cnf = {
-        challenge: {
-            TEST: TARGET_DATA,
-            SYNTHETIC_FILEPATH: Path(args.synthetic_dataset.name),
-            DATA_ROOT: Path(args.data_root),
-            OUTPUT_DIRECTORY: this_report_dir,
-            PUBLIC: False
-        }
+        TEST: TARGET_DATA,
+        SYNTHETIC_FILEPATH: Path(args.synthetic_dataset.name),
+        DATA_ROOT: Path(args.data_root),
+        OUTPUT_DIRECTORY: this_report_dir,
+        DOWNLOAD: args.download
     }
 
-    run(challenge, **input_cnf[challenge])
+    run(**input_cnf)

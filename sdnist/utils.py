@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import json
+
+from pathlib import Path
 
 
 def create_bins(bins_range: dict):
@@ -121,3 +124,8 @@ def stack(dataset, user_id: str = "sim_individual_id", time: str = "YEAR"):
     # Remove empty rows
     keep = (df != -1).all(axis="columns")
     return df[keep]
+
+
+def read_json(path: Path):
+    with open(path, 'r') as f:
+        return json.load(f)

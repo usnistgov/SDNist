@@ -1,0 +1,13 @@
+{
+  "k_marginal": {
+    "bins": {
+    },
+    "ignore_features": [
+    ],
+    "group_features": [
+      "PUMA",
+      "RACE"
+    ]
+  },
+  "correlation_features": ["SEX", "AGE", "FAMSIZE", "EDUC", "SECTOR"]
+}

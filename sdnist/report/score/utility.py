@@ -35,10 +35,7 @@ def best_worst_performing(scores: pd.Series,
         feature_val = str(feature_val)
         default_res = [None, None]
 
-        if strs.FEATURE_VALUES not in dataset.config:
-            return default_res
-
-        fv = dataset.config[strs.FEATURE_VALUES]
+        fv = dataset.data_dict
         if feature not in fv:
             return default_res
 
@@ -282,7 +279,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
 
     scorers = []
 
-    features = ds.config[strs.INCLUDE_FEATURES]
+    features = ds.features
     corr_features = ds.config[strs.CORRELATION_FEATURES]
 
     # Initiated k-marginal, correlation and propensity scorer

@@ -8,7 +8,7 @@ set enumerated and illustrated for each utility and privacy metric.
 Requirements:  [Python >=3.7](https://www.python.org/downloads/)
 
 The SDNist source code is hosted on Github and all the data tables will be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
-Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.3.0](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0)
+Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.4.0-a.1](https://github.com/usnistgov/SDNist/releases/tag/v1.4.0-a.1)
 
 * Data Download Notes: 
   * SDNist does not just download specific dataset instead it downloads all the available datasets that are provided by the library.  
@@ -16,13 +16,7 @@ Alternatively, the data can be manually downloaded as part of the latest release
   * Default root data directory of SDNist is `<your-current-working-directory>/data`. Current working directory
   is the directory in which the user runs SDNist library through console/terminal, or the directory that contains your python or ipython files
   that imports SDNist library.
-   
-    
-- Install via `pip` from [PyPi](https://pypi.org/) directory:
-
-```
-pip install sdnist
-```
+  
 
 - Install `sdnist` Python module through git repository:
 ```

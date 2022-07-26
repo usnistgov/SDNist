@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 from dataclasses import dataclass, field
 
 import pandas as pd
 
-from sdnist.report import ReportData
+from sdnist.report import ReportData, FILE_DIR
 from sdnist.report.report_data import \
     DatasetType, DataDescriptionPacket
 from sdnist.load import \
@@ -14,14 +14,15 @@ import sdnist.strs as strs
 
 import sdnist.utils as u
 
+
 @dataclass
 class Dataset:
     synthetic_filepath: Path
-    challenge: str
-    public: bool = True
     test: TestDatasetName = TestDatasetName.NONE
     data_root: Path = Path('data')
+    download: bool = True
 
+    challenge: str = strs.CENSUS
     target_data: pd.DataFrame = field(init=False)
     target_data_path: Path = field(init=False)
     synthetic_data: pd.DataFrame = field(init=False)
@@ -30,25 +31,33 @@ class Dataset:
     def __post_init__(self):
         # load target dataset which is used to score synthetic dataset
         self.target_data, params = load_dataset(
-            challenge=self.challenge,
+            challenge=strs.CENSUS,
             root=self.data_root,
             download=True,
-            public=self.public,
+            public=False,
             test=self.test,
-            format_="csv"
+            format_="csv",
+            data_name="toy-data"
         )
         self.target_data_path = build_name(
-            challenge=self.challenge,
+            challenge=strs.CENSUS,
             root=self.data_root,
-            public=self.public,
-            test=self.test
+            public=False,
+            test=self.test,
+            data_name="toy-data"
         )
         self.schema = params[strs.SCHEMA]
-        self.config = params[strs.CONFIG]
-        self.features = list(set(self.config[strs.INCLUDE_FEATURES]))
 
-        self.features = self._fix_features(self.features,
-                                           self.challenge,
+        # add config packaged with data and also the config package with sdnist.report package
+        config_1 = u.read_json(Path(self.target_data_path.parent, 'config.json'))
+        config_2 = u.read_json(Path(FILE_DIR, 'config.json'))
+        self.config = {**config_1, **config_2}
+        self.data_dict = u.read_json(Path(self.target_data_path.parent, 'data_dictionary.json'))
+        self.features = self.target_data.columns.tolist()
+
+        drop_features = self.config[strs.DROP_FEATURES] \
+            if strs.DROP_FEATURES in self.config else []
+        self.features = self._fix_features(drop_features,
                                            self.config[strs.K_MARGINAL][strs.GROUP_FEATURES])
 
         # load synthetic dataset
@@ -72,22 +81,14 @@ class Dataset:
             self._fix_corr_features(self.features,
                                     self.config[strs.CORRELATION_FEATURES])
 
-    @staticmethod
-    def _fix_features(features, challenge, group_features):
-        res_f = features
+    def _fix_features(self, drop_features: List[str], group_features: List[str]):
+        t_d_f = []
+        for f in drop_features:
+            if f not in ['PUMA'] + group_features:
+                t_d_f.append(f)
+        drop_features = t_d_f
 
-        if challenge == strs.CENSUS:
-            if 'PUMA' not in features:
-                res_f.append('PUMA')
-            for f in group_features:
-                if f not in res_f:
-                    res_f.append(f)
-        elif challenge == strs.TAXI:
-            if 'pickup_community_area' not in features:
-                res_f.append('pickup_community_area')
-            for f in group_features:
-                if f not in res_f:
-                    res_f.append(f)
+        res_f = list(set(self.features).difference(drop_features))
 
         return res_f
 

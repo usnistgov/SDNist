@@ -57,14 +57,14 @@ def reporthook(count, block_size, total_size):
                      (percent, progress_size / 1024, speed, duration))
 
 
-def check_exists(root: Path, name: Path, download: bool):
+def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.DATA):
     root = root.expanduser()
     if not name.exists():
         print(f"{name} does not exist.")
         zip_path = Path(root.parent, 'data.zip')
         version = "1.4.0-a.1"
         version_v = f"v{version}"
-        sdnist_version = f"SDNist-data-{version}"
+        sdnist_version = f"SDNist-{data_name}-{version}"
         download_link = f"https://github.com/usnistgov/SDNist/releases/download/{version_v}/{sdnist_version}.zip"
         if not zip_path.exists() and download:
             print(f"Downloading all SDNist datasets from: \n"
@@ -106,14 +106,22 @@ def check_exists(root: Path, name: Path, download: bool):
 def build_name(challenge: str,
                root: Path = Path("data"),
                public: bool = False,
-               test: TestDatasetName = TestDatasetName.NONE):
+               test: TestDatasetName = TestDatasetName.NONE,
+               data_name: str = strs.DATA):
     root = root.expanduser()
+    directory = root
+
+    if data_name == "toy-data":
+        directory = root
+    elif challenge == strs.CENSUS:
+        directory = root / "census" / "dataset"
+    elif challenge == strs.TAXI:
+        directory = root / "taxi" / "dataset"
 
     if challenge == "census":
-        directory = root / "census" / "dataset"
-
         if public:
             fname = "IL_OH_10Y_PUMS"
+
         elif test != TestDatasetName.NONE:
             if test in [TestDatasetName.taxi2020, TestDatasetName.taxi2016]:
                 raise ValueError(f'Invalid challenge and test-dataset combination:'
@@ -126,8 +134,6 @@ def build_name(challenge: str,
             fname = TestDatasetName.NY_PA_10Y_PUMS.name
 
     elif challenge == "taxi":
-        directory = root / "taxi"
-
         if public:
             fname = "taxi"
         elif test != TestDatasetName.NONE:
@@ -151,8 +157,10 @@ def load_parameters(challenge: str,
                     root: Path = Path("data"),
                     public: bool = True,
                     test: TestDatasetName = TestDatasetName.NONE,
-                    download: bool = True) -> dict:
-    dataset_path = build_name(challenge=challenge, root=root, public=public, test=test)
+                    download: bool = True,
+                    data_name: str = strs.DATA) -> dict:
+    dataset_path = build_name(challenge=challenge, root=root,
+                              public=public, test=test, data_name=data_name)
     dataset_parameters = dataset_path.with_suffix('.json')
     check_exists(root, dataset_parameters, download)
 
@@ -187,7 +195,8 @@ def load_dataset(challenge: str,
                  public: bool = True,
                  test: TestDatasetName = TestDatasetName.NONE,
                  download: bool = True,
-                 format_: str = "parquet") -> Tuple[pd.DataFrame, dict]:
+                 format_: str = "parquet",
+                 data_name: str = 'data') -> Tuple[pd.DataFrame, dict]:
     """ Load one of the original SDNist datasets.
 
     :param challenge: str: base challenge. Must be `census` or `taxi`.
@@ -198,6 +207,7 @@ def load_dataset(challenge: str,
     :param download: bool: download files if not present in the `root` directory.
     :param format_: str: preferred format when retrieving the files. Must be `parquet` or `csv`.
         Note that only `parquet` files are actually available for download.
+    :param data_name: str: name of the dataset bundle from where to load data file
     :return: A tuple containing the requested dataset as a `pandas.DataFrame`, along with
         its corresponding schema, i.e a `dict` description of each feature of the dataset
 
@@ -218,32 +228,30 @@ def load_dataset(challenge: str,
     - manually inspecting any of the two 'private' dataset is not allowed within the challenge,
         even though there is nothing preventing you from doing so.
     """
-
     if isinstance(root, str):
         root = Path(root)
 
     if public and test != TestDatasetName.NONE:
         raise ValueError("A public test dataset does not make sense.")
 
-    name = build_name(challenge, root, public, test)
+    name = build_name(challenge, root, public, test, data_name)
     name.parent.mkdir(exist_ok=True, parents=True)
 
     # Load schema
-    params = load_parameters(challenge, root, public, test, download)
-    config = load_config(challenge, root, public, test, download)
-    params[strs.CONFIG] = config
+    params = load_parameters(challenge, root, public, test, download, data_name)
+    config = dict()
 
     # TODO: remove .csv option
 
     # Load dataset
     if format_ == "parquet":
         dataset_name = name.with_suffix(".parquet")
-        check_exists(root, dataset_name, download)
+        check_exists(root, dataset_name, download, data_name)
         dataset = pd.read_parquet(dataset_name)
 
     elif format_ == "csv":
         dataset_name = name.with_suffix(".csv")
-        check_exists(root, dataset_name, download)
+        check_exists(root, dataset_name, download, data_name)
 
         columns = {name: params[strs.SCHEMA][name]["dtype"]
                    for name in params[strs.SCHEMA]}
@@ -251,6 +259,10 @@ def load_dataset(challenge: str,
 
     else:
         raise ValueError(f"Unknown format {format_}")
+
+    if data_name != 'toy-data':
+        config = load_config(challenge, root, public, test, download)
+    params[strs.CONFIG] = config
 
     return dataset, params
 
