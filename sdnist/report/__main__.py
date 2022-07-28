@@ -55,6 +55,9 @@ class NoAction(argparse.Action):
 
 
 if __name__ == "__main__":
+    bundled_datasets = [TestDatasetName.MA_ACS_EXCERPT_2019,
+                        TestDatasetName.TX_ACS_EXCERPT_2019,
+                        TestDatasetName.OUTLIER_ACS_EXCERPT_2019]
     parser = argparse.ArgumentParser()
     parser.register('action', 'none', NoAction)
     parser.add_argument("synthetic_dataset", type=argparse.FileType("r"),
@@ -62,7 +65,7 @@ if __name__ == "__main__":
                         help="Location of synthetic dataset (csv or parquet file)")
     parser.add_argument("target_dataset_name",
                         metavar="TARGET_DATASET_NAME",
-                        choices=[_.name for _ in sdnist.load.TestDatasetName],
+                        choices=bundled_datasets,
                         help="Select name of the target dataset "
                              "that was used to generated given synthetic dataset")
     parser.add_argument("--data-root", type=Path,
@@ -73,9 +76,7 @@ if __name__ == "__main__":
                         help="Download toy datasets if not present locally")
 
     group = parser.add_argument_group(title='Choices for Target Dataset Name:')
-    for e in TestDatasetName:
-        if e == TestDatasetName.NONE:
-            continue
+    for e in bundled_datasets:
         group.add_argument(str(e.name), help="", action='none')
 
     args = parser.parse_args()

@@ -19,7 +19,7 @@ import sdnist.utils as u
 class Dataset:
     synthetic_filepath: Path
     test: TestDatasetName = TestDatasetName.NONE
-    data_root: Path = Path('data')
+    data_root: Path = Path('sdnist_toy_data')
     download: bool = True
 
     challenge: str = strs.CENSUS
@@ -33,7 +33,7 @@ class Dataset:
         self.target_data, params = load_dataset(
             challenge=strs.CENSUS,
             root=self.data_root,
-            download=True,
+            download=self.download,
             public=False,
             test=self.test,
             format_="csv",

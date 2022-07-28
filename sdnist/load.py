@@ -57,6 +57,17 @@ def reporthook(count, block_size, total_size):
                      (percent, progress_size / 1024, speed, duration))
 
 
+def error_opening_zip(zip_path):
+    try:
+        z = zipfile.ZipFile(zip_path)
+    except zipfile.BadZipfile:
+        return True
+
+    if z.testzip() is not None:
+        return True
+    return False
+
+
 def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.DATA):
     root = root.expanduser()
     if not name.exists():
@@ -66,6 +77,9 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
         version_v = f"v{version}"
         sdnist_version = f"SDNist-{data_name}-{version}"
         download_link = f"https://github.com/usnistgov/SDNist/releases/download/{version_v}/{sdnist_version}.zip"
+        if zip_path.exists() and error_opening_zip(zip_path):
+            os.remove(zip_path)
+
         if not zip_path.exists() and download:
             print(f"Downloading all SDNist datasets from: \n"
                   f"{download_link} ...")
@@ -162,7 +176,7 @@ def load_parameters(challenge: str,
     dataset_path = build_name(challenge=challenge, root=root,
                               public=public, test=test, data_name=data_name)
     dataset_parameters = dataset_path.with_suffix('.json')
-    check_exists(root, dataset_parameters, download)
+    check_exists(root, dataset_parameters, download, data_name=data_name)
 
     with dataset_parameters.open("r") as handler:
         params = json.load(handler)
