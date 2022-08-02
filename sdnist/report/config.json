@@ -5,8 +5,7 @@
     "ignore_features": [
     ],
     "group_features": [
-      "PUMA",
-      "RACE"
+      "PUMA"
     ]
   },
   "correlation_features": ["SEX", "AGE", "FAMSIZE", "EDUC", "SECTOR"]

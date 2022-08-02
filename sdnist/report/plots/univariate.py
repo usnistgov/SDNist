@@ -83,27 +83,65 @@ def save_distribution_plot(synthetic: pd.DataFrame,
     bar_width = 0.4
     saved_file_paths = []
     for f in features:
-        val_df = pd.DataFrame(target[f].unique().tolist(), columns=[f])
-        t_counts_df = target.groupby(by=f)[f].size().reset_index(name='count_target')
-        s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(name='count_synthetic')
-        merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
-            .fillna(0)
-        merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
-            .fillna(0)
-        merged = merged.sort_values(by=f)
+        if f == 'INDNAICS' and 'SECTOR' in target.columns.tolist():
+            all_sectors = target['SECTOR'].unique().tolist()
+            set(all_sectors).update(set(synthetic['SECTOR'].unique().tolist()))
+            for s in all_sectors:
+                st_df = target[target['SECTOR'].isin([s])]
+                ss_df = synthetic[synthetic['SECTOR'].isin([s])]
+                unique_ind_codes = st_df['INDNAICS'].unique().tolist()
+                set(unique_ind_codes).update(set(ss_df['INDNAICS'].unique().tolist()))
+                unique_ind_codes = list(unique_ind_codes)
+                val_df = pd.DataFrame(unique_ind_codes, columns=[f])
 
-        x_axis = np.arange(merged.shape[0])
-        plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
-        plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
-        plt.xlabel('Record Counts')
-        plt.ylabel(f'{f} Feature Values')
-        plt.gca().set_xticks(x_axis, merged[f].values.tolist())
-        plt.legend(loc='upper right')
-        plt.title(f)
-        file_path = Path(o_dir, f'{f}.jpg')
-        plt.savefig(Path(o_dir, f'{f}.jpg'))
-        plt.close()
-        saved_file_paths.append(file_path)
+                t_counts_df = st_df.groupby(by=f)[f].size().reset_index(name='count_target')
+                s_counts_df = ss_df.groupby(by=f)[f].size().reset_index(name='count_synthetic')
+                merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
+                    .fillna(0)
+                merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
+                    .fillna(0)
+                merged = merged.sort_values(by=f)
+                x_axis = np.arange(merged.shape[0])
+                plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
+                plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
+                plt.xlabel('Record Counts')
+                plt.ylabel(f'{f} Feature Values')
+                plt.gca().set_xticks(x_axis, merged[f].values.tolist())
+                plt.legend(loc='upper right')
+                plt.xticks(fontsize=8, rotation=45)
+                plt.tight_layout()
+                plt.title(f'INDNAICS in SECTOR: {s}')
+
+                file_path = Path(o_dir, f'indnaics_sector_{s}.jpg')
+                plt.savefig(file_path, bbox_inches='tight')
+
+                plt.close()
+                saved_file_paths.append(file_path)
+        else:
+            val_df = pd.DataFrame(target[f].unique().tolist(), columns=[f])
+            t_counts_df = target.groupby(by=f)[f].size().reset_index(name='count_target')
+            s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(name='count_synthetic')
+            merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
+                .fillna(0)
+            merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
+                .fillna(0)
+            merged = merged.sort_values(by=f)
+
+            x_axis = np.arange(merged.shape[0])
+            plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
+            plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
+            plt.xlabel('Record Counts')
+            plt.ylabel(f'{f} Feature Values')
+            plt.gca().set_xticks(x_axis, merged[f].values.tolist())
+            plt.legend(loc='upper right')
+            plt.xticks(fontsize=8, rotation=45)
+            plt.tight_layout()
+
+            plt.title(f)
+            file_path = Path(o_dir, f'{f}.jpg')
+            plt.savefig(Path(o_dir, f'{f}.jpg'), bbox_inches='tight')
+            plt.close()
+            saved_file_paths.append(file_path)
     return saved_file_paths
 
 

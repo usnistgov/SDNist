@@ -213,7 +213,7 @@ def kmarginal_score_packet(k_marginal_score: int,
                                                       group_features,
                                                       feature_values)
 
-    w_b_n = 10 if len(worst_scores) > 10 else len(worst_scores)
+    w_b_n = 5 if len(worst_scores) > 5 else len(worst_scores)
     worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
 
     worst_break_down = worst_score_breakdown(worst_scores,
@@ -309,7 +309,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                                  ds.d_synthetic_data,
                                  features)]
     elif ds.challenge == strs.TAXI:
-        up = UnivariatePlots(ds.synthetic_data, ds.target_data,
+        up = UnivariatePlots(ds.d_synthetic_data, ds.d_target_data,
                              ds.schema, rd.output_directory, ds.challenge)
         up_saved_file_paths = up.save()
 

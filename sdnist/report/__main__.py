@@ -65,7 +65,7 @@ if __name__ == "__main__":
                         help="Location of synthetic dataset (csv or parquet file)")
     parser.add_argument("target_dataset_name",
                         metavar="TARGET_DATASET_NAME",
-                        choices=bundled_datasets,
+                        choices=[b.name for b in bundled_datasets],
                         help="Select name of the target dataset "
                              "that was used to generated given synthetic dataset")
     parser.add_argument("--data-root", type=Path,

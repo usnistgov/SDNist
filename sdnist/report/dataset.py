@@ -86,6 +86,7 @@ class Dataset:
         for f in drop_features:
             if f not in ['PUMA'] + group_features:
                 t_d_f.append(f)
+
         drop_features = t_d_f
 
         res_f = list(set(self.features).difference(drop_features))
