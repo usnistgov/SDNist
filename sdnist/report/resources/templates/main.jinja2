@@ -21,7 +21,7 @@
             display: inline;
         }
         .heading-2-div {
-
+            page-break-after: always;
         }
         .heading-2-text {
             text-align: center;
@@ -36,6 +36,12 @@
         .heading-4-div {
         }
         .heading-4-text {
+        }
+        .evaluation-div {
+            page-break-after: always;
+        }
+        .attachment-div {
+
         }
         .table-div {
             margin-left: 10%;
@@ -96,7 +102,7 @@
             <tr>
             {% for col, _ in data[0].items() %}
                 <th style="width: {{ (100/data[0].items()|length) }}%">
-                    {{ col }}
+                    {{ col.upper() }}
                 </th>
             {% endfor %}
             </tr>
@@ -158,22 +164,24 @@
         <p>Score: {{ data['scores'] }}</p>
     {% endif %}
     {% for a in data['attachments'] %}
-        {%  if a.name %}
-            {{ heading_4(a.name) }}
-        {% else %}
-            <br>
-        {% endif %}
-        {% if a.type == "table" %}
-            <div class="table-div">
-                {{ table(a.data) }}
-            </div>
-        {% elif a.type == "image_links" %}
-            {{ draw_images(a.data) }}
-        {% elif a.type == "string" %}
-            <div>
-                {{ a.data }}
-            </div>
-        {% endif %}
+        <div class="attachment-div">
+            {%  if a.name %}
+                {{ heading_4(a.name) }}
+            {% else %}
+                <br>
+            {% endif %}
+            {% if a.type == "table" %}
+                <div class="table-div">
+                    {{ table(a.data) }}
+                </div>
+            {% elif a.type == "image_links" %}
+                {{ draw_images(a.data) }}
+            {% elif a.type == "string" %}
+                <div>
+                    {{ a.data }}
+                </div>
+            {% endif %}
+        </div>
     {% endfor %}
 {% endmacro %}
 
@@ -193,14 +201,18 @@
         <div class="heading-2-div">
             {{ section_title('Utility Evaluation') }}
             {% for item in data['utility'] %}
-                {{ evaluation(item) }}
+                <div class="evaluation-div">
+                    {{ evaluation(item) }}
+                </div>
             {% endfor %}
         </div>
         <br>
         <div class="heading-2-div">
             {{ section_title('Privacy Evaluation') }}
             {% for item in data['privacy'] %}
-                {{ evaluation(item) }}
+                <div class="evaluation-div">
+                    {{ evaluation(item) }}
+                </div>
             {% endfor %}
         </div>
     </div>

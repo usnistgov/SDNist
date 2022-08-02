@@ -23,7 +23,6 @@ from sdnist.report.plots import \
     UnivariatePlots, CorrelationDifferencePlot, \
     GridPlot, PropensityDistribution, PearsonCorrelationPlot
 
-
 import sdnist.strs as strs
 
 
@@ -31,6 +30,7 @@ def best_worst_performing(scores: pd.Series,
                           dataset: Dataset,
                           group_features: List[str],
                           feature_values: Dict[str, Dict]) -> Tuple[List, List]:
+
     def feat_name_value(feature, feature_val):
         feature_val = str(feature_val)
         default_res = [None, None]
@@ -123,23 +123,24 @@ def worst_score_breakdown(worst_scores: List,
     rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-3:])
                                 for p in pcp_saved_file_paths]
     # attachment for worst feature names
-    a_wf = Attachment(name='Five Worst Performing ' + feature,
+    a_wf = Attachment(name=f'{len(wpf)} Worst Performing ' + feature,
                       _data=", ".join(wpf),
                       _type=AttachmentType.String)
 
     # attachment for records in each data for worst performing feature
-    a_rt = Attachment(name='Record Counts in Five Worst Performing ' + feature,
+    a_rt = Attachment(name=f'Record Counts in {len(wpf)} Worst Performing ' + feature,
                       _data=[{"Dataset": "Target", "Record Counts": t.shape[0]},
                              {"Dataset": "Synthetic", "Record Counts": s.shape[0]}],
                       _type=AttachmentType.Table)
-    a_up = Attachment(name="Univariate Distribution of Worst "
-                           "Performing Features in Five Worst Performing "
+    a_up = Attachment(name=f"Univariate Distribution of Worst "
+                           f"Performing Features in {len(wpf)} Worst Performing "
                            + feature,
                       _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                              for p in rel_up_saved_file_paths],
                       _type=AttachmentType.ImageLinks)
 
-    a_pc = Attachment(name="Pearson Correlation Coefficient Difference in Five Worst Performing "
+    a_pc = Attachment(name=f"Pearson Correlation Coefficient Difference in "
+                           f"{len(wpf)} Worst Performing "
                            + feature,
                       _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                              for p in rel_pcp_saved_file_paths],
@@ -205,15 +206,18 @@ def kmarginal_score_packet(k_marginal_score: int,
             for frac in sorted_frac]
 
     sed_a = Attachment(name=None,
-                       _data=sedf,
-                       _type=AttachmentType.Table)
+                       _data=sedf)
 
     worst_scores, best_scores = best_worst_performing(group_scores,
                                                       dataset,
                                                       group_features,
                                                       feature_values)
+    all_scores = worst_scores
+    total_pumas = len(dataset.target_data['PUMA'].unique())
+    default_w_b_n = 2 if total_pumas <= 6 else 5
 
-    w_b_n = 5 if len(worst_scores) > 5 else len(worst_scores)
+    # count of worst or best k-marginal pumas to select
+    w_b_n = default_w_b_n if len(worst_scores) > default_w_b_n else len(worst_scores)
     worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
 
     worst_break_down = worst_score_breakdown(worst_scores,
@@ -221,15 +225,21 @@ def kmarginal_score_packet(k_marginal_score: int,
                                              report_data,
                                              worst_breakdown_feature)
 
+    # all score attachment
+    as_a = Attachment(name=f'K-Marginal Score in Each ' + '-'.join(group_features),
+                      _data=all_scores)
+
+    # worst score attachment
     ws_a = Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
                       _data=worst_scores)
 
+    # best score attachment
     bs_a = Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
                       _data=best_scores)
 
     kmarg_sum_pkt = UtilityScorePacket('K-Marginal Synopsys',
                                        k_marginal_score,
-                                       [ssf_a, sed_a, ws_a])
+                                       [ssf_a, sed_a, as_a])
 
     gp_a = grid_plot_attachment(group_features,
                                 group_scores,
