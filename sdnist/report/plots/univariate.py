@@ -82,11 +82,13 @@ def save_distribution_plot(synthetic: pd.DataFrame,
     o_dir = output_directory
     bar_width = 0.4
     saved_file_paths = []
+
     for f in features:
         if f == 'INDNAICS' and 'SECTOR' in target.columns.tolist():
             all_sectors = target['SECTOR'].unique().tolist()
             set(all_sectors).update(set(synthetic['SECTOR'].unique().tolist()))
             for s in all_sectors:
+                plt.figure(figsize=(6, 3), dpi=100)
                 st_df = target[target['SECTOR'].isin([s])]
                 ss_df = synthetic[synthetic['SECTOR'].isin([s])]
                 unique_ind_codes = st_df['INDNAICS'].unique().tolist()
@@ -105,7 +107,7 @@ def save_distribution_plot(synthetic: pd.DataFrame,
                 plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
                 plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
                 plt.xlabel('Record Counts')
-                plt.ylabel(f'{f} Feature Values')
+                plt.ylabel(f'Feature Values')
                 plt.gca().set_xticks(x_axis, merged[f].values.tolist())
                 plt.legend(loc='upper right')
                 plt.xticks(fontsize=8, rotation=45)
@@ -118,6 +120,7 @@ def save_distribution_plot(synthetic: pd.DataFrame,
                 plt.close()
                 saved_file_paths.append(file_path)
         else:
+            plt.figure(figsize=(6, 3), dpi=100)
             val_df = pd.DataFrame(target[f].unique().tolist(), columns=[f])
             t_counts_df = target.groupby(by=f)[f].size().reset_index(name='count_target')
             s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(name='count_synthetic')
@@ -131,7 +134,7 @@ def save_distribution_plot(synthetic: pd.DataFrame,
             plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
             plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
             plt.xlabel('Record Counts')
-            plt.ylabel(f'{f} Feature Values')
+            plt.ylabel(f'Feature Values')
             plt.gca().set_xticks(x_axis, merged[f].values.tolist())
             plt.legend(loc='upper right')
             plt.xticks(fontsize=8, rotation=45)

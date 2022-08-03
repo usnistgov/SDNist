@@ -41,11 +41,16 @@
             page-break-after: always;
         }
         .attachment-div {
-
+        }
+        .attachment-div-break {
+            page-break-before: always;
         }
         .table-div {
             margin-left: 10%;
             margin-right: 10%;
+        }
+        .img-div {
+
         }
         table {
             border-collapse: collapse;
@@ -130,7 +135,9 @@
 
 {% macro draw_images(data) %}
     {% for image_link in data %}
-        <img src={{ image_link['path'] }} alt={{ image_link['image_name'] }}>
+        <div class="img-div">
+            <img src={{ image_link['path'] }} alt={{ image_link['image_name'] }}>
+        </div>
     {% endfor %}
 {% endmacro %}
 
@@ -163,8 +170,13 @@
     {% if 'scores' in data %}
         <p>Score: {{ data['scores'] }}</p>
     {% endif %}
-    {% for a in data['attachments'] %}
-        <div class="attachment-div">
+    {% for i, a in enumerate(data['attachments']) %}
+        {% if a.type == 'image_links' and i > 0 %}
+            {% set style = 'attachment-div-break' %}
+        {% else %}
+            {% set style = 'attachment-div' %}
+        {% endif %}
+        <div class={{ style }}>
             {%  if a.name %}
                 {{ heading_4(a.name) }}
             {% else %}

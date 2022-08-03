@@ -1,6 +1,7 @@
 from typing import List
 import os
 from pathlib import Path
+import numpy as np
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -54,14 +55,14 @@ class PropensityPairPlot:
         sd = s[reversed(s.columns)]
         for i, row in sd.iterrows():
             print(row.values.tolist())
+        fig = plt.figure(figsize=(6, 6), dpi=100)
         plt.imshow(sd, cmap='RdBu')
-        plt.colorbar()
 
         plt.xticks(range(sd.shape[1]), sd.columns)
         plt.yticks(range(sd.shape[0]), sd.index)
         file_path = Path(self.plot_path, f'{filename}.jpg')
         plt.title(title)
-        plt.savefig(file_path)
+        plt.savefig(file_path, bbox_inches='tight')
         plt.close()
-
+        fig.tight_layout()
         return [file_path]

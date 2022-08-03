@@ -55,9 +55,9 @@ class NoAction(argparse.Action):
 
 
 if __name__ == "__main__":
-    bundled_datasets = [TestDatasetName.MA_ACS_EXCERPT_2019,
-                        TestDatasetName.TX_ACS_EXCERPT_2019,
-                        TestDatasetName.OUTLIER_ACS_EXCERPT_2019]
+    bundled_datasets = {"MA": TestDatasetName.MA_ACS_EXCERPT_2019,
+                        "TX": TestDatasetName.TX_ACS_EXCERPT_2019,
+                        "OUTLIER": TestDatasetName.OUTLIER_ACS_EXCERPT_2019}
     parser = argparse.ArgumentParser()
     parser.register('action', 'none', NoAction)
     parser.add_argument("synthetic_dataset", type=argparse.FileType("r"),
@@ -65,7 +65,7 @@ if __name__ == "__main__":
                         help="Location of synthetic dataset (csv or parquet file)")
     parser.add_argument("target_dataset_name",
                         metavar="TARGET_DATASET_NAME",
-                        choices=[b.name for b in bundled_datasets],
+                        choices=[b for b in bundled_datasets.keys()],
                         help="Select name of the target dataset "
                              "that was used to generated given synthetic dataset")
     parser.add_argument("--data-root", type=Path,
@@ -76,16 +76,15 @@ if __name__ == "__main__":
                         help="Download toy datasets if not present locally")
 
     group = parser.add_argument_group(title='Choices for Target Dataset Name:')
-    for e in bundled_datasets:
-        group.add_argument(str(e.name), help="", action='none')
+    for k, v in bundled_datasets.items():
+        group.add_argument(str(k), help=f"{v.name}", action='none')
 
     args = parser.parse_args()
 
-    target_name = args.target_dataset_name
-
     if not REPORTS_DIR.exists():
         os.mkdir(REPORTS_DIR)
-    TARGET_DATA = TestDatasetName[target_name]
+    TARGET_DATA = bundled_datasets[args.target_dataset_name]
+    target_name = TARGET_DATA.name
 
     # create directory for current report run
     time_now = datetime.datetime.now().strftime('%m-%d-%YT%H.%M.%S')

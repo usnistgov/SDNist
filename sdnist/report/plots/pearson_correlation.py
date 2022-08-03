@@ -23,14 +23,15 @@ class PearsonCorrelationPlot:
     def save(self) -> List[Path]:
         file_path = Path(self.plot_path, 'pearson_corr_diff.jpg')
         cd = self.cd[reversed(self.cd.columns)].abs()
+        fig = plt.figure(figsize=(6, 6), dpi=100)
         plt.imshow(cd, cmap='Blues', interpolation='none')
-        plt.colorbar()
-
+        im_ratio = cd.shape[0] / cd.shape[1]
+        cbar = plt.colorbar(fraction=0.047 * im_ratio)
         plt.xticks(range(cd.shape[1]), cd.columns)
         plt.yticks(range(cd.shape[0]), cd.index)
-
-        plt.title('Pearson Correlation Difference between Target and Synthetic Data')
-        plt.savefig(file_path)
+        plt.title('Pearson Correlation Diff. between Target and Synthetic')
+        fig.tight_layout()
+        plt.savefig(file_path, bbox_inches='tight')
         plt.close()
 
         return [file_path]

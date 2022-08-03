@@ -79,7 +79,8 @@ def save_grid_plots(title: str, grid_data, grid_labels, output_directory: Path) 
     gd = grid_data
     gl = grid_labels
 
-    fig, ax = plt.subplots(figsize=(8, 8))
+    fig, ax = plt.subplots(figsize=(4, 4))
+    fig.set_dpi(100)
     plt.imshow(gd, cmap='GnBu', vmin=0, vmax=1000)
     im_ratio = gd.shape[0]/gd.shape[1]
 

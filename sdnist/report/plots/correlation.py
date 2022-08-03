@@ -2,6 +2,7 @@ import os
 from typing import List
 from pathlib import Path
 
+import matplotlib.pyplot
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import numpy as np
@@ -77,13 +78,17 @@ def correlation_difference(synthetic: pd.DataFrame,
 def save_correlation_difference_plot(correlation_data: pd.DataFrame,
                                      output_directory: Path) -> List[Path]:
     cd = correlation_data[reversed(correlation_data.columns)].abs()
+    fig = plt.figure(figsize=(6, 6), dpi=100)
     plt.imshow(cd, cmap='Blues', interpolation='none')
-    plt.colorbar()
+    im_ratio = cd.shape[0] / cd.shape[1]
+
+    cbar = plt.colorbar(fraction=0.047 * im_ratio)
     plt.xticks(range(cd.shape[1]), cd.columns)
     plt.yticks(range(cd.shape[0]), cd.index)
     file_path = Path(output_directory, 'corr_diff.jpg')
-    plt.title('Correlation Diff. between Synthetic and Target')
-    plt.savefig(file_path)
+    plt.title('Correlation Diff. between Target and Synthetic')
+    fig.tight_layout()
+    plt.savefig(file_path, bbox_inches='tight')
     plt.close()
 
     return [file_path]
