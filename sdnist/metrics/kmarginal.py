@@ -33,6 +33,7 @@ class KMarginalScore:
                  schema: dict,
                  seed: int = None,
                  bins: Optional[Dict] = None,
+                 discretize: bool = False,
                  group_features: Optional[List[str]] = None,
                  ignore_features: Optional[List[str]] = None,
                  bias_penalty_cutoff: Optional[int] = None,
@@ -50,8 +51,12 @@ class KMarginalScore:
             raise ValueError("The columns of the synthetic dataset does not match the columns of the score")
 
         self.BIAS_PENALTY_CUTOFF = bias_penalty_cutoff
-        self._private_dataset = sdnist.utils.discretize(private_dataset, schema, self.BINS)
-        self._synthetic_dataset = sdnist.utils.discretize(synthetic_dataset, schema, self.BINS)
+        if discretize:
+            self._private_dataset = sdnist.utils.discretize(private_dataset, schema, self.BINS)
+            self._synthetic_dataset = sdnist.utils.discretize(synthetic_dataset, schema, self.BINS)
+        else:
+            self._private_dataset = private_dataset
+            self._synthetic_dataset = synthetic_dataset
         self.schema = schema
         self.loading_bar = loading_bar
         if len(synthetic_dataset) / len(private_dataset) < .5 and self.BIAS_PENALTY_CUTOFF:
