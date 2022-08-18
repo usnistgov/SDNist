@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import entropy
 
+from sdnist.report import Dataset
 from sdnist.strs import *
 
 plt.style.use('seaborn-deep')
@@ -16,7 +17,7 @@ class UnivariatePlots:
     def __init__(self,
                  synthetic: pd.DataFrame,
                  target: pd.DataFrame,
-                 schema: Dict[str, any],
+                 dataset: Dataset,
                  output_directory: Path,
                  challenge: str = CENSUS,
                  n: int = 3):
@@ -30,8 +31,8 @@ class UnivariatePlots:
                 synthetic dataset
             target : pd.Dataframe
                 target dataset
-            schema : Dict[str, any]
-                schema containing description of datasets
+            dataset : Dataset
+                dataset object
             output_directory: pd.Dataframe
                 path of the directory to which plots will be saved
             challenge: str
@@ -41,7 +42,9 @@ class UnivariatePlots:
         """
         self.syn = synthetic
         self.tar = target
-        self.schema = schema
+
+        self.schema = dataset.schema
+        self.dataset = dataset
         self.o_dir = output_directory
         self.plots_path = Path(self.o_dir, 'worst_univariates')
         self.n = n
@@ -67,32 +70,41 @@ class UnivariatePlots:
                             self.tar,
                             self.schema, ignore_features)
         # select 3 features with worst divergence
-        div_df = div_df.head(3)
+        # div_df = div_df.head(3)
 
-        return save_distribution_plot(self.syn,
+        return save_distribution_plot(self.dataset,
+                                      self.syn,
                                       self.tar,
                                       div_df[FEATURE].tolist(),
                                       self.plots_path)
 
 
-def save_distribution_plot(synthetic: pd.DataFrame,
+def save_distribution_plot(dataset: Dataset,
+                           synthetic: pd.DataFrame,
                            target: pd.DataFrame,
                            features: List,
                            output_directory: Path):
+    ds = dataset
     o_dir = output_directory
     bar_width = 0.4
     saved_file_paths = []
-
+    INDP = 'INDP'
+    INDP_CAT = "INDP_CAT"
+    o_tar = ds.target_data.loc[target.index]
+    o_syn = ds.synthetic_data.loc[synthetic.index]
     for f in features:
-        if f == 'INDNAICS' and 'SECTOR' in target.columns.tolist():
-            all_sectors = target['SECTOR'].unique().tolist()
-            set(all_sectors).update(set(synthetic['SECTOR'].unique().tolist()))
+        if f == INDP and INDP_CAT in target.columns.tolist():
+            all_sectors = o_tar[INDP_CAT].unique().tolist()
+            set(all_sectors).update(set(o_syn[INDP_CAT].unique().tolist()))
+            selected = []
             for s in all_sectors:
-                plt.figure(figsize=(6, 3), dpi=100)
-                st_df = target[target['SECTOR'].isin([s])]
-                ss_df = synthetic[synthetic['SECTOR'].isin([s])]
-                unique_ind_codes = st_df['INDNAICS'].unique().tolist()
-                set(unique_ind_codes).update(set(ss_df['INDNAICS'].unique().tolist()))
+                if s == 'N':
+                    continue
+                st_df = o_tar[o_tar[INDP_CAT].isin([s])]
+                ss_df = o_syn[o_syn[INDP_CAT].isin([s])]
+
+                unique_ind_codes = st_df[INDP].unique().tolist()
+                set(unique_ind_codes).update(set(ss_df[INDP].unique().tolist()))
                 unique_ind_codes = list(unique_ind_codes)
                 val_df = pd.DataFrame(unique_ind_codes, columns=[f])
 
@@ -102,26 +114,37 @@ def save_distribution_plot(synthetic: pd.DataFrame,
                     .fillna(0)
                 merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
                     .fillna(0)
+
+                div = entropy(merged['count_target'], merged['count_synthetic'])
+                selected.append([merged, div, s])
+            selected = sorted(selected, key=lambda l: l[1], reverse=True)
+
+            for data in selected[:2]:
+                merged = data[0]
+                s = data[2]
                 merged = merged.sort_values(by=f)
                 x_axis = np.arange(merged.shape[0])
+                plt.figure(figsize=(6, 3), dpi=100)
                 plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
                 plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
-                plt.xlabel('Record Counts')
-                plt.ylabel(f'Feature Values')
+                plt.xlabel('Feature Values')
+                plt.ylabel('Record Counts')
                 plt.gca().set_xticks(x_axis, merged[f].values.tolist())
                 plt.legend(loc='upper right')
                 plt.xticks(fontsize=8, rotation=45)
                 plt.tight_layout()
-                plt.title(f'INDNAICS in SECTOR: {s}')
+                plt.title(f'INDP in INDP_CAT: {s}')
 
-                file_path = Path(o_dir, f'indnaics_sector_{s}.jpg')
+                file_path = Path(o_dir, f'indp_indp_cat_{s}.jpg')
                 plt.savefig(file_path, bbox_inches='tight')
 
                 plt.close()
                 saved_file_paths.append(file_path)
         else:
             plt.figure(figsize=(6, 3), dpi=100)
-            val_df = pd.DataFrame(target[f].unique().tolist(), columns=[f])
+            values = set(target[f].unique().tolist()).union(synthetic[f].unique().tolist())
+            values = sorted(values)
+            val_df = pd.DataFrame(values, columns=[f])
             t_counts_df = target.groupby(by=f)[f].size().reset_index(name='count_target')
             s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(name='count_synthetic')
             merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
@@ -133,8 +156,8 @@ def save_distribution_plot(synthetic: pd.DataFrame,
             x_axis = np.arange(merged.shape[0])
             plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
             plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
-            plt.xlabel('Record Counts')
-            plt.ylabel(f'Feature Values')
+            plt.xlabel('Feature Values')
+            plt.ylabel('Record Counts')
             plt.gca().set_xticks(x_axis, merged[f].values.tolist())
             plt.legend(loc='upper right')
             plt.xticks(fontsize=8, rotation=45)
@@ -161,9 +184,10 @@ def divergence(synthetic: pd.DataFrame,
     for var, var_schema in schema.items():
         if var not in tfeats or var not in sfeats:
             continue
-        if VALUES not in var_schema or var in ignore_features:
+        if var in ignore_features:
             continue
-        values = var_schema[VALUES]
+        values = set(target[var].unique().tolist()).union(synthetic[var].unique().tolist())
+        values = sorted(values)
         val_df = pd.DataFrame(values, columns=[var])
 
         s_counts_df = synthetic.groupby(by=var)[var].size().reset_index(name=COUNT)

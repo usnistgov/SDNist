@@ -3,6 +3,7 @@ from typing import Dict, List
 from dataclasses import dataclass, field
 
 import pandas as pd
+import numpy as np
 
 from sdnist.report import ReportData, FILE_DIR
 from sdnist.report.report_data import \
@@ -13,6 +14,72 @@ from sdnist.load import \
 import sdnist.strs as strs
 
 import sdnist.utils as u
+
+
+def transform(data, schema):
+    # replace categories with codes
+    # replace N: NA with -1 for categoricals
+    # replace N: NA with mean for numericals
+    data = data.copy()
+    for c in data.columns.tolist():
+        desc = schema[c]
+        if "values" in desc:
+            if "has_null" in desc:
+                null_val = desc["null_value"]
+                data[c] = data[c].replace(null_val, -1)
+        elif "min" in desc:
+            if "has_null" in desc:
+                null_val = desc["null_value"]
+                nna_mask = data[~data[c].isin(['N'])].index  # not na mask
+                if c == 'PINCP':
+                    data[c] = data[c].replace(null_val, 999999)
+                elif c == 'POVPIP':
+                    data[c] = data[c].replace(null_val, 999)
+        if c == 'PUMA':
+            data[c] = data[c].astype(pd.CategoricalDtype(desc["values"])).cat.codes
+            if "N" in desc['values']:
+                data[c] = data[c].replace(0, -1)
+        else:
+            data[c] = pd.to_numeric(data[c])
+        print(c, sorted(data[c].unique()))
+    return data
+
+
+def percentile_rank(data, features):
+    data = data.copy()
+    for c in features:
+        if c not in data.columns:
+            continue
+        nna_mask = data[~data[c].isin(['N'])].index  # not na mask
+        d_temp = pd.DataFrame(pd.to_numeric(data.loc[nna_mask, c]).astype(int), columns=[c])
+        # print(d_temp.shape)
+        # print(d_temp.dtypes)
+        # print(d_temp.columns.tolist())
+        if c == 'POVPIP':
+            # print(sorted(d_temp[c].unique()))
+            d_temp['rank'] = d_temp[c].rank(pct=True, numeric_only=True).apply(lambda x: round(x, 2))
+            tdf = d_temp.groupby(by=c)[c].size().reset_index(name='count_target')
+            # for r, g in d_temp.groupby(by=['rank']):
+            #     print(r, sorted(g[c].unique()))
+            # for i, r in tdf.sort_values(by=[c], ascending=False).iterrows():
+            #     print(r[c], r['count_target'], r['rank'])
+            # print(sorted(d_temp[c].rank(pct=True, numeric_only=True).apply(lambda x: round(x, 2)).unique()))
+        data.loc[nna_mask, c] = d_temp[c]\
+            .rank(pct=True).apply(lambda x: int(20 * x) if x < 1 else 19)
+    return data
+
+
+def add_bin_for_NA(data, reference_data, features):
+    d = data
+    rd = reference_data
+
+    for c in features:
+        if c not in data.columns:
+            continue
+        na_mask = rd[rd[c].isin(['N'])].index
+        if len(na_mask):
+            d.loc[na_mask, c] = -1
+    return d
 
 
 @dataclass
@@ -66,17 +133,45 @@ class Dataset:
             self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes, index_col=0)
         elif str(self.synthetic_filepath).endswith('.parquet'):
             self.synthetic_data = pd.read_parquet(self.synthetic_filepath)
-        self.synthetic_data = self.synthetic_data[self.target_data.columns]
+        common_columns = list(set(self.synthetic_data.columns.tolist()).intersection(
+            set(self.target_data.columns.tolist())
+        ))
+        self.target_data = self.target_data[common_columns]
+        self.synthetic_data = self.synthetic_data[common_columns]
 
+        ind_features = [c for c in self.target_data.columns.tolist()
+                        if c.startswith('IND_')]
+        self.features = list(set(self.features).difference(set(ind_features)))
+        self.features = list(set(self.features).intersection(list(common_columns)))
+        # raw data
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
-        if strs.BINS in self.config:
-            bins_ranges = self.config[strs.BINS]
-        else:
-            bins_ranges = dict()
-        self.d_target_data = u.discretize(self.target_data, self.schema, bins_ranges)
-        self.d_synthetic_data = u.discretize(self.synthetic_data, self.schema, bins_ranges)
 
+        # transformed data
+        self.t_target_data = transform(self.target_data, self.schema)
+        print()
+        print('SYNTHETIC')
+        print()
+        self.t_synthetic_data = transform(self.synthetic_data, self.schema)
+
+        # binned data
+        numeric_features = ['AGEP', 'POVPIP', 'PINCP']
+        self.d_target_data = percentile_rank(self.target_data, numeric_features)
+        self.d_synthetic_data = percentile_rank(self.synthetic_data, numeric_features)
+
+        self.d_target_data = add_bin_for_NA(self.d_target_data,
+                                            self.target_data, numeric_features)
+        self.d_synthetic_data = add_bin_for_NA(self.d_synthetic_data,
+                                               self.synthetic_data,
+                                               numeric_features)
+        # print(sorted(self.d_synthetic_data['POVPIP'].unique()))
+        # print(sorted(self.d_synthetic_data['AGEP'].unique()))
+        non_numeric = [c for c in self.features
+                       if c not in numeric_features]
+
+        self.d_target_data[non_numeric] = self.t_target_data[non_numeric]
+        self.d_synthetic_data[non_numeric] = self.t_synthetic_data[non_numeric]
+        # print('AGEP', self.d_synthetic_data['AGEP'].unique())
         self.config[strs.CORRELATION_FEATURES] = \
             self._fix_corr_features(self.features,
                                     self.config[strs.CORRELATION_FEATURES])

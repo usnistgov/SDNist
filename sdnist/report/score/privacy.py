@@ -15,7 +15,7 @@ def privacy_score(dataset: Dataset, report_data: ReportData) -> ReportData:
     quasi_idf = []  # list of quasi-identifier features
     excluded = []  # list of excluded features from apparent match computation
     if ds.challenge == CENSUS:
-        quasi_idf = ['SEX', 'RACE', 'EDUC', 'INCTOT']
+        quasi_idf = ['SEX', 'RAC1P', 'EDU']
         quasi_idf = list(set(ds.features).intersection(set(quasi_idf)))
         excluded = ['PUMA', 'RACE']
         amd_plot = ApparentMatchDistributionPlot(ds.synthetic_data,

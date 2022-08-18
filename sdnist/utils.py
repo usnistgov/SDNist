@@ -40,25 +40,36 @@ def discretize(dataset: pd.DataFrame, schema: dict, bins_range: dict, copy: bool
     bins = create_bins(bins_range)
     if copy:
         dataset = dataset.copy()
-
+    print('BINS')
+    print(bins)
     for column in dataset:
         if column in bins:
+            print('in bin ', column)
+            if column in schema and "has_null" in schema[column]:
+                desc = schema[column]
+                null_val = desc['null_value']
+                dataset[column] = pd.to_numeric(dataset[column].replace(null_val, desc["min"] - 1))
             dataset[column] = pd.cut(dataset[column], bins[column], right=False).cat.codes
+            if column == 'AGEP':
+                print(dataset[column].unique())
         elif column in schema:
             desc = schema[column]
             if "values" in desc:
                 dataset[column] = dataset[column].astype(pd.CategoricalDtype(desc["values"])).cat.codes
             elif "min" in desc.keys():
+                if "has_null" in desc:
+                    null_val = desc['null_value']
+                    dataset[column] = dataset[column].replace(null_val, desc["min"]-1)
+                dataset[column] = pd.to_numeric(dataset[column])
                 dataset[column] = (dataset[column] - desc["min"]).astype(int)
             else:
                 #feature unmodified, e.g., 'kind == "ID"' columns
                 pass
-
-
         else:
             # Feature is not modified.
             pass
-
+        print('AGEP FINAL: ', column)
+        print(dataset[column].unique())
     return dataset
 
 

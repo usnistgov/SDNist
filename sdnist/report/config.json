@@ -1,12 +1,15 @@
 {
   "k_marginal": {
-    "bins": {
-    },
     "ignore_features": [
     ],
     "group_features": [
       "PUMA"
     ]
   },
-  "correlation_features": ["SEX", "AGE", "FAMSIZE", "EDUC", "SECTOR"]
+  "bins": {
+    "AGEP": {"first_bin_max":  0, "last_bin_min":  99, "bin_size":  5},
+    "PINCP": {"first_bin_max":  0, "last_bin_min":  300000, "bin_size":  20000},
+    "POVPIP": {"first_bin_max":  0, "last_bin_min":  501, "bin_size":  20}
+  },
+  "correlation_features": ["SEX", "AGEP", "NOC", "EDU", "INDP_CAT"]
 }

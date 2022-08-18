@@ -24,9 +24,9 @@ class TestDatasetName(Enum):
     IL_OH_10Y_PUMS = 4
     taxi2016 = 5
     taxi2020 = 6
-    MA_ACS_EXCERPT_2019 = 7
-    TX_ACS_EXCERPT_2019 = 8
-    OUTLIER_ACS_EXCERPT_2019 = 9
+    ma2019 = 7
+    tx2019 = 8
+    outlier2019 = 9
 
 
 data_challenge_map = {
@@ -34,9 +34,9 @@ data_challenge_map = {
     TestDatasetName.GA_NC_SC_10Y_PUMS: strs.CENSUS,
     TestDatasetName.NY_PA_10Y_PUMS: strs.CENSUS,
     TestDatasetName.IL_OH_10Y_PUMS: strs.CENSUS,
-    TestDatasetName.MA_ACS_EXCERPT_2019: strs.CENSUS,
-    TestDatasetName.TX_ACS_EXCERPT_2019: strs.CENSUS,
-    TestDatasetName.OUTLIER_ACS_EXCERPT_2019: strs.CENSUS,
+    TestDatasetName.ma2019: strs.CENSUS,
+    TestDatasetName.tx2019: strs.CENSUS,
+    TestDatasetName.outlier2019: strs.CENSUS,
     TestDatasetName.taxi2016: strs.TAXI,
     TestDatasetName.taxi2020: strs.TAXI
 }

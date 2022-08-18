@@ -33,9 +33,7 @@ setup(
         "requests>=2",
         "scikit-learn>=1",
         "scipy>=1",
-        "tqdm>=4",
-        "PyQt5>=5",
-        "PyQtWebEngine>=5"
+        "tqdm>=4"
     ],
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Programming Language :: Python :: 3.8',
