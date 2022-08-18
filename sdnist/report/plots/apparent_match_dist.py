@@ -14,16 +14,21 @@ from sdnist.metrics.apparent_match_dist import cellchange
 def plot_apparent_match_dist(match_percentages: pd.Series,
                              output_directory: Path) -> Path:
     fig = plt.figure(figsize=(6, 6), dpi=100)
-    plt.title(
-        'Percentage of Matched Records')
-    match_percentages.hist()
+
+    print(match_percentages)
+    df = pd.DataFrame(match_percentages, columns=['perc'])
+    df.hist(width=1.5, align='mid')
     plt.xlim(0, 100)
     ax = plt.gca()
     ax.grid(False)
     ax.locator_params(axis='y', integer=True)
     plt.xlabel('Match Percentage', fontsize=14)
     plt.ylabel('Record Counts', fontsize=14)
+    plt.title(
+        'Percentage of Matched Records')
     out_file = Path(output_directory, f'apparent_match_distribution.jpg')
+    x1, x2, y1, y2 = plt.axis()
+    plt.axis((x1 - 2, x2 + 2, y1, y2 + 0.05))
     fig.tight_layout()
     plt.savefig(out_file, bbox_inches='tight')
     plt.close()
