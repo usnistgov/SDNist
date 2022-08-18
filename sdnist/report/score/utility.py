@@ -14,6 +14,7 @@ from sdnist.metrics.propensity import \
     PropensityMSE
 from sdnist.metrics.pearson_correlation import \
     PearsonCorrelationDifference
+from sdnist.metrics.pca import PCAMetric, plot_pca
 
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
@@ -98,18 +99,18 @@ def worst_score_breakdown(worst_scores: List,
     if str(wsh.loc[0, feature]).startswith('['):
         wsh[feature] = wsh[feature].apply(lambda x: list(x)[0])
     wpf = wsh[feature].unique().tolist()[:5]  # worst performing feature values
-    t = dataset.target_data.copy()
-    s = dataset.synthetic_data.copy()
+    t = dataset.d_target_data.copy()
+    s = dataset.d_synthetic_data.copy()
 
-    t = t[t[feature].isin(wpf)]
-    s = s[s[feature].isin(wpf)]
+    t = t[dataset.target_data[feature].isin(wpf)]
+    s = s[dataset.synthetic_data[feature].isin(wpf)]
 
     out_dir = Path(rd.output_directory, 'k_marginal_breakdown')
     if not out_dir.exists():
         os.mkdir(out_dir)
 
-    up = UnivariatePlots(t, s,
-                         ds.schema, out_dir, ds.challenge)
+    up = UnivariatePlots(s, t,
+                         ds, out_dir, ds.challenge)
     up_saved_file_paths = up.save()
 
     pcd = PearsonCorrelationDifference(t, s,
@@ -123,9 +124,9 @@ def worst_score_breakdown(worst_scores: List,
     rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-3:])
                                 for p in pcp_saved_file_paths]
     # attachment for worst feature names
-    a_wf = Attachment(name=f'{len(wpf)} Worst Performing ' + feature,
-                      _data=", ".join(wpf),
-                      _type=AttachmentType.String)
+    # a_wf = Attachment(name=f'{len(wpf)} Worst Performing ' + feature,
+    #                   _data=", ".join(wpf),
+    #                   _type=AttachmentType.String)
 
     # attachment for records in each data for worst performing feature
     a_rt = Attachment(name=f'Record Counts in {len(wpf)} Worst Performing ' + feature,
@@ -146,7 +147,7 @@ def worst_score_breakdown(worst_scores: List,
                              for p in rel_pcp_saved_file_paths],
                       _type=AttachmentType.ImageLinks)
 
-    return [a_wf, a_rt, a_up, a_pc]
+    return [a_rt, a_up, a_pc]
 
 
 def kmarginal_subsamples(dataset: Dataset,
@@ -155,10 +156,10 @@ def kmarginal_subsamples(dataset: Dataset,
     # mapping of sub sample frac to k-marginal score of fraction
     ssample_score = dict()  # subsample scores dictionary
     # find k-marginal of 10%, 20% ... 90% of sub-sample of target data
-    for i in range(1, 10):
+    for i in range(1, 11):
         # using subsample of target data as synthetic data
-        s_sd = dataset.target_data.sample(frac=i * 0.1)  # subsample as synthetic data
-        s_kmarg = k_marginal_cls(dataset.target_data,
+        s_sd = dataset.d_target_data.sample(frac=i * 0.1)  # subsample as synthetic data
+        s_kmarg = k_marginal_cls(dataset.d_target_data,
                                  s_sd,
                                  dataset.schema,
                                  **dataset.config[strs.K_MARGINAL])
@@ -193,16 +194,17 @@ def kmarginal_score_packet(k_marginal_score: int,
 
     # subsample fraction score attachment
     ssf_a = Attachment(name=f"Sampling Error Comparison",
-                       _data=f"K-Marginal score of synthetic data closely resembles "
-                             f"K-Marginal score of {int(min_frac * 100)}% sub-sample of "
+                       _data=f"K-Marginal score of the synthetic data closely resembles "
+                             f"K-Marginal score of a {int(min_frac * 100)}% sub-sample of "
                              f"the target data.",
                        _type=AttachmentType.String)
 
     # sampling error data attachment
     sedf = [{"Sub-Sample Size": f"{int(frac * 100)}%",
              "Sub-Sample K-Marginal Score": subsample_scores[frac],
-             "% Difference from Synthetic Data K-marginal Score":
-                 f"{abs(subsample_scores[frac] - k_marginal_score)/10}%"}
+             "Synthetic Data K-marginal score": k_marginal_score,
+             "Absolute Difference From Synthetic Data K-marginal Score":
+                 f"{abs(subsample_scores[frac] - k_marginal_score)}"}
             for frac in sorted_frac]
 
     sed_a = Attachment(name=None,
@@ -295,56 +297,29 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
     # Initiated k-marginal, correlation and propensity scorer
     # selected challenge type: census or taxi
     if ds.challenge == strs.CENSUS:
-        up = UnivariatePlots(ds.synthetic_data, ds.target_data,
-                             ds.schema, rd.output_directory, ds.challenge)
-        up_saved_file_paths = up.save()
-
-        cdp_saved_file_paths = []
-        pcp_saved_file_paths = []
-        if len(corr_features) > 1:
-            cdp = CorrelationDifferencePlot(ds.d_synthetic_data, ds.d_target_data, rd.output_directory,
-                                            corr_features)
-            cdp_saved_file_paths = cdp.save()
-
-            pcd = PearsonCorrelationDifference(ds.d_target_data, ds.d_synthetic_data,
-                                               corr_features)
-            pcd.compute()
-            pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, rd.output_directory)
-            pcp_saved_file_paths = pcp.save()
-
-        scorers = [CensusKMarginalScore(ds.target_data,
-                                        ds.synthetic_data,
-                                        ds.schema, **ds.config[strs.K_MARGINAL]),
-                   PropensityMSE(ds.d_target_data,
-                                 ds.d_synthetic_data,
-                                 features)]
-    elif ds.challenge == strs.TAXI:
         up = UnivariatePlots(ds.d_synthetic_data, ds.d_target_data,
-                             ds.schema, rd.output_directory, ds.challenge)
+                             ds, rd.output_directory, ds.challenge)
         up_saved_file_paths = up.save()
 
         cdp_saved_file_paths = []
         pcp_saved_file_paths = []
         if len(corr_features) > 1:
-            cdp = CorrelationDifferencePlot(ds.d_synthetic_data, ds.d_target_data, rd.output_directory,
+            cdp = CorrelationDifferencePlot(ds.t_synthetic_data, ds.t_target_data, rd.output_directory,
                                             corr_features)
             cdp_saved_file_paths = cdp.save()
 
-            pcd = PearsonCorrelationDifference(ds.d_target_data, ds.d_synthetic_data,
+            pcd = PearsonCorrelationDifference(ds.t_target_data, ds.t_synthetic_data,
                                                corr_features)
             pcd.compute()
             pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, rd.output_directory)
             pcp_saved_file_paths = pcp.save()
 
-        scorers = [TaxiKMarginalScore(ds.target_data, ds.synthetic_data,
-                                      ds.schema, **ds.config[strs.K_MARGINAL]),
-                   TaxiHigherOrderConjunction(ds.target_data, ds.synthetic_data,
-                                              ds.config[strs.K_MARGINAL][strs.BINS]),
-                   TaxiGraphEdgeMapScore(ds.target_data, ds.synthetic_data, ds.schema),
-                   PropensityMSE(ds.d_target_data,
-                                 ds.d_synthetic_data,
-                                 features=features)
-                   ]
+        scorers = [CensusKMarginalScore(ds.d_target_data,
+                                        ds.d_synthetic_data,
+                                        ds.schema, **ds.config[strs.K_MARGINAL]),
+                   PropensityMSE(ds.t_target_data,
+                                 ds.t_synthetic_data,
+                                 features)]
     else:
         raise Exception(f'Unknown challenge type: {ds.challenge}')
 
@@ -447,10 +422,26 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                               None,
                               corr_metric_a))
 
+    pca = PCAMetric(dataset.t_target_data, dataset.t_synthetic_data)
+    pca.compute_pca()
+    pca_saved_file_path = pca.plot(rd.output_directory)
+    rel_pca_save_file_path = ["/".join(list(p.parts)[-2:])
+                              for p in pca_saved_file_path]
+
+    pca_a = Attachment(name=None,
+                       _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                              for p in rel_pca_save_file_path],
+                       _type=AttachmentType.ImageLinks)
+
     if prop_pkt:
         rd.add(prop_pkt)
 
+    rd.add(UtilityScorePacket("PCA",
+                              None,
+                              [pca_a]))
+
     if kmarg_det_pkt:
         rd.add(kmarg_det_pkt)
+
 
     return rd
