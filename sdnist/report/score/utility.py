@@ -16,6 +16,7 @@ from sdnist.metrics.pearson_correlation import \
     PearsonCorrelationDifference
 from sdnist.metrics.pca import PCAMetric, plot_pca
 
+from sdnist.report.score.paragraphs import *
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
     ReportData, UtilityScorePacket, Attachment, AttachmentType, \
@@ -36,7 +37,7 @@ def best_worst_performing(scores: pd.Series,
         feature_val = str(feature_val)
         default_res = [None, None]
 
-        fv = dataset.data_dict
+        fv = dataset.mappings
         if feature not in fv:
             return default_res
 
@@ -68,7 +69,7 @@ def best_worst_performing(scores: pd.Series,
                     for f, f_val in f_values.items()}
         worst_scores.append({
             **f_values,
-            strs.SCORE: int(ss[wf])
+            strs.SCORE.capitalize(): int(ss[wf])
         })
 
     ss = scores.sort_values(ascending=False)
@@ -82,7 +83,7 @@ def best_worst_performing(scores: pd.Series,
                     for f, f_val in f_values.items()}
         best_scores.append({
             **f_values,
-            strs.SCORE: int(ss[bf])
+            strs.SCORE.capitalize(): int(ss[bf])
         })
 
     return worst_scores, best_scores
@@ -111,7 +112,45 @@ def worst_score_breakdown(worst_scores: List,
 
     up = UnivariatePlots(s, t,
                          ds, out_dir, ds.challenge)
-    up_saved_file_paths = up.save()
+    u_feature_data = up.save()
+    u_as = []
+    u_as.append(Attachment(name=None,
+                           _data=f"h3Univariate Distribution of Worst "
+                                 f"Performing Features in {len(wpf)} Worst Performing "
+                                  + feature,
+                           _type=AttachmentType.String))
+    u_as.append(Attachment(name=None,
+                           _data=univ_dist_worst_para,
+                           _type=AttachmentType.String))
+
+    for k, v in u_feature_data.items():
+        u_path = v['path']
+        u_rel_path = "/".join(list(u_path.parts)[-2:])
+        name = k
+        a = Attachment(name=None,
+                       _data=f'h4{name}',
+                       _type=AttachmentType.String)
+        u_as.append(a)
+        if "excluded" in v:
+            fv = v['excluded']['feature_value']
+            tc = v['excluded']['target_counts']
+            sc = v['excluded']['synthetic_counts']
+            if k.startswith('POVPIP'):
+                fv = '501 (Not in poverty: income above 5 x poverty line)'
+            elif fv == -1:
+                fv = 'N (N/A)'
+            a = Attachment(name=None,
+                           _data=f"Feature Value: {fv}"
+                                 f"<br>Target Data Counts: {tc}"
+                                 f"<br>Synthetic Data Counts: {sc}",
+                           _type=AttachmentType.String)
+            u_as.append(a)
+
+        a = Attachment(name=None,
+                       _data=[{strs.IMAGE_NAME: Path(u_rel_path).stem,
+                               strs.PATH: u_rel_path}],
+                       _type=AttachmentType.ImageLinks)
+        u_as.append(a)
 
     pcd = PearsonCorrelationDifference(t, s,
                                        ds.config[strs.CORRELATION_FEATURES])
@@ -119,8 +158,8 @@ def worst_score_breakdown(worst_scores: List,
     pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, out_dir)
     pcp_saved_file_paths = pcp.save()
 
-    rel_up_saved_file_paths = ["/".join(list(p.parts)[-3:])
-                               for p in up_saved_file_paths]
+    # rel_up_saved_file_paths = ["/".join(list(p.parts)[-3:])
+    #                            for p in up_saved_file_paths]
     rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-3:])
                                 for p in pcp_saved_file_paths]
     # attachment for worst feature names
@@ -129,25 +168,31 @@ def worst_score_breakdown(worst_scores: List,
     #                   _type=AttachmentType.String)
 
     # attachment for records in each data for worst performing feature
-    a_rt = Attachment(name=f'Record Counts in {len(wpf)} Worst Performing ' + feature,
+    a_para_rt = Attachment(name=f'Record Counts in {len(wpf)} Worst Performing ' + feature,
+                           _data=rec_count_worst_para,
+                           _type=AttachmentType.String)
+    a_rt = Attachment(name=None,
                       _data=[{"Dataset": "Target", "Record Counts": t.shape[0]},
                              {"Dataset": "Synthetic", "Record Counts": s.shape[0]}],
                       _type=AttachmentType.Table)
-    a_up = Attachment(name=f"Univariate Distribution of Worst "
-                           f"Performing Features in {len(wpf)} Worst Performing "
-                           + feature,
-                      _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                             for p in rel_up_saved_file_paths],
-                      _type=AttachmentType.ImageLinks)
+    # a_up = Attachment(name=f"Univariate Distribution of Worst "
+    #                        f"Performing Features in {len(wpf)} Worst Performing "
+    #                        + feature,
+    #                   _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+    #                          for p in rel_up_saved_file_paths],
+    #                   _type=AttachmentType.ImageLinks)
 
-    a_pc = Attachment(name=f"Pearson Correlation Coefficient Difference in "
+    a_para_pc = Attachment(name=f"Pearson Correlation Coefficient Difference in "
                            f"{len(wpf)} Worst Performing "
                            + feature,
+                           _data=pear_corr_worst_para,
+                           _type=AttachmentType.String)
+    a_pc = Attachment(name=None,
                       _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                              for p in rel_pcp_saved_file_paths],
                       _type=AttachmentType.ImageLinks)
 
-    return [a_rt, a_up, a_pc]
+    return [a_para_rt, a_rt] + u_as + [a_para_pc, a_pc]
 
 
 def kmarginal_subsamples(dataset: Dataset,
@@ -192,20 +237,33 @@ def kmarginal_score_packet(k_marginal_score: int,
                    for frac in sorted_frac]
     min_frac = sorted_frac[min_index(score_error)]
 
+    ss_para_a = Attachment(name=f"Sampling Error Comparison",
+                           _data=sub_sample_para,
+                           _type=AttachmentType.String)
+
     # subsample fraction score attachment
-    ssf_a = Attachment(name=f"Sampling Error Comparison",
+    ssf_a = Attachment(name=None,
                        _data=f"K-Marginal score of the synthetic data closely resembles "
                              f"K-Marginal score of a {int(min_frac * 100)}% sub-sample of "
                              f"the target data.",
                        _type=AttachmentType.String)
+    min_idx = 0
+    min_score = 10000
+    for i, frac in enumerate(sorted_frac):
+        diff = abs(subsample_scores[frac] - k_marginal_score)
+        if diff < min_score:
+            min_score = diff
+            min_idx = i
 
     # sampling error data attachment
     sedf = [{"Sub-Sample Size": f"{int(frac * 100)}%",
              "Sub-Sample K-Marginal Score": subsample_scores[frac],
              "Synthetic Data K-marginal score": k_marginal_score,
-             "Absolute Difference From Synthetic Data K-marginal Score":
-                 f"{abs(subsample_scores[frac] - k_marginal_score)}"}
+             "Absolute Diff. From Synthetic Data K-marginal Score":
+                 f"{abs(subsample_scores[frac] - k_marginal_score)}"
+             }
             for frac in sorted_frac]
+    sedf[min_idx]["min_idx"] = True
 
     sed_a = Attachment(name=None,
                        _data=sedf)
@@ -228,27 +286,45 @@ def kmarginal_score_packet(k_marginal_score: int,
                                              worst_breakdown_feature)
 
     # all score attachment
-    as_a = Attachment(name=f'K-Marginal Score in Each ' + '-'.join(group_features),
+    as_para_a = Attachment(name=f'K-Marginal Score in Each ' + '-'.join(group_features),
+                           _data=k_marg_all_puma_para,
+                           _type=AttachmentType.String)
+
+    as_a = Attachment(name=None,
                       _data=all_scores)
+    k_marg_break_para_a = Attachment(name=None,
+                                     _data=k_marg_break_para,
+                                     _type=AttachmentType.String)
 
     # worst score attachment
-    ws_a = Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
+    ws_para_a = Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
+                           _data=worst_k_marg_para,
+                           _type=AttachmentType.String)
+    ws_a = Attachment(name=None,
                       _data=worst_scores)
 
     # best score attachment
     bs_a = Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
                       _data=best_scores)
 
+    # k marg para attachment
+    kmp_a = Attachment(name=None,
+                       _data=k_marg_synopsys_para,
+                       _type=AttachmentType.String)
+    # k marg score attachment
+    kms_a = Attachment(name=None,
+                       _data=f"Highlight-K-Marginal Score: {k_marginal_score}",
+                       _type=AttachmentType.String)
     kmarg_sum_pkt = UtilityScorePacket('K-Marginal Synopsys',
-                                       k_marginal_score,
-                                       [ssf_a, sed_a, as_a])
+                                       None,
+                                       [kmp_a, kms_a, ss_para_a, ssf_a, sed_a, as_para_a, as_a])
 
     gp_a = grid_plot_attachment(group_features,
                                 group_scores,
                                 feature_values,
                                 report_data.output_directory)
 
-    metric_attachments = [ws_a, bs_a]
+    metric_attachments = [k_marg_break_para_a, ws_para_a, ws_a]
     if gp_a:
         metric_attachments.append(gp_a)
     metric_attachments.extend(worst_break_down)
@@ -299,7 +375,37 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
     if ds.challenge == strs.CENSUS:
         up = UnivariatePlots(ds.d_synthetic_data, ds.d_target_data,
                              ds, rd.output_directory, ds.challenge)
-        up_saved_file_paths = up.save()
+        u_feature_data = up.save()  # univariate features data
+        u_as = []  # univariate attachments
+
+        for k, v in u_feature_data.items():
+            u_path = v['path']
+            u_rel_path = "/".join(list(u_path.parts)[-2:])
+            name = k
+            a = Attachment(name=None,
+                           _data=f'h4{name}',
+                           _type=AttachmentType.String)
+            u_as.append(a)
+            if "excluded" in v:
+                fv = v['excluded']['feature_value']
+                tc = v['excluded']['target_counts']
+                sc = v['excluded']['synthetic_counts']
+                if k.startswith('POVPIP'):
+                    fv = '501 (Not in poverty: income above 5 x poverty line)'
+                elif fv == -1:
+                    fv = 'N (N/A)'
+                a = Attachment(name=None,
+                               _data=f"Feature Value: {fv}"
+                                     f"<br>Target Data Counts: {tc}"
+                                     f"<br>Synthetic Data Counts: {sc}",
+                               _type=AttachmentType.String)
+                u_as.append(a)
+
+            a = Attachment(name=None,
+                           _data=[{strs.IMAGE_NAME: Path(u_rel_path).stem,
+                                  strs.PATH: u_rel_path}],
+                           _type=AttachmentType.ImageLinks)
+            u_as.append(a)
 
         cdp_saved_file_paths = []
         pcp_saved_file_paths = []
@@ -378,44 +484,63 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
             #                 for p in pps_paths]
 
             # probability distribution attachment
+            pd_para_a = Attachment(name=None,
+                                   _data=propensity_para,
+                                   _type=AttachmentType.String)
+            pd_score_a = Attachment(name=None,
+                                    _data=f"Highlight-Score: {metric_score}",
+                                    _type=AttachmentType.String)
             pd_a = Attachment(name=f'Propensities Distribution',
                               _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                      for p in rel_pd_path],
                               _type=AttachmentType.ImageLinks)
 
             prop_pkt = UtilityScorePacket(metric_name,
-                                          metric_score,
-                                          [pd_a])
+                                          None,
+                                          [pd_para_a, pd_score_a, pd_a])
 
     if kmarg_sum_pkt:
         rd.add(kmarg_sum_pkt)
 
-    rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
-                               for p in up_saved_file_paths]
+    # rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
+    #                            for p in up_saved_file_paths]
     rd.add(UtilityScorePacket("Univariate Distributions",
                               None,
-                              [Attachment(name="Three Worst Performing Features",
-                                          _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                                                  for p in rel_up_saved_file_paths],
-                                          _type=AttachmentType.ImageLinks)]))
+                              [Attachment(name=None,
+                               _data=univ_dist_para,
+                               _type=AttachmentType.String),
+                               Attachment(name="Three Worst Performing Features",
+                                          _data="",
+                                          _type=AttachmentType.String)] + u_as))
 
     corr_metric_a = []
+    corr_metric_a.append(Attachment(name=None,
+                                    _data=corr_para,
+                                    _type=AttachmentType.String))
     if len(cdp_saved_file_paths):
         rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
                                     for p in cdp_saved_file_paths]
-        ktc_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
+        ktc_p_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
+                               _data=kend_corr_para,
+                               _type=AttachmentType.String)
+        ktc_a = Attachment(name=None,
                            _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                   for p in rel_cdp_saved_file_paths],
                            _type=AttachmentType.ImageLinks)
+        corr_metric_a.append(ktc_p_a)
         corr_metric_a.append(ktc_a)
 
     if len(pcp_saved_file_paths):
         rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-2:])
                                     for p in pcp_saved_file_paths]
-        pc_a = Attachment(name="Pearson Correlation Coefficient Difference",
+        pc_para_a = Attachment(name="Pearson Correlation Coefficient Difference",
+                               _data=pear_corr_para,
+                               _type=AttachmentType.String)
+        pc_a = Attachment(name=None,
                           _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                  for p in rel_pcp_saved_file_paths],
                           _type=AttachmentType.ImageLinks)
+        corr_metric_a.append(pc_para_a)
         corr_metric_a.append(pc_a)
 
     rd.add(UtilityScorePacket("Correlations",
@@ -427,7 +552,14 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
     pca_saved_file_path = pca.plot(rd.output_directory)
     rel_pca_save_file_path = ["/".join(list(p.parts)[-2:])
                               for p in pca_saved_file_path]
-
+    pca_para_a = Attachment(name=None,
+                            _data=pca_para,
+                            _type=AttachmentType.String)
+    pca_a_tt = Attachment(name="Contribution of Features in Each Principal Component",
+                          _data=pca.t_comp_data,
+                          _type=AttachmentType.Table)
+    # pca_a_st = Attachment(name="Synthetic data: contribution of features in "
+    #                            "each principal component")
     pca_a = Attachment(name=None,
                        _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                               for p in rel_pca_save_file_path],
@@ -438,7 +570,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
 
     rd.add(UtilityScorePacket("PCA",
                               None,
-                              [pca_a]))
+                              [pca_para_a, pca_a_tt, pca_a]))
 
     if kmarg_det_pkt:
         rd.add(kmarg_det_pkt)

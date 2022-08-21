@@ -47,7 +47,7 @@ class PropensityMSE:
         # form one single training dataset
         N = pd.concat([t, s]).reset_index(drop=True)
 
-        clf = tree.DecisionTreeClassifier()
+        clf = tree.DecisionTreeClassifier(max_depth=5)
         clf.fit(N[f].values, N['i'].values)
 
         pprob = clf.predict_proba(N[f].values)  # prediction probabilities
@@ -69,11 +69,12 @@ class PropensityMSE:
                                       for o, s in zip(oc, sc)],
                                       columns=['target samples', 'synthetic samples'],
                                       index=range(self.bins))
+
         N_size = N.shape[0]
         s_size = s.shape[0]  # size of synthetic data
 
         c = s_size / N_size
-        # print(syn_prob)
+
         self.pmse_score = 1 / N_size * sum([(_pi - c) ** 2
                                             for _pi in syn_prob])
         orig_syn_prob = syn_prob[:t.shape[0]]

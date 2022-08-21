@@ -8,36 +8,47 @@
             size: A4 portrait;
             margin: 2cm;
         }
+        body {
+            font-family: sans-serif;
+        }
         .content-area {
             margin-left: 10%;
             margin-right: 10%;
         }
+        .main-title {
+            text-align: center;
+            font-size: 22px;
+            color: #6280BA;
+        }
         .title-div {
             text-align: center;
-            background: black;
-            color: wheat;
+            background: #6280BA;
+            color: white;
         }
         .title-text {
             display: inline;
         }
         .heading-2-div {
-            page-break-after: always;
+
         }
         .heading-2-text {
-            text-align: center;
-            margin-bottom: 5px;
+            {#text-align: center;#}
+            {#margin-bottom: 5px;#}
+            color: #6280BA;
         }
         .heading-3-div {
 
         }
         .heading-3-text {
-            text-underline: black;
         }
         .heading-4-div {
         }
         .heading-4-text {
         }
         .evaluation-div {
+            page-break-after: always;
+        }
+        .appendix-div {
             page-break-after: always;
         }
         .attachment-div {
@@ -57,6 +68,9 @@
             width: 100%;
             position: inherit;
         }
+        th {
+            color: #6280BA;
+        }
         td, th {
             border: 1px solid #dddddd;
             text-align: left;
@@ -70,25 +84,32 @@
             width: 100%;
             display: block;
         }
+        .section-separator-bar {
+            width: 100%;
+            height: 5px;
+            background-color: #6280BA;
+        }
     </style>
 </head>
 
 {% macro section_title(title) %}
     <div class="title-div">
-        <h2 class="title-text">{{ title }}</h2>
+        <h1 class="title-text">{{ title }}</h1>
     </div>
 {% endmacro %}
 
 {% macro heading_2(title) %}
-    <span class="underline">
-        <h2 class="heading-2-text">{{ title }}</h2>
+    <span class="heading-2-div">
+        <h2 class="heading-2-text">
+            <u>{{ title }}:</u>
+        </h2>
     </span>
 {% endmacro%}
 
 {% macro heading_3(title) %}
     <div class="heading-3-div">
         <h3 class="heading-3-text">
-            <u>{{ title }}:</u>
+            {{ title }}:
         </h3>
     </div>
 {% endmacro %}
@@ -106,13 +127,20 @@
         <table>
             <tr>
             {% for col, _ in data[0].items() %}
-                <th style="width: {{ (100/data[0].items()|length) }}%">
-                    {{ col.upper() }}
-                </th>
+                {% if col != "min_idx" %}
+                    <th style="width: {{ (100/data[0].items()|length) }}%">
+                        {{ col }}
+                    </th>
+                {% endif %}
             {% endfor %}
             </tr>
-        {% for row in data %}
-            <tr>
+        {% for i, row in enumerate(data) %}
+            {% if "min_idx" in row %}
+                {% set row_style = "background-color: #b3ccfc; color: black" %}
+            {% else %}
+                {% set row_style = "" %}
+            {% endif %}
+            <tr style="{{ row_style }}">
             {% for _, val in row.items() %}
                 {% if val is iterable and val is not string  %}
                     {% set out = val[0] %}
@@ -123,6 +151,7 @@
                     {% elif val[2] %}
                         <td>{{ val }}</td>
                     {% endif %}
+                {% elif _ == "min_idx" %}
                 {% else %}
                     <td>{{ val }}</td>
                 {% endif %}
@@ -142,12 +171,12 @@
 {% endmacro %}
 
 {% macro data_description(title, key) %}
-    {{ heading_3(title) }}
+    {{ heading_2(title) }}
     <div class="table-div">
         <table>
             <tr>
-                <th style="width: 50%">PROPERTY</th>
-                <th style="width: 50%">VALUE</th>
+                <th style="width: 50%">Property</th>
+                <th style="width: 50%">Value</th>
             </tr>
             <tr>
                 <td>Filename</td>
@@ -158,15 +187,22 @@
                 <td>{{ data['data_description'][key]['records']}}</td>
             </tr>
             <tr>
-                <td>Total Columns</td>
-                <td>{{ data['data_description'][key]['columns'] }}</td>
+                <td>Total Features</td>
+                <td>{{ data['data_description'][key]['features'] }}</td>
             </tr>
         </table>
     </div>
 {% endmacro %}
 
+{% macro feature_description(title) %}
+    {{ heading_2(title) }}
+    <div class="table-div">
+        {{ table(data['data_description'][title]) }}
+    </div>
+{% endmacro %}
+
 {% macro evaluation(data) %}
-    {{ heading_3(data['metric_name']) }}
+    {{ heading_2(data['metric_name']) }}
     {% if 'scores' in data %}
         <p>Score: {{ data['scores'] }}</p>
     {% endif %}
@@ -178,7 +214,8 @@
         {% endif %}
         <div class={{ style }}>
             {%  if a.name %}
-                {{ heading_4(a.name) }}
+                <br>
+                {{ heading_3(a.name) }}
             {% else %}
                 <br>
             {% endif %}
@@ -189,9 +226,23 @@
             {% elif a.type == "image_links" %}
                 {{ draw_images(a.data) }}
             {% elif a.type == "string" %}
-                <div>
-                    {{ a.data }}
-                </div>
+                {% if a.data.startswith('Highlight-') %}
+                    <div style="color: #6280BA; font-weight: bold">
+                        {{ a.data[10:] }}
+                    </div>
+                {% elif a.data.startswith('h3') %}
+                    <div>
+                        {{ heading_3(a.data[2:]) }}
+                    </div>
+                {% elif a.data.startswith('h4') %}
+                    <div>
+                        <h4>{{ a.data[2:] }}</h4>
+                    </div>
+                {% else %}
+                    <div>
+                        {{ a.data }}
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
     {% endfor %}
@@ -200,7 +251,7 @@
 
 <body>
     <div class="content-area">
-        <div class="title-div">
+        <div class="main-title">
             <h1 class="title-text">Data Evaluation Report</h1>
         </div>
         <br>
@@ -208,12 +259,19 @@
             {{ section_title('Data Description') }}
             {{ data_description('Synthetic Data', 'synthetic') }}
             {{ data_description('Target Data', 'target')}}
+            {{ feature_description('Data Features')}}
         </div>
         <br>
         <div class="heading-2-div">
             {{ section_title('Utility Evaluation') }}
-            {% for item in data['utility'] %}
+            {% for i, item in enumerate(data['utility']) %}
                 <div class="evaluation-div">
+                    {% if i > 0 %}
+                        <br>
+                        <br>
+                        <div class="section-separator-bar"></div>
+                        <br>
+                    {% endif %}
                     {{ evaluation(item) }}
                 </div>
             {% endfor %}
@@ -223,6 +281,15 @@
             {{ section_title('Privacy Evaluation') }}
             {% for item in data['privacy'] %}
                 <div class="evaluation-div">
+                    {{ evaluation(item) }}
+                </div>
+            {% endfor %}
+        </div>
+        <br>
+            <div class="heading-2-div">
+            {{ section_title('Appendix') }}
+            {% for item in data['Appendix'] %}
+                <div class="appendix-div">
                     {{ evaluation(item) }}
                 </div>
             {% endfor %}

@@ -11,5 +11,23 @@
     "PINCP": {"first_bin_max":  0, "last_bin_min":  300000, "bin_size":  20000},
     "POVPIP": {"first_bin_max":  0, "last_bin_min":  501, "bin_size":  20}
   },
-  "correlation_features": ["SEX", "AGEP", "NOC", "EDU", "INDP_CAT"]
+  "correlation_features": [
+    "PUMA",
+    "SEX",
+    "AGEP",
+    "MST",
+    "HISP",
+    "RAC1P",
+    "NOC",
+    "NPF",
+    "HOUSING_TYPE",
+    "OWN_RENT",
+    "EDU",
+    "INDP_CAT",
+    "PINCP_DECILE",
+    "DVET",
+    "DEAR",
+    "DPHYS",
+    "DEYE"
+  ]
 }

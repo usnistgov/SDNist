@@ -76,14 +76,31 @@ class DataDescriptionPacket:
     def data(self) -> Dict[str, any]:
         return {'filename': self.filename,
                 'records': self.records,
-                'columns': self.columns}
+                'features': self.columns}
 
+
+@dataclass
+class FeatureDescriptionPacket:
+    features: List[str]
+    feature_types: List[str]
+    feature_desc: List[str]
+    has_nans: List[bool]
+
+    @property
+    def data(self) -> List[Dict[str, any]]:
+        return [{"Feature Name": f,
+                 "Feature Description": fd,
+                 "Feature Type": ft,
+                 "Feature Has N (N/A) values?": hn}
+                for f,fd, ft, hn
+                in zip(self.features, self.feature_desc, self.feature_types, self.has_nans)]
 
 @dataclass
 class ReportData:
     output_directory: Path = REPORTS_DIR
     # dictionary containing description of datasets
     datasets: Dict[str, DataDescriptionPacket] = field(default_factory=dict, init=False)
+    feature_desc: Dict[str, any] = field(default_factory=dict, init=False)
     # list containing ScorePacket objects
     scores: List[ScorePacket] = field(default_factory=list, init=False)
 
@@ -95,12 +112,26 @@ class ReportData:
                              data_description: DataDescriptionPacket):
         self.datasets[dataset_type.value] = data_description
 
+    def add_feature_description(self,
+                                features: List[str],
+                                feature_desc: List[str],
+                                dtypes: List[str],
+                                has_nans: List[bool]):
+        dp = FeatureDescriptionPacket(features=features,
+                                      feature_desc=feature_desc,
+                                      feature_types=dtypes,
+                                      has_nans=has_nans)
+        self.feature_desc["Data Features"] = dp
+
     @property
     def data(self) -> Dict[str, any]:
         d = dict()
         d['data_description'] = dict()
         for d_type_name, d_desc in self.datasets.items():
             d['data_description'][d_type_name] = d_desc.data
+
+        for k, v in self.feature_desc.items():
+            d['data_description'][k] = v.data
 
         d[EvaluationType.Utility.value] = []
         d[EvaluationType.Privacy.value] = []
@@ -110,7 +141,8 @@ class ReportData:
                 d[EvaluationType.Utility.value].append(s_pkt.data)
             elif s_pkt.evaluation_type == EvaluationType.Privacy:
                 d[EvaluationType.Privacy.value].append(s_pkt.data)
-
+            elif s_pkt.evaluation_type == None:
+                d['Appendix'] = [s_pkt.data]
         return d
 
     def save(self, output_path: Optional[Path] = None):

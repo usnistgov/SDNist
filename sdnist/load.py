@@ -26,7 +26,7 @@ class TestDatasetName(Enum):
     taxi2020 = 6
     ma2019 = 7
     tx2019 = 8
-    outlier2019 = 9
+    national2019 = 9
 
 
 data_challenge_map = {
@@ -36,7 +36,7 @@ data_challenge_map = {
     TestDatasetName.IL_OH_10Y_PUMS: strs.CENSUS,
     TestDatasetName.ma2019: strs.CENSUS,
     TestDatasetName.tx2019: strs.CENSUS,
-    TestDatasetName.outlier2019: strs.CENSUS,
+    TestDatasetName.national2019: strs.CENSUS,
     TestDatasetName.taxi2016: strs.TAXI,
     TestDatasetName.taxi2020: strs.TAXI
 }
@@ -269,7 +269,7 @@ def load_dataset(challenge: str,
 
         columns = {name: params[strs.SCHEMA][name]["dtype"]
                    for name in params[strs.SCHEMA]}
-        dataset = pd.read_csv(dataset_name, dtype=columns, index_col=0)
+        dataset = pd.read_csv(dataset_name, dtype=columns)
 
     else:
         raise ValueError(f"Unknown format {format_}")

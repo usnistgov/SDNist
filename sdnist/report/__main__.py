@@ -57,7 +57,7 @@ class NoAction(argparse.Action):
 if __name__ == "__main__":
     bundled_datasets = {"MA": TestDatasetName.ma2019,
                         "TX": TestDatasetName.tx2019,
-                        "OUTLIER": TestDatasetName.outlier2019}
+                        "NATIONAL": TestDatasetName.national2019}
     parser = argparse.ArgumentParser()
     parser.register('action', 'none', NoAction)
     parser.add_argument("synthetic_dataset", type=argparse.FileType("r"),

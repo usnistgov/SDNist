@@ -7,7 +7,8 @@ import numpy as np
 
 from sdnist.report import ReportData, FILE_DIR
 from sdnist.report.report_data import \
-    DatasetType, DataDescriptionPacket
+    DatasetType, DataDescriptionPacket, ScorePacket,\
+    Attachment, AttachmentType
 from sdnist.load import \
     TestDatasetName, load_dataset, build_name
 
@@ -16,7 +17,7 @@ import sdnist.strs as strs
 import sdnist.utils as u
 
 
-def transform(data, schema):
+def transform(data: pd.DataFrame, schema: Dict):
     # replace categories with codes
     # replace N: NA with -1 for categoricals
     # replace N: NA with mean for numericals
@@ -32,7 +33,7 @@ def transform(data, schema):
                 null_val = desc["null_value"]
                 nna_mask = data[~data[c].isin(['N'])].index  # not na mask
                 if c == 'PINCP':
-                    data[c] = data[c].replace(null_val, 999999)
+                    data[c] = data[c].replace(null_val, 9999999)
                 elif c == 'POVPIP':
                     data[c] = data[c].replace(null_val, 999)
         if c == 'PUMA':
@@ -41,24 +42,31 @@ def transform(data, schema):
                 data[c] = data[c].replace(0, -1)
         else:
             data[c] = pd.to_numeric(data[c])
-        print(c, sorted(data[c].unique()))
+
     return data
 
 
-def percentile_rank(data, features):
+def percentile_rank_target(data: pd.DataFrame, features: List[str]):
     data = data.copy()
     for c in features:
         if c not in data.columns:
             continue
-        nna_mask = data[~data[c].isin(['N'])].index  # not na mask
+
+        if c == 'POVPIP':
+            nna_mask = data[~data[c].isin(['N', '501'])].index
+            # print()
+            # print('POVPIP PERCNT RANK')
+            # print(sorted(data.loc[nna_mask, c].unique()))
+        else:
+            nna_mask = data[~data[c].isin(['N'])].index  # not na mask
         d_temp = pd.DataFrame(pd.to_numeric(data.loc[nna_mask, c]).astype(int), columns=[c])
         # print(d_temp.shape)
         # print(d_temp.dtypes)
         # print(d_temp.columns.tolist())
-        if c == 'POVPIP':
-            # print(sorted(d_temp[c].unique()))
-            d_temp['rank'] = d_temp[c].rank(pct=True, numeric_only=True).apply(lambda x: round(x, 2))
-            tdf = d_temp.groupby(by=c)[c].size().reset_index(name='count_target')
+        # if c == 'POVPIP':
+        #     # print(sorted(d_temp[c].unique()))
+        #     d_temp['rank'] = d_temp[c].rank(pct=True, numeric_only=True).apply(lambda x: round(x, 2))
+        #     tdf = d_temp.groupby(by=c)[c].size().reset_index(name='count_target')
             # for r, g in d_temp.groupby(by=['rank']):
             #     print(r, sorted(g[c].unique()))
             # for i, r in tdf.sort_values(by=[c], ascending=False).iterrows():
@@ -66,7 +74,31 @@ def percentile_rank(data, features):
             # print(sorted(d_temp[c].rank(pct=True, numeric_only=True).apply(lambda x: round(x, 2)).unique()))
         data.loc[nna_mask, c] = d_temp[c]\
             .rank(pct=True).apply(lambda x: int(20 * x) if x < 1 else 19)
+        if c == 'POVPIP':
+            data[c] = data[c].apply(lambda x: int(x) if x == '501' else x)
     return data
+
+
+def percentile_rank_synthetic(synthetic: pd.DataFrame,
+                              target_orig: pd.DataFrame,
+                              target_binned: pd.DataFrame,
+                              features: List[str]):
+    s, to, tb = synthetic.copy(), target_orig, target_binned
+
+    for f in features:
+        nna_mask = s[~s[f].isin(['N'])].index  # not na mask
+        st = pd.DataFrame(pd.to_numeric(s.loc[nna_mask, f]).astype(int), columns=[f])
+        if f not in to.columns.tolist():
+            continue
+        for b, g in target_binned.groupby(by=[f]):
+            if b == -1:
+                continue
+            t_bp = pd.DataFrame(pd.to_numeric(to.loc[g.index, f]).astype(int), columns=[f])
+            min_b = min(t_bp[f])
+            max_b = max(t_bp[f])
+            st.loc[(st[f] >= min_b) & (st[f] <= max_b), f] = b
+        s.loc[nna_mask, f] = st
+    return s
 
 
 def add_bin_for_NA(data, reference_data, features):
@@ -119,6 +151,7 @@ class Dataset:
         config_1 = u.read_json(Path(self.target_data_path.parent, 'config.json'))
         config_2 = u.read_json(Path(FILE_DIR, 'config.json'))
         self.config = {**config_1, **config_2}
+        self.mappings = u.read_json(Path(self.target_data_path.parent, 'mappings.json'))
         self.data_dict = u.read_json(Path(self.target_data_path.parent, 'data_dictionary.json'))
         self.features = self.target_data.columns.tolist()
 
@@ -130,12 +163,19 @@ class Dataset:
         # load synthetic dataset
         dtypes = {feature: desc["dtype"] for feature, desc in self.schema.items()}
         if str(self.synthetic_filepath).endswith('.csv'):
-            self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes, index_col=0)
+            self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes)
         elif str(self.synthetic_filepath).endswith('.parquet'):
             self.synthetic_data = pd.read_parquet(self.synthetic_filepath)
         common_columns = list(set(self.synthetic_data.columns.tolist()).intersection(
             set(self.target_data.columns.tolist())
         ))
+
+        if 'Unnamed: 0' in self.target_data.columns:
+            self.target_data = self.target_data.drop(columns=['Unnamed: 0'])
+
+        if 'Unnamed: 0' in self.synthetic_data.columns:
+            self.synthetic_data = self.synthetic_data.drop(columns=['Unnamed: 0'])
+
         self.target_data = self.target_data[common_columns]
         self.synthetic_data = self.synthetic_data[common_columns]
 
@@ -149,21 +189,25 @@ class Dataset:
 
         # transformed data
         self.t_target_data = transform(self.target_data, self.schema)
-        print()
-        print('SYNTHETIC')
-        print()
+        # print()
+        # print('SYNTHETIC')
+        # print()
         self.t_synthetic_data = transform(self.synthetic_data, self.schema)
 
         # binned data
         numeric_features = ['AGEP', 'POVPIP', 'PINCP']
-        self.d_target_data = percentile_rank(self.target_data, numeric_features)
-        self.d_synthetic_data = percentile_rank(self.synthetic_data, numeric_features)
-
+        self.d_target_data = percentile_rank_target(self.target_data, numeric_features)
         self.d_target_data = add_bin_for_NA(self.d_target_data,
                                             self.target_data, numeric_features)
+
+        self.d_synthetic_data = percentile_rank_synthetic(self.synthetic_data,
+                                                          self.target_data,
+                                                          self.d_target_data,
+                                                          numeric_features)
         self.d_synthetic_data = add_bin_for_NA(self.d_synthetic_data,
                                                self.synthetic_data,
                                                numeric_features)
+
         # print(sorted(self.d_synthetic_data['POVPIP'].unique()))
         # print(sorted(self.d_synthetic_data['AGEP'].unique()))
         non_numeric = [c for c in self.features
@@ -207,5 +251,48 @@ def data_description(dataset: Dataset, report_data: ReportData) -> ReportData:
                             DataDescriptionPacket(ds.synthetic_filepath.stem,
                                                   ds.synthetic_data.shape[0],
                                                   ds.synthetic_data.shape[1]))
+
+    f = dataset.features
+    f = [_ for _ in dataset.data_dict.keys() if _ in f]
+    ft = [dataset.schema[_]['dtype'] for _ in f]
+    ft = ['object of type string' if _ == 'object' else _ for _ in ft]
+    fd = [dataset.data_dict[_]['description'] for _ in f]
+    hn = [True if 'has_null' in dataset.schema[_] else False for _ in f]
+    rd.add_feature_description(f, fd, ft, hn)
+
+    # create data dictionary appendix attachments
+    dd_as = []
+    for feat in dataset.data_dict.keys():
+        f_desc = dataset.data_dict[feat]['description']
+        feat_title = f'{feat}: {f_desc}'
+        if 'link' in dataset.data_dict[feat] and feat == 'INDP':
+            data = f"<a href={dataset.data_dict[feat]['link']}>" \
+                   f"See codes in ACS data dictionary.</a> " \
+                   f"Find codes by searching the string: {feat}, in " \
+                   f"the ACS data dictionary"
+            dd_as.append(Attachment(name=feat_title,
+                                    _data=data,
+                                    _type=AttachmentType.String))
+
+        elif 'values' in dataset.data_dict[feat]:
+            data = [{f"{feat} Code": k,
+                     f"Code Description": v}
+                for k, v in dataset.data_dict[feat]['values'].items()
+            ]
+            f_name = feat_title
+            if 'link' in dataset.data_dict[feat] and feat in ['WGTP', 'PWGTP']:
+                s_data = f"<a href={dataset.data_dict[feat]['link']}>" \
+                       f"See description of weights.</a>"
+                dd_as.append(Attachment(name=f_name,
+                                        _data=s_data,
+                                        _type=AttachmentType.String))
+                f_name = None
+            dd_as.append(Attachment(name=f_name,
+                                    _data=data,
+                                    _type=AttachmentType.Table))
+
+    rd.add(ScorePacket(metric_name='Data Dictionary',
+                       score=None,
+                       attachment=dd_as))
 
     return rd

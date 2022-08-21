@@ -53,8 +53,8 @@ class PropensityPairPlot:
              title: str = 'Two Way Propensity Mean Error') -> List[Path]:
         s = self.scores
         sd = s[reversed(s.columns)]
-        for i, row in sd.iterrows():
-            print(row.values.tolist())
+        # for i, row in sd.iterrows():
+        #     print(row.values.tolist())
         fig = plt.figure(figsize=(6, 6), dpi=100)
         plt.imshow(sd, cmap='RdBu')
 

@@ -28,6 +28,7 @@ class PearsonCorrelationPlot:
         im_ratio = cd.shape[0] / cd.shape[1]
         cbar = plt.colorbar(fraction=0.047 * im_ratio)
         plt.xticks(range(cd.shape[1]), cd.columns)
+        plt.xticks(rotation=90)
         plt.yticks(range(cd.shape[0]), cd.index)
         plt.title('Pearson Correlation Diff. between Target and Synthetic')
         fig.tight_layout()

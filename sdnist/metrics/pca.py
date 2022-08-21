@@ -21,7 +21,6 @@ class PCAMetric:
     def compute_pca(self):
         cc = 5
         t_pca = PCA(n_components=cc)
-        s_pca = PCA(n_components=cc)
 
         tdf_v = self.tar.values
         sdf = self.syn.apply(lambda x: x - x.mean())
@@ -31,12 +30,24 @@ class PCAMetric:
         sdf_v = StandardScaler().fit_transform(sdf_v)
 
         t_pc = t_pca.fit_transform(tdf_v)
-        s_pc = s_pca.fit_transform(sdf_v)
+
+        t_ev = np.array(t_pca.components_)
+        s_pc = np.matmul(sdf_v, t_ev.T)
+
+        self.t_comp_data = []
+        for i, comp in enumerate(t_pca.components_):
+            qc = [[n, round(v, 2)] for n, v in zip(self.tar.columns.tolist(), comp)]
+            qc = sorted(qc, key=lambda x: x[1], reverse=True)
+            qc = [ f'{v[0]} ({v[1]})' for v in qc]
+            self.t_comp_data.append({"Principal Component": f"PC-{i}",
+                                      "Features Contribution: "
+                                      "feature-name (contribution ratio)": ','.join(qc[:5])})
 
         self.t_pdf = pd.DataFrame(data=t_pc,
                                   columns=[f'PC-{i}'
                                            for i in range(cc)],
                                   index=self.tar.index)
+        self.t_pdf.to_csv('pca_comps.csv')
 
         self.s_pdf = pd.DataFrame(data=s_pc,
                                   columns=[f'PC-{i}'
@@ -123,18 +134,18 @@ if __name__ == "__main__":
     sdf_v = sdf.values
 
     tdf_v = StandardScaler().fit_transform(tdf_v)
-    sdf_v = StandardScaler().fit_transform(sdf_v)
 
     t_pc = t_pca.fit_transform(tdf_v)
     s_pc = s_pca.fit_transform(sdf_v)
 
-    # t_ev = np.array(t_pca.components_)
-    # s_pc = np.matmul(sdf_v, t_ev.T)
-    # print(t_pca.components_)
-    # print(t_pca.explained_variance_)
-    # print()
-    # print(s_pca.components_)
-    # print(s_pca.explained_variance_)
+    t_ev = np.array(t_pca.components_)
+    s_pc = np.matmul(sdf_v, t_ev.T)
+
+    print(t_pca.components_)
+    print(t_pca.explained_variance_)
+    print()
+    print(s_pca.components_)
+    print(s_pca.explained_variance_)
 
     t_pdf = pd.DataFrame(data=t_pc,
                          columns=[f'PC-{i}'
