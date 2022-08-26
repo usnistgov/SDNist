@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from sdnist.metrics.apparent_match_dist import cellchange
+from sdnist.utils import *
 
 # plt.style.use('seaborn-deep')
 
@@ -61,23 +62,30 @@ class ApparentMatchDistributionPlot:
         self.syn = synthetic
         self.tar = target
         self.o_dir = output_directory
-        self.plots_path = Path(self.o_dir, 'apparent_match_distribution')
+        self.o_path = Path(self.o_dir, 'apparent_match_distribution')
         self.quasi_features = quasi_features
         self.exclude_features = exclude_features
         self.quasi_matched_df = pd.DataFrame()
+        self.report_data = dict()
         self._setup()
 
     def _setup(self):
         if not self.o_dir.exists():
             raise Exception(f'Path {self.o_dir} does not exist. Cannot save plots')
 
-        os.mkdir(self.plots_path)
+        os.mkdir(self.o_path)
 
     def save(self) -> List[Path]:
         percents, u1, u2, mu = cellchange(self.syn, self.tar,
                                           self.quasi_features,
                                           self.exclude_features)
         self.quasi_matched_df = mu
+
         save_file_path = plot_apparent_match_dist(percents,
-                                                  self.plots_path)
+                                                  self.o_path)
+        mu['percent_match'] = percents
+        self.report_data['unique_matched_percents'] = \
+            relative_path(save_data_frame(mu, self.o_path, 'unique_matched_percents'))
+        self.report_data['plot'] = relative_path(save_file_path)
+
         return [save_file_path]

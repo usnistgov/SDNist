@@ -1,3 +1,4 @@
+import os
 import math
 from typing import List, Optional
 
@@ -5,6 +6,8 @@ import numpy as np
 import pandas as pd
 from sklearn import tree
 from scipy.stats import ks_2samp
+
+from sdnist.utils import *
 
 
 class PropensityMSE:
@@ -14,18 +17,29 @@ class PropensityMSE:
     def __init__(self,
                  target: pd.DataFrame,
                  synthetic: pd.DataFrame,
+                 output_directory: Path,
                  features: Optional[List[str]] = None):
         self.features = features if features \
             else target.columns.tolist()
         self.target = target[self.features]
         self.synthetic = synthetic[self.features]
-
+        self.o_dir = output_directory
+        self.o_path = Path(self.o_dir, 'propensity')
         # probability of classifying a sample as belong
         # to the synthetic data set
         self.syn_prob: List[int] = []
         self.pmse_score: float = 0  # propensity mean square error score
         self.ks_score: float = 0  # kolmogorov-smirnov test score
         self.prob_dist = pd.DataFrame()  # sample distribution over propensity bins
+        self.report_data = dict()
+
+        self._setup()
+
+    def _setup(self):
+        if not self.o_dir.exists():
+            raise Exception(f'Path {self.o_dir} does not exist. Cannot save plots')
+        if not self.o_path.exists():
+            os.mkdir(self.o_path)
 
     def compute_score(self):
         t, s = self.target, self.synthetic
@@ -80,5 +94,8 @@ class PropensityMSE:
         orig_syn_prob = syn_prob[:t.shape[0]]
         syn_syn_prob = syn_prob[t.shape[0]:]
         self.ks_score = ks_2samp(orig_syn_prob, syn_syn_prob)
-
+        self.report_data["pmse_score"] = self.pmse_score
+        self.report_data["propensity_distribution"] = relative_path(save_data_frame(self.prob_dist,
+                                                                                    self.o_path,
+                                                                                    'propensity_distribution'))
         return self.pmse_score

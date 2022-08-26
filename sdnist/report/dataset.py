@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 import pandas as pd
 import numpy as np
 
-from sdnist.report import ReportData, FILE_DIR
+from sdnist.report import ReportUIData, FILE_DIR
 from sdnist.report.report_data import \
     DatasetType, DataDescriptionPacket, ScorePacket,\
     Attachment, AttachmentType
@@ -15,6 +15,55 @@ from sdnist.load import \
 import sdnist.strs as strs
 
 import sdnist.utils as u
+
+
+def validate(synth_data: pd.DataFrame, data_dict, features):
+    sd = synth_data.copy()
+    missing_feature = []
+    nan_features = []
+    vob_features = []  # value out of bound
+
+    for f in features:
+        # check feature exists
+        if f not in sd.columns:
+            missing_feature.append(f)
+            raise Exception(f'Missing Feature: {f} in Synthetic Data')
+        # check feature doesn't have nans
+        if len(sd[f].isna()):
+            nan_features.append(f)
+
+        # check feature has out of bound value
+        f_data = data_dict[features]['values']
+        if 'min' in f_data:
+            if f in ['POVPIP', 'PINCP']:
+                nna_mask = sd[~sd['PINCP'].isin('N')].index
+                try:
+                    sd[f] = pd.to_numeric(sd.loc[nna_mask, f]).astype(int)
+                except Exception as e:
+                    vob_features.append((f, []))
+            else:
+                try:
+                    sd[f] = pd.to_numeric(sd[f]).astype(int)
+                except Exception as e:
+                    vob_features.append((f, []))
+        else:
+            d_vals = set(synth_data[f].unique().tolist())
+            diff = d_vals.difference(set(f_data))
+            if len(diff):
+                vob_features.append((f, list(diff)))
+
+    if len(missing_feature):
+        raise Exception(f'Error: Missing features in synthetic data: {missing_feature}')
+    if len(nan_features):
+        raise Exception(f'Error: nan value in synthetic data features: {nan_features}')
+    if len(vob_features):
+        for f, vals in vob_features:
+            if f in ['POVPIP', 'PINCP']:
+                print(f'Error: No numeric value other than N found in feature {f}')
+            else:
+                print(f'Error: Value out of bound for feature {f}, out of bound values: {vals}')
+
+        raise Exception(f'Values out of bound for features: {[f for f, v in vob_features]}')
 
 
 def transform(data: pd.DataFrame, schema: Dict):
@@ -238,16 +287,16 @@ class Dataset:
         return list(set(corr_features).difference(unavailable_features))
 
 
-def data_description(dataset: Dataset, report_data: ReportData) -> ReportData:
+def data_description(dataset: Dataset, ui_data: ReportUIData) -> ReportUIData:
     ds = dataset
-    rd = report_data
+    r_ui_d = ui_data
 
-    rd.add_data_description(DatasetType.Target,
+    r_ui_d.add_data_description(DatasetType.Target,
                             DataDescriptionPacket(ds.target_data_path.stem,
                                                   ds.target_data.shape[0],
                                                   ds.target_data.shape[1]))
 
-    rd.add_data_description(DatasetType.Synthetic,
+    r_ui_d.add_data_description(DatasetType.Synthetic,
                             DataDescriptionPacket(ds.synthetic_filepath.stem,
                                                   ds.synthetic_data.shape[0],
                                                   ds.synthetic_data.shape[1]))
@@ -258,7 +307,7 @@ def data_description(dataset: Dataset, report_data: ReportData) -> ReportData:
     ft = ['object of type string' if _ == 'object' else _ for _ in ft]
     fd = [dataset.data_dict[_]['description'] for _ in f]
     hn = [True if 'has_null' in dataset.schema[_] else False for _ in f]
-    rd.add_feature_description(f, fd, ft, hn)
+    r_ui_d.add_feature_description(f, fd, ft, hn)
 
     # create data dictionary appendix attachments
     dd_as = []
@@ -291,8 +340,8 @@ def data_description(dataset: Dataset, report_data: ReportData) -> ReportData:
                                     _data=data,
                                     _type=AttachmentType.Table))
 
-    rd.add(ScorePacket(metric_name='Data Dictionary',
-                       score=None,
-                       attachment=dd_as))
+    r_ui_d.add(ScorePacket(metric_name='Data Dictionary',
+                           score=None,
+                           attachment=dd_as))
 
-    return rd
+    return r_ui_d

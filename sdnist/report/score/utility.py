@@ -19,13 +19,14 @@ from sdnist.metrics.pca import PCAMetric, plot_pca
 from sdnist.report.score.paragraphs import *
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
-    ReportData, UtilityScorePacket, Attachment, AttachmentType, \
+    ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType, \
     DatasetType, DataDescriptionPacket
 from sdnist.report.plots import \
     UnivariatePlots, CorrelationDifferencePlot, \
     GridPlot, PropensityDistribution, PearsonCorrelationPlot
 
 import sdnist.strs as strs
+from sdnist.utils import *
 
 
 def best_worst_performing(scores: pd.Series,
@@ -91,10 +92,13 @@ def best_worst_performing(scores: pd.Series,
 
 def worst_score_breakdown(worst_scores: List,
                           dataset: Dataset,
+                          ui_data: ReportUIData,
                           report_data: ReportData,
-                          feature: str) -> List[Attachment]:
+                          feature: str) -> Tuple[List[Attachment], Dict[str, any]]:
     ds = dataset
+    r_ui_d = ui_data
     rd = report_data
+    k_marg_break_rd = dict()   # k marginal breakdnow worst performing puma report
 
     wsh = pd.DataFrame(worst_scores)
     if str(wsh.loc[0, feature]).startswith('['):
@@ -106,13 +110,18 @@ def worst_score_breakdown(worst_scores: List,
     t = t[dataset.target_data[feature].isin(wpf)]
     s = s[dataset.synthetic_data[feature].isin(wpf)]
 
-    out_dir = Path(rd.output_directory, 'k_marginal_breakdown')
+    out_dir = Path(r_ui_d.output_directory, 'k_marginal_breakdown')
     if not out_dir.exists():
         os.mkdir(out_dir)
 
     up = UnivariatePlots(s, t,
                          ds, out_dir, ds.challenge)
     u_feature_data = up.save()
+    k_marg_break_rd[f'worst_{len(wpf)}_puma_univariate'] = up.report_data()
+    k_marg_break_rd[f'worst_{len(wpf)}_puma_k_marginal_scores'] = \
+        relative_path(save_data_frame(wsh,
+                                      out_dir,
+                                      f'worst_{len(wpf)}_puma_k_marginal_scores'))
     u_as = []
     u_as.append(Attachment(name=None,
                            _data=f"h3Univariate Distribution of Worst "
@@ -157,6 +166,9 @@ def worst_score_breakdown(worst_scores: List,
     pcd.compute()
     pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, out_dir)
     pcp_saved_file_paths = pcp.save()
+    k_marg_break_rd['correlation_difference'] = {
+        "pearson_correlation_difference": pcp.report_data
+    }
 
     # rel_up_saved_file_paths = ["/".join(list(p.parts)[-3:])
     #                            for p in up_saved_file_paths]
@@ -192,7 +204,7 @@ def worst_score_breakdown(worst_scores: List,
                              for p in rel_pcp_saved_file_paths],
                       _type=AttachmentType.ImageLinks)
 
-    return [a_para_rt, a_rt] + u_as + [a_para_pc, a_pc]
+    return [a_para_rt, a_rt] + u_as + [a_para_pc, a_pc], k_marg_break_rd
 
 
 def kmarginal_subsamples(dataset: Dataset,
@@ -220,6 +232,7 @@ def kmarginal_score_packet(k_marginal_score: int,
                            group_scores: pd.Series,
                            feature_values: Dict[str, Dict],
                            dataset: Dataset,
+                           ui_data: ReportUIData,
                            report_data: ReportData,
                            subsample_scores: Dict[float, int],
                            worst_breakdown_feature: str) -> Tuple[UtilityScorePacket,
@@ -236,6 +249,8 @@ def kmarginal_score_packet(k_marginal_score: int,
     score_error = [abs(subsample_scores[frac] - k_marginal_score)
                    for frac in sorted_frac]
     min_frac = sorted_frac[min_index(score_error)]
+    k_marg_rd = dict() # k marginal report data
+    k_marg_synop_rd = dict()   # k marginal synopsys report data
 
     ss_para_a = Attachment(name=f"Sampling Error Comparison",
                            _data=sub_sample_para,
@@ -263,6 +278,13 @@ def kmarginal_score_packet(k_marginal_score: int,
                  f"{abs(subsample_scores[frac] - k_marginal_score)}"
              }
             for frac in sorted_frac]
+
+    sedf_df = pd.DataFrame(sedf)
+    k_marg_synopsys_path = Path(ui_data.output_directory, 'k_marginal_synopsys')
+
+    if not k_marg_synopsys_path.exists():
+        os.mkdir(k_marg_synopsys_path)
+
     sedf[min_idx]["min_idx"] = True
 
     sed_a = Attachment(name=None,
@@ -276,14 +298,24 @@ def kmarginal_score_packet(k_marginal_score: int,
     total_pumas = len(dataset.target_data['PUMA'].unique())
     default_w_b_n = 2 if total_pumas <= 6 else 5
 
+
+    k_marg_synop_rd['subsample_error_comparison'] = \
+        relative_path(save_data_frame(sedf_df, k_marg_synopsys_path, 'subsample_error_comparison'))
+    k_marg_synop_rd['k_marginal_score'] = k_marginal_score
+    k_marg_synop_rd['score_in_each_puma'] = \
+        relative_path(save_data_frame(pd.DataFrame(all_scores),
+                                      k_marg_synopsys_path,
+                                      'score_in_each_puma'))
+
     # count of worst or best k-marginal pumas to select
     w_b_n = default_w_b_n if len(worst_scores) > default_w_b_n else len(worst_scores)
     worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
 
-    worst_break_down = worst_score_breakdown(worst_scores,
-                                             dataset,
-                                             report_data,
-                                             worst_breakdown_feature)
+    worst_break_down, k_marg_break_rd = worst_score_breakdown(worst_scores,
+                                                              dataset,
+                                                              ui_data,
+                                                              report_data,
+                                                              worst_breakdown_feature)
 
     # all score attachment
     as_para_a = Attachment(name=f'K-Marginal Score in Each ' + '-'.join(group_features),
@@ -322,7 +354,7 @@ def kmarginal_score_packet(k_marginal_score: int,
     gp_a = grid_plot_attachment(group_features,
                                 group_scores,
                                 feature_values,
-                                report_data.output_directory)
+                                ui_data.output_directory)
 
     metric_attachments = [k_marg_break_para_a, ws_para_a, ws_a]
     if gp_a:
@@ -332,7 +364,10 @@ def kmarginal_score_packet(k_marginal_score: int,
     kmarg_det_pkt = UtilityScorePacket('K-Marginal Score Breakdown',
                                        None,
                                        metric_attachments)
-
+    report_data.add('k_marginal', {
+        "k_marginal_synopsys": k_marg_synop_rd,
+        "k_marginal_breakdown": k_marg_break_rd
+    })
     return kmarg_sum_pkt, kmarg_det_pkt
 
 
@@ -361,8 +396,10 @@ def grid_plot_attachment(group_features: List[str],
     return gp_a
 
 
-def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
+def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportData) \
+        -> Tuple[ReportUIData, ReportData]:
     ds = dataset
+    r_ui_d = ui_data  # report ui data
     rd = report_data
 
     scorers = []
@@ -374,8 +411,9 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
     # selected challenge type: census or taxi
     if ds.challenge == strs.CENSUS:
         up = UnivariatePlots(ds.d_synthetic_data, ds.d_target_data,
-                             ds, rd.output_directory, ds.challenge)
+                             ds, r_ui_d.output_directory, ds.challenge)
         u_feature_data = up.save()  # univariate features data
+        rd.add('Univariate', up.report_data())
         u_as = []  # univariate attachments
 
         for k, v in u_feature_data.items():
@@ -410,21 +448,25 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
         cdp_saved_file_paths = []
         pcp_saved_file_paths = []
         if len(corr_features) > 1:
-            cdp = CorrelationDifferencePlot(ds.t_synthetic_data, ds.t_target_data, rd.output_directory,
+            cdp = CorrelationDifferencePlot(ds.t_synthetic_data, ds.t_target_data, r_ui_d.output_directory,
                                             corr_features)
             cdp_saved_file_paths = cdp.save()
 
             pcd = PearsonCorrelationDifference(ds.t_target_data, ds.t_synthetic_data,
                                                corr_features)
             pcd.compute()
-            pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, rd.output_directory)
+            pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, r_ui_d.output_directory)
             pcp_saved_file_paths = pcp.save()
+
+            rd.add('Correlations', {"kendall correlation difference": cdp.report_data,
+                                    "pearson correlation difference": pcp.report_data})
 
         scorers = [CensusKMarginalScore(ds.d_target_data,
                                         ds.d_synthetic_data,
                                         ds.schema, **ds.config[strs.K_MARGINAL]),
                    PropensityMSE(ds.t_target_data,
                                  ds.t_synthetic_data,
+                                 r_ui_d.output_directory,
                                  features)]
     else:
         raise Exception(f'Unknown challenge type: {ds.challenge}')
@@ -455,6 +497,7 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                                                                   s.scores,
                                                                   f_val_dict,
                                                                   ds,
+                                                                  r_ui_d,
                                                                   rd,
                                                                   subsample_scores,
                                                                   'PUMA')
@@ -467,14 +510,17 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                                                                   s.scores,
                                                                   f_val_dict,
                                                                   ds,
-                                                                  rd,
+                                                                  r_ui_d,
                                                                   subsample_scores,
                                                                   'pickup_community_area')
 
         elif s.NAME == PropensityMSE.NAME:
-            p_dist_plot = PropensityDistribution(s.prob_dist, rd.output_directory)
+            p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
             # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
             #
+            prop_rep_data = {**s.report_data, **p_dist_plot.report_data}
+            rd.add('propensity mean square error', prop_rep_data)
+
             p_dist_paths = p_dist_plot.save()
             # pps_paths = pps.save('spmse',
             #                      'Two-Way Standardized Propensity Mean Square Error')
@@ -500,11 +546,11 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                                           [pd_para_a, pd_score_a, pd_a])
 
     if kmarg_sum_pkt:
-        rd.add(kmarg_sum_pkt)
+        r_ui_d.add(kmarg_sum_pkt)
 
     # rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
     #                            for p in up_saved_file_paths]
-    rd.add(UtilityScorePacket("Univariate Distributions",
+    r_ui_d.add(UtilityScorePacket("Univariate Distributions",
                               None,
                               [Attachment(name=None,
                                _data=univ_dist_para,
@@ -520,36 +566,37 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
     if len(cdp_saved_file_paths):
         rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
                                     for p in cdp_saved_file_paths]
-        ktc_p_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
-                               _data=kend_corr_para,
-                               _type=AttachmentType.String)
-        ktc_a = Attachment(name=None,
+        # ktc_p_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
+        #                        _data=kend_corr_para,
+        #                        _type=AttachmentType.String)
+        ktc_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
                            _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                   for p in rel_cdp_saved_file_paths],
                            _type=AttachmentType.ImageLinks)
-        corr_metric_a.append(ktc_p_a)
+        # corr_metric_a.append(ktc_p_a)
         corr_metric_a.append(ktc_a)
 
     if len(pcp_saved_file_paths):
         rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-2:])
                                     for p in pcp_saved_file_paths]
-        pc_para_a = Attachment(name="Pearson Correlation Coefficient Difference",
-                               _data=pear_corr_para,
-                               _type=AttachmentType.String)
-        pc_a = Attachment(name=None,
+        # pc_para_a = Attachment(name="Pearson Correlation Coefficient Difference",
+        #                        _data=pear_corr_para,
+        #                        _type=AttachmentType.String)
+        pc_a = Attachment(name="Pearson Correlation Coefficient Difference",
                           _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                  for p in rel_pcp_saved_file_paths],
                           _type=AttachmentType.ImageLinks)
-        corr_metric_a.append(pc_para_a)
+        # corr_metric_a.append(pc_para_a)
         corr_metric_a.append(pc_a)
 
-    rd.add(UtilityScorePacket("Correlations",
-                              None,
-                              corr_metric_a))
+    r_ui_d.add(UtilityScorePacket("Correlations",
+                                  None,
+                                  corr_metric_a))
 
-    pca = PCAMetric(dataset.t_target_data, dataset.t_synthetic_data)
+    pca = PCAMetric(dataset.t_target_data, dataset.t_synthetic_data, r_ui_d.output_directory)
     pca.compute_pca()
-    pca_saved_file_path = pca.plot(rd.output_directory)
+    pca_saved_file_path = pca.plot()
+    rd.add('pca', pca.report_data)
     rel_pca_save_file_path = ["/".join(list(p.parts)[-2:])
                               for p in pca_saved_file_path]
     pca_para_a = Attachment(name=None,
@@ -566,14 +613,15 @@ def utility_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                        _type=AttachmentType.ImageLinks)
 
     if prop_pkt:
-        rd.add(prop_pkt)
+        r_ui_d.add(prop_pkt)
 
-    rd.add(UtilityScorePacket("PCA",
+    r_ui_d.add(UtilityScorePacket("PCA",
                               None,
                               [pca_para_a, pca_a_tt, pca_a]))
 
     if kmarg_det_pkt:
-        rd.add(kmarg_det_pkt)
+        r_ui_d.add(kmarg_det_pkt)
 
 
-    return rd
+    return r_ui_d, rd
+

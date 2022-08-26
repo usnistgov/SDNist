@@ -8,6 +8,8 @@ from matplotlib import colors
 import numpy as np
 import pandas as pd
 
+from sdnist.utils import *
+
 plt.style.use('seaborn-deep')
 
 
@@ -35,19 +37,26 @@ class CorrelationDifferencePlot:
         self.syn = synthetic
         self.tar = target
         self.o_dir = output_directory
-        self.plots_path = Path(self.o_dir, 'correlation_difference')
+        self.o_path = Path(self.o_dir, 'correlation_difference')
         self.features = features
+        self.report_data = dict()
+
         self._setup()
 
     def _setup(self):
         if not self.o_dir.exists():
             raise Exception(f'Path {self.o_dir} does not exist. Cannot save plots')
 
-        os.mkdir(self.plots_path)
+        os.mkdir(self.o_path)
 
     def save(self) -> List[Path]:
         corr_df = correlation_difference(self.syn, self.tar, self.features)
-        return save_correlation_difference_plot(corr_df, self.plots_path)
+        plot_paths = save_correlation_difference_plot(corr_df, self.o_path)
+        self.report_data = {"correlation_difference": relative_path(save_data_frame(corr_df,
+                                                                      self.o_path,
+                                                                      'correlation_difference')),
+                            "plot": relative_path(plot_paths[0])}
+        return plot_paths
 
 
 def correlations(data: pd.DataFrame, features: List[str]):
@@ -77,7 +86,10 @@ def correlation_difference(synthetic: pd.DataFrame,
 
 def save_correlation_difference_plot(correlation_data: pd.DataFrame,
                                      output_directory: Path) -> List[Path]:
-    cd = correlation_data[reversed(correlation_data.columns)].abs()
+    cd = correlation_data
+    cd = cd.reindex(sorted(cd.columns), axis=1)
+    cd = cd.sort_index()
+    cd = cd.abs()
     fig = plt.figure(figsize=(6, 6), dpi=100)
     plt.imshow(cd, cmap='Blues', interpolation='none')
     im_ratio = cd.shape[0] / cd.shape[1]

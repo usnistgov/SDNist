@@ -95,8 +95,9 @@ class FeatureDescriptionPacket:
                 for f,fd, ft, hn
                 in zip(self.features, self.feature_desc, self.feature_types, self.has_nans)]
 
+
 @dataclass
-class ReportData:
+class ReportUIData:
     output_directory: Path = REPORTS_DIR
     # dictionary containing description of datasets
     datasets: Dict[str, DataDescriptionPacket] = field(default_factory=dict, init=False)
@@ -146,7 +147,7 @@ class ReportData:
         return d
 
     def save(self, output_path: Optional[Path] = None):
-        o_path = Path(self.output_directory, 'report.json')
+        o_path = Path(self.output_directory, 'ui.json')
 
         if output_path:
             o_path = output_path
@@ -156,4 +157,18 @@ class ReportData:
             json.dump(d, f, indent=4)
 
 
+@dataclass
+class ReportData:
+    output_directory: Path = REPORTS_DIR
+    data: Dict[str, any] = field(default_factory=dict, init=False)
+
+    def add(self, metric_name: str, data: Dict[str, any]):
+        self.data[metric_name] = data
+
+    def save(self):
+        o_path = Path(self.output_directory, 'report.json')
+
+        d = self.data
+        with open(o_path, 'w') as f:
+            json.dump(d, f, indent=4)
 

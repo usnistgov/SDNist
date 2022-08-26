@@ -9,6 +9,7 @@ from scipy.stats import entropy
 
 from sdnist.report import Dataset
 from sdnist.strs import *
+from sdnist.utils import *
 
 plt.style.use('seaborn-deep')
 
@@ -65,17 +66,25 @@ class UnivariatePlots:
         self.schema = dataset.schema
         self.dataset = dataset
         self.o_dir = output_directory
-        self.plots_path = Path(self.o_dir, 'worst_univariates')
+        self.out_path = Path(self.o_dir, 'univariate')
         self.n = n
         self.challenge = challenge
         self.feat_data = dict()
         self._setup()
 
+        self.div_data = None  # feature divergence data
+        self.uni_counts = dict()  # univariate counts of target and synthetic data
+
     def _setup(self):
         if not self.o_dir.exists():
             raise Exception(f'Path {self.o_dir} does not exist. Cannot save plots')
+        os.mkdir(self.out_path)
 
-        os.mkdir(self.plots_path)
+    def report_data(self):
+        return {"divergence": relative_path(save_data_frame(self.div_data,
+                                                            self.out_path,
+                                                            'divergence')),
+                "counts": self.uni_counts}
 
     def save(self) -> Dict:
         if self.challenge == CENSUS:
@@ -89,6 +98,7 @@ class UnivariatePlots:
         div_df = divergence(self.syn,
                             self.tar,
                             self.schema, ignore_features)
+        self.div_data = div_df
         # select 3 features with worst divergence
         # div_df = div_df.head(3)
 
@@ -96,7 +106,7 @@ class UnivariatePlots:
                                     self.syn,
                                     self.tar,
                                     div_df[FEATURE].tolist(),
-                                    self.plots_path)
+                                    self.out_path)
         return self.feat_data
 
     def save_distribution_plot(self,
@@ -106,7 +116,7 @@ class UnivariatePlots:
                                features: List,
                                output_directory: Path):
         ds = dataset
-        o_dir = output_directory
+        o_path = output_directory
         bar_width = 0.4
         saved_file_paths = []
         INDP = 'INDP'
@@ -114,7 +124,8 @@ class UnivariatePlots:
         o_tar = ds.target_data.loc[target.index]
         o_syn = ds.synthetic_data.loc[synthetic.index]
 
-        for f in features:
+        for i, f in enumerate(features):
+            self.uni_counts[f] = dict()
             if f == INDP and INDP_CAT in target.columns.tolist():
                 all_sectors = o_tar[INDP_CAT].unique().tolist()
                 set(all_sectors).update(set(o_syn[INDP_CAT].unique().tolist()))
@@ -136,12 +147,13 @@ class UnivariatePlots:
                         .fillna(0)
                     merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
                         .fillna(0)
-                    div = l1(pk=merged['count_target'], qk=merged['count_target'])
+                    div = l1(pk=merged['count_target'], qk=merged['count_synthetic'])
                     selected.append([merged, div, s])
                 selected = sorted(selected, key=lambda l: l[1], reverse=True)
 
-                for data in selected[:2]:
+                for j, data in enumerate(selected):
                     merged = data[0]
+                    div = data[1]
                     s = data[2]
                     merged = merged.sort_values(by=f)
                     x_axis = np.arange(merged.shape[0])
@@ -152,24 +164,36 @@ class UnivariatePlots:
                     plt.ylabel('Record Counts')
                     plt.gca().set_xticks(x_axis, merged[f].values.tolist())
                     plt.legend(loc='upper right')
-                    plt.xticks(fontsize=8, rotation=45)
+                    if merged.shape[0] > 30:
+                        plt.xticks(fontsize=6, rotation=90)
+                    else:
+                        plt.xticks(fontsize=8, rotation=45)
                     plt.tight_layout()
                     title = f'Industries in Industry Category ' \
                             f'{dataset.data_dict["INDP_CAT"]["values"][s]}'
                     plt.title(title,
                               fontdict={'fontsize': 12})
 
-                    file_path = Path(o_dir, f'indp_indp_cat_{s}.jpg')
+                    file_path = Path(o_path, f'indp_indp_cat_{s}.jpg')
                     plt.savefig(file_path, bbox_inches='tight')
 
                     plt.close()
-                    saved_file_paths.append(file_path)
-
-                    self.feat_data[title] = {
-                        "path": file_path
+                    self.uni_counts[f][f"Industry Category {s}"] = {
+                        "divergence": div,
+                        "counts": relative_path(save_data_frame(merged,
+                                                o_path,
+                                                f"Industry Category {s}")),
+                        "plot": relative_path(file_path)
                     }
+                    if j < 2:
+                        saved_file_paths.append(file_path)
+
+                        self.feat_data[title] = {
+                            "path": file_path
+                        }
             else:
                 plt.figure(figsize=(8, 3), dpi=100)
+                file_path = Path(o_path, f'{f}.jpg')
                 values = set(target[f].unique().tolist()).union(synthetic[f].unique().tolist())
                 values = sorted(values)
                 val_df = pd.DataFrame(values, columns=[f])
@@ -186,20 +210,29 @@ class UnivariatePlots:
 
                 c_vals = c_sort_merged['count_target'].head(2).values
                 c1, c2 = c_vals[0], c_vals[1]
-                self.feat_data[title] = dict()
 
-                if c1 >= c2*3 or f in ['PINCP']:
-                    f_val = c_sort_merged.loc[0, f]
-                    f_tc = c_sort_merged.loc[0, 'count_target']
-                    f_sc = c_sort_merged.loc[0, 'count_synthetic']
-                    c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
-                    self.feat_data[title] = {
-                        "excluded": {
-                            "feature_value": f_val,
-                            "target_counts": int(f_tc),
-                            "synthetic_counts": int(f_sc)
+
+                self.uni_counts[f] = {
+                    "counts": relative_path(save_data_frame(c_sort_merged.copy(),
+                                                            o_path,
+                                                            f'{f}_counts')),
+                    "plot": relative_path(file_path)
+                }
+
+                if i < 3:
+                    self.feat_data[title] = dict()
+                    if c1 >= c2*3 or f in ['PINCP']:
+                        f_val = c_sort_merged.loc[0, f]
+                        f_tc = c_sort_merged.loc[0, 'count_target']
+                        f_sc = c_sort_merged.loc[0, 'count_synthetic']
+                        c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
+                        self.feat_data[title] = {
+                            "excluded": {
+                                "feature_value": f_val,
+                                "target_counts": int(f_tc),
+                                "synthetic_counts": int(f_sc)
+                            }
                         }
-                    }
 
                 merged = c_sort_merged.sort_values(by=f)
 
@@ -237,11 +270,13 @@ class UnivariatePlots:
 
                 plt.title(title,
                           fontdict={'fontsize': 12})
-                file_path = Path(o_dir, f'{f}.jpg')
-                plt.savefig(Path(o_dir, f'{f}.jpg'), bbox_inches='tight')
+
+                plt.savefig(Path(o_path, f'{f}.jpg'), bbox_inches='tight')
                 plt.close()
-                saved_file_paths.append(file_path)
-                self.feat_data[title]['path'] = file_path
+
+                if i < 3:
+                    saved_file_paths.append(file_path)
+                    self.feat_data[title]['path'] = file_path
         return saved_file_paths
 
 

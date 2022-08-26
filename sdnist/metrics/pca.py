@@ -8,15 +8,28 @@ from sklearn.decomposition import PCA
 import numpy as np
 
 import matplotlib.pyplot as plt
+
+from sdnist.utils import *
 plt.style.use('seaborn-deep')
 
 
 class PCAMetric:
-    def __init__(self, target: pd.DataFrame, synthetic: pd.DataFrame):
+    def __init__(self, target: pd.DataFrame, synthetic: pd.DataFrame, output_directory: Path):
         self.tar = target
         self.syn = synthetic
         self.t_pdf = None
         self.s_pdf = None
+        self.out_dir = output_directory
+        self.o_path = Path(self.out_dir, 'pca')
+        self.report_data = dict()
+
+        self._setup()
+
+    def _setup(self):
+        if not self.out_dir.exists():
+            raise Exception(f'Path {self.out_dir} does not exist. Cannot save plots')
+        if not self.o_path.exists():
+            os.mkdir(self.o_path)
 
     def compute_pca(self):
         cc = 5
@@ -42,26 +55,39 @@ class PCAMetric:
             self.t_comp_data.append({"Principal Component": f"PC-{i}",
                                       "Features Contribution: "
                                       "feature-name (contribution ratio)": ','.join(qc[:5])})
+        comp_df = pd.DataFrame(t_pca.components_,
+                               columns=self.tar.columns,
+                               index=[i for i in range(cc)])
 
         self.t_pdf = pd.DataFrame(data=t_pc,
                                   columns=[f'PC-{i}'
                                            for i in range(cc)],
                                   index=self.tar.index)
-        self.t_pdf.to_csv('pca_comps.csv')
 
         self.s_pdf = pd.DataFrame(data=s_pc,
                                   columns=[f'PC-{i}'
                                            for i in range(cc)],
                                   index=self.syn.index)
 
-    def plot(self, out_dir):
-        if not out_dir.exists():
-            raise Exception(f'Path {out_dir} does not exist. Cannot save plots')
-        plot_path = Path(out_dir, 'pca')
-        if not plot_path.exists():
-            os.mkdir(plot_path)
-        tar_path = Path(plot_path, 'target.png')
-        syn_path = Path(plot_path, 'synthetic.png')
+        self.report_data = {
+            "components": relative_path(save_data_frame(comp_df,
+                                                        self.o_path,
+                                                        'components')),
+            "target_transformed": relative_path(save_data_frame(self.t_pdf,
+                                                                self.o_path,
+                                                                'target_transformed')),
+            "synthetic_transformed": relative_path(save_data_frame(self.s_pdf,
+                                                                   self.o_path,
+                                                                   'synthetic_transformed'))
+        }
+
+    def plot(self):
+        tar_path = Path(self.o_path, 'target.jpg')
+        syn_path = Path(self.o_path, 'synthetic.jpg')
+
+        self.report_data['plot_target'] = relative_path(tar_path)
+        self.report_data['plot_synthetic'] = relative_path(syn_path)
+
         plot_pca('Target Dataset', self.t_pdf, tar_path, color='#5373d8')
         plot_pca('Synthetic Dataset', self.s_pdf, syn_path, color='#4eb07a')
 

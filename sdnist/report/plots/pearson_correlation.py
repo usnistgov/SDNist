@@ -4,6 +4,8 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from sdnist.utils import *
+
 
 class PearsonCorrelationPlot:
     def __init__(self,
@@ -11,18 +13,30 @@ class PearsonCorrelationPlot:
                  output_directory: Path):
         self.cd = correlation_differences
         self.o_dir = output_directory
-        self.plot_path = Path(self.o_dir, 'pearson_correlation')
+        self.o_path = Path(self.o_dir, 'pearson_correlation')
+
+        self.report_data = dict()
         self._setup()
 
     def _setup(self):
         if not self.o_dir.exists():
             raise Exception(f'Path {self.o_dir} does not exist. Cannot save plots')
-        if not self.plot_path.exists():
-            os.mkdir(self.plot_path)
+        if not self.o_path.exists():
+            os.mkdir(self.o_path)
 
     def save(self) -> List[Path]:
-        file_path = Path(self.plot_path, 'pearson_corr_diff.jpg')
-        cd = self.cd[reversed(self.cd.columns)].abs()
+        file_path = Path(self.o_path, 'pearson_corr_diff.jpg')
+
+        self.report_data = {
+            "correlation_difference": relative_path(save_data_frame(self.cd,
+                                                                    self.o_path,
+                                                                    'correlation_difference')),
+            "plot": relative_path(file_path)
+        }
+
+        cd = self.cd.reindex(sorted(self.cd.columns), axis=1)
+        cd = cd.sort_index()
+        cd = cd.abs()
         fig = plt.figure(figsize=(6, 6), dpi=100)
         plt.imshow(cd, cmap='Blues', interpolation='none')
         im_ratio = cd.shape[0] / cd.shape[1]

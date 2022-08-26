@@ -1,6 +1,7 @@
+from typing import Tuple
 from pathlib import Path
 
-from sdnist.report import Dataset, ReportData
+from sdnist.report import Dataset, ReportData, ReportUIData
 from sdnist.report.plots import ApparentMatchDistributionPlot
 from sdnist.report.report_data import \
     PrivacyScorePacket, Attachment, AttachmentType
@@ -8,8 +9,10 @@ from sdnist.report.score.paragraphs import *
 from sdnist.strs import *
 
 
-def privacy_score(dataset: Dataset, report_data: ReportData) -> ReportData:
+def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data) \
+        -> Tuple[ReportUIData, ReportData]:
     ds = dataset
+    r_ui_d = ui_data
     rd = report_data
 
     quasi_idf = []  # list of quasi-identifier features
@@ -20,10 +23,11 @@ def privacy_score(dataset: Dataset, report_data: ReportData) -> ReportData:
         excluded = ['PUMA', 'RACE']
         amd_plot = ApparentMatchDistributionPlot(ds.synthetic_data,
                                                  ds.target_data,
-                                                 rd.output_directory,
+                                                 r_ui_d.output_directory,
                                                  quasi_idf,
                                                  excluded)
         amd_plot_paths = amd_plot.save()
+        rd.add('apparent_match_distribution', amd_plot.report_data)
 
     elif ds.challenge == TAXI:
         quasi_idf = ['company_id', 'trip_miles', 'payment_type']
@@ -31,7 +35,7 @@ def privacy_score(dataset: Dataset, report_data: ReportData) -> ReportData:
         excluded = ['pickup_community_area', 'shift']
         amd_plot = ApparentMatchDistributionPlot(ds.synthetic_data,
                                                  ds.target_data,
-                                                 rd.output_directory,
+                                                 r_ui_d.output_directory,
                                                  quasi_idf,
                                                  excluded)
         amd_plot_paths = amd_plot.save()
@@ -70,7 +74,7 @@ def privacy_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                      _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
                             for p in rel_cdp_saved_file_paths],
                      _type=AttachmentType.ImageLinks)
-    rd.add(PrivacyScorePacket("Apparent Match Distribution",
+    r_ui_d.add(PrivacyScorePacket("Apparent Match Distribution",
                               None,
                               [quasi_para_a,
                                quasi_list_atch,
@@ -78,4 +82,4 @@ def privacy_score(dataset: Dataset, report_data: ReportData) -> ReportData:
                                total_quasi_matched,
                                adp_para_a,
                                adp]))
-    return rd
+    return r_ui_d, rd

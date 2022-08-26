@@ -10,7 +10,7 @@ import sdnist.load
 from sdnist.load import data_challenge_map
 from sdnist.report import \
     generate, Path, utility_score, privacy_score,\
-    ReportData, Dataset
+    ReportUIData, Dataset, ReportData
 from sdnist.report.dataset import data_description
 from sdnist.load import TestDatasetName
 
@@ -23,25 +23,27 @@ def run(synthetic_filepath: Path,
         data_root: Path = 'sdnist_toy_data',
         download: bool = False):
     outfile = Path(output_directory, 'report.json')
+    ui_data = ReportUIData(output_directory=output_directory)
     report_data = ReportData(output_directory=output_directory)
 
     if not outfile.exists():
         print('Loading Dataset...')
         dataset = Dataset(synthetic_filepath, test, data_root, download)
-        report_data = data_description(dataset, report_data)
+        ui_data = data_description(dataset, ui_data)
         # Create scores
         print('Computing Utility Scores...')
-        report_data = utility_score(dataset, report_data)
+        ui_data, report_data = utility_score(dataset, ui_data, report_data)
         print('Computing Privacy Scores...')
-        report_data = privacy_score(dataset, report_data)
+        ui_data, report_data = privacy_score(dataset, ui_data, report_data)
+        ui_data.save()
         report_data.save()
-        report_data = report_data.data
+        ui_data = ui_data.data
     else:
         with open(outfile, 'r') as f:
-            report_data = json.load(f)
+            ui_data = json.load(f)
 
     # Generate Report
-    generate(report_data, output_directory)
+    generate(ui_data, output_directory)
 
 
 class NoAction(argparse.Action):
