@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 import sdnist
-import strs
+import sdnist.strs as strs
 from sdnist.load import load_dataset, TestDatasetName
 from sdnist.metrics.kmarginal import CensusKMarginalScore
 

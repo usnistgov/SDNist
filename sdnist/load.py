@@ -277,7 +277,6 @@ def load_dataset(challenge: str,
     if data_name != 'toy-data':
         config = load_config(challenge, root, public, test, download)
     params[strs.CONFIG] = config
-    print(params.keys())
     return dataset, params
 
 
