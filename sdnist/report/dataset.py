@@ -17,7 +17,7 @@ import sdnist.strs as strs
 import sdnist.utils as u
 
 
-def validate(synth_data: pd.DataFrame, data_dict, features):
+def validate(synth_data: pd.DataFrame, schema, features):
     sd = synth_data.copy()
     missing_feature = []
     nan_features = []
@@ -29,14 +29,14 @@ def validate(synth_data: pd.DataFrame, data_dict, features):
             missing_feature.append(f)
             raise Exception(f'Missing Feature: {f} in Synthetic Data')
         # check feature doesn't have nans
-        if len(sd[f].isna()):
+        if any(sd[f].isna()):
             nan_features.append(f)
 
         # check feature has out of bound value
-        f_data = data_dict[features]['values']
+        f_data = schema[f]
         if 'min' in f_data:
             if f in ['POVPIP', 'PINCP']:
-                nna_mask = sd[~sd['PINCP'].isin('N')].index
+                nna_mask = sd[sd['PINCP'] != 'N'].index
                 try:
                     sd[f] = pd.to_numeric(sd.loc[nna_mask, f]).astype(int)
                 except Exception as e:
@@ -47,8 +47,9 @@ def validate(synth_data: pd.DataFrame, data_dict, features):
                 except Exception as e:
                     vob_features.append((f, []))
         else:
+            print(f)
             d_vals = set(synth_data[f].unique().tolist())
-            diff = d_vals.difference(set(f_data))
+            diff = d_vals.difference(set(f_data['values']))
             if len(diff):
                 vob_features.append((f, list(diff)))
 
@@ -59,7 +60,7 @@ def validate(synth_data: pd.DataFrame, data_dict, features):
     if len(vob_features):
         for f, vals in vob_features:
             if f in ['POVPIP', 'PINCP']:
-                print(f'Error: No numeric value other than N found in feature {f}')
+                print(f'Error: No non-numeric value other than N is allowed in feature {f}')
             else:
                 print(f'Error: Value out of bound for feature {f}, out of bound values: {vals}')
 
@@ -215,9 +216,13 @@ class Dataset:
             self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes)
         elif str(self.synthetic_filepath).endswith('.parquet'):
             self.synthetic_data = pd.read_parquet(self.synthetic_filepath)
+        else:
+            raise Exception(f'Unknown synthetic data file type: {self.synthetic_filepath}')
+
         common_columns = list(set(self.synthetic_data.columns.tolist()).intersection(
             set(self.target_data.columns.tolist())
         ))
+
 
         if 'Unnamed: 0' in self.target_data.columns:
             self.target_data = self.target_data.drop(columns=['Unnamed: 0'])
@@ -232,6 +237,8 @@ class Dataset:
                         if c.startswith('IND_')]
         self.features = list(set(self.features).difference(set(ind_features)))
         self.features = list(set(self.features).intersection(list(common_columns)))
+
+        validate(self.synthetic_data, self.schema, self.features)
         # raw data
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
