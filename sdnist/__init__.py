@@ -52,6 +52,8 @@ def score(private_dataset: pd.DataFrame,
     log(f'Computing K-marginal for the challenge: {challenge}', verbose)
     k_marg_score = score_cls[challenge](private_dataset, synthetic_dataset,
                                         schema, loading_bar=True,
+                                        discretize=True,
+                                        bins=config[strs.BINS],
                                         **config[strs.K_MARGINAL])
     if n_permutations is not None:
         score.N_PERMUTATIONS = n_permutations

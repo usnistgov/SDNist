@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 import sdnist
+import strs
 from sdnist.load import load_dataset, TestDatasetName
 from sdnist.metrics.kmarginal import CensusKMarginalScore
 
@@ -71,6 +72,10 @@ def run(submission: Model,
         EPS = [r["epsilon"] for r in runs]
     else:
         raise ValueError(f"Unknown challenge {challenge}")
+    print(schema.keys())
+    config = schema[strs.CONFIG]
+    temp = schema[strs.SCHEMA]
+    schema = temp
 
     score_per_eps = []
 
@@ -82,7 +87,10 @@ def run(submission: Model,
     if challenge == "census" and html:
         report_kmarg = sdnist.metrics.kmarginal.CensusKMarginalScore(private,
                                                                      private,
-                                                                     schema)
+                                                                     schema,
+                                                                     discretize=True,
+                                                                     bins=config[strs.BINS],
+                                                                     **config[strs.K_MARGINAL])
 
     for eps in EPS:
         # Attempt to skip already computed scores
@@ -115,7 +123,11 @@ def run(submission: Model,
         logger.info(f"Computing scores for eps={eps}.")
 
         # TODO score object can be reused for marginal speed gains.
-        score = sdnist.score(private, synthetic, schema, challenge)
+        score = sdnist.score(private_dataset=private,
+                             synthetic_dataset=synthetic,
+                             schema=schema,
+                             config=config,
+                             challenge=challenge)
         logger.success(f"eps={eps}\tscore={score.score:.2f}")
 
         if results is not None:
