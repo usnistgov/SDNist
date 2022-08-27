@@ -47,7 +47,6 @@ def validate(synth_data: pd.DataFrame, schema, features):
                 except Exception as e:
                     vob_features.append((f, []))
         else:
-            print(f)
             d_vals = set(synth_data[f].unique().tolist())
             diff = d_vals.difference(set(f_data['values']))
             if len(diff):

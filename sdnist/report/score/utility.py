@@ -566,27 +566,27 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     if len(cdp_saved_file_paths):
         rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
                                     for p in cdp_saved_file_paths]
-        # ktc_p_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
-        #                        _data=kend_corr_para,
-        #                        _type=AttachmentType.String)
-        ktc_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
+        ktc_p_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
+                               _data=kend_corr_para,
+                               _type=AttachmentType.String)
+        ktc_a = Attachment(name=None,
                            _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                   for p in rel_cdp_saved_file_paths],
                            _type=AttachmentType.ImageLinks)
-        # corr_metric_a.append(ktc_p_a)
+        corr_metric_a.append(ktc_p_a)
         corr_metric_a.append(ktc_a)
 
     if len(pcp_saved_file_paths):
         rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-2:])
                                     for p in pcp_saved_file_paths]
-        # pc_para_a = Attachment(name="Pearson Correlation Coefficient Difference",
-        #                        _data=pear_corr_para,
-        #                        _type=AttachmentType.String)
-        pc_a = Attachment(name="Pearson Correlation Coefficient Difference",
+        pc_para_a = Attachment(name="Pearson Correlation Coefficient Difference",
+                               _data=pear_corr_para,
+                               _type=AttachmentType.String)
+        pc_a = Attachment(name=None,
                           _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                  for p in rel_pcp_saved_file_paths],
                           _type=AttachmentType.ImageLinks)
-        # corr_metric_a.append(pc_para_a)
+        corr_metric_a.append(pc_para_a)
         corr_metric_a.append(pc_a)
 
     r_ui_d.add(UtilityScorePacket("Correlations",

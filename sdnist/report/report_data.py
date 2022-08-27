@@ -91,7 +91,7 @@ class FeatureDescriptionPacket:
         return [{"Feature Name": f,
                  "Feature Description": fd,
                  "Feature Type": ft,
-                 "Feature Has N (N/A) values?": hn}
+                 "Feature Has 'N' (N/A) values?": hn}
                 for f,fd, ft, hn
                 in zip(self.features, self.feature_desc, self.feature_types, self.has_nans)]
 
