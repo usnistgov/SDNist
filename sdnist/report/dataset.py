@@ -36,7 +36,7 @@ def validate(synth_data: pd.DataFrame, schema, features):
         f_data = schema[f]
         if 'min' in f_data:
             if f in ['POVPIP', 'PINCP']:
-                nna_mask = sd[sd['PINCP'] != 'N'].index
+                nna_mask = sd[sd[f] != 'N'].index
                 try:
                     sd[f] = pd.to_numeric(sd.loc[nna_mask, f]).astype(int)
                 except Exception as e:
