@@ -3,6 +3,14 @@ SDNIST Synthetic Data Quality Report (Beta Release)
 
 This tool evaluates utility and privacy of a given synthetic dataset and generates a summary quality report with performance of a synthetic dataset enumerated and illustrated for each utility and privacy metric.
 
+### Authors:  
+**Karan Bhagat** - Developer *sdnist.report* package  
+**Dr. Christine Task** - Research Collaborator  
+
+
+### Reporting Issues:
+Help us improve the package and this guide by reporting issues [here](https://github.com/usnistgov/SDNist/issues).
+
 Setup SDNIST Report Tool
 ------------------------
 
