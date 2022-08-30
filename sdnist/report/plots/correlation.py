@@ -91,7 +91,9 @@ def save_correlation_difference_plot(correlation_data: pd.DataFrame,
     cd = cd.sort_index()
     cd = cd.abs()
     fig = plt.figure(figsize=(6, 6), dpi=100)
-    plt.imshow(cd, cmap='Blues', interpolation='none')
+    max_val = cd.to_numpy().max()
+    v_max = max_val if max_val > 0.15 else 0.15
+    plt.imshow(cd, cmap='Blues', interpolation='none', vmin=0, vmax=v_max)
     im_ratio = cd.shape[0] / cd.shape[1]
 
     cbar = plt.colorbar(fraction=0.047 * im_ratio)
