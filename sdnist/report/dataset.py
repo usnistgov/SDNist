@@ -139,12 +139,18 @@ def percentile_rank_synthetic(synthetic: pd.DataFrame,
         st = pd.DataFrame(pd.to_numeric(s.loc[nna_mask, f]).astype(int), columns=[f])
         if f not in to.columns.tolist():
             continue
+        min_b = 0
+        max_b = 0
         for b, g in target_binned.groupby(by=[f]):
             if b == -1:
                 continue
             t_bp = pd.DataFrame(pd.to_numeric(to.loc[g.index, f]).astype(int), columns=[f])
-            min_b = min(t_bp[f])
-            max_b = max(t_bp[f])
+            if b == 0:
+                min_b = min(t_bp[f])
+                max_b = max(t_bp[f])
+            else:
+                min_b = max_b
+                max_b = max(t_bp[f])
             st.loc[(st[f] >= min_b) & (st[f] <= max_b), f] = b
         s.loc[nna_mask, f] = st
     return s
