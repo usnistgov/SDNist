@@ -16,7 +16,10 @@ def plot_apparent_match_dist(match_percentages: pd.Series,
                              output_directory: Path) -> Path:
     fig = plt.figure(figsize=(6, 6), dpi=100)
 
-    df = pd.DataFrame(match_percentages, columns=['perc'])
+    if len(match_percentages):
+        df = pd.DataFrame(match_percentages, columns=['perc'])
+    else:
+        df = pd.DataFrame([200], columns=['perc'])
     df.hist(width=1.5, align='mid')
     plt.xlim(0, 100)
     ax = plt.gca()

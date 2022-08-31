@@ -155,6 +155,7 @@ if __name__ == "__main__":
             df = pd.read_parquet(dp['path'])
         else:
             df = pd.read_csv(dp['path'])
+        print(df.columns.tolist())
         pair_id = dp["pair_id"]
         pair_name = dp["pair_name"]
 

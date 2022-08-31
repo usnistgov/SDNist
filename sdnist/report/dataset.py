@@ -135,6 +135,8 @@ def percentile_rank_synthetic(synthetic: pd.DataFrame,
     s, to, tb = synthetic.copy(), target_orig, target_binned
 
     for f in features:
+        if f not in target_orig:
+            continue
         nna_mask = s[~s[f].isin(['N'])].index  # not na mask
         st = pd.DataFrame(pd.to_numeric(s.loc[nna_mask, f]).astype(int), columns=[f])
         if f not in to.columns.tolist():

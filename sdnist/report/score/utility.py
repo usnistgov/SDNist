@@ -216,6 +216,11 @@ def kmarginal_subsamples(dataset: Dataset,
     for i in range(1, 11):
         # using subsample of target data as synthetic data
         s_sd = dataset.d_target_data.sample(frac=i * 0.1)  # subsample as synthetic data
+        rows = dataset.d_target_data.shape[0]
+        remain_rows = rows - s_sd.shape[0]
+        if remain_rows:
+            rr_sd = s_sd.sample(n=remain_rows, replace=True)
+            s_sd = pd.concat([s_sd, rr_sd])
         s_kmarg = k_marginal_cls(dataset.d_target_data,
                                  s_sd,
                                  dataset.schema,

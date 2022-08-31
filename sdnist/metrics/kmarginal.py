@@ -25,7 +25,7 @@ class KMarginalScore:
     NAME = 'K-Marginal'
 
     RANK: int = 2  # Actual rank is RANK + len(ALWAYS_GROUPBY)
-    N_PERMUTATIONS: int = 50
+    N_PERMUTATIONS: int = 100
 
     def __init__(self,
                  private_dataset: pd.DataFrame,
@@ -104,7 +104,8 @@ class KMarginalScore:
         for columns in c_list:
             idx = tuple(columns)
             if idx not in self._p0_cache:
-                self._p0_cache[idx] = compute_marginal_grouped(self._private_dataset, columns, self.ALWAYS_GROUPBY)
+                self._p0_cache[idx] = compute_marginal_grouped(self._private_dataset, columns,
+                                                               self.ALWAYS_GROUPBY)
 
             p0 = self._p0_cache[idx]
             p1 = compute_marginal_grouped(self._synthetic_dataset, columns, self.ALWAYS_GROUPBY)

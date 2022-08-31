@@ -80,9 +80,9 @@ rec_matched_para = "Based only on the quasi-identifier features, how many synthe
                    "records uniquely match an individual in the target data? What percentage of the synthetic data has apparent real matches?"
 
 percn_matched_para = "Considering the set of apparent matches, to what extent are they real matches? " \
-                     "This distribution shows edit similarity between apparently matched pairs– on how many of " \
+                     "This distribution shows edit similarity between apparently matched pairs on how many of " \
                      "the 22 features does the synthetic record have the same value as the real record. " \
                      "If the distribution is centered near 100% that means these synthetic records largely " \
                      "mimic target records and are potentially leaking information about real individuals. " \
                      "If the distribution is centered below 50% that means the synthetic records are very " \
-                     "different from the target records, and the apparent matches aren’t real matches."
+                     "different from the target records, and the apparent matches are not real matches."

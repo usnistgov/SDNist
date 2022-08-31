@@ -61,7 +61,7 @@ class PropensityMSE:
         # form one single training dataset
         N = pd.concat([t, s]).reset_index(drop=True)
 
-        clf = tree.DecisionTreeClassifier(max_depth=5)
+        clf = tree.DecisionTreeClassifier(max_depth=6)
         clf.fit(N[f].values, N['i'].values)
 
         pprob = clf.predict_proba(N[f].values)  # prediction probabilities
