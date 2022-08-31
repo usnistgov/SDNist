@@ -29,7 +29,7 @@ Setup SDNIST Report Tool
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-1.4.0b2-py3-none-any.whl) from the [Github:SDNist beta release](https://www.google.com/url?q=https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/sdnist-1.4.0b1-py3-none-any.whl&sa=D&source=editors&ust=1661621593844523&usg=AOvVaw1R20BZUyIE3SiXQ3nkoS-Z).
+4.  Download the sdnist installable wheel (sdnist-1.4.0b2-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.2/sdnist-1.4.0b2-py3-none-any.whl).
 
 
 5.  Move the downloaded sdnist-1.4.0b2-py3-none-any.whl file to the sdnist-project directory.
