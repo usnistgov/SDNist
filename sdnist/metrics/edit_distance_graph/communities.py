@@ -270,7 +270,7 @@ def pair_edit_distance(chunk: pd.DataFrame, complete: pd.DataFrame):
             if dist not in edit_distance_dist:
                 edit_distance_dist[dist] = 1
             edit_distance_dist[dist] += 1
-            if dist < 3:
+            if dist <= 1:
                 edges.append((roi, rsi, dist))
     ed_dist = pd.DataFrame([[k, v] for k, v in edit_distance_dist.items()],
                            columns=['edit-distance', 'records'])
