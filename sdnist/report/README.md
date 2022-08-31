@@ -29,10 +29,10 @@ Setup SDNIST Report Tool
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-1.4.0b1-py3-none-any.whl) from the [Github:SDNist beta release](https://www.google.com/url?q=https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/sdnist-1.4.0b1-py3-none-any.whl&sa=D&source=editors&ust=1661621593844523&usg=AOvVaw1R20BZUyIE3SiXQ3nkoS-Z).
+4.  Download the sdnist installable wheel (sdnist-1.4.0b2-py3-none-any.whl) from the [Github:SDNist beta release](https://www.google.com/url?q=https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/sdnist-1.4.0b1-py3-none-any.whl&sa=D&source=editors&ust=1661621593844523&usg=AOvVaw1R20BZUyIE3SiXQ3nkoS-Z).
 
 
-5.  Move the downloaded sdnist-1.4.0b1-py3-none-any.whl file to the sdnist-project directory.
+5.  Move the downloaded sdnist-1.4.0b2-py3-none-any.whl file to the sdnist-project directory.
 
 
 6.  Using the terminal on Mac/Linux or powershell on Windows, navigate to the sdnist-project directory.
@@ -79,7 +79,7 @@ Setup SDNIST Report Tool
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
     ```
 
-10. Per step 5 above, the sdnist-1.4.0b1-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
+10. Per step 5 above, the sdnist-1.4.0b2-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
    MAC OS/Linux:
    ```
@@ -89,11 +89,11 @@ Setup SDNIST Report Tool
    ```
    (venv) c:\\sdnist-project> dir
    ```
-   The sdnist-1.4.0b1-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
+   The sdnist-1.4.0b2-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
 
 11.  Install sdnist Python library:
    ```
-   (venv) c:\\sdnist-project> pip install sdnist-1.4.0a1-py3-none-any.whl
+   (venv) c:\\sdnist-project> pip install sdnist-1.4.0b2-py3-none-any.whl
    ```
 
 12.  Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
@@ -178,7 +178,7 @@ Setup Data for SDNIST Report Tool
       (venv) c:\\sdnist-project> python -m sdnist.report syn\_tx.csv TX
       
       Downloading all SDNist datasets from:  
-      https://github.com/usnistgov/SDNist/releases/download/v1.4.0-a.1/SDNist-data-1.4.0-a.1.zip ...  
+      https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip ...  
       ...5%, 47352 KB, 8265 KB/s, 5 seconds elapsed
       ```
 

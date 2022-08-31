@@ -73,10 +73,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
     if not name.exists():
         print(f"{name} does not exist.")
         zip_path = Path(root.parent, 'data.zip')
-        if data_name == strs.DATA:
-            version = "1.4.0-b.1"
-        else:
-            version = '1.4.0-b.2'
+        version = "1.4.0-b.1"
 
         version_v = f"v{version}"
         sdnist_version = f"SDNist-{data_name}-{version}"
