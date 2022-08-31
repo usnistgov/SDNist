@@ -73,7 +73,11 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
     if not name.exists():
         print(f"{name} does not exist.")
         zip_path = Path(root.parent, 'data.zip')
-        version = "1.4.0-b.1"
+        if data_name == strs.DATA:
+            version = "1.4.0-b.1"
+        else:
+            version = '1.4.0-b.2'
+
         version_v = f"v{version}"
         sdnist_version = f"SDNist-{data_name}-{version}"
         download_link = f"https://github.com/usnistgov/SDNist/releases/download/{version_v}/{sdnist_version}.zip"
@@ -267,7 +271,7 @@ def load_dataset(challenge: str,
         dataset_name = name.with_suffix(".csv")
         check_exists(root, dataset_name, download, data_name)
 
-        columns = {name: params[strs.SCHEMA][name]["dtype"]
+        columns = {name : params[strs.SCHEMA][name]["dtype"]
                    for name in params[strs.SCHEMA]}
         dataset = pd.read_csv(dataset_name, dtype=columns)
 
