@@ -102,23 +102,23 @@ Setup SDNIST Report Tool
    ```
    Output:
    ```
-   usage: \_\_main\_\_.py \[-h\] \[--data-root DATA\_ROOT\] \[--download DOWNLOAD\] PATH\_SYNTHETIC\_DATASET TARGET\_DATASET\_NAME  
+   usage: __main__.py [-h] [--data-root DATA_ROOT] [--download DOWNLOAD] PATH_SYNTHETIC_DATASET TARGET_DATASET_NAME  
      
    positional arguments:  
-   PATH\_SYNTHETIC\_DATASET  
+   PATH_SYNTHETIC_DATASET  
                          Location of synthetic dataset (csv or parquet file)  
-   TARGET\_DATASET\_NAME   Select name of the target dataset that was used to generated given synthetic dataset  
+   TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given synthetic dataset  
      
    optional arguments:  
    \-h, \--help            show this help message and exit  
-   \--data-root DATA\_ROOT                      Path of the directory to be used as the root for the target datasets\--download DOWNLOAD   Download toy datasets if not present locallyChoices for Target Dataset Name::
+   \--data-root DATA_ROOT                      Path of the directory to be used as the root for the target datasets\--download DOWNLOAD   Download toy datasets if not present locallyChoices for Target Dataset Name::
    
     (dataname)         (filename)  
     MA                        ma2019
    
     TX                        tx2019
    
-    National                  national2019
+    NATIONAL                  national2019
    ```
 
 
@@ -127,12 +127,12 @@ Generate Data Quality Report
 
 1.  The sdnist.report package requires a path to the synthetic dataset file and the name of the target dataset from which the synthetic dataset file will be created. Following is the command line usage of the sdnist.report package:
       ```
-      python -m sdnist.report PATH\_SYNTHETIC\_DATASET TARGET\_DATSET\_NAME 
+      python -m sdnist.report PATH_SYNTHETIC_DATASET TARGET_DATSET_NAME 
       ```
 
-      The above command is just an example usage signature of the package. Steps 3 to 5 show the actual commands to run the tool, where the parameter PATH\_SYNTHETIC\_DATASET is replaced with the path of the synthetic dataset file on the your machine, and the parameter TARGET\_DATASET\_NAME is replaced with one of the bundled dataset names (MA, TX, o NATIONAL).
+      The above command is just an example usage signature of the package. Steps 3 to 5 show the actual commands to run the tool, where the parameter PATH_SYNTHETIC_DATASET is replaced with the path of the synthetic dataset file on the your machine, and the parameter TARGET_DATASET_NAME is replaced with one of the bundled dataset names (MA, TX, o NATIONAL).
       
-      A synthetic dataset file can be anywhere on your machine. You only need the path of the file to pass it as an argument to the sdnist.report package. For illustration purposes, this guide assumes an example synthetic dataset file named syn\_tx.csv is generated from the bundled dataset file named TX that is present in the sdnist-project directory. You can also use the bundled toy synthetic datasets for generating some toy evaluation reports using the sdnist.report package by following step 5 and 6 in the next section, Setup Data for SDNIST Report Tool.
+      A synthetic dataset file can be anywhere on your machine. You only need the path of the file to pass it as an argument to the sdnist.report package. For illustration purposes, this guide assumes an example synthetic dataset file named syn_tx.csv is generated from the bundled dataset file named TX that is present in the sdnist-project directory. You can also use the bundled toy synthetic datasets for generating some toy evaluation reports using the sdnist.report package by following step 5 and 6 in the next section, Setup Data for SDNIST Report Tool.
 
       Sdnist.report packages come bundled with three target datasets: MA, TX, and NATIONAL. If these datasets are not available locally, the package will download them automatically when you run any one of the commands in steps 3-5 for the first time. In case of any trouble while downloading the datasets, please refer to the next section, Setup Data for SDNIST Report Tool.
 
@@ -140,22 +140,22 @@ Generate Data Quality Report
 2.  If you have closed the terminal or the powershell window that was used for the tool setup, open a new one , and after navigating the to sdnist-project directory, run the activate script as explained in step 9 of the Setup SDNIST Report Tool section.
 
 
-3.  Use the following command to generate a data quality report for the example synthetic dataset (syn\_tx.csv) that is generated using the bundled dataset TX:
+3.  Use the following command to generate a data quality report for the example synthetic dataset (syn_tx.csv) that is generated using the bundled dataset TX:
       ```
-      (venv) c:\\sdnist-project> python -m sdnist.report syn\_tx.csv TX
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_tx.csv TX
       ```
       At the completion of the process initiated by the above command, an html report will open in the default web browser on your machine. Likewise, .html report files will be available in the reports directory created automatically in the sdnist-project directory.
 
 
-4.  Use the following command to generate a data quality report for the example synthetic dataset syn\_ma.csv that is generated using the bundled dataset MA:
+4.  Use the following command to generate a data quality report for the example synthetic dataset syn_ma.csv that is generated using the bundled dataset MA:
       ```
-      (venv) c:\\sdnist-project> python -m sdnist.report syn\_ma.csv MA
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_ma.csv MA
       ```
 
 
-5.  Use the following command to generate a data quality report for the example synthetic dataset syn\_national.csv that is generated using the bundled dataset NATIONAL:
+5.  Use the following command to generate a data quality report for the example synthetic dataset syn_national.csv that is generated using the bundled dataset NATIONAL:
       ```
-      (venv) c:\\sdnist-project> python -m sdnist.report syn\_national.csv NATIONAL
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_national.csv NATIONAL
       ```
 
 
@@ -168,14 +168,14 @@ Generate Data Quality Report
        * TX
        * NATIONAL
 
-     * **--data-root**: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to, if it is not available locally. The default directory is set to sdnist\_toy\_data.
+     * **--data-root**: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to, if it is not available locally. The default directory is set to sdnist_toy_data.
 
 Setup Data for SDNIST Report Tool
 ---------------------------------
 
 1.  The sdnist.report package comes with built-in datasets. The package will automatically download the datasets from Github if they are not already available locally on your machine. Youshould see following message on your terminal or powershell window when the datasets are downloaded by the sdnist.report package:
       ```
-      (venv) c:\\sdnist-project> python -m sdnist.report syn\_tx.csv TX
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_tx.csv TX
       
       Downloading all SDNist datasets from:  
       https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip ...  
@@ -203,17 +203,17 @@ Setup Data for SDNIST Report Tool
    
    For evaluating Massachusetts dataset
    ```
-   (venv) c:\\sdnist-project> python -m sdnist.report toy\_synthetic\_data/syn\_ma.csv MA
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_ma.csv MA
    ```
 
    For evaluating Texas dataset
    ```
-   (venv) c:\\sdnist-project> python -m sdnist.report toy\_synthetic\_data/syn\_tx.csv TX
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_tx.csv TX
    ```
 
    For evaluating National dataset
    ```
-   (venv) c:\\sdnist-project> python -m sdnist.report toy\_synthetic\_data/syn\_national.csv NATIONAL
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_national.csv NATIONAL
    ```
 
 7.  A synthetic dataset can be a .csv or a parquet file, and the path of this file is required
