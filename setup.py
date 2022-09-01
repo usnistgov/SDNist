@@ -8,7 +8,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='sdnist',
-    version='1.4.0-b.1',
+    version='1.4.0-b.2',
     description='SDNist: datasets and evaluation tools for data synthesizers',
     long_description=long_description,
     long_description_content_type='text/markdown',
