@@ -42,7 +42,7 @@ class Attachment:
 @dataclass
 class ScorePacket:
     metric_name: str
-    score: Optional[float] = None,
+    score: Optional[float] = None
     attachment: List[Attachment] = field(default_factory=list)
     evaluation_type = None
 
