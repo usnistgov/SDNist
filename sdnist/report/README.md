@@ -161,8 +161,8 @@ Generate Data Quality Report
 
 6.  The following are all the parameters offered by the sdnist.report package:
 
-     * **PATH\_SYNTHETIC\_DATASET**: The absolute or relative path to the synthetic dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory.  This guide assumes the current working directory is sdnist-project.
-     * **TARGET\_DATASET\_NAME**: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input synthetic dataset is generated, and it can be one of the following:
+     * **PATH _SYNTHETIC _DATASET**: The absolute or relative path to the synthetic dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory.  This guide assumes the current working directory is sdnist-project.
+     * **TARGET _DATASET _NAME**: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input synthetic dataset is generated, and it can be one of the following:
 
        * MA
        * TX
@@ -185,7 +185,7 @@ Setup Data for SDNIST Report Tool
       Follow the next subsection, Download Data Manually, if the sdnist.report package is unable to download the datasets. 
 
 
-2. All the datasets required by the sdnist.report package are installed into the sdnist\_toy\_data directory, which should be now present inside the sdnist-project directory. sdnist\_toy\_data is also a data root directory. You can use some other directory as a data root by providing the –data-root argument to the sdnist.report package. If you provide a –data-root argument with a path, the sdnist.report package will look for datasets in the data root directory you have specified, and the package will download it if it is not present in the data root.
+2. All the datasets required by the sdnist.report package are installed into the sdnist _toy _data directory, which should be now present inside the sdnist-project directory. sdnist _toy _data is also a data root directory. You can use some other directory as a data root by providing the –data-root argument to the sdnist.report package. If you provide a –data-root argument with a path, the sdnist.report package will look for datasets in the data root directory you have specified, and the package will download it if it is not present in the data root.
 
  
 3. The sdnist.report package also needs a synthetic dataset that it can evaluate against its original counterpart. Since the sdnist.report package comes bundled with the datasets, the synthetic dataset should be generated using the bundled datasets.
@@ -193,10 +193,10 @@ Setup Data for SDNIST Report Tool
    You can download a copy of the datasets from [Github Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts). This copy is similar to the one bundled with the sdnist.report package, but it contains more documentation and a description of the datasets.
 
 
-4. You can download the toy synthetic datasets from [Github Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/toy_synthetic_data.zip). Unzip the downloaded file, and move the unzipped toy\_synthetic\_dataset directory to the sdnist-project directory.
+4. You can download the toy synthetic datasets from [Github Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/toy_synthetic_data.zip). Unzip the downloaded file, and move the unzipped toy _synthetic _dataset directory to the sdnist-project directory.
 
  
-5. Each toy synthetic dataset file is generated using the [Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip). The syn\_ma.csv, syn\_tx.csv and syn\_national.csv synthetic dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv) and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
+5. Each toy synthetic dataset file is generated using the [Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip). The syn _ma.csv, syn _tx.csv and syn _national.csv synthetic dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv) and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
 
 
 6. Use following commands for generating reports if you are using a toy synthetic dataset file:
@@ -226,4 +226,4 @@ by the sdnist.report package to generate a data quality report.
 3.  Unzip the SDNist-toy-data-1.4.0-b.1.zip file and move the data directory inside it to the sdnist-project directory.
 4.  Delete the SDNist-toy-data-1.4.0-b.1.zip file once the data directory is successfully moved out of the unzipped directory.
 5.  Also delete the now-empty SDNist-toy-data-1.4.0-b.1 directory from where the zip file was extracted.
-6.  And finally, to successfully install datasets manually, change the name of the data directory inside the sdnist-project directory to sdnist\_toy\_data.
+6.  And finally, to successfully install datasets manually, change the name of the data directory inside the sdnist-project directory to sdnist_toy_data.
