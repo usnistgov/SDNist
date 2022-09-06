@@ -25,14 +25,13 @@ Alternatively, the data can be manually downloaded as part of the latest release
   is the directory in which you run the SDNist library through a console/terminal, or the directory that contains your Python or IPython files
   that imports the SDNist library.
 <!--  last part of sentence above, referring to Python files and importing SDNist library: is it correctly worded?  seems confusing -->
-   
-<!-- removing PIP instructions until the next stable build release     
+
 - Install via `pip` from [PyPi](https://pypi.org/) directory:
 
 ```
 pip install sdnist
 ```
-  -->
+
 
 - Install `sdnist` Python module through git repository:
 ```
