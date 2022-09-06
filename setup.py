@@ -14,7 +14,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/usnistgov/SDNist',
     author='National Institute of Standards and Technology',
-    author_email='gary.howawrth@nist.gov',
+    author_email='gary.howarth@nist.gov',
     packages=["sdnist",
               "sdnist.challenge",
               "sdnist.metrics",
