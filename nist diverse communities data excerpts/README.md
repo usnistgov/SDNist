@@ -1,4 +1,4 @@
-#The NIST Diverse Community Excerpts
+# The NIST Diverse Community Excerpts
 
 The Diverse Community Excepts data are designed to be a resource to investigate performance of data synthesizers and similar privacy-enhancing technologies when applied to data collected from three communities (Boston area, Dallas-Forth Worth area, and US national) radically different demographics. The data are drawn from real records released in the [American Community Survey](https://www.census.gov/programs-surveys/acs), a product of the US Census Bureau.
 
