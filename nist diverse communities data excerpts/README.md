@@ -8,8 +8,7 @@ The Diverse Communities Excerpt Data was developed to address a recurring proble
 
 The Diverse Community Excerpt Data were designed with input from USCB experts in adaptive sampling design (Consider– [Coffey 2020](https://doi.org/10.1093/jssam/smz026)), and leveraged previous work on geographical differences in CART modeled synthetic data to identify PUMA with challenging distributions (See Appendix B– [Abowd 2021](https://ui.adsabs.harvard.edu/link_gateway/2021arXiv211013239A/arxiv:2110.13239)).
 
-Effectively, we needed a miniature, model-sized version of the problem that we were trying to understand.  Like a ship in a bottle– pieces small enough that they can be assembled by hand, so we can start to see how they fit together.
-
+Effectively, we attempt to provide model-sized version of the problem that we were trying to understand.  Like a ship in a bottle– pieces small enough that they can be assembled by hand, so we can start to see how they fit together.
 
 The requirements we sought to meet included:
 - A feature set that is interesting with complexity representative of real communities, yet compact enough to allow for rigorous, penetrating analysis
