@@ -6,7 +6,7 @@ The Diverse Community Excepts data are designed to be a resource to investigate 
 
 The Diverse Communities Excerpt Data was developed to address a recurring problem identified in the NIST Differential Privacy Synthetic Data Challenge, NIST Differential Privacy Temporal Map Challenge, and the HLG-MOS Synthetic Data Test Drive. Specifically, if the data are too complex it’s hard to tell for sure what’s going on with it. These data are designed to support deeper and more formal understanding of algorithm behavior on real human data.
 
-The Diverse Community Excerpt Data were designed with input from USCB experts in adaptive sampling design (Consider– [Coffey 2020](https://doi.org/10.1093/jssam/smz026), and leveraged previous work on geographical differences in CART modeled synthetic data to identify PUMA with challenging distributions (See Appendix B– [Abowd 2021](https://ui.adsabs.harvard.edu/link_gateway/2021arXiv211013239A/arxiv:2110.13239).
+The Diverse Community Excerpt Data were designed with input from USCB experts in adaptive sampling design (Consider– [Coffey 2020](https://doi.org/10.1093/jssam/smz026)), and leveraged previous work on geographical differences in CART modeled synthetic data to identify PUMA with challenging distributions (See Appendix B– [Abowd 2021](https://ui.adsabs.harvard.edu/link_gateway/2021arXiv211013239A/arxiv:2110.13239)).
 
 Effectively, we needed a miniature, model-sized version of the problem that we were trying to understand.  Like a ship in a bottle– pieces small enough that they can be assembled by hand, so we can start to see how they fit together.
 
