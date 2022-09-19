@@ -24,20 +24,20 @@ All of the data have identical schema of 22 features which are provided in a dat
 
 ### Community descriptions
 See the 'postcards' and data dictionaries in each respective directory for more detailed information.
--  *'national'*: 27254 records drawn from 20 PUMAs from across the United States.
--  *'massachusetts'*: 7634 records drawn from five PUMAs of communities from the North Shore to the west of the greater Boston, Massachusetts area.
-- *'texas'*:  9276 records drawn from six PUMAs of communities surrounding Dallas-Fort Worth, Texas area.
+-  `national`: 27254 records drawn from 20 PUMAs from across the United States.
+-  `massachusetts`: 7634 records drawn from five PUMAs of communities from the North Shore to the west of the greater Boston, Massachusetts area.
+- `texas`:  9276 records drawn from six PUMAs of communities surrounding Dallas-Fort Worth, Texas area.
 
 
 ## Usage guidance:
 
-
 ### Area definitions
-Areas are organized by PUMA (Public Use Microdata Area). PUMAs are designated by the US Census Bureau and designed to be "non-overlapping, statistical geographic areas that partition each state or equivalent entity into geographic areas containing no fewer than 100,000 people each." [See the Census page for more information](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/pumas.html).
+Each of the data sets are comprised of data from multiple PUMAs (Public Use Microdata Area). PUMAs are designated by the US Census Bureau and designed to be "non-overlapping, statistical geographic areas that partition each state or equivalent entity into geographic areas containing no fewer than 100,000 people each." [See the Census page for more information](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/pumas.html).
 
 ### Data partitions
-The data have been broken into three separate data sets, 'massachusetts', 'texas' and 'national'. Algorithms can be run on each data set separately, or all three together (they use the same schema).  The MA and TX data have been chosen to be more homogenous and regionally focused (north shore Boston and southwest Forth Worth), while the PUMA included in the National data have been chosen to represent an array of complex and diverse communities around the country.
+The data have been broken into three separate data sets, `massachusetts`, `texas` and `national`. Algorithms can be run on each data set separately, or all three together (they use the same schema).  The MA and TX data have been chosen to be more homogenous and regionally focused (north shore Boston and southwest Forth Worth), while the PUMA included in the National data have been chosen to represent an array of complex and diverse communities around the country.
 Postcard descriptions: These are included in each data set folder and provide a snapshot introduction to each of the geographies included in the data set. When your algorithm performs well or poorly on a specific PUMA you might find it interesting to check in on the defining characteristics of that PUMA. For instance, the veteran disability variable (DVET) may have a more interesting distribution near military communities. These postcards make a good starting point for learning more about the real communities your algorithms are running on.
+
 
 ### Data dictionary and feature notes
 There is a data dictionary in JSON format included with the data.
