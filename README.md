@@ -4,6 +4,8 @@ This iteration of the SDNist library (v1.4) is focused on generating reports tha
 
 The synthetic data report evaluates utility and privacy of a given synthetic dataset and generates a summary quality report with performance of a synthetic dataset enumerated and illustrated for each utility and privacy metric.
 
+[Preview a sample report produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-report)
+
 ### Project Team:  
 **Karan Bhagat**, *Knexus Research* - Developer *sdnist.report* package  
 **Christine Task**, *Knexus Research* - Project technical lead
@@ -24,7 +26,7 @@ To run the testing environment from the [*NIST PSCR Differential Privacy Tempora
 
 ### Brief Setup Instructions
 
-SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of the SDNist library we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via (Release 1.4.0b)[https://github.com/usnistgov/SDNist/releases/tag/v1.4.0-b.2] or via the Pypi server (`pip install sdnist=1.4`). Data will download on the fly.
+SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of the SDNist library we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.0-b.2) or via the Pypi server (`pip install sdnist=1.4`). Data will download on the fly.
 
 
 ### Detailed Setup Instructions
