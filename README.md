@@ -1,268 +1,244 @@
+# SDNist: Synthetic Data Report Tool
 
-# SDNist: Benchmark Data and Evaluation Tools for Data Synthesizers
+This iteration of the SDNist library (v1.4) is focused on generating reports that compare syntethic data to the [NIST Diverse Community Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts).
 
-This package provides tools for standardized and reproducible comparison of synthetic generator models on real-world data and use cases. Both datasets and metrics were developed for and vetted through the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal).
+The synthetic data report evaluates utility and privacy of a given synthetic dataset and generates a summary quality report with performance of a synthetic dataset enumerated and illustrated for each utility and privacy metric.
 
-## Quick introduction
+### Project Team:  
+**Karan Bhagat**, *Knexus Research* - Developer *sdnist.report* package  
+**Christine Task**, *Knexus Research* - Project technical lead
+**Gary Howarth**, *NIST* - Project PI [gary.howarth@nist.gov](mailto:gary.howarth@nist.gov)
 
-You have two possible workflows:
-1) Manually manage the public and private datasets as `pandas.DataFrame` objects, directly generate your synthetic data, and directly compute the score.
-2) Reproduce the setup of the challenge---i.e., create a synthesizer subclass of `challenge.submission.Model`, then call `run(model, challenge="census")`. This makes sure your synthesizer is scored against the same datasets as in the Challenge.
+### Reporting Issues:
+Help us improve the package and this guide by reporting issues [here](https://github.com/usnistgov/SDNist/issues).
 
-In all cases, the scoring does not numerically check whether your synthesizer is actually $\epsilon$-differentially private or not. You have to provide a formal proof yourself.
+### Temporal Map Challenge Environment
 
-## Installation
+SDNist v1.4 does not support the Temporal Map Challenge environment.
 
-Requirements:  [Python >=3.6](https://www.python.org/downloads/)
+To run the testing environment from the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal) for the Chicago Taxi data sprint, or the American Community Survey sprint, setup a virtual environment and install the [1.3.0 SDNist Release](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0) or `pip install sdnist==1.2.8`. The source code in the release contains detailed notes on how to run the challenge environment.
 
-The SDNist source code is hosted on Github, and all the data tables should be downloaded from the [SDNist Github Releases](https://github.com/usnistgov/SDNist/releases).
-Alternatively, the data can be manually downloaded as part of the latest release [SDNist Release 1.3.0](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0).
 
-* Data Download Notes: 
-  * SDNist does not  download just a specific dataset; instead, it downloads all the available datasets in the library.  
-  * If data is manually downloaded, copy the contents inside the 'data' directory from the extracted zip file to your data root directory.
-  * The default root data directory of SDNist is `<your-current-working-directory>/data`. The current working directory
-  is the directory in which you run the SDNist library through a console/terminal, or the directory that contains your Python or IPython files
-  that imports the SDNist library.
-<!--  last part of sentence above, referring to Python files and importing SDNist library: is it correctly worded?  seems confusing -->
+## Setting Up the SDNIST Report Tool
+------------------------
 
-- Install via `pip` from [PyPi](https://pypi.org/) directory:
+### Brief Setup Instructions
 
-```
-pip install sdnist
-```
+SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of the SDNist library we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via (Release 1.4.0b)[https://github.com/usnistgov/SDNist/releases/tag/v1.4.0-b.2] or via the Pypi server (`pip install sdnist=1.4`). Data will download on the fly.
 
 
-- Install `sdnist` Python module through git repository:
-```
-git clone https://github.com/usnistgov/SDNist && cd SDNist
-pip install .
-```
+### Detailed Setup Instructions
 
-- Install `sdnist` Python module through git in a virtual environment:
+1. SDNist Report Tool is a part of the sdnist Python library that can be installed on a user’s MAC OS, Windows, or Linux machine.
 
-MAC OS / Linux
-```
-git clone https://github.com/usnistgov/SDNist && cd SDNist
-python3 -m venv venv
-. venv/bin/activate
-pip install .
-```
 
-Windows
-```
-git clone https://github.com/usnistgov/SDNist && cd SDNist
-python3 -m venv venv
-. venv/Scripts/activate
-pip install .
-```
-## Contributions
+2. The sdnist library requires Python version 3.7 or greater to be installed on the user's machine. Check whether an installation exists on the machine by executing the following command in your terminal on Mac/Linux or powershell on Windows:
+   ```
+    c:\\> python -v
+   ```
+    If Python is already installed, the above command should return the currently installed version. If Python is not found or the version is below 3.7, then you can download a higher version of Python from the [Python website](https://www.python.org/downloads/).
 
-This repository is being actively developed, and we welcome contributions.
 
-If you encounter a bug, [please create an issue](https://github.com/usnistgov/SDNist/issues/new).
+3.  Create a local directory/folder on the machine to set up the SDNist library. This guide assumes the local directory to be sdnist-project; an example of a complete file path is c:\\sdnist-project:
+    ```
+    c:\\sdnist-project>     
+    ```
 
-Feel free to create a Pull Request to help us correct bugs and other issues.
+4.  Download the sdnist installable wheel (sdnist-1.4.0b2-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.2/sdnist-1.4.0b2-py3-none-any.whl).
 
-Please contact us if you wish to augment or expand existing features.  
 
+5.  Move the downloaded sdnist-1.4.0b2-py3-none-any.whl file to the sdnist-project directory.
 
-## Examples
 
-### 1) Option 1 (quickest)
-#### Loading and scoring
+6.  Using the terminal on Mac/Linux or powershell on Windows, navigate to the sdnist-project directory.
 
-```
->>> import sdnist
 
->>> dataset, schema = sdnist.census()  # Retrieve public dataset
->>> dataset.head()
-      PUMA  YEAR   HHWT  GQ  ...  POVERTY  DEPARTS  ARRIVES  sim_individual_id
-0  17-1001  2012   88.0   1  ...      118      902      909                 12
-1  17-1001  2012   61.0   1  ...      262      732      744                 33
-2  17-1001  2012   54.0   1  ...      118      642      654                401
-3  17-1001  2012  106.0   1  ...      262        0        0                470
-4  17-1001  2012   31.0   1  ...      501        0        0                702
-[5 rows x 36 columns]
+7.  In the already-opened terminal or powershell window, execute the following command to create a new Python environment. The sdnist library will be installed in this newly created Python environment:
 
->>> synthetic_dataset = dataset.sample(n=20000)  # Build a fake synthetic dataset
+    ```
+    c:\\sdnist-project> python -m venv venv
+    ```
 
-# Compute the score of the synthetic dataset
->>> sdnist.score(dataset, synthetic_dataset, schema, challenge="census")  
-100%|███████████████████████████████████████████| 50/50 [00:04<00:00, 12.11it/s]
-CensusKMarginalScore(847)
-```
 
-#### Discretizing a dataset
-Many synthesizers require working on categorical/discretized data, yet many features of `sdnist` datasets are actually
-integer or floating point valued. `sdnist` provide a simple tool to discretize/undiscretize `sdnist` datasets.
+8. The new Python environment will be created in the sdnist-project directory, and the files of the environment should be in the venv directory. To check whether a new Python environment was created successfully, use the following command to list all directories in the sdnist-project directory, and make sure the venv directory exists.
 
-First, note that the k-marginal score itself works on categorical data under the hood. For fairness, the bins that are used can be considered public. They are available as follows:
+    MAC OS/Linux:
+    ```
+    sdnist-project> ls
+    ```
+    Windows:
+    ```
+    c:\\sdnist-project> dir
+    ```
 
-The ACS (American Community Survey) dataset:
+9. Now activate the Python environment and install the sdnist library into it.
 
-```
->>> bins = sdnist.kmarginal.CensusKMarginalScore.BINS
-```
+    MAC OS/Linux:
+    ```
+    sdnist-project> . venv/bin/activate
+    (venv) sdnist-project>
+    ```
+    Windows:
+    ```
+    c:\\sdnist-project> . venv/Scripts/activate
+    (venv) c:\\sdnist-project>
+    ```
+    To indicate that a new environment is active, the environment name (venv) is appended to the terminal or powershell prompt upon executing the above command.
 
-The Chicago taxi dataset:
-```
->>> bins = sdnist.kmarginal.TaxiKmarginalScore.BINS
-```
+    On Windows, a few users may encounter the following error if their machines are new (executing scripts is disabled by default on some Windows machines):
+    ```
+    C:\\sdnist-project\\venv\\Scripts\\Activate.ps1 cannot be loaded because running scripts is disabled on this system.
+    ```
+    Run the following command to let Windows execute scripts:
+    ```
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
+    ```
 
+10. Per step 5 above, the sdnist-1.4.0b2-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
+   MAC OS/Linux:
+   ```
+   (venv) sdnist-project> ls
+   ```
+   Windows:
+   ```
+   (venv) c:\\sdnist-project> dir
+   ```
+   The sdnist-1.4.0b2-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
 
-The `pd.DataFrame` datasets can then be discretized using
+11.  Install sdnist Python library:
+   ```
+   (venv) c:\\sdnist-project> pip install sdnist-1.4.0b2-py3-none-any.whl
+   ```
 
-```
->>> dataset_binned = sdnist.utils.discretize(dataset, schema, bins)
-```
+12.  Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
+   ```
+   (venv) c:\\sdnist-project> python -m sdnist.report -h
+   ```
+   Output:
+   ```
+   usage: __main__.py [-h] [--data-root DATA_ROOT] [--download DOWNLOAD] PATH_SYNTHETIC_DATASET TARGET_DATASET_NAME  
 
-`sdnist.utils.discretize` returns a `pd.DataFrame` where each value is remapped to `(0, n-1)` where `n` is the number of distinct values. Note that the even though the `score` functions should be given *unbinned* datasets (i.e., if your synthesizer works on discretized dataset), you should first undiscretize your synthetic data. This can be done using
+   positional arguments:  
+   PATH_SYNTHETIC_DATASET  
+                         Location of synthetic dataset (csv or parquet file)  
+   TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given synthetic dataset  
 
-```
->>> synthetic_dataset_binned = ... # generate your synthetic data using your own method
->>> synthetic_dataset = sdnist.utils.undo_discretize(synthetic_dataset_binned, schema, bins)
-```
+   optional arguments:  
+   \-h, \--help            show this help message and exit  
+   \--data-root DATA_ROOT                      Path of the directory to be used as the root for the target datasets\--download DOWNLOAD   Download toy datasets if not present locallyChoices for Target Dataset Name::
 
-### Directly computing the score on a given `.csv` file
+    (dataname)         (filename)  
+    MA                        ma2019
 
-You can directly run from a terminal:
+    TX                        tx2019
 
-```
-% python -m sdnist your_file.csv
-```
+    NATIONAL                  national2019
+   ```
 
-This will score against the public census (ACS) dataset and display the results on an html page:  
 
-![](examples/score_example.png)
+## Generate Data Quality Report
+----------------------------
 
-To score the synthetic dataset against one of the test datasets:
-```
-% python -m sdnist your_synthetic_ga_nc_sc.csv --test-dataset GA_NC_SC_10Y_PUMS
-```
-Other options are available by calling `--help`.
+1.  The sdnist.report package requires a path to the synthetic dataset file and the name of the target dataset from which the synthetic dataset file will be created. Following is the command line usage of the sdnist.report package:
+      ```
+      python -m sdnist.report PATH_SYNTHETIC_DATASET TARGET_DATSET_NAME
+      ```
 
-### Computing aggregate score for all synthetic files generated using different epsilon values
-To generate a final aggregate score over all epsilon values for the Census Challenge: 
+      The above command is just an example usage signature of the package. Steps 3 to 5 show the actual commands to run the tool, where the parameter PATH_SYNTHETIC_DATASET is replaced with the path of the synthetic dataset file on the your machine, and the parameter TARGET_DATASET_NAME is replaced with one of the bundled dataset names (MA, TX, o NATIONAL).
 
-```
-% python -m sdnist.challenge.submission 
-```
+      A synthetic dataset file can be anywhere on your machine. You only need the path of the file to pass it as an argument to the sdnist.report package. For illustration purposes, this guide assumes an example synthetic dataset file named syn_tx.csv is generated from the bundled dataset file named TX that is present in the sdnist-project directory. You can also use the bundled toy synthetic datasets for generating some toy evaluation reports using the sdnist.report package by following step 5 and 6 in the next section, Setup Data for SDNIST Report Tool.
 
-To score synthetic data file for dataset GA_NC_SC_10Y_PUMS:
-```
-% python -m sdnist.challenge.submission --test-dataset GA_NC_SC_10Y_PUMS
-```
+      Sdnist.report packages come bundled with three target datasets: MA, TX, and NATIONAL. If these datasets are not available locally, the package will download them automatically when you run any one of the commands in steps 3-5 for the first time. In case of any trouble while downloading the datasets, please refer to the next section, Setup Data for SDNIST Report Tool.
 
-To score synthetic data files and visualize scores on an interactive map-based html visualizer:
-```
-% python -m sdnist.challenge.submission --html
-```
-
-To score synthetic data files during algorithm development (uses public dataset IL_OH_10Y_PUMS):
-```
-python -m sdnist.challenge.submission --public --html
-```
 
-The above commands assume that the synthetic data is located in the following directory: 
-`[current-working-directory]/results/census/`.  
-Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
-In its default settings, SDNist performs scoring for epsilons 0.1, 1.0, and 10.0, so the synthetic files would be named 
-eps=0.1.csv, eps=1.0.csv and eps=10.0.csv, where eps=0.1.csv is synthesized using epsilon value 0.1 and so on.
- 
+2.  If you have closed the terminal or the powershell window that was used for the tool setup, open a new one , and after navigating the to sdnist-project directory, run the activate script as explained in step 9 of the Setup SDNIST Report Tool section.
 
-To generate a final aggregate score over all epsilon values for the Taxi Challenge with a private dataset other
-than the default:
-```
-% python -m sdnist.challenge.submission --challenge taxi --test-dataset taxi2016 
-```
 
-The above commands assume that the synthetic data is located in the following directory: 
-`[current-working-directory]/results/taxi/`.  
-Each synthetic output file should be named with respect to the epsilon value used for its synthesis. 
-In its default settings, SDNist performs scoring for epsilons 1.0 and 10.0, so the synthetic files would be named 
-eps=1.0.csv and eps=10.0.csv, where eps=1.0.csv is synthesized using epsilon value 1.0 and so on.
+3.  Use the following command to generate a data quality report for the example synthetic dataset (syn_tx.csv) that is generated using the bundled dataset TX:
+      ```
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_tx.csv TX
+      ```
+      At the completion of the process initiated by the above command, an html report will open in the default web browser on your machine. Likewise, .html report files will be available in the reports directory created automatically in the sdnist-project directory.
 
-NOTE: The filename of the synthetic data should exactly match the epsilon value provided in the parameters.json file
-of the public or private dataset. If an epsilon value mentioned in the parameters.json file is `1`, 
-then the synthetic data filename should be `esp=1.csv`; if an epsilon value mentioned is 1.0, then the synthetic data filename should be `eps=1.0.csv`.
 
-The `sdnist.challenge.submission` module is  used mainly for computing aggregate scores over different 
-epsilon values, but it can also be used to inspect scores for each epsilon value separately.  
-To visualize scores over different values of epsilon, year, or PUMA (available only for the Census Challenge):
-```
-% python -m sdnist.challenge.submission --html
-```
+4.  Use the following command to generate a data quality report for the example synthetic dataset syn_ma.csv that is generated using the bundled dataset MA:
+      ```
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_ma.csv MA
+      ```
 
-Other options are available by calling `--help`.
 
-### 2) Option 2 (slightly more advanced and time-consuming)
-#### Reproducing the baselines from the Challenge by subclassing `challenge.submission.Model`
+5.  Use the following command to generate a data quality report for the example synthetic dataset syn_national.csv that is generated using the bundled dataset NATIONAL:
+      ```
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_national.csv NATIONAL
+      ```
 
-Some examples of subclassing `challenge.submission.Model` are available in the library.
 
-#### Subsample
+6.  The following are all the parameters offered by the sdnist.report package:
 
-Build a synthetic dataset by randomly subsampling 10% of the private dataset:
+     * **PATH _SYNTHETIC _DATASET**: The absolute or relative path to the synthetic dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory.  This guide assumes the current working directory is sdnist-project.
+     * **TARGET _DATASET _NAME**: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input synthetic dataset is generated, and it can be one of the following:
 
-```
-python -m sdnist.challenge.subsample
-```
+       * MA
+       * TX
+       * NATIONAL
 
-Output :
+     * **--data-root**: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to, if it is not available locally. The default directory is set to sdnist_toy_data.
 
-```
-python -m sdnist.challenge.subsample
-2021-11-23 14:55:07.889 | INFO     | sdnist.challenge.submission:run:66 - Skipping scoring for eps=0.1.
-2021-11-23 14:55:07.889 | INFO     | sdnist.challenge.submission:run:73 - Resuming scoring from results/census/eps=1.csv.
-2021-11-23 14:55:08.007 | INFO     | sdnist.challenge.submission:run:88 - Computing scores for eps=1.
-100%|███████████████████████████████████████████| 50/50 [00:05<00:00,  9.37it/s]
-2021-11-23 14:55:14.969 | SUCCESS  | sdnist.challenge.submission:run:92 - eps=1score=842.68
-2021-11-23 14:55:14.985 | INFO     | sdnist.challenge.submission:run:79 - Generating synthetic data for eps=10.
-2021-11-23 14:55:15.565 | INFO     | sdnist.challenge.submission:run:85 - (saved to results/census/eps=10.csv)
-2021-11-23 14:55:15.565 | INFO     | sdnist.challenge.submission:run:88 - Computing scores for eps=10.
-100%|███████████████████████████████████████████| 50/50 [00:05<00:00,  9.39it/s]
-2021-11-23 14:55:22.530 | SUCCESS  | sdnist.challenge.submission:run:92 - eps=1score=842.42
+## Setup Data for SDNIST Report Tool
+---------------------------------
 
-```
+1.  The sdnist.report package comes with built-in datasets. The package will automatically download the datasets from Github if they are not already available locally on your machine. Youshould see following message on your terminal or powershell window when the datasets are downloaded by the sdnist.report package:
+      ```
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_tx.csv TX
 
-Note that the resulting synthetic dataset is not differentially private.
+      Downloading all SDNist datasets from:  
+      https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip ...  
+      ...5%, 47352 KB, 8265 KB/s, 5 seconds elapsed
+      ```
 
-#### Random values
+      Follow the next subsection, Download Data Manually, if the sdnist.report package is unable to download the datasets.
 
-Build a synthetic dataset by chosing random valid values:
 
-```
-python -m sdnist.challenge.baseline
-```
+2. All the datasets required by the sdnist.report package are installed into the sdnist _toy _data directory, which should be now present inside the sdnist-project directory. sdnist _toy _data is also a data root directory. You can use some other directory as a data root by providing the –data-root argument to the sdnist.report package. If you provide a –data-root argument with a path, the sdnist.report package will look for datasets in the data root directory you have specified, and the package will download it if it is not present in the data root.
 
-This corresponds to the baseline of Sprint 2 (the 2020 Challenge). The output can be considered 0-differentially private if the schema itself is public.
 
-Output:
-```
-2021-11-23 14:59:58.975 | INFO     | sdnist.challenge.submission:run:79 - Generating synthetic data for eps=0.1.
-Generation: 100%|█████████████████████████████████| 20000/20000 [00:32<00:00, 608.57it/s]
-2021-11-23 15:00:31.939 | INFO     | sdnist.challenge.submission:run:85 - (saved to results/census/eps=0.1.csv)
-2021-11-23 15:00:31.939 | INFO     | sdnist.challenge.submission:run:88 - Computing scores for eps=0.1.
-100%|████████████████████████████████████████████████████| 50/50 [00:05<00:00,  9.64it/s]
-2021-11-23 15:00:38.664 | SUCCESS  | sdnist.challenge.submission:run:92 - eps=0.1	score=186.73
-2021-11-23 15:00:38.682 | INFO     | sdnist.challenge.submission:run:79 - Generating synthetic data for eps=1.
-Generation: 100%|█████████████████████████████████| 20000/20000 [00:34<00:00, 584.78it/s]
-2021-11-23 15:01:12.962 | INFO     | sdnist.challenge.submission:run:85 - (saved to results/census/eps=1.csv)
-2021-11-23 15:01:12.962 | INFO     | sdnist.challenge.submission:run:88 - Computing scores for eps=1.
-100%|████████████████████████████████████████████████████████████████| 50/50 [00:05<00:00,  9.50it/s]
-2021-11-23 15:01:19.818 | SUCCESS  | sdnist.challenge.submission:run:92 - eps=1	score=187.32
-2021-11-23 15:01:19.835 | INFO     | sdnist.challenge.submission:run:79 - Generating synthetic data for eps=10.
-Generation: 100%|█████████████████████████████████████████████| 20000/20000 [00:33<00:00, 596.94it/s]
-2021-11-23 15:01:53.417 | INFO     | sdnist.challenge.submission:run:85 - (saved to results/census/eps=10.csv)
-2021-11-23 15:01:53.417 | INFO     | sdnist.challenge.submission:run:88 - Computing scores for eps=10.
-100%|████████████████████████████████████████████████████████████████| 50/50 [00:05<00:00,  9.94it/s]
-2021-11-23 15:02:00.076 | SUCCESS  | sdnist.challenge.submission:run:92 - eps=10	score=186.73
+3. The sdnist.report package also needs a synthetic dataset that it can evaluate against its original counterpart. Since the sdnist.report package comes bundled with the datasets, the synthetic dataset should be generated using the bundled datasets.
 
-```
+   You can download a copy of the datasets from [Github Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts). This copy is similar to the one bundled with the sdnist.report package, but it contains more documentation and a description of the datasets.
 
-### Other examples
-Other examples are available in the `examples/` folder.  DPSyn and Minutemen are directly adapted from the public repos of their authors:
-- DPSyn : https://github.com/agl-c/deid2_dpsyn
-- Minutemen : https://github.com/ryan112358/nist-synthetic-data-2021. This examples requires the `private-pgm` library (https://github.com/ryan112358/private-pgm)
+
+4. You can download the toy synthetic datasets from [Github Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/toy_synthetic_data.zip). Unzip the downloaded file, and move the unzipped toy _synthetic _dataset directory to the sdnist-project directory.
+
+
+5. Each toy synthetic dataset file is generated using the [Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip). The syn _ma.csv, syn _tx.csv and syn _national.csv synthetic dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv) and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
+
+
+6. Use following commands for generating reports if you are using a toy synthetic dataset file:
+
+   For evaluating Massachusetts dataset
+   ```
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_ma.csv MA
+   ```
+
+   For evaluating Texas dataset
+   ```
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_tx.csv TX
+   ```
+
+   For evaluating National dataset
+   ```
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_national.csv NATIONAL
+   ```
+
+7.  A synthetic dataset can be a .csv or a parquet file, and the path of this file is required
+by the sdnist.report package to generate a data quality report.
+
+## Download Data Manually
+
+1.  If the sdnist.report package is not able to download the datasets, you can download them from [Github:SDNist toy data beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip)
+2.  Move the downloaded SDNist-toy-data-1.4.0-b.1.zip file to the sdnist-project directory.
+3.  Unzip the SDNist-toy-data-1.4.0-b.1.zip file and move the data directory inside it to the sdnist-project directory.
+4.  Delete the SDNist-toy-data-1.4.0-b.1.zip file once the data directory is successfully moved out of the unzipped directory.
+5.  Also delete the now-empty SDNist-toy-data-1.4.0-b.1 directory from where the zip file was extracted.
+6.  And finally, to successfully install datasets manually, change the name of the data directory inside the sdnist-project directory to sdnist_toy_data.
