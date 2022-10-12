@@ -28,7 +28,7 @@ To run the testing environment from the [*NIST PSCR Differential Privacy Tempora
 
 ### Brief Setup Instructions
 
-SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of the SDNist library we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.0-b.2) or via the Pypi server (`pip install sdnist=1.4`). Data will download on the fly.
+SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of the SDNist library we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.0-b.2) or via the Pypi server (`pip install sdnist==1.4`). The NIST Diverse Community Exceprt data will download on the fly.
 
 
 ### Detailed Setup Instructions
@@ -38,9 +38,9 @@ SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of
 
 2. The sdnist library requires Python version 3.7 or greater to be installed on the user's machine. Check whether an installation exists on the machine by executing the following command in your terminal on Mac/Linux or powershell on Windows:
    ```
-    c:\\> python -v
+    c:\\> python -V
    ```
-    If Python is already installed, the above command should return the currently installed version. If Python is not found or the version is below 3.7, then you can download a higher version of Python from the [Python website](https://www.python.org/downloads/).
+    If Python is already installed, the above command should return the currently installed version. If Python is not found or the version is below 3.7, then you can download a Python from the [Python website](https://www.python.org/downloads/).
 
 
 3.  Create a local directory/folder on the machine to set up the SDNist library. This guide assumes the local directory to be sdnist-project; an example of a complete file path is c:\\sdnist-project:
@@ -139,6 +139,10 @@ SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of
 
     NATIONAL                  national2019
    ```
+
+13.  These instructions install sdnist into a virtual environemnt. The virtual environement must be activated (Step 9) each time a new terminal window is used with sdnist.
+
+
 
 
 ## Generate Data Quality Report
