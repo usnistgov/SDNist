@@ -8,7 +8,9 @@ The synthetic data report evaluates utility and privacy of a given synthetic dat
 
 ### Project Team:  
 **Karan Bhagat**, *Knexus Research* - Developer *sdnist.report* package  
+
 **Christine Task**, *Knexus Research* - Project technical lead
+
 **Gary Howarth**, *NIST* - Project PI [gary.howarth@nist.gov](mailto:gary.howarth@nist.gov)
 
 ### Reporting Issues:
