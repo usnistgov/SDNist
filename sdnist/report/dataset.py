@@ -103,24 +103,9 @@ def percentile_rank_target(data: pd.DataFrame, features: List[str]):
 
         if c == 'POVPIP':
             nna_mask = data[~data[c].isin(['N', '501'])].index
-            # print()
-            # print('POVPIP PERCNT RANK')
-            # print(sorted(data.loc[nna_mask, c].unique()))
         else:
             nna_mask = data[~data[c].isin(['N'])].index  # not na mask
         d_temp = pd.DataFrame(pd.to_numeric(data.loc[nna_mask, c]).astype(int), columns=[c])
-        # print(d_temp.shape)
-        # print(d_temp.dtypes)
-        # print(d_temp.columns.tolist())
-        # if c == 'POVPIP':
-        #     # print(sorted(d_temp[c].unique()))
-        #     d_temp['rank'] = d_temp[c].rank(pct=True, numeric_only=True).apply(lambda x: round(x, 2))
-        #     tdf = d_temp.groupby(by=c)[c].size().reset_index(name='count_target')
-            # for r, g in d_temp.groupby(by=['rank']):
-            #     print(r, sorted(g[c].unique()))
-            # for i, r in tdf.sort_values(by=[c], ascending=False).iterrows():
-            #     print(r[c], r['count_target'], r['rank'])
-            # print(sorted(d_temp[c].rank(pct=True, numeric_only=True).apply(lambda x: round(x, 2)).unique()))
         data.loc[nna_mask, c] = d_temp[c]\
             .rank(pct=True).apply(lambda x: int(20 * x) if x < 1 else 19)
         if c == 'POVPIP':
@@ -135,26 +120,24 @@ def percentile_rank_synthetic(synthetic: pd.DataFrame,
     s, to, tb = synthetic.copy(), target_orig, target_binned
 
     for f in features:
-        if f not in target_orig:
+        if f not in to.columns.tolist():
             continue
         nna_mask = s[~s[f].isin(['N'])].index  # not na mask
         st = pd.DataFrame(pd.to_numeric(s.loc[nna_mask, f]).astype(int), columns=[f])
-        if f not in to.columns.tolist():
-            continue
-        min_b = 0
+        final_st = st.copy()
         max_b = 0
-        for b, g in target_binned.groupby(by=[f]):
+        for b, g in target_binned.sort_values(by=[f]).groupby(by=[f]):
             if b == -1:
                 continue
             t_bp = pd.DataFrame(pd.to_numeric(to.loc[g.index, f]).astype(int), columns=[f])
             if b == 0:
-                min_b = min(t_bp[f])
                 max_b = max(t_bp[f])
+                final_st.loc[(st[f] <= max_b), f] = b
             else:
                 min_b = max_b
                 max_b = max(t_bp[f])
-            st.loc[(st[f] >= min_b) & (st[f] <= max_b), f] = b
-        s.loc[nna_mask, f] = st
+                final_st.loc[(st[f] > min_b) & (st[f] <= max_b), f] = b
+        s.loc[nna_mask, f] = final_st
     return s
 
 
@@ -267,6 +250,7 @@ class Dataset:
                                                           self.target_data,
                                                           self.d_target_data,
                                                           numeric_features)
+
         self.d_synthetic_data = add_bin_for_NA(self.d_synthetic_data,
                                                self.synthetic_data,
                                                numeric_features)
