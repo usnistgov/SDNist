@@ -104,12 +104,12 @@ def plot_pca(title: str, data: pd.DataFrame, out_file, color='b'):
             if pc_i == pc_j:
                 ax_t = ax[i, j]
                 ax_t.text(0.5, 0.5, pc_i,
-                        ha='center', va='center', color='black', fontsize=30)
+                          ha='center', va='center', color='black', fontsize=30)
             else:
                 df_ij = data[[pc_i, pc_j]]
                 ax_t = ax[i, j]
                 df_ij.plot(ax=ax_t, kind='scatter',
-                           x=pc_i, y=pc_j, c='none',
+                           x=pc_j, y=pc_i, c='none',
                            facecolor='none', edgecolors=color)
             ax_t.set_xlabel('')
             ax_t.set_ylabel('')

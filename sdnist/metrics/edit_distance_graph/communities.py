@@ -70,6 +70,7 @@ class EditDistanceGraph:
         for n, c in partition.items():
             comms[c].append(n)
         self.comms = comms
+
         self.add_communities_to_graph()
 
     def girvan_newman(self):
