@@ -28,7 +28,7 @@ To run the testing environment from the [*NIST PSCR Differential Privacy Tempora
 
 ### Brief Setup Instructions
 
-SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of the SDNist library we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.0-b.2) or via the Pypi server (`pip install sdnist==1.4`). The NIST Diverse Community Exceprt data will download on the fly.
+SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of the SDNist library we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.1-b.1) or via the Pypi server (`pip install sdnist==1.4`). The NIST Diverse Community Exceprt data will download on the fly.
 
 
 ### Detailed Setup Instructions
@@ -48,10 +48,10 @@ SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-1.4.0b2-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.2/sdnist-1.4.0b2-py3-none-any.whl).
+4.  Download the sdnist installable wheel (sdnist-1.4.1b-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.1-b.1/sdnist-1.4.1b1-py3-none-any.whl).
 
 
-5.  Move the downloaded sdnist-1.4.0b2-py3-none-any.whl file to the sdnist-project directory.
+5.  Move the downloaded sdnist-1.4.1b1-py3-none-any.whl file to the sdnist-project directory.
 
 
 6.  Using the terminal on Mac/Linux or powershell on Windows, navigate to the sdnist-project directory.
@@ -98,7 +98,7 @@ SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
     ```
 
-10. Per step 5 above, the sdnist-1.4.0b2-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
+10. Per step 5 above, the sdnist-1.4.1b1-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
    MAC OS/Linux:
    ```
@@ -112,7 +112,7 @@ SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of
 
 11.  Install sdnist Python library:
    ```
-   (venv) c:\\sdnist-project> pip install sdnist-1.4.0b2-py3-none-any.whl
+   (venv) c:\\sdnist-project> pip install sdnist-1.4.1b1-py3-none-any.whl
    ```
 
 12.  Installation is successful if executing the following command outputs a help menu for the sdnist.report package:

@@ -29,10 +29,10 @@ Setup SDNIST Report Tool
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-1.4.0b2-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.2/sdnist-1.4.0b2-py3-none-any.whl).
+4.  Download the sdnist installable wheel (sdnist-1.4.1b1-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.1-b.1/sdnist-1.4.1b1-py3-none-any.whl).
 
 
-5.  Move the downloaded sdnist-1.4.0b2-py3-none-any.whl file to the sdnist-project directory.
+5.  Move the downloaded sdnist-1.4.1b1-py3-none-any.whl file to the sdnist-project directory.
 
 
 6.  Using the terminal on Mac/Linux or powershell on Windows, navigate to the sdnist-project directory.
@@ -89,11 +89,11 @@ Setup SDNIST Report Tool
    ```
    (venv) c:\\sdnist-project> dir
    ```
-   The sdnist-1.4.0b2-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
+   The sdnist-1.4.1b1-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
 
 11.  Install sdnist Python library:
    ```
-   (venv) c:\\sdnist-project> pip install sdnist-1.4.0b2-py3-none-any.whl
+   (venv) c:\\sdnist-project> pip install sdnist-1.4.1b1-py3-none-any.whl
    ```
 
 12.  Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
