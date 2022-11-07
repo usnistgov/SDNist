@@ -55,10 +55,40 @@ There is a data dictionary in JSON format included with the data.
 - Other notes: INDP_CAT & INDP (INDP_CAT is a partitioning of the codes in INDP), PUMA & DENSITY (DENSITY is the population density of a given PUMA), NPF & NOC (NPF must be greater than NOC), HOUSING_TYPE & OWN_RENT (OWN_RENT is null for group quarters), PINCP & PINCP_DECILE (PINCP_DECILE is a percentile aggregation of PINCP by PUMA) AGE & many features (Children will have null values for many adult features, such as financials, and a maximal possible value for educational attainment dependent on age).
 
 ### Suggested feature combinations
-**If you want…:**
+**If you want…**
 - A few small binary features, consider using: OWN_RENT, DPHY, DEYE, DEAR, SEX
 - A numerical feature, considering using PINCP, POVPIP or AGEP.
 - An ordinal feature, consider EDU, PINCP_DECILE, NOC or NPF
 - A large cardinality categorical feature, consider using INDP
 - A smaller cardinality categorical feature, consider using INDP_CAT, HISP, MSP
 - Diverse distributions, look at RAC1P, DVET, SEX, MRST, and RENT_OWN
+
+### Reduced-size feature sets
+These smaller feature sets can be used to compare table-based deidentification methods such as cell suppression or differentially private histograms which aren’t intended for sparse data distributions on larger feature sets.  Three possible feature sets are provided, derived from Aniruddha Sen’s internship work exploring distributional variations among subpopulations and their impact on tabular deidentification approaches.   
+
+If you use these feature sets, consider evaluating utility separately on the indicated partitions (in addition to overall utility) to learn more about the interaction of privacy, utility and equity for your deidentification method.   Different subpopulations in the data can have different patterns of correlations over the same set of features, and this can cause deidentification methods to perform better or worse for these groups.  The selected feature sets have interesting distributional variances with respect to their suggested partitioning features.  Your deidentification method may be more or less sensitive to this effect; you can use these feature sets to explore its behavior.   
+
+
+Feature Set 1: AGEP*, RAC1P, MSP, SEX, HOUSING_TYPE, OWN_RENT, DVET, DEYE
+
+Suggested partitioning feature: Race 
+
+
+Feature Set 2: AGEP*, SECTOR, RAC1P, SEX, HOUSING_TYPE, OWN_RENT, DVET, DEYE
+
+Suggested partitioning feature: Sector
+ 
+
+Feature Set 3: AGEP*, SEX, MSP, PINCP_DECILE, HISP, DVET, DREM, DEYE
+Suggested partitioning feature: Sex + Disability 
+
+*(For studying tabular/histogram methods you will likely want to bin AGE into a set of ranges: [0-10], [11-20], etc). 
+
+## Credits 
+- [Gary Howarth](https://www.nist.gov/people/gary-howarth) - Project PI - gary.howarth@nist.gov
+- [Christine Task](https://github.com/ctask) - Project technical lead - christine.task@knexusresearch.com
+- [Karan Bhagat](https://github.com/kbtriangulum) - Contributor
+- [Aniruddha Sen](https://www.linkedin.com/in/senaniruddha/) - Contributor
+
+
+
