@@ -20,8 +20,7 @@ Help us improve the package and this guide by reporting issues [here](https://gi
 
 SDNist v1.4 does not support the Temporal Map Challenge environment.
 
-To run the testing environment from the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal) for the Chicago Taxi data sprint, or the American Community Survey sprint, setup a virtual environment and install the [1.3.0 SDNist Release](https://github.com/usnistgov/SDNist/releases/tag/v1.3.0) or `pip install sdnist==1.2.8`. The source code in the release contains detailed notes on how to run the challenge environment.
-
+To run the testing environment from the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal) for the Chicago Taxi data sprint, or the American Community Survey sprint, please go to the the [Temporal Map Challenge assets repository](https://github.com/usnistgov/Differential-Privacy-Temporal-Map-Challenge-assets).
 
 ## Setting Up the SDNIST Report Tool
 ------------------------
