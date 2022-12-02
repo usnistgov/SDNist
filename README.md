@@ -6,40 +6,40 @@ The synthetic data report evaluates utility and privacy of a given synthetic dat
 
 [Preview a sample report produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-report)
 
-### Project Team:  
+### Project Team  
 **Karan Bhagat**, *Knexus Research* - Developer *sdnist.report* package  
 
 **Christine Task**, *Knexus Research* - Project technical lead
 
 **Gary Howarth**, *NIST* - Project PI [gary.howarth@nist.gov](mailto:gary.howarth@nist.gov)
 
-### Reporting Issues:
+### Reporting Issues
 Help us improve the package and this guide by reporting issues [here](https://github.com/usnistgov/SDNist/issues).
 
 ### Temporal Map Challenge Environment
 
 SDNist v1.4 does not support the Temporal Map Challenge environment.
 
-To run the testing environment from the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal) for the Chicago Taxi data sprint, or the American Community Survey sprint, please go to the the [Temporal Map Challenge assets repository](https://github.com/usnistgov/Differential-Privacy-Temporal-Map-Challenge-assets).
+To run the testing environment from the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal) for the Chicago Taxi data sprint or the American Community Survey sprint, please go to the the [Temporal Map Challenge assets repository](https://github.com/usnistgov/Differential-Privacy-Temporal-Map-Challenge-assets).
 
 ## Setting Up the SDNIST Report Tool
 ------------------------
 
 ### Brief Setup Instructions
 
-SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of the SDNist library we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.1-b.1) or via the Pypi server (`pip install sdnist==1.4`). The NIST Diverse Community Exceprt data will download on the fly.
+SDNist v1.4 requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.1-b.1) or via the Pypi server (`pip install sdnist==1.4`). The NIST Diverse Community Exceprt data will download on the fly.
 
 
 ### Detailed Setup Instructions
 
-1. SDNist Report Tool is a part of the sdnist Python library that can be installed on a user’s MAC OS, Windows, or Linux machine.
+1. The SDNist Report Tool is a part of the sdnist Python library that can be installed on a user’s MAC OS, Windows, or Linux machine.
 
 
 2. The sdnist library requires Python version 3.7 or greater to be installed on the user's machine. Check whether an installation exists on the machine by executing the following command in your terminal on Mac/Linux or powershell on Windows:
    ```
     c:\\> python -V
    ```
-    If Python is already installed, the above command should return the currently installed version. If Python is not found or the version is below 3.7, then you can download a Python from the [Python website](https://www.python.org/downloads/).
+    If Python is already installed, the above command should return the currently installed version. If Python is not found or the version is below 3.7, then you can download Python from the [Python website](https://www.python.org/downloads/).
 
 
 3.  Create a local directory/folder on the machine to set up the SDNist library. This guide assumes the local directory to be sdnist-project; an example of a complete file path is c:\\sdnist-project:
@@ -139,7 +139,7 @@ SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of
     NATIONAL                  national2019
    ```
 
-13.  These instructions install sdnist into a virtual environemnt. The virtual environement must be activated (Step 9) each time a new terminal window is used with sdnist.
+13.  These instructions install sdnist into a virtual environemnt. The virtual environement must be activated (step 9) each time a new terminal window is used with sdnist.
 
 
 
@@ -152,7 +152,7 @@ SDNist v1.4 requires Python ≥ 3.7. If you have installed a previous version of
       python -m sdnist.report PATH_SYNTHETIC_DATASET TARGET_DATSET_NAME
       ```
 
-      The above command is just an example usage signature of the package. Steps 3 to 5 show the actual commands to run the tool, where the parameter PATH_SYNTHETIC_DATASET is replaced with the path of the synthetic dataset file on the your machine, and the parameter TARGET_DATASET_NAME is replaced with one of the bundled dataset names (MA, TX, o NATIONAL).
+      The above command is just an example usage signature of the package. Steps 3 through 5 show the actual commands to run the tool, where the parameter PATH_SYNTHETIC_DATASET is replaced with the path of the synthetic dataset file on the your machine, and the parameter TARGET_DATASET_NAME is replaced with one of the bundled dataset names (MA, TX, or NATIONAL).
 
       A synthetic dataset file can be anywhere on your machine. You only need the path of the file to pass it as an argument to the sdnist.report package. For illustration purposes, this guide assumes an example synthetic dataset file named syn_tx.csv is generated from the bundled dataset file named TX that is present in the sdnist-project directory. You can also use the bundled toy synthetic datasets for generating some toy evaluation reports using the sdnist.report package by following step 5 and 6 in the next section, Setup Data for SDNIST Report Tool.
 
