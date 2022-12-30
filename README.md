@@ -1,6 +1,6 @@
 # SDNist v1.4 beta: Synthetic Data Report Tool
 
-## We anticipate releasing SDNist V2 January 2023! 
+## We anticipate releasing SDNist v2 January 2023! 
 
 Welcome! SDNist v1.4b is a python package that provides benchmark data and evaluation metrics for synthetic data generators. This version of SDNist supports using the [NIST Diverse Community Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts), a geographically partioned, limited feature data set.
 
