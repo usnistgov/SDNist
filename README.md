@@ -1,10 +1,15 @@
-# SDNist: Synthetic Data Report Tool
+# SDNist v1.4 beta: Synthetic Data Report Tool
 
-This iteration of the SDNist library (v1.4) is focused on generating reports that compare syntethic data to the [NIST Diverse Community Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts).
+## We anticipate releasing SDNist V2 January 2023! 
+
+Welcome! SDNist v1.4b is a python package that provides benchmark data and evaluation metrics for synthetic data generators. This version of SDNist supports using the [NIST Diverse Community Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts), a geographically partioned, limited feature data set.
 
 The synthetic data report evaluates utility and privacy of a given synthetic dataset and generates a summary quality report with performance of a synthetic dataset enumerated and illustrated for each utility and privacy metric.
 
 [Preview a sample report produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-report)
+
+This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues] if you catch a bug or would like have feature suggestions. 
+
 
 ### Project Team  
 **Karan Bhagat**, *Knexus Research* - Developer *sdnist.report* package  
@@ -18,7 +23,7 @@ Help us improve the package and this guide by reporting issues [here](https://gi
 
 ### Temporal Map Challenge Environment
 
-SDNist v1.4 does not support the Temporal Map Challenge environment.
+SDNist v1.4b does not support the Temporal Map Challenge environment.
 
 To run the testing environment from the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal) for the Chicago Taxi data sprint or the American Community Survey sprint, please go to the the [Temporal Map Challenge assets repository](https://github.com/usnistgov/Differential-Privacy-Temporal-Map-Challenge-assets).
 
