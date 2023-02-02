@@ -213,7 +213,6 @@ class Dataset:
             set(self.target_data.columns.tolist())
         ))
 
-
         if 'Unnamed: 0' in self.target_data.columns:
             self.target_data = self.target_data.drop(columns=['Unnamed: 0'])
 
@@ -235,9 +234,7 @@ class Dataset:
 
         # transformed data
         self.t_target_data = transform(self.target_data, self.schema)
-        # print()
-        # print('SYNTHETIC')
-        # print()
+
         self.t_synthetic_data = transform(self.synthetic_data, self.schema)
 
         # binned data
@@ -255,14 +252,12 @@ class Dataset:
                                                self.synthetic_data,
                                                numeric_features)
 
-        # print(sorted(self.d_synthetic_data['POVPIP'].unique()))
-        # print(sorted(self.d_synthetic_data['AGEP'].unique()))
         non_numeric = [c for c in self.features
                        if c not in numeric_features]
 
         self.d_target_data[non_numeric] = self.t_target_data[non_numeric]
         self.d_synthetic_data[non_numeric] = self.t_synthetic_data[non_numeric]
-        # print('AGEP', self.d_synthetic_data['AGEP'].unique())
+
         self.config[strs.CORRELATION_FEATURES] = \
             self._fix_corr_features(self.features,
                                     self.config[strs.CORRELATION_FEATURES])
@@ -276,7 +271,6 @@ class Dataset:
         drop_features = t_d_f
 
         res_f = list(set(self.features).difference(drop_features))
-
         return res_f
 
     @staticmethod
