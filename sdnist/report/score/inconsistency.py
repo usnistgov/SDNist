@@ -28,6 +28,8 @@ def find_inconsistencies(synthetic_data: pd.DataFrame) -> Dict[any, any]:
                 if not ((age < 15 and msp == 'N')
                         or (age >= 15 and msp != 'N')):
                     # update inconsistency count in some dict
+                    
+                    #Dictionary format:  One dictionary, keys are inconsistency types  (NAME, [list of features]), values are lists of record index (i) with that problem  
     """
     """
         (non-comprehensive) Basic Consistency Constraint Check:
