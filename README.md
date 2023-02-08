@@ -4,6 +4,7 @@ TODO:
 - package toy data as 'NIST_Diverse_Community_Excerpt_toy_data.zip' 
 - change code refrences to download above .zip 
 - change readme references for data zip file
+- add blurb about null values
 
 
 # SDNist v2: Synthetic Data Report Tool
