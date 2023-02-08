@@ -15,8 +15,11 @@ from sdnist.metrics.propensity import \
 from sdnist.metrics.pearson_correlation import \
     PearsonCorrelationDifference
 from sdnist.metrics.pca import PCAMetric, plot_pca
+from sdnist.metrics.regression import LinearRegressionMetric
 
 from sdnist.report.score.paragraphs import *
+from sdnist.report.score.utility.linear_regression import \
+    LinearRegressionReport
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
     ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType, \
@@ -550,19 +553,10 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                           None,
                                           [pd_para_a, pd_score_a, pd_a])
 
-    if kmarg_sum_pkt:
-        r_ui_d.add(kmarg_sum_pkt)
 
     # rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
     #                            for p in up_saved_file_paths]
-    r_ui_d.add(UtilityScorePacket("Univariate Distributions",
-                              None,
-                              [Attachment(name=None,
-                               _data=univ_dist_para,
-                               _type=AttachmentType.String),
-                               Attachment(name="Three Worst Performing Features",
-                                          _data="",
-                                          _type=AttachmentType.String)] + u_as))
+
 
     corr_metric_a = []
     corr_metric_a.append(Attachment(name=None,
@@ -594,11 +588,10 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         corr_metric_a.append(pc_para_a)
         corr_metric_a.append(pc_a)
 
-    r_ui_d.add(UtilityScorePacket("Correlations",
-                                  None,
-                                  corr_metric_a))
 
-    pca = PCAMetric(dataset.t_target_data, dataset.t_synthetic_data, r_ui_d.output_directory)
+    pca = PCAMetric(dataset.t_target_data,
+                    dataset.t_synthetic_data,
+                    r_ui_d.output_directory)
     pca.compute_pca()
     pca_saved_file_path = pca.plot()
     rd.add('pca', pca.report_data)
@@ -617,16 +610,33 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                               for p in rel_pca_save_file_path],
                        _type=AttachmentType.ImageLinks)
 
+    # Add metrics reports to UI
+    if kmarg_sum_pkt:
+        r_ui_d.add(kmarg_sum_pkt)
+
+    r_ui_d.add(UtilityScorePacket("Univariate Distributions",
+                              None,
+                              [Attachment(name=None,
+                               _data=univ_dist_para,
+                               _type=AttachmentType.String),
+                               Attachment(name="Three Worst Performing Features",
+                                          _data="",
+                                          _type=AttachmentType.String)] + u_as))
+
+    r_ui_d.add(UtilityScorePacket("Correlations",
+                                  None,
+                                  corr_metric_a))
+    lgr = LinearRegressionReport(ds, r_ui_d, rd)
+    lgr.add_to_ui()
+
     if prop_pkt:
         r_ui_d.add(prop_pkt)
-
     r_ui_d.add(UtilityScorePacket("PCA",
-                              None,
-                              [pca_para_a, pca_a_tt, pca_a]))
+                                  None,
+                                  [pca_para_a, pca_a_tt, pca_a]))
 
     if kmarg_det_pkt:
         r_ui_d.add(kmarg_det_pkt)
-
 
     return r_ui_d, rd
 

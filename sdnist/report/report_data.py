@@ -21,6 +21,7 @@ class AttachmentType(Enum):
     Table = "table"
     ImageLinks = "image_links"
     String = 'string'
+    ParaAndImage = 'para_and_image'
 
 
 @dataclass
@@ -163,7 +164,11 @@ class ReportData:
     data: Dict[str, any] = field(default_factory=dict, init=False)
 
     def add(self, metric_name: str, data: Dict[str, any]):
-        self.data[metric_name] = data
+        if metric_name not in self.data:
+            self.data[metric_name] = data
+        else:
+            for k, v in data.items():
+                self.data[metric_name][k] = v
 
     def save(self):
         o_path = Path(self.output_directory, 'report.json')
