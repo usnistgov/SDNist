@@ -1,10 +1,11 @@
 TODO: 
+- package toy data as 'SDNist_toy_data_v2-0.zip' -KB
+- change refrences to v2.0.0: -KB
+   - change readme references for data zip file -GH
+   - change code refrences to download above .zip -KB
+- add blurb about null values -KB
+- merge and package -GH
 
-- change refrences to v2.0.0 
-- package toy data as 'NIST_Diverse_Community_Excerpt_toy_data.zip' 
-- change code refrences to download above .zip 
-- change readme references for data zip file
-- add blurb about null values
 
 
 # SDNist v2: Synthetic Data Report Tool
