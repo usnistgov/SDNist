@@ -1,9 +1,9 @@
 TODO: 
-- package toy data as 'SDNist_toy_data_v2-0.zip' -KB
-- change refrences to v2.0.0: -KB
+- repackage toy data as 'SDNist_toy_data_v2-0.zip' -KB
+- change refrences to v2.0.0:
    - change readme references for data zip file -GH
    - change code refrences to download above .zip -KB
-- add blurb about null values -KB
+- add blurb about null values -GH
 - merge and package -GH
 
 
