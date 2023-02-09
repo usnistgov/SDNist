@@ -120,10 +120,10 @@ class LinearRegressionMetric:
         # calculate regression lines for target and synthetic data
         self.t_reg = stats.linregress(self.ts[xc], self.ts[yc])
         self.s_reg = stats.linregress(self.ss[xc], self.ss[yc])
-        self.t_slope = round(self.t_reg.slope, 3)
-        self.t_intercept = round(self.t_reg.intercept, 3)
-        self.s_slope = round(self.s_reg.slope, 3)
-        self.s_intercept = round(self.s_reg.intercept, 3)
+        self.t_slope = round(self.t_reg.slope, 2)
+        self.t_intercept = round(self.t_reg.intercept, 2)
+        self.s_slope = round(self.s_reg.slope, 2)
+        self.s_intercept = round(self.s_reg.intercept, 2)
 
     def plots(self) -> List[Path]:
         fig, ax = plt.subplots(1, 2, figsize=(10, 3.3))
@@ -139,22 +139,31 @@ class LinearRegressionMetric:
         # ax1.pcolor(self.scm, cmap='rainbow', vmin=0, vmax=0.5)
         tx = self.ts[self.xc].values
         sx = self.ss[self.xc].values
-        ax0.plot(tx,
-                 self.t_reg.intercept + self.t_reg.slope * tx, color='red', label='Target')
-        ax1.plot(tx,
-                 self.t_reg.intercept + self.t_reg.slope * tx, color='red')
-        ax1.plot(tx,
-                 self.s_reg.intercept + self.s_reg.slope * tx, color='green', label='Synthetic')
+
+        r_tx_df = pd.DataFrame([[_ + 0.5, self.t_reg.intercept + self.t_reg.slope * (_ + 0.5)]
+                                for _ in tx], columns=['x', 'y'])
+        r_tx_df = r_tx_df[r_tx_df['y'] >= 0]
+        r_sx_df = pd.DataFrame([[_ + 0.5, self.s_reg.intercept + self.s_reg.slope * (_ + 0.5)]
+                                for _ in tx], columns=['x', 'y'])
+        r_sx_df = r_sx_df[r_sx_df['y'] >= 0]
+
+        ax0.plot(r_tx_df['x'],
+                 r_tx_df['y'], color='red', label='Target')
+        ax1.plot(r_tx_df['x'],
+                 r_tx_df['y'], color='red')
+        ax1.plot(r_sx_df['x'],
+                 r_sx_df['y'], color='green', label='Synthetic')
+
         ax0.set_xlabel(self.xc)
         ax0.set_ylabel(self.yc)
         ax1.set_xlabel(self.xc)
         # ax1.set_ylabel(self.yc)
-        ax0.set_title('Target Data Pair Counts')
-        ax1.set_title('Pair Counts Difference From Target')
+        ax0.set_title('Target Distribution Density')
+        ax1.set_title('Diff Between Target and Deidentified Density')
         fig.legend(loc=7)
         plt.tight_layout()
         fig.subplots_adjust(right=0.88)
-        file_path = Path(self.o_path, 'regression.svg')
+        file_path = Path(self.o_path, 'density_plot.svg')
         plt.savefig(file_path, bbox_inches='tight', dpi=100)
         plt.suptitle('Comparison between ')
         plt.close()

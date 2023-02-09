@@ -37,7 +37,7 @@ class LinearRegressionReport:
         self.d_dict = dataset.data_dict
         self.r_ui_d = ui_data  # report ui data
         self.rd = report_data
-
+        AIAN = 'American Indian and Alaskan Native (AIAN)'
         self.labels = {
             'total_population': ['Total Population', []],
             'white_men': ['White Men', [['RAC1P', [1]], ['SEX', [1]]]],
@@ -46,8 +46,8 @@ class LinearRegressionReport:
             'black_women': ['Black Women', [['RAC1P', [2]], ['SEX', [2]]]],
             'asian_men': ['Asian Men', [['RAC1P', [6]], ['SEX', [1]]]],
             'asian_women': ['Asian Women', [['RAC1P', [6]], ['SEX', [2]]]],
-            'aian_men': ['AIAN Men', [['RAC1P', [3, 4, 5, 7]], ['SEX', [1]]]],
-            'aian_women': ['AIAN Women', [['RAC1P', [3, 4, 5, 7]], ['SEX', [2]]]]
+            'aian_men': [f'{AIAN} Men', [['RAC1P', [3, 4, 5, 7]], ['SEX', [1]]]],
+            'aian_women': [f'{AIAN} Women', [['RAC1P', [3, 4, 5, 7]], ['SEX', [2]]]]
         }
 
         self.eval_data = {k: [] for k in self.labels.keys()}
@@ -77,18 +77,25 @@ class LinearRegressionReport:
             reg, img_path = v[0], v[1]
             self.rd.add('linear_regression', {k: reg.report_data})
             rel_reg_paths = ["/".join(list(p.parts)[-3:])
-                               for p in img_path]
+                             for p in img_path]
 
+            # attachment data
+            a_data = {
+                "para": [["heading", 'Target Data'],
+                         ["text", f'{reg.ts.shape[0]} records, '
+                                  f'{round(reg.ts.shape[0]/self.t.shape[0] * 100, 2)}%'],
+                         ["text", f'Regression: {reg.t_slope} slope,'
+                                  f' {reg.t_intercept} intercept'],
+                         ["heading", 'Deidentified Data'],
+                         ["text", f'{reg.ss.shape[0]} records, '
+                                  f'{round(reg.ss.shape[0]/self.s.shape[0] * 100, 2)}%'],
+                         ["text", f'Regression {reg.s_slope} slope, '
+                                  f'{reg.s_intercept} intercept']],
+                "image": [{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                          for p in rel_reg_paths]
+            }
             reg_m_a = Attachment(name=self.labels[k][0],
-                                 _data={"para": [
-                                            ["heading", "Target Data Regression Line"],
-                                            ["text", f'Slope: {reg.t_slope}, Intercept: {reg.t_intercept}'],
-                                            ["heading", "Synthetic Data Regression Line"],
-                                            ["text", f'Slope: {reg.s_slope}, Intercept: {reg.s_intercept}']
-                                        ],
-                                        "image": [{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                                                  for p in rel_reg_paths]
-                                        },
+                                 _data=a_data,
                                  _type=AttachmentType.ParaAndImage)
             self.attachments.append(reg_m_a)
 
