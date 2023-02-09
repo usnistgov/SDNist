@@ -224,9 +224,10 @@
             {{ heading_3(data[2:]) }}
         </div>
     {% elif data.startswith('h4') %}
-        <div>
-            <h4>{{ data[2:] }}</h4>
-        </div>
+        {{ heading_4(data[2:]) }}
+{#        <div>#}
+{#            <h4>{{ data[2:] }}</h4>#}
+{#        </div>#}
     {% else %}
         <div>
             {{ data }}
@@ -246,10 +247,10 @@
             {% set style = 'attachment-div' %}
         {% endif %}
         <div class={{ style }}>
-            {%  if a.name %}
+            {% if a.name and a.name != '--no-brake--' %}
                 <br>
                 {{ heading_3(a.name) }}
-            {% else %}
+            {% elif a.name == None %}
                 <br>
             {% endif %}
             {% if a.type == "table" %}

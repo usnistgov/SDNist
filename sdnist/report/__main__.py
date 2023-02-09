@@ -30,8 +30,6 @@ def run(synthetic_filepath: Path,
         print('Loading Dataset...')
         dataset = Dataset(synthetic_filepath, test, data_root, download)
         ui_data = data_description(dataset, ui_data)
-        # Check Inconsistencies
-        ui_data, report_data = inconsistencies(dataset, ui_data, report_data)
         # Create scores
         print('Computing Utility Scores...')
         ui_data, report_data = utility_score(dataset, ui_data, report_data)

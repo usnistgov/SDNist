@@ -20,6 +20,8 @@ from sdnist.metrics.regression import LinearRegressionMetric
 from sdnist.report.score.paragraphs import *
 from sdnist.report.score.utility.linear_regression import \
     LinearRegressionReport
+from sdnist.report.score.utility.inconsistency import \
+    InconsistenciesReport
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
     ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType, \
@@ -615,13 +617,13 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         r_ui_d.add(kmarg_sum_pkt)
 
     r_ui_d.add(UtilityScorePacket("Univariate Distributions",
-                              None,
-                              [Attachment(name=None,
-                               _data=univ_dist_para,
-                               _type=AttachmentType.String),
-                               Attachment(name="Three Worst Performing Features",
-                                          _data="",
-                                          _type=AttachmentType.String)] + u_as))
+                                  None,
+                                  [Attachment(name=None,
+                                              _data=univ_dist_para,
+                                              _type=AttachmentType.String),
+                                   Attachment(name="Three Worst Performing Features",
+                                              _data="",
+                                              _type=AttachmentType.String)] + u_as))
 
     r_ui_d.add(UtilityScorePacket("Correlations",
                                   None,
@@ -634,6 +636,8 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     r_ui_d.add(UtilityScorePacket("PCA",
                                   None,
                                   [pca_para_a, pca_a_tt, pca_a]))
+    icr = InconsistenciesReport(ds, r_ui_d, rd)
+    icr.add_to_ui()
 
     if kmarg_det_pkt:
         r_ui_d.add(kmarg_det_pkt)
