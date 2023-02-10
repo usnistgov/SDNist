@@ -8,6 +8,9 @@
             size: A4 portrait;
             margin: 2cm;
         }
+        :root {
+            --mgin: 10%;
+        }
         body {
             font-family: sans-serif;
         }
@@ -22,7 +25,7 @@
         td, th {
             border: 1px solid #dddddd;
             text-align: left;
-            padding: 2px;
+            padding: 3px;
         }
         th {
             color: #6280BA;
@@ -86,13 +89,17 @@
             background-color: #6280BA;
         }
         .table-div {
-            margin-left: 10%;
-            margin-right: 10%;
+            margin-left: var(--mgin);
+            margin-right: var(--mgin);
         }
         .title-div {
             text-align: center;
             background: #6280BA;
             color: white;
+        }
+        .table-highlight {
+            background-color: #b3ccfc;
+            color: black !important;
         }
         .title-text {
             display: inline;
@@ -101,6 +108,10 @@
             border-bottom: 1px solid black;
             width: 100%;
             display: block;
+        }
+        .wide-table-div {
+            margin-left: var(--mgin);
+            margin-right: var(--mgin);
         }
     </style>
 </head>
@@ -137,41 +148,125 @@
 
 {% macro table(data) %}
     {% if data|length > 0 %}
-        <table>
-            <tr>
-            {% for col, _ in data[0].items() %}
-                {% if col != "min_idx" %}
-                    <th style="width: {{ (100/data[0].items()|length) }}%">
-                        {{ col }}
-                    </th>
+        <div class="table-div">
+            <table>
+                <tr>
+                {% for col, _ in data[0].items() %}
+                    {% if col != "min_idx" %}
+                        <th style="width: {{ (100/data[0].items()|length) }}%">
+                            {{ col }}
+                        </th>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% for i, row in enumerate(data) %}
+                {% if "min_idx" in row %}
+                    {% set row_style = "background-color: #b3ccfc; color: black" %}
+                {% else %}
+                    {% set row_style = "" %}
                 {% endif %}
-            {% endfor %}
-            </tr>
-        {% for i, row in enumerate(data) %}
-            {% if "min_idx" in row %}
-                {% set row_style = "background-color: #b3ccfc; color: black" %}
-            {% else %}
-                {% set row_style = "" %}
-            {% endif %}
-            <tr style="{{ row_style }}">
-            {% for _, val in row.items() %}
-                {% if val is iterable and val is not string  %}
-                    {% set out = val[0] %}
-                    {% if val[2] %}
-                        <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
-                    {% elif val[1] %}
-                        <td><p>{{ out }}: {{ val[1] }}</p></td>
-                    {% elif val[2] %}
+                <tr style="{{ row_style }}">
+                {% for _, val in row.items() %}
+                    {% if val is iterable and val is not string  %}
+                        {% set out = val[0] %}
+                        {% if val[2] %}
+                            <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
+                        {% elif val[1] %}
+                            <td><p>{{ out }}: {{ val[1] }}</p></td>
+                        {% elif val[2] %}
+                            <td>{{ val }}</td>
+                        {% endif %}
+                    {% elif _ == "min_idx" %}
+                    {% else %}
                         <td>{{ val }}</td>
                     {% endif %}
-                {% elif _ == "min_idx" %}
-                {% else %}
-                    <td>{{ val }}</td>
-                {% endif %}
+                {% endfor %}
+                </tr>
             {% endfor %}
-            </tr>
-        {% endfor %}
-        </table>
+            </table>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro wide_table(data) %}
+    {% if 'table' in data %}
+        {% set tdata = data['table'] %}
+    {% else %}
+        {% set tdata = [] %}
+    {% endif %}
+
+    {% if 'highlight' in data %}
+        {% set highlight = data['highlight'] %}
+
+        {% if 'columns' in highlight %}
+            {% set col_hl = highlight['columns'] %}
+        {% else %}
+            {% set col_hl = [] %}
+        {% endif %}
+
+        {% if 'rows' in highlight %}
+            {% set row_hl = highlight['rows'] %}
+        {% else %}
+            {% set row_hl = [] %}
+        {% endif %}
+    {% endif %}
+
+    {% if 'size' in data %}
+        {% set tsize = data['size'] | int %}
+        {% set size_style = "--mgin: %d%%" % ((100 - tsize)/2) %}
+    {% else %}
+        {% set size_style = "" %}
+    {% endif %}
+
+    {% if tdata|length > 0 %}
+        <div class="wide-table-div" style="{{ size_style }}">
+            <table>
+                <colgroup>
+                {% for col, _ in tdata[0].items() %}
+                    {% if col in col_hl %}
+                        <col class="table-highlight" />
+                    {% else %}
+                        <col />
+                    {% endif %}
+                {% endfor %}
+                </colgroup>
+                <tr>
+                {% for col, _ in tdata[0].items() %}
+                    {% set hl_col_syle = '' %}
+                    {% if col in col_hl %}
+                        {% set hl_col = 'color: black' %}
+                    {% endif %}
+                    <th style="width: {{ (100/tdata[0].items()|length) }}%; {{ hl_col }}">
+                        {{ col }}
+                    </th>
+                {% endfor %}
+                </tr>
+            {% for i, row in enumerate(tdata) %}
+                {% if i in row_hl %}
+                    {% set row_style = "table-highlight" %}
+                {% else %}
+                    {% set row_style = "" %}
+                {% endif %}
+                <tr class={{ row_style }}>
+                {% for _, val in row.items() %}
+                    {% if val is iterable and val is not string  %}
+                        {% set out = val[0] %}
+                        {% if val[2] %}
+                            <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
+                        {% elif val[1] %}
+                            <td><p>{{ out }}: {{ val[1] }}</p></td>
+                        {% elif val[2] %}
+                            <td>{{ val }}</td>
+                        {% endif %}
+                    {% elif _ == "min_idx" %}
+                    {% else %}
+                        <td>{{ val }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
     {% endif %}
 {% endmacro %}
 
@@ -209,9 +304,7 @@
 
 {% macro feature_description(title) %}
     {{ heading_2(title) }}
-    <div class="table-div">
-        {{ table(data['data_description'][title]) }}
-    </div>
+    {{ table(data['data_description'][title]) }}
 {% endmacro %}
 
 {% macro string_data(data) %}
@@ -225,9 +318,6 @@
         </div>
     {% elif data.startswith('h4') %}
         {{ heading_4(data[2:]) }}
-{#        <div>#}
-{#            <h4>{{ data[2:] }}</h4>#}
-{#        </div>#}
     {% else %}
         <div>
             {{ data }}
@@ -254,9 +344,9 @@
                 <br>
             {% endif %}
             {% if a.type == "table" %}
-                <div class="table-div">
-                    {{ table(a.data) }}
-                </div>
+                {{ table(a.data) }}
+            {% elif a.type == "wide_table" %}
+                {{ wide_table(a.data) }}
             {% elif a.type == "image_links" %}
                 {{ draw_images(a.data) }}
             {% elif a.type == "string" %}

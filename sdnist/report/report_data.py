@@ -19,6 +19,7 @@ class EvaluationType(Enum):
 
 class AttachmentType(Enum):
     Table = "table"
+    WideTable = 'wide_table'
     ImageLinks = "image_links"
     String = 'string'
     ParaAndImage = 'para_and_image'

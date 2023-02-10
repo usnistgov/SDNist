@@ -233,7 +233,8 @@ class Inconsistencies:
                     #              "   " + str(len(ic_dict[i[NAME]])) + " violations\n" + \
                     #              "   Example: " + str(
                     #     example_row) + " \n\n"
-                    ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} violations', example]
+                    ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} '
+                                                                     f'violations', example_row]
                     self.stats['age'].append(
                         ic_data.copy()
                     )
@@ -274,7 +275,8 @@ class Inconsistencies:
                     #               "   " + str(len(ic_dict[i[NAME]])) + " violations\n" + \
                     #               "   Example: " + str(
                     #     example_row) + "\n\n"
-                    ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} violations', example]
+                    ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} '
+                                                                     f'violations', example_row]
                     self.stats['work'].append(
                         ic_data.copy()
                     )
@@ -317,7 +319,8 @@ class Inconsistencies:
                     #                "   " + str(len(ic_dict[i[NAME]])) + " violations\n" + \
                     #                "   Example: " + str(
                     #     example_row) + " \n\n"
-                    ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} violations', example]
+                    ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} violations',
+                               example_row]
                     self.stats['housing'].append(
                         ic_data.copy()
                     )
@@ -354,8 +357,11 @@ class Inconsistencies:
                          ['Work', len(work_violators), round((100 * len(work_violators)) / n, 1)],
                          ['Housing', len(house_violators), round((100 * len(house_violators)) / n, 1)]]
         self.stats['summary'] = [{'Inconsistency Group': r[0],
-                                  'Inconsistent Records': r[1],
-                                  'Percent Inconsistent Records': r[2]}
+                                  'Number of Records Inconsistent': r[1],
+                                  'Percent Records Inconsistent': f'{r[2]}%'}
                                  for r in overall_stats]
-        self.report_data['summary'] = self.stats['summary']
+        self.report_data['summary'] = [{'Inconsistency Group': r[0],
+                                        'Number of Records Inconsistent': r[1],
+                                        'Percent Records Inconsistent': r[2]}
+                                 for r in overall_stats]
         # print(Overall_Stats + age_report + work_report + house_report)
