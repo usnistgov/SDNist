@@ -108,6 +108,7 @@ def worst_score_breakdown(worst_scores: List,
     wsh = pd.DataFrame(worst_scores)
     if str(wsh.loc[0, feature]).startswith('['):
         wsh[feature] = wsh[feature].apply(lambda x: list(x)[0])
+
     wpf = wsh[feature].unique().tolist()[:5]  # worst performing feature values
     t = dataset.d_target_data.copy()
     s = dataset.d_synthetic_data.copy()
@@ -305,9 +306,13 @@ def kmarginal_score_packet(k_marginal_score: int,
                                                       group_features,
                                                       feature_values)
     all_scores = worst_scores
-    total_pumas = len(dataset.target_data['PUMA'].unique())
-    default_w_b_n = 2 if total_pumas <= 6 else 5
-
+    # target pumas
+    t_pumas = dataset.target_data['PUMA'].unique()
+    # synthetic pumas
+    s_pumas = dataset.synthetic_data['PUMA'].unique()
+    # usable pumas
+    usable_pumas = set(t_pumas).intersection(s_pumas)
+    default_w_b_n = 2 if len(usable_pumas) <= 6 else 5
 
     k_marg_synop_rd['subsample_error_comparison'] = \
         relative_path(save_data_frame(sedf_df, k_marg_synopsys_path, 'subsample_error_comparison'))
@@ -318,6 +323,8 @@ def kmarginal_score_packet(k_marginal_score: int,
                                       'score_in_each_puma'))
 
     # count of worst or best k-marginal pumas to select
+    worst_scores = [ws for ws in worst_scores if ws['PUMA'][0] in usable_pumas]
+    best_scores = [bs for bs in best_scores if bs['PUMA'][0] in usable_pumas]
     w_b_n = default_w_b_n if len(worst_scores) > default_w_b_n else len(worst_scores)
     worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
 
