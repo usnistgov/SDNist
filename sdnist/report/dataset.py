@@ -154,6 +154,19 @@ def add_bin_for_NA(data, reference_data, features):
     return d
 
 
+def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
+    """remove features from configuration that are not available in
+    the input synthetic data"""
+    cnf = config
+    fl = synthetic_data.columns.tolist()
+    if 'k_marginal' in cnf and 'group_features' in cnf['k_marginal']:
+        for f in cnf['k_marginal']['group_features'].copy():
+            if f not in fl:
+                cnf['k_marginal']['group_features'].remove(f)
+
+    return cnf
+
+
 @dataclass
 class Dataset:
     synthetic_filepath: Path
@@ -191,6 +204,7 @@ class Dataset:
         config_1 = u.read_json(Path(self.target_data_path.parent, 'config.json'))
         config_2 = u.read_json(Path(FILE_DIR, 'config.json'))
         self.config = {**config_1, **config_2}
+
         self.mappings = u.read_json(Path(self.target_data_path.parent, 'mappings.json'))
         self.data_dict = u.read_json(Path(self.target_data_path.parent, 'data_dictionary.json'))
         self.features = self.target_data.columns.tolist()
@@ -231,6 +245,9 @@ class Dataset:
         # raw data
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
+
+        # update config to contain only available features
+        self.config = unavailable_features(self.config, self.synthetic_data)
 
         # transformed data
         self.t_target_data = transform(self.target_data, self.schema)

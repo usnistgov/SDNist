@@ -29,11 +29,17 @@ def compute_linear_regression(target: pd.DataFrame,
 
 
 class LinearRegressionReport:
-    REQUIRED_FEATURES = ['EDU', 'PINCP_DECILE', 'RAC1P', 'SEX']
+    REQUIRED_FEATURES = ['EDU', 'PINCP_DECILE']
+    OTHER_REQ_FEATURES = ['RAC1P', 'SEX']
 
     def __init__(self, dataset: Dataset, ui_data: ReportUIData, report_data: ReportData):
-        self.t = to_num(dataset.target_data[self.REQUIRED_FEATURES].copy())
-        self.s = to_num(dataset.synthetic_data[self.REQUIRED_FEATURES].copy())
+        # required features
+        req_f = self.REQUIRED_FEATURES + self.OTHER_REQ_FEATURES
+        # available features
+        available_f = list(set(req_f).intersection(set(dataset.target_data.columns.tolist())))
+
+        self.t = to_num(dataset.target_data[available_f].copy())
+        self.s = to_num(dataset.synthetic_data[available_f].copy())
         self.d_dict = dataset.data_dict
         self.r_ui_d = ui_data  # report ui data
         self.rd = report_data
@@ -49,23 +55,26 @@ class LinearRegressionReport:
             'aiannh_men': [f'{AIANNH} Men', [['RAC1P', [3, 4, 5, 7]], ['SEX', [1]]]],
             'aiannh_women': [f'{AIANNH} Women', [['RAC1P', [3, 4, 5, 7]], ['SEX', [2]]]]
         }
-
         self.eval_data = {k: [] for k in self.labels.keys()}
         self.attachments = []
         self._create()
 
     def _create(self):
         # compute linear regression and pair counts
+        if not self.can_compute():
+            return
         o_path = Path(self.r_ui_d.output_directory, 'linear_regression')
         create_path(o_path)
         for k, v in self.labels.items():
+            if k != 'total_population' and not self.can_compute_demographics():
+                continue
             k_o_path = Path(o_path, k)
             create_path(k_o_path)
             ts = df_filter(self.t, v[1])
             ss = df_filter(self.s, v[1])
             reg, image_path = compute_linear_regression(ts, ss, k_o_path,
                                                         {k: self.d_dict[k]
-                                                            for k in self.REQUIRED_FEATURES[:2]})
+                                                            for k in self.REQUIRED_FEATURES})
             self.eval_data[k] = [reg, image_path]
 
         # create report attachments
@@ -74,6 +83,8 @@ class LinearRegressionReport:
                                 _type=AttachmentType.String)
         self.attachments.append(reg_para_a)
         for k, v in self.eval_data.items():
+            if not len(v):
+                continue
             reg, img_path = v[0], v[1]
             self.rd.add('linear_regression', {k: reg.report_data})
             rel_reg_paths = ["/".join(list(p.parts)[-3:])
@@ -99,7 +110,14 @@ class LinearRegressionReport:
                                  _type=AttachmentType.ParaAndImage)
             self.attachments.append(reg_m_a)
 
+    def can_compute(self):
+        return set(self.REQUIRED_FEATURES).issubset(set(self.s.columns.tolist()))
+
+    def can_compute_demographics(self):
+        return set(self.OTHER_REQ_FEATURES).issubset(set(self.s.columns.tolist()))
+
     def add_to_ui(self):
-        self.r_ui_d.add(UtilityScorePacket("Linear Regression",
-                                           None,
-                                           self.attachments))
+        if len(self.attachments):
+            self.r_ui_d.add(UtilityScorePacket("Linear Regression",
+                                               None,
+                                               self.attachments))

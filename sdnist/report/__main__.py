@@ -20,8 +20,9 @@ from sdnist.strs import *
 def run(synthetic_filepath: Path,
         output_directory: Path = REPORTS_DIR,
         test: TestDatasetName = TestDatasetName.NONE,
-        data_root: Path = 'sdnist_toy_data',
-        download: bool = False):
+        data_root: Path = Path('sdnist_toy_data'),
+        download: bool = False,
+        test_mode: bool = False):
     outfile = Path(output_directory, 'report.json')
     ui_data = ReportUIData(output_directory=output_directory)
     report_data = ReportData(output_directory=output_directory)
@@ -44,7 +45,7 @@ def run(synthetic_filepath: Path,
             ui_data = json.load(f)
 
     # Generate Report
-    generate(ui_data, output_directory)
+    generate(ui_data, output_directory, test_mode)
 
 
 class NoAction(argparse.Action):

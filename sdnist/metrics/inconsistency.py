@@ -161,7 +161,7 @@ class Inconsistencies:
 
             # this currently just checks null value agreement,
             # if one is null the other should be too
-            if "INDP" and "INDP_CAT" in fl:
+            if "INDP" in fl and "INDP_CAT" in fl:
                 if ((r["INDP"] == "N") and (r["INDP_CAT"] != "N") or (r["INDP"] != "N") and (
                         r["INDP_CAT"] == "N")):
                     ic_dict["invalid_INDP_CAT"].append(i)
