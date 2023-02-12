@@ -169,7 +169,7 @@ class Inconsistencies:
 
             # -------------------housing and family related inconsistencies---------------
             if ("NOC" in fl) and ("NPF" in fl) and (r["NOC"] != "N") and (r["NPF"] != "N"):
-                if not (r["NOC"] < r["NPF"]):
+                if not (int(r["NOC"]) < int(r["NPF"])):
                     ic_dict["too_many_children"].append(i)
 
             # if group quarters (according to HOUSING_TYPE)

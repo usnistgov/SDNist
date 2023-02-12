@@ -137,7 +137,7 @@ class LinearRegressionMetric:
         apc0 = ax0.pcolor(self.tcm, cmap='rainbow', vmin=0, vmax=0.5)
         fig.colorbar(apc0, ax=ax0)
 
-        apc1 = ax1.pcolor(self.diff, cmap='PuOr', vmin=-0.5, vmax=0.5)
+        apc1 = ax1.pcolor(self.diff, cmap='PuOr', vmin=-0.3, vmax=0.3)
         fig.colorbar(apc1, ax=ax1)
         # ax1.pcolor(self.scm, cmap='rainbow', vmin=0, vmax=0.5)
         tx = self.ts[self.xc].values

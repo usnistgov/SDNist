@@ -88,7 +88,8 @@ class InconsistenciesReport:
 
                 a_example = Attachment(name=None,
                                        _data=e_d,
-                                       _type=AttachmentType.WideTable)
+                                       _type=AttachmentType.WideTable,
+                                       dotted_break=True)
                 self.attachments.extend([an, a_data, a_ex_txt, a_example])
 
     def add_to_ui(self):

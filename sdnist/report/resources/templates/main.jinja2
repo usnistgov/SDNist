@@ -9,7 +9,8 @@
             margin: 2cm;
         }
         :root {
-            --mgin: 10%;
+            --mgin: 10%;  /* defautl table left right margin */
+            --theme-color: #6280BA;
         }
         body {
             font-family: sans-serif;
@@ -28,7 +29,7 @@
             padding: 3px;
         }
         th {
-            color: #6280BA;
+            color: var(--theme-color);
         }
 
         .appendix-div {
@@ -42,6 +43,10 @@
         .content-area {
             margin-left: 10%;
             margin-right: 10%;
+        }
+        .dashed-line {
+            border-bottom: 2px dashed var(--theme-color);
+            padding-bottom: 25px;
         }
         .evaluation-div {
             page-break-after: always;
@@ -64,7 +69,7 @@
         .heading-2-text {
             {#text-align: center;#}
             {#margin-bottom: 5px;#}
-            color: #6280BA;
+            color: var(--theme-color);
         }
         .heading-3-div {
 
@@ -81,12 +86,12 @@
         .main-title {
             text-align: center;
             font-size: 22px;
-            color: #6280BA;
+            color: var(--theme-color);
         }
         .section-separator-bar {
             width: 100%;
             height: 5px;
-            background-color: #6280BA;
+            background-color: var(--theme-color);
         }
         .table-div {
             margin-left: var(--mgin);
@@ -94,7 +99,7 @@
         }
         .title-div {
             text-align: center;
-            background: #6280BA;
+            background: var(--theme-color);
             color: white;
         }
         .table-highlight {
@@ -309,7 +314,7 @@
 
 {% macro string_data(data) %}
     {% if data.startswith('Highlight-') %}
-        <div style="color: #6280BA; font-weight: bold">
+        <div style="color: var(--theme-color); font-weight: bold">
             {{ data[10:] }}
         </div>
     {% elif data.startswith('h3') %}
@@ -336,7 +341,12 @@
         {% else %}
             {% set style = 'attachment-div' %}
         {% endif %}
-        <div class={{ style }}>
+        {% if a.dotted_break == True and i != data['attachments']|length - 1 %}
+            {% set dashed_line = 'dashed-line' %}
+        {% else %}
+            {% set dashed_line = '' %}
+        {% endif %}
+        <div class="{{ style }} {{ dashed_line }}">
             {% if a.name and a.name != '--no-brake--' %}
                 <br>
                 {{ heading_3(a.name) }}
@@ -368,6 +378,11 @@
                 </div>
             {% endif %}
         </div>
+{#        {% if a.dotted_break == True %}#}
+{#            <div>#}
+{#                <hr class="dashed-line">#}
+{#            </div>#}
+{#        {% endif %}#}
     {% endfor %}
 {% endmacro %}
 

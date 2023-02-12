@@ -30,6 +30,7 @@ class Attachment:
     name: Optional[str]
     _data: any
     _type: AttachmentType = field(default=AttachmentType.Table)
+    dotted_break: bool = field(default=False)
 
     @property
     def data(self) -> Dict[str, any]:
@@ -37,7 +38,8 @@ class Attachment:
         return {
             'name': self.name,
             'data': d,
-            'type': self._type.value
+            'type': self._type.value,
+            'dotted_break': self.dotted_break
         }
 
 
