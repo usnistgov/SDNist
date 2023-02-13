@@ -1,6 +1,6 @@
 # SDNist v1.4 beta: Synthetic Data Report Tool
 
-## We anticipate releasing SDNist v2 January 2023! 
+## We anticipate releasing SDNist v2 February 21 2023! 
 
 Welcome! SDNist v1.4b is a python package that provides benchmark data and evaluation metrics for synthetic data generators. This version of SDNist supports using the [NIST Diverse Community Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts), a geographically partioned, limited feature data set.
 
@@ -32,7 +32,7 @@ To run the testing environment from the [*NIST PSCR Differential Privacy Tempora
 
 ### Brief Setup Instructions
 
-SDNist v1.4 requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.1-b.1) or via the Pypi server (`pip install sdnist==1.4`). The NIST Diverse Community Exceprt data will download on the fly.
+SDNist v1.4 requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.1-b.1). The NIST Diverse Community Exceprt data will download on the fly.
 
 
 ### Detailed Setup Instructions
@@ -188,14 +188,14 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
 
 6.  The following are all the parameters offered by the sdnist.report package:
 
-     * **PATH _SYNTHETIC _DATASET**: The absolute or relative path to the synthetic dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory. This guide assumes the current working directory is sdnist-project.
-     * **TARGET _DATASET _NAME**: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input synthetic dataset is generated, and it can be one of the following:
+     - **PATH _SYNTHETIC _DATASET **: The absolute or relative path to the synthetic dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory. This guide assumes the current working directory is sdnist-project.
+     - **TARGET _DATASET _NAME **: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input synthetic dataset is generated, and it can be one of the following:
+       - MA
+       - TX
+       - NATIONAL
 
-       * MA
-       * TX
-       * NATIONAL
+     - **--data-root **: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to if it is not available locally. The default directory is set to sdnist_toy_data.
 
-     * **--data-root**: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to if it is not available locally. The default directory is set to sdnist_toy_data.
 
 ## Setup Data for SDNIST Report Tool
 ---------------------------------

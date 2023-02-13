@@ -24,8 +24,8 @@ All of the data have identical schema of 22 features that are provided in a data
 ### Community descriptions
 See the "postcards" and data dictionaries in each respective directory for more detailed information:
 -  `national`: 27254 records drawn from 20 PUMAs from across the United States
--  `massachusetts`: 7634 records drawn from five PUMAs of communities from the North Shore to the west of the greater Boston, Massachusetts, area.
-- `texas`:  9276 records drawn from six PUMAs of communities surrounding Dallas-Fort Worth, Texas, area
+-  `massachusetts`: 7634 records drawn from five PUMAs of communities from the North Shore to the west of the greater Boston, Massachusetts area.
+- `texas`:  9276 records drawn from six PUMAs of communities surrounding Dallas-Fort Worth, Texas area
 
 
 ## Usage guidance
