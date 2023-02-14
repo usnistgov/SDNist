@@ -6,7 +6,7 @@ Welcome! SDNist v1.4b is a python package that provides benchmark data and evalu
 
 The synthetic data report evaluates utility and privacy of a given synthetic dataset and generates a summary quality report with performance of a synthetic dataset enumerated and illustrated for each utility and privacy metric.
 
-[Preview a sample report produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports)
+[Preview sample reports produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports)
 
 This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues] if you catch a bug or would like have feature suggestions. 
 
