@@ -1,8 +1,7 @@
-# SDNist Report Tool sample
+# SDNist Report Tool samples
 
-This directory contains all of the materials produced in a run of the `TX` condition of the SDNist report where the 'synthetic data' is a 50% random subsample of the original data. This directory also contains the sample synthetic data used for the specific run (tx_syn.csv).
+This directory contains two examples of outputs of the SDNist report genreator tool (`sdnist.report`).
 
-[Follow this link](https://htmlpreview.github.io/?https://github.com/usnistgov/SDNist/blob/main/sdnist/report/sample-report/report.html) to see the HTML report displayed as a webpage.
+[mst_e10_national2019_02-12-2023T16.43.25](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports/mst_e10_national2019_02-12-2023T16.43.25) details performance of diffrentially private data generated from the [OpenDP Libary version](https://docs.smartnoise.org/synth/synthesizers/mst.html) of the Minutemen solution to the NIST Temporal Map Challenge. The synthetizer uses a probabilistic graphical model (PGM) instantiated with noisy marginals. The structure of the PGM is a maximum spanning tree (MST) capturing the most significant pair-wise feature correlations in the ground truth data. These data are generated with default settings with an Epsilon of 10. [See the HTML report page here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports/mst_e10_national2019_02-12-2023T16.43.25)
 
-This sample report was generated with sdnist==1.4 with the following command:
-`python -m sdnist.report tx_syn.csv TX`
+[sdv_copula_national2019_02-12-2023T15.56.09](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports/sdv_copula_national2019_02-12-2023T15.56.09) details perforamnce of [Copula GAN synthetic data generator](https://sdv.dev/SDV/), which provides no formal privacy. [See the HTML report page here.](https://github.com/usnistgov/SDNist/blob/main/sdnist/report/sample-reports/sdv_copula_national2019_02-12-2023T15.56.09/report.html)
