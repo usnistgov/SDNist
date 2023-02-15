@@ -23,9 +23,9 @@ All of the data have identical schema of 22 features that are provided in a data
 
 ### Community descriptions
 See the "postcards" and data dictionaries in each respective directory for more detailed information:
--  `national`: 27254 records drawn from 20 PUMAs from across the United States
--  `massachusetts`: 7634 records drawn from five PUMAs of communities from the North Shore to the west of the greater Boston, Massachusetts, area.
-- `texas`:  9276 records drawn from six PUMAs of communities surrounding Dallas-Fort Worth, Texas, area
+- `national`: 27254 records drawn from 20 PUMAs from across the United States
+- `massachusetts`: 7634 records drawn from five PUMAs of communities from the North Shore to the west of the greater Boston, Massachusetts area.
+- `texas`:  9276 records drawn from six PUMAs of communities surrounding Dallas-Fort Worth, Texas area
 
 
 ## Usage guidance
@@ -52,10 +52,15 @@ Different systems encode and handle null (empty) values differently; we use the 
 - Household Features: MSP (marital status), NOC (number of children), NPF (family size), HOUSING_TYPE (single housing unit or group quarters such as dorms, barracks, or nursing homes), OWN_RENT (own or rent housing)
 - Regional Features: DENSITY (population density of PUMA, useful for distinguishing urban, suburban, and rural PUMAs)
 - Financial Features: PINCP (personal income, including wages and investment), PINCP_DECILE (person’s income discretized as a 10% percentile bin relative to the income distribution in their PUMA), POVPIP (household income as a percentage of the poverty threshold for that household (dependent on family size and other factors&mdash;households with income more than 5x the property line are given the value 501)
-- Industry and Education Features: EDU (highest educational attainment&mdash;it’s useful to consider this in combination with AGEP), INDP_CAT (general category of work, for example, agriculture or retail), INDP (specific category of work&mdash;this is an example of a categorical feature with very many possible values)
+- Industry and Education Features: EDU (highest educational attainment&mdash; it’s useful to consider this in combination with AGEP), INDP_CAT (general category of work, for example, agriculture or retail), INDP (specific category of work&mdash;this is an example of a categorical feature with very many possible values)
 - Disability Features: DREM (cognitive difficulty, binary feature), DEYE (vision difficulty, binary feature), DEAR (hearing difficulty, binary feature), DPHY (walking/movement difficulty, binary feature), DVET (disability due to military service&mdash;this is a rating value rather than a binary feature)
-- Weights: Person’s weight and housing weight can be used to generate a full sample **[to be completed]**
-- Other Notes: INDP_CAT & INDP (INDP_CAT is a partitioning of the codes in INDP), PUMA & DENSITY (DENSITY is the population density of a given PUMA), NPF & NOC (NPF must be greater than NOC), HOUSING_TYPE & OWN_RENT (OWN_RENT is null for group quarters), PINCP & PINCP_DECILE (PINCP_DECILE is a percentile aggregation of PINCP by PUMA), AGEP dependence on many features: children (~ AGEP < 18) will have null values for many adult features, such as financials, and a maximal possible value for educational attainment dependent on age).
+- Weights: Person’s weight and housing weight can be used to generate a full sample. To make a full population persons data estimate, duplicate each record the number of times indicates by its PWGHT feature.
+- There exist some deterministic relationships between features (consistency constraints):
+   * NPF & NOC (NPF must be greater than NOC). 
+   * HOUSING_TYPE & OWN_RENT (OWN_RENT is null for group quarters).
+   * AGEP dependence on many features: children (~ AGEP < 18) will have null values for many adult features, such as financials, and a maximal possible value for educational attainment dependent on age)
+- Other Notes: INDP_CAT & INDP (INDP_CAT is a partitioning of the codes in INDP), PUMA & DENSITY (DENSITY is the population density of a given PUMA),  PINCP & PINCP_DECILE (PINCP_DECILE is a percentile aggregation of PINCP by PUMA)
+
 
 ### Suggested feature combinations
 **If you want …**
