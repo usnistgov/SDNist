@@ -157,7 +157,7 @@ def worst_score_breakdown(worst_scores: List,
             a = Attachment(name=None,
                            _data=f"Feature Value: {fv}"
                                  f"<br>Target Data Counts: {tc}"
-                                 f"<br>Synthetic Data Counts: {sc}",
+                                 f"<br>Deidentified Data Counts: {sc}",
                            _type=AttachmentType.String)
             u_as.append(a)
 
@@ -191,7 +191,7 @@ def worst_score_breakdown(worst_scores: List,
                            _type=AttachmentType.String)
     a_rt = Attachment(name=None,
                       _data=[{"Dataset": "Target", "Record Counts": t.shape[0]},
-                             {"Dataset": "Synthetic", "Record Counts": s.shape[0]}],
+                             {"Dataset": "Deidentified", "Record Counts": s.shape[0]}],
                       _type=AttachmentType.Table)
     # a_up = Attachment(name=f"Univariate Distribution of Worst "
     #                        f"Performing Features in {len(wpf)} Worst Performing "
@@ -270,7 +270,7 @@ def kmarginal_score_packet(k_marginal_score: int,
 
     # subsample fraction score attachment
     ssf_a = Attachment(name=None,
-                       _data=f"K-Marginal score of the synthetic data closely resembles "
+                       _data=f"K-Marginal score of the deidentified data closely resembles "
                              f"K-Marginal score of a {int(min_frac * 100)}% sub-sample of "
                              f"the target data.",
                        _type=AttachmentType.String)
@@ -285,8 +285,8 @@ def kmarginal_score_packet(k_marginal_score: int,
     # sampling error data attachment
     sedf = [{"Sub-Sample Size": f"{int(frac * 100)}%",
              "Sub-Sample K-Marginal Score": subsample_scores[frac],
-             "Synthetic Data K-marginal score": k_marginal_score,
-             "Absolute Diff. From Synthetic Data K-marginal Score":
+             "Deidentified Data K-marginal score": k_marginal_score,
+             "Absolute Diff. From Deidentified Data K-marginal Score":
                  f"{abs(subsample_scores[frac] - k_marginal_score)}"
              }
             for frac in sorted_frac]
@@ -467,7 +467,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                 a = Attachment(name=None,
                                _data=f"Feature Value: {fv}"
                                      f"<br>Target Data Counts: {tc}"
-                                     f"<br>Synthetic Data Counts: {sc}",
+                                     f"<br>Deidentified Data Counts: {sc}",
                                _type=AttachmentType.String)
                 u_as.append(a)
 

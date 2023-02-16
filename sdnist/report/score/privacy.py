@@ -64,7 +64,7 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data) \
                                 _type=AttachmentType.String)
     total_quasi_matched = Attachment(name=None,
                                      _data=f"{rec_matched}, {rec_percent}% of "
-                                           f"the synthetic records",
+                                           f"the deidentified records",
                                      _type=AttachmentType.String)
     # Apparent match distribution plot as attachment
     adp_para_a = Attachment(name='Percentage Similarity of the Matched Records',
