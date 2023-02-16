@@ -1,12 +1,12 @@
-# SDNist v1.4 beta: Synthetic Data Report Tool
+# SDNist v1.4 beta: Deidentified Data Report Tool
 
 ## We anticipate releasing SDNist v2 February 21 2023! 
 
 ## [SDNist is the offical software pacakge for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
 
-Welcome! SDNist v1.4b is a python package that provides benchmark data and evaluation metrics for synthetic data generators. This version of SDNist supports using the [NIST Diverse Community Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts), a geographically partioned, limited feature data set.
+Welcome! SDNist v1.4b is a python package that provides benchmark data and evaluation metrics for deidentified data generators. This version of SDNist supports using the [NIST Diverse Community Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts), a geographically partioned, limited feature data set.
 
-The synthetic data report evaluates utility and privacy of a given synthetic dataset and generates a summary quality report with performance of a synthetic dataset enumerated and illustrated for each utility and privacy metric.
+The deidentified data report evaluates utility and privacy of a given deidentified dataset and generates a summary quality report with performance of a deidentified dataset enumerated and illustrated for each utility and privacy metric.
 
 [Preview sample reports produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports)
 
@@ -86,13 +86,21 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
     MAC OS/Linux:
     ```
     sdnist-project> . venv/bin/activate
+    ```
+    The python virtual environment is activated if the environment name (**venv** in this case) is appended to the terminal prompt as below:  
+    ```
     (venv) sdnist-project>
     ```
+
     Windows:
     ```
     c:\\sdnist-project> . venv/Scripts/activate
+    ```
+    The python virtual environment is activated if the environment name (**venv** in this case) is appended to the command/powershell prompt as below:  
+    ```
     (venv) c:\\sdnist-project>
     ```
+         
     To indicate that a new environment is active, the environment name (venv) is appended to the terminal or powershell prompt upon executing the above command.
 
     On Windows, a few users may encounter the following error if their machines are new (executing scripts is disabled by default on some Windows machines):
@@ -104,7 +112,7 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
     ```
 
-10. Per step 5 above, the sdnist-1.4.1b1-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
+11. Per step 5 above, the sdnist-1.4.1b1-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
    MAC OS/Linux:
    ```
@@ -116,23 +124,23 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
    ```
    The sdnist-1.4.0b2-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
 
-11.  Install sdnist Python library:
+12. Install sdnist Python library:
    ```
    (venv) c:\\sdnist-project> pip install sdnist-1.4.1b1-py3-none-any.whl
    ```
 
-12.  Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
+13. Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
    ```
    (venv) c:\\sdnist-project> python -m sdnist.report -h
    ```
    Output:
    ```
-   usage: __main__.py [-h] [--data-root DATA_ROOT] [--download DOWNLOAD] PATH_SYNTHETIC_DATASET TARGET_DATASET_NAME  
+   usage: __main__.py [-h] [--data-root DATA_ROOT] [--download DOWNLOAD] PATH_DEIDENTIFIED_DATASET TARGET_DATASET_NAME  
 
    positional arguments:  
-   PATH_SYNTHETIC_DATASET  
-                         Location of synthetic dataset (csv or parquet file)  
-   TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given synthetic dataset  
+   PATH_DEIDENTIFIED_DATASET  
+                         Location of deidentified dataset (csv or parquet file)  
+   TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given deidentified dataset  
 
    optional arguments:  
    \-h, \--help            show this help message and exit  
@@ -146,7 +154,7 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
     NATIONAL                  national2019
    ```
 
-13.  These instructions install sdnist into a virtual environemnt. The virtual environement must be activated (step 9) each time a new terminal window is used with sdnist.
+14. These instructions install sdnist into a virtual environemnt. The virtual environement must be activated (step 9) each time a new terminal window is used with sdnist.
 
 
 
@@ -154,14 +162,14 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
 ## Generate Data Quality Report
 ----------------------------
 
-1.  The sdnist.report package requires a path to the synthetic dataset file and the name of the target dataset from which the synthetic dataset file will be created. Following is the command line usage of the sdnist.report package:
+1.  The sdnist.report package requires a path to the deidentified dataset file and the name of the target dataset from which the deidentified dataset file will be created. Following is the command line usage of the sdnist.report package:
       ```
-      python -m sdnist.report PATH_SYNTHETIC_DATASET TARGET_DATSET_NAME
+      python -m sdnist.report PATH_DEINDETIFIED_DATASET TARGET_DATSET_NAME
       ```
 
-      The above command is just an example usage signature of the package. Steps 3 through 5 show the actual commands to run the tool, where the parameter PATH_SYNTHETIC_DATASET is replaced with the path of the synthetic dataset file on the your machine, and the parameter TARGET_DATASET_NAME is replaced with one of the bundled dataset names (MA, TX, or NATIONAL).
+      The above command is just an example usage signature of the package. Steps 3 through 5 show the actual commands to run the tool, where the parameter PATH_DEIDENTIFIED_DATASET is replaced with the path of the deidentified dataset file on the your machine, and the parameter TARGET_DATASET_NAME is replaced with one of the bundled dataset names (MA, TX, or NATIONAL).
 
-      A synthetic dataset file can be anywhere on your machine. You only need the path of the file to pass it as an argument to the sdnist.report package. For illustration purposes, this guide assumes an example synthetic dataset file named syn_tx.csv is generated from the bundled dataset file named TX that is present in the sdnist-project directory. You can also use the bundled toy synthetic datasets for generating some toy evaluation reports using the sdnist.report package by following steps 5 and 6 in the next section, Setup Data for SDNIST Report Tool.
+      A deidentified dataset file can be anywhere on your machine. You only need the path of the file to pass it as an argument to the sdnist.report package. For illustration purposes, this guide assumes an example deidentified dataset file named syn_tx.csv is generated from the bundled dataset file named TX that is present in the sdnist-project directory. You can also use the bundled toy deidentified datasets for generating some toy evaluation reports using the sdnist.report package by following steps 5 and 6 in the next section, Setup Data for SDNIST Report Tool.
 
      The sdnist.report packages come bundled with three target datasets: MA, TX, and NATIONAL. If these datasets are not available locally, the package will download them automatically when you run any one of the commands in steps 3 through 5 for the first time. In case of any trouble while downloading the datasets, please refer to the next section, Setup Data for SDNIST Report Tool.
 
@@ -169,20 +177,20 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
 2.  If you have closed the terminal or the powershell window that was used for the tool setup, open a new one, and after navigating the to sdnist-project directory, run the activate script as explained in step 9 of the Setup SDNIST Report Tool section.
 
 
-3.  Use the following command to generate a data quality report for the example synthetic dataset (syn_tx.csv) that is generated using the bundled dataset TX:
+3.  Use the following command to generate a data quality report for the example deidentified dataset (syn_tx.csv) that is generated using the bundled dataset TX:
       ```
       (venv) c:\\sdnist-project> python -m sdnist.report syn_tx.csv TX
       ```
       At the completion of the process initiated by the above command, an .html report will open in the default web browser on your machine. Likewise, .html report files will be available in the reports directory created automatically in the sdnist-project directory.
 
 
-4.  Use the following command to generate a data quality report for the example synthetic dataset (syn_ma.csv) that is generated using the bundled dataset MA:
+4.  Use the following command to generate a data quality report for the example deidentified dataset (syn_ma.csv) that is generated using the bundled dataset MA:
       ```
       (venv) c:\\sdnist-project> python -m sdnist.report syn_ma.csv MA
       ```
 
 
-5.  Use the following command to generate a data quality report for the example synthetic dataset (syn_national.csv) that is generated using the bundled dataset NATIONAL:
+5.  Use the following command to generate a data quality report for the example deidentified dataset (syn_national.csv) that is generated using the bundled dataset NATIONAL:
       ```
       (venv) c:\\sdnist-project> python -m sdnist.report syn_national.csv NATIONAL
       ```
@@ -190,8 +198,8 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
 
 6.  The following are all the parameters offered by the sdnist.report package:
 
-     - **PATH _SYNTHETIC _DATASET **: The absolute or relative path to the synthetic dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory. This guide assumes the current working directory is sdnist-project.
-     - **TARGET _DATASET _NAME **: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input synthetic dataset is generated, and it can be one of the following:
+     - **PATH_DEIDENTIFIED_DATASET **: The absolute or relative path to the deidentified dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory. This guide assumes the current working directory is sdnist-project.
+     - **TARGET_DATASET_NAME **: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input deidentified dataset is generated, and it can be one of the following:
        - MA
        - TX
        - NATIONAL
@@ -217,18 +225,18 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
 2. All the datasets required by the sdnist.report package are installed into the sdnist _toy _data directory, which should be now present inside the sdnist-project directory. sdnist _toy _data is also a data root directory. You can use some other directory as a data root by providing the –data-root argument to the sdnist.report package. If you provide a –data-root argument with a path, the sdnist.report package will look for datasets in the data root directory you have specified, and the package will download it if it is not present in the data root.
 
 
-3. The sdnist.report package also needs a synthetic dataset that it can evaluate against its original counterpart. Since the sdnist.report package comes bundled with the datasets, the synthetic dataset should be generated using the bundled datasets.
+3. The sdnist.report package also needs a deidentified dataset that it can evaluate against its original counterpart. Since the sdnist.report package comes bundled with the datasets, the deidentified dataset should be generated using the bundled datasets.
 
    You can download a copy of the datasets from [Github Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts). This copy is similar to the one bundled with the sdnist.report package, but it contains more documentation and a description of the datasets.
 
 
-4. You can download the toy synthetic datasets from [Github Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/toy_synthetic_data.zip). Unzip the downloaded file, and move the unzipped toy _synthetic _dataset directory to the sdnist-project directory.
+4. You can download the toy deidentified datasets from [Github Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/toy_synthetic_data.zip). Unzip the downloaded file, and move the unzipped toy_synthetic_dataset directory to the sdnist-project directory.
 
 
-5. Each toy synthetic dataset file is generated using the [Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip). The syn _ma.csv, syn _tx.csv, and syn _national.csv synthetic dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
+5. Each toy deidentified dataset file is generated using the [Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
 
 
-6. Use the following commands for generating reports if you are using a toy synthetic dataset file:
+6. Use the following commands for generating reports if you are using a toy deidentified dataset file:
 
    For evaluating the Massachusetts dataset:
    ```
@@ -245,7 +253,7 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
    (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_national.csv NATIONAL
    ```
 
-7.  A synthetic dataset can be a .csv or a parquet file, and the path of this file is required
+7.  A deidentified dataset can be a .csv or a parquet file, and the path of this file is required
 by the sdnist.report package to generate a data quality report.
 
 ## Download Data Manually
