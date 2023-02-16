@@ -64,14 +64,14 @@ if __name__ == "__main__":
                         "NATIONAL": TestDatasetName.national2019}
     parser = argparse.ArgumentParser()
     parser.register('action', 'none', NoAction)
-    parser.add_argument("synthetic_dataset", type=argparse.FileType("r"),
-                        metavar="PATH_SYNTHETIC_DATASET",
-                        help="Location of synthetic dataset (csv or parquet file)")
+    parser.add_argument("deidentified_dataset", type=argparse.FileType("r"),
+                        metavar="PATH_DEIDENTIFIED_DATASET",
+                        help="Location of deidentified dataset (csv or parquet file)")
     parser.add_argument("target_dataset_name",
                         metavar="TARGET_DATASET_NAME",
                         choices=[b for b in bundled_datasets.keys()],
                         help="Select name of the target dataset "
-                             "that was used to generated given synthetic dataset")
+                             "that was used to generated given deidentified dataset")
     parser.add_argument("--data-root", type=Path,
                         default=Path("sdnist_toy_data"),
                         help="Path of the directory "
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     input_cnf = {
         TEST: TARGET_DATA,
-        SYNTHETIC_FILEPATH: Path(args.synthetic_dataset.name),
+        SYNTHETIC_FILEPATH: Path(args.deidentified_dataset.name),
         DATA_ROOT: Path(args.data_root),
         OUTPUT_DIRECTORY: this_report_dir,
         DOWNLOAD: args.download
