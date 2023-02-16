@@ -3,9 +3,10 @@ import pandas as pd
 
 from sdnist.utils import *
 
-# list of tuples with all the information associated with each inconsistency (abbreviated ic)
+# List of tuples with all the information associated with each inconsistency (abbreviated ic)
 # [(category for ic, name for ic, explanation string for ic, features to highlight for ic)]
 [GROUP, NAME, DESCRIPTION, FEATURES] = [0, 1, 2, 3]
+
 ic_types = [
     ("a", "child_DVET", "Children (< 15) can't be disabled military veterans",
      ["AGEP", "DVET"]),
@@ -95,6 +96,8 @@ class Inconsistencies:
                         'listed as owning their residences.')
         }
 
+        # dict containing summary of the statistics gathered while computing inconsistencies.
+        # this is used for populating report user interface and json report.
         self.stats = {
             'summary': [],
             'age': [],
@@ -102,6 +105,7 @@ class Inconsistencies:
             'housing': []
         }
 
+        # json report data
         self.report_data = {k: {'title': v[0], 'description': v[1], 'inconsistencies': []}
                             for k, v in self.report_help.items()}
         self.report_data['summary'] = []
@@ -115,7 +119,7 @@ class Inconsistencies:
         # key = ic name, value = list of record ids that violate the ic
         ic_dict = {name: [] for name in ic_names}
 
-        #look through records, register violations for each row
+        # look through records, register violations for each row
         # i = record id, r = record values
         for i, r in self.s.iterrows():
             # -------------------age related inconsistencies---------------
@@ -211,10 +215,6 @@ class Inconsistencies:
         # ------- Compute Age-based Inconsistencies------------
         ic_age = dict()
         age_violators = set()  # set of records indexes that have at least one age ic
-        # age_report = "\n\n\n ----------AGE-BASED INCONSISTENCIES---------\n" + \
-        #              "These inconsistencies deal with the AGE feature; records with " \
-        #              "age-based inconsistencies might have children who are married, " \
-        #              "or infants with high school diplomas. \n \n"
 
         age_path = Path(self.out_path, 'age')
         create_path(age_path)
@@ -224,15 +224,7 @@ class Inconsistencies:
                 if len(ic_dict[i[NAME]]) > 0:  # if this ic actually occurred
                     age_violators = age_violators.union(ic_dict[i[NAME]])
                     example_row = self.s.loc[[ic_dict[i[NAME]][0]], :]
-                    example_data = list(zip(self.s.columns,
-                                            self.s.iloc[ic_dict[i[NAME]][0]].values))
-                    example = pd.DataFrame(example_data,
-                                           columns=['Features', 'Values'])
-                    example = example.sort_values(by=['Features'])
-                    # age_report = age_report + i[NAME] + ":\n " + i[DESCRIPTION] + "\n" + \
-                    #              "   " + str(len(ic_dict[i[NAME]])) + " violations\n" + \
-                    #              "   Example: " + str(
-                    #     example_row) + " \n\n"
+
                     ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} '
                                                                      f'violations', example_row]
                     self.stats['age'].append(
@@ -253,11 +245,7 @@ class Inconsistencies:
         # ------- Compute work-based Inconsistencies------------
         ic_work = dict()
         work_violators = set()  # set of records that have at least one work ic
-        # work_report = "\n\n\n ----------WORK-BASED INCONSISTENCIES---------\n" + \
-        #               "These inconsistencies deal with the work and finance features; " \
-        #               "records with work-based inconsistencies might have high incomes " \
-        #               "while being in poverty, or have conflicts between their industry " \
-        #               "code and industry category. \n \n"
+
         age_path = Path(self.out_path, 'work')
         create_path(age_path)
         for i in ic_types:
@@ -266,15 +254,7 @@ class Inconsistencies:
                 if len(ic_dict[i[NAME]]) > 0:
                     work_violators = work_violators.union(ic_dict[i[NAME]])
                     example_row = self.s.loc[[ic_dict[i[NAME]][0]], :]
-                    example_data = list(zip(self.s.columns,
-                                            self.s.iloc[ic_dict[i[NAME]][0]].values))
-                    example = pd.DataFrame(example_data,
-                                           columns=['Features', 'Values'])
-                    example = example.sort_values(by=['Features'])
-                    # work_report = work_report + i[NAME] + ": \n" + i[DESCRIPTION] + "\n" + \
-                    #               "   " + str(len(ic_dict[i[NAME]])) + " violations\n" + \
-                    #               "   Example: " + str(
-                    #     example_row) + "\n\n"
+
                     ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} '
                                                                      f'violations', example_row]
                     self.stats['work'].append(
@@ -295,12 +275,7 @@ class Inconsistencies:
         # ------- Compute housing-based Inconsistencies------------
         ic_house = dict()
         house_violators = set()  # set of records that have at least one house ic
-        # house_report = "\n\n\n ----------HOUSEHOLD-BASED INCONSISTENCIES---------\n" + \
-        #                "These inconsistencies deal with housing and family features; " \
-        #                "records with household-based inconsistencies might have more " \
-        #                "children in the house than the total household size, or be " \
-        #                "residents of group quarters (such as prison inmates) who are " \
-        #                "listed as owning their residences.  \n \n"
+
         age_path = Path(self.out_path, 'work')
         create_path(age_path)
         for i in ic_types:
@@ -309,16 +284,7 @@ class Inconsistencies:
                     ic_house[i[NAME]] = ic_dict[i[NAME]]
                     house_violators = house_violators.union(ic_dict[i[NAME]])
                     example_row = self.s.loc[[ic_dict[i[NAME]][0]], :]
-                    example_data = list(zip(self.s.columns,
-                                            self.s.iloc[ic_dict[i[NAME]][0]].values))
-                    example = pd.DataFrame(example_data,
-                                           columns=['Features', 'Values'])
-                    example = example.sort_values(by=['Features'])
 
-                    # house_report = house_report + i[NAME] + ": \n" + i[DESCRIPTION] + "\n" + \
-                    #                "   " + str(len(ic_dict[i[NAME]])) + " violations\n" + \
-                    #                "   Example: " + str(
-                    #     example_row) + " \n\n"
                     ic_data = [i[NAME], i[DESCRIPTION], i[FEATURES], f'{len(ic_dict[i[NAME]])} violations',
                                example_row]
                     self.stats['housing'].append(
@@ -340,19 +306,6 @@ class Inconsistencies:
         # set of records that have at least one ic of any type
         total_violators = age_violators.union(work_violators).union(house_violators)
 
-        # Overall_Stats = "Age-based Inconsistencies: " + str(
-        #     len(age_violators)) + " records, " + str(
-        #     round((100 * len(age_violators)) / n, 1)) + "% of data\n" + \
-        #                 "Work-based Inconsistencies: " + str(
-        #     len(work_violators)) + " records, " + str(
-        #     round((100 * len(work_violators)) / n, 1)) + "% of data\n" + \
-        #                 "Household-based Inconsistencies: " + str(
-        #     len(house_violators)) + " records, " + str(
-        #     round((100 * len(house_violators)) / n, 1)) + "% of data\n" + \
-        #                 "Total Inconsistencies: " + str(
-        #     len(total_violators)) + " records, " + str(
-        #     round((100 * len(total_violators)) / n, 1)) + "% of data"
-
         overall_stats = [['Age', len(age_violators), round((100 * len(age_violators)) / n, 1)],
                          ['Work', len(work_violators), round((100 * len(work_violators)) / n, 1)],
                          ['Housing', len(house_violators), round((100 * len(house_violators)) / n, 1)]]
@@ -364,4 +317,4 @@ class Inconsistencies:
                                         'Number of Records Inconsistent': r[1],
                                         'Percent Records Inconsistent': r[2]}
                                  for r in overall_stats]
-        # print(Overall_Stats + age_report + work_report + house_report)
+

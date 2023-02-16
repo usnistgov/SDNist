@@ -5,13 +5,17 @@ import pandas as pd
 from sdnist.metrics.inconsistency import Inconsistencies
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
-    ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType, \
-    DatasetType, DataDescriptionPacket
+    ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType
 
 from sdnist.utils import *
 
 
 class InconsistenciesReport:
+    """
+    Helper class for creating UI and json report data for the inconsistencies found
+    in the deidentified data.
+    """
+
     def __init__(self, dataset: Dataset, ui_data: ReportUIData, report_data: ReportData):
         self.s = dataset.synthetic_data
         self.r_ui_d = ui_data
@@ -23,27 +27,42 @@ class InconsistenciesReport:
         self._create()
 
     def _create(self):
+        """
+        Creates and arrange inconsistencies metrics data for the UI and json
+        data evaluation report.
+        """
+        # path for storing report outputs related to inconsistency metric
         o_path = Path(self.r_ui_d.output_directory, 'inconsistencies')
-        create_path(o_path)
-        self.ic = Inconsistencies(self.s, o_path)
-        self.ic.compute()
+        create_path(o_path)  # create path if does not already exist
 
-        # add json report data
+        # initialize an instance of inconsistencies metric
+        self.ic = Inconsistencies(self.s, o_path)
+        self.ic.compute()  # compute inconsistencies in deidentified data
+
+        # add inconsistencies stats and data to json report data
         self.rd.add('inconsistencies', self.ic.report_data)
-        # add ui report data
+
+        # --------- Add inconsistencies stats and dat to ui report data
+        # UI attachment for summary of inconsistencies found in the deidentified data
         a_sum_h = Attachment(name='Summary',
                              _data={
                                  'table': self.ic.stats['summary'],
                                  'size': 60
                              },
                              _type=AttachmentType.WideTable)
+        # add summary attachment to the UI report data
         self.attachments.append(a_sum_h)
+
+        # -----------Add UI attachments for each of the inconsistency group: AGE, WORK and Housing
         for k, v in self.ic.report_help.items():
-            # attachment header
+            # attachment header for inconsistency group
             ah = Attachment(name=v[0],
                             _data=v[1],
                             _type=AttachmentType.String)
             self.attachments.append(ah)
+
+            # Create table attachment for each of the inconsistency found
+            # in an inconsistency group
             for stat in self.ic.stats[k]:
                 name = stat[0]
                 desc = stat[1]
@@ -51,29 +70,21 @@ class InconsistenciesReport:
                 s_data = stat[3]
                 s_example = stat[4]
 
+                # Create attachment for inconsistency name and description
                 an = Attachment(name=None,
                                 _data=f'h4{name}: {desc}',
                                 _type=AttachmentType.String)
+                # Create attachment for number of violations by this inconsistency
                 a_data = Attachment(name='--no-brake--',
                                     _data=f'Highlight-{s_data}',
                                     _type=AttachmentType.String)
+                # Create a text attachment
                 a_ex_txt = Attachment(name=None,
                                       _data='Example Record:',
                                       _type=AttachmentType.String)
 
-                # example data PREVIOUS VERSION, FEATURES VERTICAL
-                # def build_row_dict(r, add_min=False):
-                #     res = {'Feature': str(r[0]),
-                #            'Value': int(r[1]) if str(r[1]).isnumeric() else str(r[1])}
-                #     if add_min:
-                #         res['min_idx'] = True
-                #     return res
-                #
-                # e_d = [build_row_dict(r, True)
-                #        if r[0] in features else build_row_dict(r)
-                #        for i, r in s_example.iterrows()]`
-
                 def to_serializable(value):
+                    """convert pandas int to python int"""
                     v = value
                     return int(v) if str(v).isnumeric() else str(v)
 
@@ -86,6 +97,8 @@ class InconsistenciesReport:
                        'highlight': {'columns': features},
                        'size': 98}  # size in percent of screen width
 
+                # Create a table attachment for displaying an example
+                # of inconsistent record in the report UI.
                 a_example = Attachment(name=None,
                                        _data=e_d,
                                        _type=AttachmentType.WideTable,
@@ -93,6 +106,10 @@ class InconsistenciesReport:
                 self.attachments.extend([an, a_data, a_ex_txt, a_example])
 
     def add_to_ui(self):
+        """
+        Adds a UtilityScorePacket instance containing all the attachments with
+        inconsistencies information to the UI report data.
+        """
         self.r_ui_d.add(UtilityScorePacket('Inconsistencies',
                                            None,
                                            self.attachments))
