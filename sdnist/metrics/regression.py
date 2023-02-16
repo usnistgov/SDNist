@@ -16,7 +16,10 @@ def convert_counts_to_matrix(target_df: pd.DataFrame,
                              y_column: str,
                              x_values: List[int],
                              y_values: List[int]) -> pd.DataFrame:
-    tar = target_df
+    """
+    Converts data frame containing unique value pairs and counts
+    into a counts matrix.
+    """
     cdf = counts_df
     xc = x_column
     yc = y_column
@@ -40,6 +43,9 @@ def convert_counts_to_matrix(target_df: pd.DataFrame,
 
 
 def normalize_on_x(counts_matrix_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Normalize counts matrix along each row.
+    """
     cm_df = counts_matrix_df
 
     for i, row in cm_df.iterrows():
@@ -52,6 +58,15 @@ def normalize_on_x(counts_matrix_df: pd.DataFrame) -> pd.DataFrame:
 
 
 class LinearRegressionMetric:
+    """
+    Metric for comparing target and deidentified data using linear
+    regression model. Linear regression is performed between features
+    EDU and PINCP_DECILE, where EDU is input and PINCP_DECILE output.
+    Also, creates density grid plots these two features. Density
+    plots have counts of  records for each unique value pair of EDU-PINCP_DECILE.
+    For density plots, counts in cell are normalized along each EDU value.
+    """
+
     NAME = 'Linear Regression'
 
     def __init__(self,
@@ -62,44 +77,64 @@ class LinearRegressionMetric:
         self.tar = target
         self.syn = synthetic
         self.d_dict = data_dictionary
-        self.o_path = output_directory
-        self.xc = 'EDU'
-        self.yc = 'PINCP_DECILE'
+        self.o_path = output_directory  # linear regression report output path
+        self.xc = 'EDU'  # input for regression
+        self.yc = 'PINCP_DECILE'  # output for regression
 
+        # subset of target data
         self.ts = None
+        # subset of deidentified data
         self.ss = None
 
         # outputs
-        self.tcm = None
-        self.scm = None
+        self.tcm = None  # target data density counts
+        self.scm = None  # synthetic data density counts
         self.diff = None
 
-        self.t_reg = None
-        self.s_reg = None
+        self.t_reg = None  # target data regression instance
+        self.s_reg = None  # deidentified data regression instance
+
+        # slope and intercept found for target data regression line
         self.t_slope = 0
         self.t_intercept = 0
+        # slope and intercept found for deidentified data regression line
         self.s_slope = 0
         self.s_intercept = 0
 
+        # regression metric statistics for json report
         self.report_data = None
 
         self._setup()
 
     def _setup(self):
+        """
+        Creates paths for the linear regression report output
+        """
         create_path(self.o_path)
 
     def compute(self):
+        """
+        Compute linear regression of target and deidentified data.
+        Compute density metrices for target and deidentified data.
+        """
         t = self.tar
         s = self.syn
-        xc = self.xc
-        yc = self.yc
+        xc = self.xc  # x axis feature or input feature
+        yc = self.yc  # y axis feature or output feature
+
+        # take subset of target and deidentified data
         self.ts = t[[xc, yc]]
         self.ss = s[[xc, yc]]
 
+        # Records counts xc and yc value pairs in target and deidentified data
         t_xy_counts = self.ts.groupby([xc, yc]).size().reset_index(name='count')
         s_xy_counts = self.ss.groupby([xc, yc]).size().reset_index(name='count')
+
+        # unique x feature values
         x_values = [int(v) for v in self.d_dict[xc]['values'] if v != 'N'] + [0]
+        # unique y feature values
         y_values = [int(v) for v in self.d_dict[yc]['values'] if v != 'N']
+
         # target data x y pair counts matrix
         tcm = convert_counts_to_matrix(self.ts, t_xy_counts, xc, yc, x_values, y_values)
 
@@ -112,10 +147,9 @@ class LinearRegressionMetric:
         self.tcm = self.tcm.transpose()
         self.scm = self.scm.transpose()
 
+        # calculated difference of density distribution
+        # between target and deindentifed data
         self.diff = self.tcm - self.scm
-        # min_diff = min(self.diff)
-        # if min_diff < 0:
-        #     self.diff = self.diff - min_diff
 
         # calculate regression lines for target and synthetic data
         if self.ts.shape[0] > 1:
@@ -129,6 +163,14 @@ class LinearRegressionMetric:
             self.s_intercept = round(self.s_reg.intercept, 2)
 
     def plots(self) -> List[Path]:
+        """
+        Create plots for target and deidentified data's density distribution and
+        overlay regression lines on the density grid.
+        Also saves the plots to the regression metric report output directory.
+        Saves regression metric statistics to the json report data dictionary.
+        """
+
+        # -------- Creates and saves plots for target and deidentified data
         fig, ax = plt.subplots(1, 2, figsize=(10, 3.3))
         plt.subplots_adjust(wspace=0.9)
         ax0 = ax[0]
@@ -139,9 +181,8 @@ class LinearRegressionMetric:
 
         apc1 = ax1.pcolor(self.diff, cmap='PuOr', vmin=-0.3, vmax=0.3)
         fig.colorbar(apc1, ax=ax1)
-        # ax1.pcolor(self.scm, cmap='rainbow', vmin=0, vmax=0.5)
+
         tx = self.ts[self.xc].values
-        sx = self.ss[self.xc].values
 
         r_tx_df = pd.DataFrame([[_ + 0.5, self.t_intercept + self.t_slope * (_ + 0.5)]
                                 for _ in tx], columns=['x', 'y'])
@@ -160,7 +201,7 @@ class LinearRegressionMetric:
         ax0.set_xlabel(self.xc)
         ax0.set_ylabel(self.yc)
         ax1.set_xlabel(self.xc)
-        # ax1.set_ylabel(self.yc)
+
         ax0.set_title('Target Distribution Density')
         ax1.set_title('Diff. Between Target and Deidentified Density')
         fig.legend(loc=7, title='Regression')
@@ -170,6 +211,8 @@ class LinearRegressionMetric:
         plt.savefig(file_path, bbox_inches='tight', dpi=100)
         plt.suptitle('Comparison between ')
         plt.close()
+
+        # --------- saves regression metric statistics to json report dictionary
         self.report_data = {
             "target_counts": relative_path(save_data_frame(self.tcm,
                                                            self.o_path,

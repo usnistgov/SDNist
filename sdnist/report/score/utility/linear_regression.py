@@ -6,8 +6,7 @@ import pandas as pd
 from sdnist.metrics.regression import LinearRegressionMetric
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
-    ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType, \
-    DatasetType, DataDescriptionPacket
+    ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType
 import sdnist.strs as strs
 from sdnist.utils import *
 
@@ -31,6 +30,7 @@ def compute_linear_regression(target: pd.DataFrame,
 class LinearRegressionReport:
     REQUIRED_FEATURES = ['EDU', 'PINCP_DECILE']
     OTHER_REQ_FEATURES = ['RAC1P', 'SEX']
+    AIANNH = 'American Indian, Alaskan Native and Native Hawaiians (AIANNH)'
 
     def __init__(self, dataset: Dataset, ui_data: ReportUIData, report_data: ReportData):
         # required features
@@ -38,12 +38,15 @@ class LinearRegressionReport:
         # available features
         available_f = list(set(req_f).intersection(set(dataset.target_data.columns.tolist())))
 
+        # take subset of target and deidentified data and convert
+        # features to numerical values
         self.t = to_num(dataset.target_data[available_f].copy())
         self.s = to_num(dataset.synthetic_data[available_f].copy())
+        # data dictionary
         self.d_dict = dataset.data_dict
         self.r_ui_d = ui_data  # report ui data
         self.rd = report_data
-        AIANNH = 'American Indian, Alaskan Native and Native Hawaiians (AIANNH)'
+
         self.labels = {
             'total_population': ['Total Population', []],
             'white_men': ['White Men', [['RAC1P', [1]], ['SEX', [1]]]],
@@ -52,8 +55,8 @@ class LinearRegressionReport:
             'black_women': ['Black Women', [['RAC1P', [2]], ['SEX', [2]]]],
             'asian_men': ['Asian Men', [['RAC1P', [6]], ['SEX', [1]]]],
             'asian_women': ['Asian Women', [['RAC1P', [6]], ['SEX', [2]]]],
-            'aiannh_men': [f'{AIANNH} Men', [['RAC1P', [3, 4, 5, 7]], ['SEX', [1]]]],
-            'aiannh_women': [f'{AIANNH} Women', [['RAC1P', [3, 4, 5, 7]], ['SEX', [2]]]]
+            'aiannh_men': [f'{self.AIANNH} Men', [['RAC1P', [3, 4, 5, 7]], ['SEX', [1]]]],
+            'aiannh_women': [f'{self.AIANNH} Women', [['RAC1P', [3, 4, 5, 7]], ['SEX', [2]]]]
         }
         self.eval_data = {k: [] for k in self.labels.keys()}
         self.attachments = []
