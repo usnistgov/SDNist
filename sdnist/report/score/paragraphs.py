@@ -8,10 +8,10 @@ k_marg_synopsys_para = "The k-marginal metric checks how far the shape of the de
 
 sub_sample_para = "Here we provide a sampling error baseline: Taking a random subsample of the data " \
                   "also shifts the distribution by introducing sampling error.  How does the shift from " \
-                  "synthesizing data compare to the shift that would occur from subsampling the target data?"
+                  "deidentifying data compare to the shift that would occur from subsampling the target data?"
 
 k_marg_all_puma_para = "Different PUMA have different subpopulations and " \
-                       "distributions; how much has each PUMA shifted during synthesis?"
+                       "distributions; how much has each PUMA shifted during deidentification?"
 
 univ_dist_para = "Here we provide single feature distribution comparisons for the worst " \
                  "performing features (based on the L1 norm of density differences)."
@@ -19,7 +19,7 @@ univ_dist_para = "Here we provide single feature distribution comparisons for th
 corr_para = "A key goal of deidentified data is to preserve the feature correlations from the target " \
             "data, so that analyses performed on the deidentified data provide meaningful insight about " \
             "the target population.  Which correlations are the deidentified data preserving, and " \
-            "which are being altered during synthesis?"
+            "which are being altered during deidentification?"
 
 
 pear_corr_para = "The <a href='https://en.wikipedia.org/wiki/Pearson_correlation_coefficient'>Pearson Correlation</a> " \
@@ -55,7 +55,7 @@ pca_para = "This is another approach for visualizing where the distribution of t
 
 k_marg_break_para = "In the metrics above we’ve considered all of the data together; " \
                     "however we know that algorithms may behave differently on different " \
-                    "subgroups in the population. Below we look in more detail at synthesis " \
+                    "subgroups in the population. Below we look in more detail at deidentification " \
                     "performance just in the worst performing PUMA, based on k-marginal score."
 
 worst_k_marg_para = "Which are the worst performing PUMA?"

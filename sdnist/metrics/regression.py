@@ -196,14 +196,14 @@ class LinearRegressionMetric:
         ax1.plot(r_tx_df['x'],
                  r_tx_df['y'], color='red')
         ax1.plot(r_sx_df['x'],
-                 r_sx_df['y'], color='green', label='Synthetic')
+                 r_sx_df['y'], color='green', label='Deid.')
 
         ax0.set_xlabel(self.xc)
         ax0.set_ylabel(self.yc)
         ax1.set_xlabel(self.xc)
 
         ax0.set_title('Target Distribution Density')
-        ax1.set_title('Diff. Between Target and Deidentified Density')
+        ax1.set_title('Diff. Between Target and Deid. Density')
         fig.legend(loc=7, title='Regression')
         plt.tight_layout()
         fig.subplots_adjust(right=0.88)
@@ -217,12 +217,12 @@ class LinearRegressionMetric:
             "target_counts": relative_path(save_data_frame(self.tcm,
                                                            self.o_path,
                                                            'target_counts')),
-            "target_synthetic_counts_difference": relative_path(save_data_frame(self.diff,
+            "target_deidentified_counts_difference": relative_path(save_data_frame(self.diff,
                                                                 self.o_path,
-                                                                "target_synthetic_counts_difference")),
-            "target_synthetic_difference_plot": relative_path(file_path),
+                                                                "target_deidentified_counts_difference")),
+            "target_deidentified_difference_plot": relative_path(file_path),
             "target_regression_slope_and_intercept": (self.t_slope, self.t_intercept),
-            "synthetic_regression_slope_and_intercept": (self.s_slope, self.s_intercept)
+            "deidentified_regression_slope_and_intercept": (self.s_slope, self.s_intercept)
         }
 
         return [file_path]

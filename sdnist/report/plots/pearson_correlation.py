@@ -47,7 +47,7 @@ class PearsonCorrelationPlot:
         plt.xticks(range(cd.shape[1]), cd.columns)
         plt.xticks(rotation=90)
         plt.yticks(range(cd.shape[0]), cd.index)
-        plt.title('Pearson Correlation Diff. between Target and Synthetic')
+        plt.title('Pearson Correlation Diff. Between Target and Deid. Data')
         fig.tight_layout()
         plt.savefig(file_path, bbox_inches='tight')
         plt.close()

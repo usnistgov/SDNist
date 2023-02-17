@@ -102,7 +102,7 @@ def save_correlation_difference_plot(correlation_data: pd.DataFrame,
     plt.xticks(rotation=90)
     plt.yticks(range(cd.shape[0]), cd.index)
     file_path = Path(output_directory, 'corr_diff.jpg')
-    plt.title('Correlation Diff. between Target and Synthetic')
+    plt.title('Correlation Diff. Between Target and Deid. Data')
     fig.tight_layout()
     plt.savefig(file_path, bbox_inches='tight')
     plt.close()
