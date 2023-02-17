@@ -50,7 +50,7 @@ def normalize_on_x(counts_matrix_df: pd.DataFrame) -> pd.DataFrame:
 
     for i, row in cm_df.iterrows():
         r_sum = sum(row)
-        if r_sum and r_sum > 20:
+        if r_sum and r_sum >= 20:
             cm_df.loc[i, :] = cm_df.loc[i, :] / r_sum
         else:
             cm_df.loc[i, :] = 0

@@ -27,6 +27,54 @@ def compute_linear_regression(target: pd.DataFrame,
     return reg_m, reg_m_paths
 
 
+# linear regression UI report paragraphs
+lr_paragraphs = [
+        "Linear regression is a fundamental data analysis technique that condenses "
+        "a multi-dimensional data distribution  down to a one dimensional (line) representation. "
+        "It works by finding the line that sits in the 'middle' of the data, in some sense-- "
+        "<a href='https://en.wikipedia.org/wiki/Linear_regression#Formulation'>"
+        "it minimizes the total distance between the points of the data and the line.</a> "
+        "There are more advanced forms of regression, but here we're focusing on the "
+        "simplest case-- we fit a simple straight line to the data, getting "
+        "the slope and y-intercept value of that line.",
+
+        "For this metric we're just looking at data from adults (AGEP > 15) and "
+        "we're only considering the distribution of the data across two features:"
+        "<ul>"
+        "<li>EDU: The highest education level this individual has attained, ranging "
+        "from 1 (elementary school) to 12 (PhD). See Appendix of this report for "
+        "the full list of code values.</li>"
+        "<li>PINCP_DECILE: The individual's income decile relative to their PUMA. "
+        "This helps us account for differences in cost of living across the country. "
+        "If an individual makes a moderate income but lives in a very low income area, "
+        "they may have a high value for PINCP_DECILE indicating that they have a high "
+        "income for their PUMA).</li>"
+        "</ul>",
+
+        "The basic idea is that higher values of EDU should lead to higher values of "
+        "PINCP_DECILE, and this is broadly true. However, it is known that the relationship "
+        "between EDU and PINCP_DECILE is different for different demographic subgroups. "
+        "The heatmaps in the left column below show the density distribution of the true "
+        "data for each subgroup, normalized by education category (so the density values "
+        "in each column sum to 1; note that when a cell in the heatmap contains too few "
+        "people (< 20 ), it is left blank; its not expected that the deidentified data will "
+        "match the original distribution precisely). The regression line is drawn in "
+        "red over the heatmap, so you can see the relationship between the target data "
+        "distribution and its linear regression analysis. In the right column for each "
+        "subgroup we show how the deidentified data's regression line compares to the "
+        "target data's regression line, along with a heatmap of the density differences between the two "
+        "distributions. Redder areas are where the deidentified data has created too many "
+        "people, bluer areas are where it's created too few people.",
+
+        "We've broken this metric down into demographic groups so we can see not only how "
+        "well the privacy techniques preserve the overall relationship between these features, "
+        "but also whether they preserve how that overall relationship is built up from the "
+        "different relationships that hold at each major demographic subgroup. "
+        "It's important that deidentification techniques preserve these distinct "
+        "subgroup patterns for analysis."
+]
+
+
 class LinearRegressionReport:
     REQUIRED_FEATURES = ['EDU', 'PINCP_DECILE']
     OTHER_REQ_FEATURES = ['RAC1P', 'SEX']
@@ -81,10 +129,12 @@ class LinearRegressionReport:
             self.eval_data[k] = [reg, image_path]
 
         # create report attachments
-        reg_para_a = Attachment(name=None,
-                                _data='This is regression metric',
+        for p in lr_paragraphs:
+            para_a = Attachment(name=None,
+                                _data=p,
                                 _type=AttachmentType.String)
-        self.attachments.append(reg_para_a)
+            self.attachments.append(para_a)
+
         for k, v in self.eval_data.items():
             if not len(v):
                 continue
