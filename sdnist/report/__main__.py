@@ -20,8 +20,9 @@ from sdnist.strs import *
 def run(synthetic_filepath: Path,
         output_directory: Path = REPORTS_DIR,
         test: TestDatasetName = TestDatasetName.NONE,
-        data_root: Path = 'sdnist_toy_data',
-        download: bool = False):
+        data_root: Path = Path('sdnist_toy_data'),
+        download: bool = False,
+        test_mode: bool = False):
     outfile = Path(output_directory, 'report.json')
     ui_data = ReportUIData(output_directory=output_directory)
     report_data = ReportData(output_directory=output_directory)
@@ -30,6 +31,7 @@ def run(synthetic_filepath: Path,
         print('Loading Dataset...')
         dataset = Dataset(synthetic_filepath, test, data_root, download)
         ui_data = data_description(dataset, ui_data)
+
         # Create scores
         print('Computing Utility Scores...')
         ui_data, report_data = utility_score(dataset, ui_data, report_data)
@@ -43,7 +45,7 @@ def run(synthetic_filepath: Path,
             ui_data = json.load(f)
 
     # Generate Report
-    generate(ui_data, output_directory)
+    generate(ui_data, output_directory, test_mode)
 
 
 class NoAction(argparse.Action):
@@ -62,14 +64,14 @@ if __name__ == "__main__":
                         "NATIONAL": TestDatasetName.national2019}
     parser = argparse.ArgumentParser()
     parser.register('action', 'none', NoAction)
-    parser.add_argument("synthetic_dataset", type=argparse.FileType("r"),
-                        metavar="PATH_SYNTHETIC_DATASET",
-                        help="Location of synthetic dataset (csv or parquet file)")
+    parser.add_argument("deidentified_dataset", type=argparse.FileType("r"),
+                        metavar="PATH_DEIDENTIFIED_DATASET",
+                        help="Location of deidentified dataset (csv or parquet file)")
     parser.add_argument("target_dataset_name",
                         metavar="TARGET_DATASET_NAME",
                         choices=[b for b in bundled_datasets.keys()],
                         help="Select name of the target dataset "
-                             "that was used to generated given synthetic dataset")
+                             "that was used to generated given deidentified dataset")
     parser.add_argument("--data-root", type=Path,
                         default=Path("sdnist_toy_data"),
                         help="Path of the directory "
@@ -98,7 +100,7 @@ if __name__ == "__main__":
 
     input_cnf = {
         TEST: TARGET_DATA,
-        SYNTHETIC_FILEPATH: Path(args.synthetic_dataset.name),
+        SYNTHETIC_FILEPATH: Path(args.deidentified_dataset.name),
         DATA_ROOT: Path(args.data_root),
         OUTPUT_DIRECTORY: this_report_dir,
         DOWNLOAD: args.download

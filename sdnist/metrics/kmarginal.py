@@ -146,9 +146,12 @@ class KMarginalScore:
 
     def _compute_score(self):
         total_tv = 0
-
+        if self.loading_bar:
+            c_list = tqdm(self.columns(), total=self.N_PERMUTATIONS)
+        else:
+            c_list = self.columns()
         # Compute KMarginal per group in ALWAYS_GROUPBY
-        for columns in tqdm(self.columns(), total=self.N_PERMUTATIONS):
+        for columns in c_list:
             p0 = compute_marginal(self._private_dataset, columns)
             p1 = compute_marginal(self._synthetic_dataset, columns)
             tv = p0.subtract(p1, fill_value=0).abs().sum()

@@ -19,8 +19,10 @@ class EvaluationType(Enum):
 
 class AttachmentType(Enum):
     Table = "table"
+    WideTable = 'wide_table'
     ImageLinks = "image_links"
     String = 'string'
+    ParaAndImage = 'para_and_image'
 
 
 @dataclass
@@ -28,6 +30,7 @@ class Attachment:
     name: Optional[str]
     _data: any
     _type: AttachmentType = field(default=AttachmentType.Table)
+    dotted_break: bool = field(default=False)
 
     @property
     def data(self) -> Dict[str, any]:
@@ -35,7 +38,8 @@ class Attachment:
         return {
             'name': self.name,
             'data': d,
-            'type': self._type.value
+            'type': self._type.value,
+            'dotted_break': self.dotted_break
         }
 
 
@@ -163,7 +167,11 @@ class ReportData:
     data: Dict[str, any] = field(default_factory=dict, init=False)
 
     def add(self, metric_name: str, data: Dict[str, any]):
-        self.data[metric_name] = data
+        if metric_name not in self.data:
+            self.data[metric_name] = data
+        else:
+            for k, v in data.items():
+                self.data[metric_name][k] = v
 
     def save(self):
         o_path = Path(self.output_directory, 'report.json')

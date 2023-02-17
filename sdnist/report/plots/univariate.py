@@ -159,7 +159,7 @@ class UnivariatePlots:
                     x_axis = np.arange(merged.shape[0])
                     plt.figure(figsize=(8, 3), dpi=100)
                     plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
-                    plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
+                    plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label='Deid.')
                     plt.xlabel('Feature Values')
                     plt.ylabel('Record Counts')
                     plt.gca().set_xticks(x_axis, merged[f].values.tolist())
@@ -238,7 +238,7 @@ class UnivariatePlots:
 
                 x_axis = np.arange(merged.shape[0])
                 plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
-                plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label=SYNTHETIC)
+                plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label='Deid.')
                 plt.xlabel('Feature Values')
                 plt.ylabel('Record Counts')
                 vals = merged[f].values.tolist()

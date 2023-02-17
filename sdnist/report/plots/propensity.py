@@ -68,7 +68,7 @@ class PropensityPairPlot:
         plt.yticks(range(sd.shape[0]), sd.index)
         file_path = Path(self.plot_path, f'{filename}.jpg')
         plt.title(title)
+        fig.tight_layout()
         plt.savefig(file_path, bbox_inches='tight')
         plt.close()
-        fig.tight_layout()
         return [file_path]

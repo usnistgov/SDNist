@@ -31,7 +31,6 @@ class PearsonCorrelationDifference:
 
     def pair_wise_correlations(self, data: pd.DataFrame) -> pd.DataFrame:
         corr_list = []
-
         for f_a in self.features:
             f_corr = []
             for f_b in self.features:

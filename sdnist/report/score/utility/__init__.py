@@ -15,8 +15,13 @@ from sdnist.metrics.propensity import \
 from sdnist.metrics.pearson_correlation import \
     PearsonCorrelationDifference
 from sdnist.metrics.pca import PCAMetric, plot_pca
+from sdnist.metrics.regression import LinearRegressionMetric
 
 from sdnist.report.score.paragraphs import *
+from sdnist.report.score.utility.linear_regression import \
+    LinearRegressionReport
+from sdnist.report.score.utility.inconsistency import \
+    InconsistenciesReport
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
     ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType, \
@@ -103,6 +108,7 @@ def worst_score_breakdown(worst_scores: List,
     wsh = pd.DataFrame(worst_scores)
     if str(wsh.loc[0, feature]).startswith('['):
         wsh[feature] = wsh[feature].apply(lambda x: list(x)[0])
+
     wpf = wsh[feature].unique().tolist()[:5]  # worst performing feature values
     t = dataset.d_target_data.copy()
     s = dataset.d_synthetic_data.copy()
@@ -151,7 +157,7 @@ def worst_score_breakdown(worst_scores: List,
             a = Attachment(name=None,
                            _data=f"Feature Value: {fv}"
                                  f"<br>Target Data Counts: {tc}"
-                                 f"<br>Synthetic Data Counts: {sc}",
+                                 f"<br>Deidentified Data Counts: {sc}",
                            _type=AttachmentType.String)
             u_as.append(a)
 
@@ -185,7 +191,7 @@ def worst_score_breakdown(worst_scores: List,
                            _type=AttachmentType.String)
     a_rt = Attachment(name=None,
                       _data=[{"Dataset": "Target", "Record Counts": t.shape[0]},
-                             {"Dataset": "Synthetic", "Record Counts": s.shape[0]}],
+                             {"Dataset": "Deidentified", "Record Counts": s.shape[0]}],
                       _type=AttachmentType.Table)
     # a_up = Attachment(name=f"Univariate Distribution of Worst "
     #                        f"Performing Features in {len(wpf)} Worst Performing "
@@ -233,15 +239,16 @@ def kmarginal_subsamples(dataset: Dataset,
 
 
 def kmarginal_score_packet(k_marginal_score: int,
-                           group_features: List[str],
-                           group_scores: pd.Series,
                            feature_values: Dict[str, Dict],
                            dataset: Dataset,
                            ui_data: ReportUIData,
                            report_data: ReportData,
                            subsample_scores: Dict[float, int],
-                           worst_breakdown_feature: str) -> Tuple[UtilityScorePacket,
-                                                                  UtilityScorePacket]:
+                           worst_breakdown_feature: str,
+                           group_features: List[str],
+                           group_scores: Optional[pd.Series] = None) \
+        -> Tuple[UtilityScorePacket, UtilityScorePacket]:
+
     def min_index(data_list: List[float]):
         mi = 0
         m = max(data_list)
@@ -263,7 +270,7 @@ def kmarginal_score_packet(k_marginal_score: int,
 
     # subsample fraction score attachment
     ssf_a = Attachment(name=None,
-                       _data=f"K-Marginal score of the synthetic data closely resembles "
+                       _data=f"K-Marginal score of the deidentified data closely resembles "
                              f"K-Marginal score of a {int(min_frac * 100)}% sub-sample of "
                              f"the target data.",
                        _type=AttachmentType.String)
@@ -278,8 +285,8 @@ def kmarginal_score_packet(k_marginal_score: int,
     # sampling error data attachment
     sedf = [{"Sub-Sample Size": f"{int(frac * 100)}%",
              "Sub-Sample K-Marginal Score": subsample_scores[frac],
-             "Synthetic Data K-marginal score": k_marginal_score,
-             "Absolute Diff. From Synthetic Data K-marginal Score":
+             "Deidentified Data K-marginal score": k_marginal_score,
+             "Absolute Diff. From Deidentified Data K-marginal Score":
                  f"{abs(subsample_scores[frac] - k_marginal_score)}"
              }
             for frac in sorted_frac]
@@ -295,55 +302,16 @@ def kmarginal_score_packet(k_marginal_score: int,
     sed_a = Attachment(name=None,
                        _data=sedf)
 
-    worst_scores, best_scores = best_worst_performing(group_scores,
-                                                      dataset,
-                                                      group_features,
-                                                      feature_values)
-    all_scores = worst_scores
-    total_pumas = len(dataset.target_data['PUMA'].unique())
-    default_w_b_n = 2 if total_pumas <= 6 else 5
-
-
+    # add k-marginal subsample and deidentified data scores to json report
     k_marg_synop_rd['subsample_error_comparison'] = \
         relative_path(save_data_frame(sedf_df, k_marg_synopsys_path, 'subsample_error_comparison'))
     k_marg_synop_rd['k_marginal_score'] = k_marginal_score
-    k_marg_synop_rd['score_in_each_puma'] = \
-        relative_path(save_data_frame(pd.DataFrame(all_scores),
-                                      k_marg_synopsys_path,
-                                      'score_in_each_puma'))
 
-    # count of worst or best k-marginal pumas to select
-    w_b_n = default_w_b_n if len(worst_scores) > default_w_b_n else len(worst_scores)
-    worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
+    report_data.add('k_marginal', {
+        "k_marginal_synopsys": k_marg_synop_rd
+    })
 
-    worst_break_down, k_marg_break_rd = worst_score_breakdown(worst_scores,
-                                                              dataset,
-                                                              ui_data,
-                                                              report_data,
-                                                              worst_breakdown_feature)
-
-    # all score attachment
-    as_para_a = Attachment(name=f'K-Marginal Score in Each ' + '-'.join(group_features),
-                           _data=k_marg_all_puma_para,
-                           _type=AttachmentType.String)
-
-    as_a = Attachment(name=None,
-                      _data=all_scores)
-    k_marg_break_para_a = Attachment(name=None,
-                                     _data=k_marg_break_para,
-                                     _type=AttachmentType.String)
-
-    # worst score attachment
-    ws_para_a = Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
-                           _data=worst_k_marg_para,
-                           _type=AttachmentType.String)
-    ws_a = Attachment(name=None,
-                      _data=worst_scores)
-
-    # best score attachment
-    bs_a = Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
-                      _data=best_scores)
-
+    # Create attachments for UI report
     # k marg para attachment
     kmp_a = Attachment(name=None,
                        _data=k_marg_synopsys_para,
@@ -352,27 +320,86 @@ def kmarginal_score_packet(k_marginal_score: int,
     kms_a = Attachment(name=None,
                        _data=f"Highlight-K-Marginal Score: {k_marginal_score}",
                        _type=AttachmentType.String)
+    attachments = [kmp_a, kms_a, ss_para_a, ssf_a, sed_a]
+
     kmarg_sum_pkt = UtilityScorePacket('K-Marginal Synopsys',
                                        None,
-                                       [kmp_a, kms_a, ss_para_a, ssf_a, sed_a, as_para_a, as_a])
+                                       attachments)
 
-    gp_a = grid_plot_attachment(group_features,
-                                group_scores,
-                                feature_values,
-                                ui_data.output_directory)
+    kmarg_det_pkt = None  # k-marginal details breakdown packet
+    if group_scores is not None:
+        worst_scores, best_scores = best_worst_performing(group_scores,
+                                                          dataset,
+                                                          group_features,
+                                                          feature_values)
+        all_scores = worst_scores
+        # target pumas
+        t_pumas = dataset.target_data['PUMA'].unique()
+        # synthetic pumas
+        s_pumas = dataset.synthetic_data['PUMA'].unique()
+        # usable pumas
+        usable_pumas = set(t_pumas).intersection(s_pumas)
+        default_w_b_n = 2 if len(usable_pumas) <= 6 else 5
 
-    metric_attachments = [k_marg_break_para_a, ws_para_a, ws_a]
-    if gp_a:
-        metric_attachments.append(gp_a)
-    metric_attachments.extend(worst_break_down)
+        k_marg_synop_rd['score_in_each_puma'] = \
+            relative_path(save_data_frame(pd.DataFrame(all_scores),
+                                          k_marg_synopsys_path,
+                                          'score_in_each_puma'))
 
-    kmarg_det_pkt = UtilityScorePacket('K-Marginal Score Breakdown',
-                                       None,
-                                       metric_attachments)
-    report_data.add('k_marginal', {
-        "k_marginal_synopsys": k_marg_synop_rd,
-        "k_marginal_breakdown": k_marg_break_rd
-    })
+        # count of worst or best k-marginal pumas to select
+        worst_scores = [ws for ws in worst_scores if ws['PUMA'][0] in usable_pumas]
+        best_scores = [bs for bs in best_scores if bs['PUMA'][0] in usable_pumas]
+        w_b_n = default_w_b_n if len(worst_scores) > default_w_b_n else len(worst_scores)
+        worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
+
+        worst_break_down, k_marg_break_rd = worst_score_breakdown(worst_scores,
+                                                                  dataset,
+                                                                  ui_data,
+                                                                  report_data,
+                                                                  worst_breakdown_feature)
+
+        # all score attachment
+        as_para_a = Attachment(name=f'K-Marginal Score in Each ' + '-'.join(group_features),
+                               _data=k_marg_all_puma_para,
+                               _type=AttachmentType.String)
+
+        as_a = Attachment(name=None,
+                          _data=all_scores)
+        k_marg_break_para_a = Attachment(name=None,
+                                         _data=k_marg_break_para,
+                                         _type=AttachmentType.String)
+
+        # worst score attachment
+        ws_para_a = Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
+                               _data=worst_k_marg_para,
+                               _type=AttachmentType.String)
+        ws_a = Attachment(name=None,
+                          _data=worst_scores)
+
+        # best score attachment
+        bs_a = Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
+                          _data=best_scores)
+
+        report_data.add('k_marginal', {
+            "k_marginal_breakdown": k_marg_break_rd
+        })
+
+        attachments.extend([as_para_a, as_a])
+
+        metric_attachments = [k_marg_break_para_a, ws_para_a, ws_a]
+
+        gp_a = grid_plot_attachment(group_features,
+                                    group_scores,
+                                    feature_values,
+                                    ui_data.output_directory)
+        if gp_a:
+            metric_attachments.append(gp_a)
+        metric_attachments.extend(worst_break_down)
+
+        kmarg_det_pkt = UtilityScorePacket('K-Marginal Score Breakdown',
+                                           None,
+                                           metric_attachments)
+
     return kmarg_sum_pkt, kmarg_det_pkt
 
 
@@ -440,7 +467,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                 a = Attachment(name=None,
                                _data=f"Feature Value: {fv}"
                                      f"<br>Target Data Counts: {tc}"
-                                     f"<br>Synthetic Data Counts: {sc}",
+                                     f"<br>Deidentified Data Counts: {sc}",
                                _type=AttachmentType.String)
                 u_as.append(a)
 
@@ -496,28 +523,17 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         if s.NAME == CensusKMarginalScore.NAME \
                 and ds.challenge == strs.CENSUS:
 
+            group_scores = s.scores if hasattr(s, 'scores') and len(s.scores) else None
             subsample_scores = kmarginal_subsamples(ds, CensusKMarginalScore)
             kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
-                                                                  group_features,
-                                                                  s.scores,
                                                                   f_val_dict,
                                                                   ds,
                                                                   r_ui_d,
                                                                   rd,
                                                                   subsample_scores,
-                                                                  'PUMA')
-
-        elif s.NAME == TaxiKMarginalScore.NAME \
-                and ds.challenge == strs.TAXI:
-            subsample_scores = kmarginal_subsamples(ds, TaxiKMarginalScore)
-            kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
+                                                                  'PUMA',
                                                                   group_features,
-                                                                  s.scores,
-                                                                  f_val_dict,
-                                                                  ds,
-                                                                  r_ui_d,
-                                                                  subsample_scores,
-                                                                  'pickup_community_area')
+                                                                  group_scores)
 
         elif s.NAME == PropensityMSE.NAME:
             p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
@@ -550,19 +566,10 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                           None,
                                           [pd_para_a, pd_score_a, pd_a])
 
-    if kmarg_sum_pkt:
-        r_ui_d.add(kmarg_sum_pkt)
 
     # rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
     #                            for p in up_saved_file_paths]
-    r_ui_d.add(UtilityScorePacket("Univariate Distributions",
-                              None,
-                              [Attachment(name=None,
-                               _data=univ_dist_para,
-                               _type=AttachmentType.String),
-                               Attachment(name="Three Worst Performing Features",
-                                          _data="",
-                                          _type=AttachmentType.String)] + u_as))
+
 
     corr_metric_a = []
     corr_metric_a.append(Attachment(name=None,
@@ -594,11 +601,10 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         corr_metric_a.append(pc_para_a)
         corr_metric_a.append(pc_a)
 
-    r_ui_d.add(UtilityScorePacket("Correlations",
-                                  None,
-                                  corr_metric_a))
 
-    pca = PCAMetric(dataset.t_target_data, dataset.t_synthetic_data, r_ui_d.output_directory)
+    pca = PCAMetric(dataset.t_target_data,
+                    dataset.t_synthetic_data,
+                    r_ui_d.output_directory)
     pca.compute_pca()
     pca_saved_file_path = pca.plot()
     rd.add('pca', pca.report_data)
@@ -617,16 +623,35 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                               for p in rel_pca_save_file_path],
                        _type=AttachmentType.ImageLinks)
 
+    # Add metrics reports to UI
+    if kmarg_sum_pkt:
+        r_ui_d.add(kmarg_sum_pkt)
+
+    r_ui_d.add(UtilityScorePacket("Univariate Distributions",
+                                  None,
+                                  [Attachment(name=None,
+                                              _data=univ_dist_para,
+                                              _type=AttachmentType.String),
+                                   Attachment(name="Three Worst Performing Features",
+                                              _data="",
+                                              _type=AttachmentType.String)] + u_as))
+
+    r_ui_d.add(UtilityScorePacket("Correlations",
+                                  None,
+                                  corr_metric_a))
+    lgr = LinearRegressionReport(ds, r_ui_d, rd)
+    lgr.add_to_ui()
+
     if prop_pkt:
         r_ui_d.add(prop_pkt)
-
     r_ui_d.add(UtilityScorePacket("PCA",
-                              None,
-                              [pca_para_a, pca_a_tt, pca_a]))
+                                  None,
+                                  [pca_para_a, pca_a_tt, pca_a]))
+    icr = InconsistenciesReport(ds, r_ui_d, rd)
+    icr.add_to_ui()
 
     if kmarg_det_pkt:
         r_ui_d.add(kmarg_det_pkt)
-
 
     return r_ui_d, rd
 

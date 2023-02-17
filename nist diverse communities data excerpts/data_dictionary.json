@@ -174,23 +174,27 @@
   },
   "PINCP": {
     "description": "Person's total income in dollars",
-    "N": "N/A (less than 15 years old)",
-    "min": -9000,
-    "max": 1341000
+    "values": {
+      "N": "N/A (less than 15 years old)",
+      "min": -9000,
+      "max": 1341000
+    }
   },
   "PINCP_DECILE": {
     "description": "Person's total income in 10-percentile bins",
-    "N": "N/A (less than 15 years old",
-    "9": "90th percentile",
-    "8": "80th percentile",
-    "7": "70th percentile",
-    "6": "60th percentile",
-    "5": "50th percentile",
-    "4": "40th percentile",
-    "3": "30th percentile",
-    "2": "20th percentile",
-    "1": "10th percentile",
-    "0": "0th percentile"
+    "values": {
+      "N": "N/A (less than 15 years old",
+      "9": "90th percentile",
+      "8": "80th percentile",
+      "7": "70th percentile",
+      "6": "60th percentile",
+      "5": "50th percentile",
+      "4": "40th percentile",
+      "3": "30th percentile",
+      "2": "20th percentile",
+      "1": "10th percentile",
+      "0": "0th percentile"
+    }
   },
   "POVPIP": {
     "description": "Income-to-poverty ratio (ex: 250 = 2.5 x poverty line)",

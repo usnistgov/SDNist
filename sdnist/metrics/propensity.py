@@ -81,7 +81,7 @@ class PropensityMSE:
                 sc[pi][0] += 1
         self.prob_dist = pd.DataFrame([[o[0], s[0]]
                                       for o, s in zip(oc, sc)],
-                                      columns=['target samples', 'synthetic samples'],
+                                      columns=['Target samples', 'Deid. samples'],
                                       index=range(self.bins))
 
         N_size = N.shape[0]

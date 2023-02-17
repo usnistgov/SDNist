@@ -1,15 +1,21 @@
+# include
+!sdnist/
+!sdnist/test/
+!sdnist/test/report/
+!sdnist/test/report/data/
+!sdnist/test/report/data/na2019_1000.csv
+
+# ignore
 report.json
 **.pyc
 **.DS_Store
 
 .ipynb_checkpoints
-data/
+toy_synthetic_data/
 dask-worker-space/
 results/
 build/
 sdnist.egg-info/
 
 **.pkl
-*.csv
-
 build

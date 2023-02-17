@@ -1,7 +1,8 @@
-from typing import List, Union
+from typing import List, Union, Optional
 import numpy as np
 import pandas as pd
 import json
+import os
 
 from pathlib import Path
 
@@ -149,3 +150,37 @@ def relative_path(path: Union[List[Path], Path]) -> Union[List[str], str]:
     elif isinstance(path, List):
         return ["/".join(list(p.parts)[-2:])
                 for p in path]
+
+
+def create_path(path: Path):
+    if not path.exists():
+        os.mkdir(path)
+
+
+def to_num(data: pd.DataFrame) -> pd.DataFrame:
+    """Converts data to numeric and drops all the records
+    with N values"""
+    d = data
+
+    for f in d.columns:
+        d = d[~d[f].isin(['N'])]
+    for f in d.columns:
+        d.loc[:, f] = pd.to_numeric(d.loc[:, f])
+    return d
+
+
+def df_filter(data: pd.DataFrame, filters: Optional[List] = None) -> pd.DataFrame:
+    """
+    Filters dataframe using input filters.
+    Filters are represented as a List, each member
+    of the filters list is a list that contains feature name
+    at index 0 and list of feature values at index 1.
+    """
+    if not filters:
+        return data
+    for d_filter in filters:
+        feature = d_filter[0]
+        values = d_filter[1]
+        data = data[data[feature].isin(values)]
+    return data
+

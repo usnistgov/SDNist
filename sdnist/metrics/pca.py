@@ -44,6 +44,7 @@ class PCAMetric:
 
         t_pc = t_pca.fit_transform(tdf_v)
 
+
         t_ev = np.array(t_pca.components_)
         s_pc = np.matmul(sdf_v, t_ev.T)
 
@@ -76,20 +77,20 @@ class PCAMetric:
             "target_transformed": relative_path(save_data_frame(self.t_pdf,
                                                                 self.o_path,
                                                                 'target_transformed')),
-            "synthetic_transformed": relative_path(save_data_frame(self.s_pdf,
+            "deidentified_transformed": relative_path(save_data_frame(self.s_pdf,
                                                                    self.o_path,
-                                                                   'synthetic_transformed'))
+                                                                   'deidentifed_transformed'))
         }
 
     def plot(self):
         tar_path = Path(self.o_path, 'target.jpg')
-        syn_path = Path(self.o_path, 'synthetic.jpg')
+        syn_path = Path(self.o_path, 'deidentified.jpg')
 
         self.report_data['plot_target'] = relative_path(tar_path)
-        self.report_data['plot_synthetic'] = relative_path(syn_path)
+        self.report_data['plot_deidentified'] = relative_path(syn_path)
 
         plot_pca('Target Dataset', self.t_pdf, tar_path, color='#5373d8')
-        plot_pca('Synthetic Dataset', self.s_pdf, syn_path, color='#4eb07a')
+        plot_pca('Deidentified Dataset', self.s_pdf, syn_path, color='#4eb07a')
 
         return [tar_path, syn_path]
 

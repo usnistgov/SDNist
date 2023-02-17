@@ -154,6 +154,19 @@ def add_bin_for_NA(data, reference_data, features):
     return d
 
 
+def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
+    """remove features from configuration that are not available in
+    the input synthetic data"""
+    cnf = config
+    fl = synthetic_data.columns.tolist()
+    if 'k_marginal' in cnf and 'group_features' in cnf['k_marginal']:
+        for f in cnf['k_marginal']['group_features'].copy():
+            if f not in fl:
+                cnf['k_marginal']['group_features'].remove(f)
+
+    return cnf
+
+
 @dataclass
 class Dataset:
     synthetic_filepath: Path
@@ -191,6 +204,7 @@ class Dataset:
         config_1 = u.read_json(Path(self.target_data_path.parent, 'config.json'))
         config_2 = u.read_json(Path(FILE_DIR, 'config.json'))
         self.config = {**config_1, **config_2}
+
         self.mappings = u.read_json(Path(self.target_data_path.parent, 'mappings.json'))
         self.data_dict = u.read_json(Path(self.target_data_path.parent, 'data_dictionary.json'))
         self.features = self.target_data.columns.tolist()
@@ -213,7 +227,6 @@ class Dataset:
             set(self.target_data.columns.tolist())
         ))
 
-
         if 'Unnamed: 0' in self.target_data.columns:
             self.target_data = self.target_data.drop(columns=['Unnamed: 0'])
 
@@ -233,11 +246,12 @@ class Dataset:
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
 
+        # update config to contain only available features
+        self.config = unavailable_features(self.config, self.synthetic_data)
+
         # transformed data
         self.t_target_data = transform(self.target_data, self.schema)
-        # print()
-        # print('SYNTHETIC')
-        # print()
+
         self.t_synthetic_data = transform(self.synthetic_data, self.schema)
 
         # binned data
@@ -255,14 +269,12 @@ class Dataset:
                                                self.synthetic_data,
                                                numeric_features)
 
-        # print(sorted(self.d_synthetic_data['POVPIP'].unique()))
-        # print(sorted(self.d_synthetic_data['AGEP'].unique()))
         non_numeric = [c for c in self.features
                        if c not in numeric_features]
 
         self.d_target_data[non_numeric] = self.t_target_data[non_numeric]
         self.d_synthetic_data[non_numeric] = self.t_synthetic_data[non_numeric]
-        # print('AGEP', self.d_synthetic_data['AGEP'].unique())
+
         self.config[strs.CORRELATION_FEATURES] = \
             self._fix_corr_features(self.features,
                                     self.config[strs.CORRELATION_FEATURES])
@@ -276,7 +288,6 @@ class Dataset:
         drop_features = t_d_f
 
         res_f = list(set(self.features).difference(drop_features))
-
         return res_f
 
     @staticmethod

@@ -8,25 +8,60 @@
             size: A4 portrait;
             margin: 2cm;
         }
+        :root {
+            --mgin: 10%;  /* defautl table left right margin */
+            --theme-color: #6280BA;
+        }
         body {
             font-family: sans-serif;
+        }
+        hr {
+            margin-top: -1%;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            position: inherit;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 3px;
+        }
+        th {
+            color: var(--theme-color);
+        }
+
+        .appendix-div {
+            page-break-after: always;
+        }
+        .attachment-div {
+        }
+        .attachment-div-break {
+            page-break-before: always;
         }
         .content-area {
             margin-left: 10%;
             margin-right: 10%;
         }
-        .main-title {
-            text-align: center;
-            font-size: 22px;
-            color: #6280BA;
+        .dashed-line {
+            border-bottom: 2px dashed var(--theme-color);
+            padding-bottom: 25px;
         }
-        .title-div {
-            text-align: center;
-            background: #6280BA;
-            color: white;
+        .evaluation-div {
+            page-break-after: always;
         }
-        .title-text {
-            display: inline;
+        .float-container {
+            display: flex;
+        }
+        .float-child-left {
+            float: left;
+            width: 20%
+        }
+        .float-child-right {
+            float: left;
+            width: 77%;
+            margin-left: 3%;
         }
         .heading-2-div {
 
@@ -34,7 +69,7 @@
         .heading-2-text {
             {#text-align: center;#}
             {#margin-bottom: 5px;#}
-            color: #6280BA;
+            color: var(--theme-color);
         }
         .heading-3-div {
 
@@ -45,49 +80,43 @@
         }
         .heading-4-text {
         }
-        .evaluation-div {
-            page-break-after: always;
-        }
-        .appendix-div {
-            page-break-after: always;
-        }
-        .attachment-div {
-        }
-        .attachment-div-break {
-            page-break-before: always;
-        }
-        .table-div {
-            margin-left: 10%;
-            margin-right: 10%;
-        }
         .img-div {
 
         }
-        table {
-            border-collapse: collapse;
+        .main-title {
+            text-align: center;
+            font-size: 22px;
+            color: var(--theme-color);
+        }
+        .section-separator-bar {
             width: 100%;
-            position: inherit;
+            height: 5px;
+            background-color: var(--theme-color);
         }
-        th {
-            color: #6280BA;
+        .table-div {
+            margin-left: var(--mgin);
+            margin-right: var(--mgin);
         }
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 2px;
+        .title-div {
+            text-align: center;
+            background: var(--theme-color);
+            color: white;
         }
-        hr {
-            margin-top: -1%;
+        .table-highlight {
+            background-color: #b3ccfc;
+            color: black !important;
+        }
+        .title-text {
+            display: inline;
         }
         .underline{
             border-bottom: 1px solid black;
             width: 100%;
             display: block;
         }
-        .section-separator-bar {
-            width: 100%;
-            height: 5px;
-            background-color: #6280BA;
+        .wide-table-div {
+            margin-left: var(--mgin);
+            margin-right: var(--mgin);
         }
     </style>
 </head>
@@ -124,41 +153,125 @@
 
 {% macro table(data) %}
     {% if data|length > 0 %}
-        <table>
-            <tr>
-            {% for col, _ in data[0].items() %}
-                {% if col != "min_idx" %}
-                    <th style="width: {{ (100/data[0].items()|length) }}%">
-                        {{ col }}
-                    </th>
+        <div class="table-div">
+            <table>
+                <tr>
+                {% for col, _ in data[0].items() %}
+                    {% if col != "min_idx" %}
+                        <th style="width: {{ (100/data[0].items()|length) }}%">
+                            {{ col }}
+                        </th>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% for i, row in enumerate(data) %}
+                {% if "min_idx" in row %}
+                    {% set row_style = "background-color: #b3ccfc; color: black" %}
+                {% else %}
+                    {% set row_style = "" %}
                 {% endif %}
-            {% endfor %}
-            </tr>
-        {% for i, row in enumerate(data) %}
-            {% if "min_idx" in row %}
-                {% set row_style = "background-color: #b3ccfc; color: black" %}
-            {% else %}
-                {% set row_style = "" %}
-            {% endif %}
-            <tr style="{{ row_style }}">
-            {% for _, val in row.items() %}
-                {% if val is iterable and val is not string  %}
-                    {% set out = val[0] %}
-                    {% if val[2] %}
-                        <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
-                    {% elif val[1] %}
-                        <td><p>{{ out }}: {{ val[1] }}</p></td>
-                    {% elif val[2] %}
+                <tr style="{{ row_style }}">
+                {% for _, val in row.items() %}
+                    {% if val is iterable and val is not string  %}
+                        {% set out = val[0] %}
+                        {% if val[2] %}
+                            <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
+                        {% elif val[1] %}
+                            <td><p>{{ out }}: {{ val[1] }}</p></td>
+                        {% elif val[2] %}
+                            <td>{{ val }}</td>
+                        {% endif %}
+                    {% elif _ == "min_idx" %}
+                    {% else %}
                         <td>{{ val }}</td>
                     {% endif %}
-                {% elif _ == "min_idx" %}
-                {% else %}
-                    <td>{{ val }}</td>
-                {% endif %}
+                {% endfor %}
+                </tr>
             {% endfor %}
-            </tr>
-        {% endfor %}
-        </table>
+            </table>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro wide_table(data) %}
+    {% if 'table' in data %}
+        {% set tdata = data['table'] %}
+    {% else %}
+        {% set tdata = [] %}
+    {% endif %}
+
+    {% if 'highlight' in data %}
+        {% set highlight = data['highlight'] %}
+
+        {% if 'columns' in highlight %}
+            {% set col_hl = highlight['columns'] %}
+        {% else %}
+            {% set col_hl = [] %}
+        {% endif %}
+
+        {% if 'rows' in highlight %}
+            {% set row_hl = highlight['rows'] %}
+        {% else %}
+            {% set row_hl = [] %}
+        {% endif %}
+    {% endif %}
+
+    {% if 'size' in data %}
+        {% set tsize = data['size'] | int %}
+        {% set size_style = "--mgin: %d%%" % ((100 - tsize)/2) %}
+    {% else %}
+        {% set size_style = "" %}
+    {% endif %}
+
+    {% if tdata|length > 0 %}
+        <div class="wide-table-div" style="{{ size_style }}">
+            <table>
+                <colgroup>
+                {% for col, _ in tdata[0].items() %}
+                    {% if col in col_hl %}
+                        <col class="table-highlight" />
+                    {% else %}
+                        <col />
+                    {% endif %}
+                {% endfor %}
+                </colgroup>
+                <tr>
+                {% for col, _ in tdata[0].items() %}
+                    {% set hl_col_syle = '' %}
+                    {% if col in col_hl %}
+                        {% set hl_col = 'color: black' %}
+                    {% endif %}
+                    <th style="width: {{ (100/tdata[0].items()|length) }}%; {{ hl_col }}">
+                        {{ col }}
+                    </th>
+                {% endfor %}
+                </tr>
+            {% for i, row in enumerate(tdata) %}
+                {% if i in row_hl %}
+                    {% set row_style = "table-highlight" %}
+                {% else %}
+                    {% set row_style = "" %}
+                {% endif %}
+                <tr class={{ row_style }}>
+                {% for _, val in row.items() %}
+                    {% if val is iterable and val is not string  %}
+                        {% set out = val[0] %}
+                        {% if val[2] %}
+                            <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
+                        {% elif val[1] %}
+                            <td><p>{{ out }}: {{ val[1] }}</p></td>
+                        {% elif val[2] %}
+                            <td>{{ val }}</td>
+                        {% endif %}
+                    {% elif _ == "min_idx" %}
+                    {% else %}
+                        <td>{{ val }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
     {% endif %}
 {% endmacro %}
 
@@ -196,9 +309,25 @@
 
 {% macro feature_description(title) %}
     {{ heading_2(title) }}
-    <div class="table-div">
-        {{ table(data['data_description'][title]) }}
-    </div>
+    {{ table(data['data_description'][title]) }}
+{% endmacro %}
+
+{% macro string_data(data) %}
+    {% if data.startswith('Highlight-') %}
+        <div style="color: var(--theme-color); font-weight: bold">
+            {{ data[10:] }}
+        </div>
+    {% elif data.startswith('h3') %}
+        <div>
+            {{ heading_3(data[2:]) }}
+        </div>
+    {% elif data.startswith('h4') %}
+        {{ heading_4(data[2:]) }}
+    {% else %}
+        <div>
+            {{ data }}
+        </div>
+    {% endif %}
 {% endmacro %}
 
 {% macro evaluation(data) %}
@@ -212,39 +341,48 @@
         {% else %}
             {% set style = 'attachment-div' %}
         {% endif %}
-        <div class={{ style }}>
-            {%  if a.name %}
+        {% if a.dotted_break == True and i != data['attachments']|length - 1 %}
+            {% set dashed_line = 'dashed-line' %}
+        {% else %}
+            {% set dashed_line = '' %}
+        {% endif %}
+        <div class="{{ style }} {{ dashed_line }}">
+            {% if a.name and a.name != '--no-brake--' %}
                 <br>
                 {{ heading_3(a.name) }}
-            {% else %}
+            {% elif a.name == None %}
                 <br>
             {% endif %}
             {% if a.type == "table" %}
-                <div class="table-div">
-                    {{ table(a.data) }}
-                </div>
+                {{ table(a.data) }}
+            {% elif a.type == "wide_table" %}
+                {{ wide_table(a.data) }}
             {% elif a.type == "image_links" %}
                 {{ draw_images(a.data) }}
             {% elif a.type == "string" %}
-                {% if a.data.startswith('Highlight-') %}
-                    <div style="color: #6280BA; font-weight: bold">
-                        {{ a.data[10:] }}
+                {{ string_data(a.data) }}
+            {% elif a.type == "para_and_image" %}
+                <div class="float-container">
+                    <div class="float-child-left">
+                        {% for d in a.data['para'] %}
+                            {% if d[0] == 'heading' %}
+                                {{ string_data('h4' + d[1]) }}
+                            {%  elif d[0] == 'text' %}
+                                {{ string_data(d[1]) }}
+                            {% endif %}
+                        {% endfor %}
                     </div>
-                {% elif a.data.startswith('h3') %}
-                    <div>
-                        {{ heading_3(a.data[2:]) }}
+                    <div class="float-child-right">
+                        {{ draw_images(a.data['image']) }}
                     </div>
-                {% elif a.data.startswith('h4') %}
-                    <div>
-                        <h4>{{ a.data[2:] }}</h4>
-                    </div>
-                {% else %}
-                    <div>
-                        {{ a.data }}
-                    </div>
-                {% endif %}
+                </div>
             {% endif %}
         </div>
+{#        {% if a.dotted_break == True %}#}
+{#            <div>#}
+{#                <hr class="dashed-line">#}
+{#            </div>#}
+{#        {% endif %}#}
     {% endfor %}
 {% endmacro %}
 
@@ -257,7 +395,7 @@
         <br>
         <div class="heading-2-div">
             {{ section_title('Data Description') }}
-            {{ data_description('Synthetic Data', 'synthetic') }}
+            {{ data_description('Deidentified (Deid.) Data', 'synthetic') }}
             {{ data_description('Target Data', 'target')}}
             {{ feature_description('Data Features')}}
         </div>

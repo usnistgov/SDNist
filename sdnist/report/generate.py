@@ -77,10 +77,9 @@ from sdnist.report import FILE_DIR
 #     app.exec_()
 
 
-
-
 def generate(report_data: Dict[str, any],
-             output_directory_path: Path):
+             output_directory_path: Path,
+             test_mode: bool = False):
     out_dir = output_directory_path
     data = report_data
 
@@ -97,7 +96,8 @@ def generate(report_data: Dict[str, any],
     with open(out_path, 'w') as f:
         f.write(out)
 
-    webbrowser.open(f"file://{out_path}", new=True)
+    if not test_mode:
+        webbrowser.open(f"file://{out_path}", new=True)
     # html_to_pdf(out_path, out_pdf_path)
 
 
