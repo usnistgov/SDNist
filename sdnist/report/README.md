@@ -13,7 +13,7 @@ This tool evaluates utility and privacy of a given deidentified dataset and gene
 ### Reporting Issues:
 Help us improve the package and this guide by reporting issues [here](https://github.com/usnistgov/SDNist/issues).
 
-## Setting Up the SDNIST Report Tool
+Setting Up the SDNIST Report Tool
 ------------------------
 
 ### Brief Setup Instructions
@@ -52,7 +52,6 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
     ```
     c:\\sdnist-project> python -m venv venv
     ```
-
 
 8. The new Python environment will be created in the sdnist-project directory, and the files of the environment should be in the venv directory. To check whether a new Python environment was created successfully, use the following command to list all directories in the sdnist-project directory, and make sure the venv directory exists.
 
@@ -94,54 +93,57 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
     ```
 
-11. Per step 5 above, the sdnist-1.4.1b1-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
-  **MAC OS/Linux:**
-   ```
-   (venv) sdnist-project> ls
-   ```
-  **Windows:**
-   ```
-   (venv) c:\\sdnist-project> dir
-   ```
-   The sdnist-1.4.0b2-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
+10. Per step 5 above, the sdnist-1.4.1b1-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
-12. Install sdnist Python library:
-   ```
-   (venv) c:\\sdnist-project> pip install sdnist-1.4.1b1-py3-none-any.whl
-   ```
-
-13. Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
-   ```
-   (venv) c:\\sdnist-project> python -m sdnist.report -h
-   ```
-   Output:
-   ```
-   usage: __main__.py [-h] [--data-root DATA_ROOT] [--download DOWNLOAD] PATH_DEIDENTIFIED_DATASET TARGET_DATASET_NAME  
-
-   positional arguments:  
-   PATH_DEIDENTIFIED_DATASET  
-                         Location of deidentified dataset (csv or parquet file)  
-   TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given deidentified dataset  
-
-   optional arguments:  
-   \-h, \--help            show this help message and exit  
-   \--data-root DATA_ROOT                      Path of the directory to be used as the root for the target datasets\--download DOWNLOAD   Download toy datasets if not present locallyChoices for Target Dataset Name::
-
-    (dataname)         (filename)  
-    MA                        ma2019
-
-    TX                        tx2019
-
-    NATIONAL                  national2019
-   ```
-
-14. These instructions install sdnist into a virtual environment. The virtual environement must be activated (step 9) each time a new terminal window is used with sdnist.
+      **MAC OS/Linux:**
+       ```
+       (venv) sdnist-project> ls
+       ```
+      **Windows:**
+       ```
+       (venv) c:\\sdnist-project> dir
+       ```
+       The sdnist-1.4.0b2-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
 
 
+11. Install sdnist Python library:
+       ```
+       (venv) c:\\sdnist-project> pip install sdnist-1.4.1b1-py3-none-any.whl
+       ```
 
 
-## Generate Data Quality Report
+12. Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
+       ```
+       (venv) c:\\sdnist-project> python -m sdnist.report -h
+       ```
+       Output:
+       ```
+       usage: __main__.py [-h] [--data-root DATA_ROOT] [--download DOWNLOAD] PATH_DEIDENTIFIED_DATASET TARGET_DATASET_NAME  
+    
+       positional arguments:  
+       PATH_DEIDENTIFIED_DATASET  
+                             Location of deidentified dataset (csv or parquet file)  
+       TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given deidentified dataset  
+    
+       optional arguments:  
+       \-h, \--help            show this help message and exit  
+       \--data-root DATA_ROOT                      Path of the directory to be used as the root for the target datasets\--download DOWNLOAD   Download toy datasets if not present locallyChoices for Target Dataset Name::
+    
+        (dataname)         (filename)  
+        MA                        ma2019
+    
+        TX                        tx2019
+    
+        NATIONAL                  national2019
+       ```
+
+
+13. These instructions install sdnist into a virtual environment. The virtual environement must be activated (step 9) each time a new terminal window is used with sdnist.
+
+
+
+Generate Data Quality Report
 ----------------------------
 
 1.  The sdnist.report package requires a path to the deidentified dataset file and the name of the target dataset from which the deidentified dataset file will be created. Following is the command line usage of the sdnist.report package:
@@ -180,13 +182,13 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
 
 6.  The following are all the parameters offered by the sdnist.report package:
 
-     - **PATH_DEIDENTIFIED_DATASET **: The absolute or relative path to the deidentified dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory. This guide assumes the current working directory is sdnist-project.
-     - **TARGET_DATASET_NAME **: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input deidentified dataset is generated, and it can be one of the following:
+     - **PATH_DEIDENTIFIED_DATASET**: The absolute or relative path to the deidentified dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory. This guide assumes the current working directory is sdnist-project.
+     - **TARGET_DATASET_NAME**: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input deidentified dataset is generated, and it can be one of the following:
        - MA
        - TX
        - NATIONAL
 
-     - **--data-root **: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to if it is not available locally. The default directory is set to sdnist_toy_data.
+     - **--data-root**: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to if it is not available locally. The default directory is set to sdnist_toy_data.
 
 
 ## Setup Data for SDNIST Report Tool
