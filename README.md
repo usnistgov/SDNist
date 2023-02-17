@@ -10,7 +10,7 @@ The deidentified data report evaluates utility and privacy of a given deidentifi
 
 [Preview sample reports produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports)
 
-This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues] if you catch a bug or would like have feature suggestions. 
+This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues]  if you catch a bug or would like have feature suggestions. 
 
 
 ### Project Team  
@@ -72,36 +72,34 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
 
 8. The new Python environment will be created in the sdnist-project directory, and the files of the environment should be in the venv directory. To check whether a new Python environment was created successfully, use the following command to list all directories in the sdnist-project directory, and make sure the venv directory exists.
 
-    MAC OS/Linux:
+    **MAC OS/Linux:**
     ```
     sdnist-project> ls
     ```
-    Windows:
+    **Windows:**
     ```
     c:\\sdnist-project> dir
     ```
 
 9. Now activate the Python environment and install the sdnist library into it.
 
-    MAC OS/Linux:
+    **MAC OS/Linux:**
     ```
     sdnist-project> . venv/bin/activate
     ```
-    The python virtual environment is activated if the environment name (**venv** in this case) is appended to the terminal prompt as below:  
+    The python virtual environment should now be activated. You should see environment name (**venv** in this case) appended to the terminal prompt as below:  
     ```
     (venv) sdnist-project>
     ```
 
-    Windows:
+    **Windows:**
     ```
     c:\\sdnist-project> . venv/Scripts/activate
     ```
-    The python virtual environment is activated if the environment name (**venv** in this case) is appended to the command/powershell prompt as below:  
+    The python virtual environment should now be activated. You should see environment name (**venv** in this case) appended to the command/powershell prompt as below:  
     ```
     (venv) c:\\sdnist-project>
     ```
-         
-    To indicate that a new environment is active, the environment name (venv) is appended to the terminal or powershell prompt upon executing the above command.
 
     On Windows, a few users may encounter the following error if their machines are new (executing scripts is disabled by default on some Windows machines):
     ```
@@ -114,11 +112,11 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
 
 11. Per step 5 above, the sdnist-1.4.1b1-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
-   MAC OS/Linux:
+  **MAC OS/Linux:**
    ```
    (venv) sdnist-project> ls
    ```
-   Windows:
+  **Windows:**
    ```
    (venv) c:\\sdnist-project> dir
    ```
@@ -154,7 +152,7 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
     NATIONAL                  national2019
    ```
 
-14. These instructions install sdnist into a virtual environemnt. The virtual environement must be activated (step 9) each time a new terminal window is used with sdnist.
+14. These instructions install sdnist into a virtual environment. The virtual environement must be activated (step 9) each time a new terminal window is used with sdnist.
 
 
 
