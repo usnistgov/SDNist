@@ -149,7 +149,7 @@ def worst_score_breakdown(worst_scores: List,
         if "excluded" in v:
             fv = v['excluded']['feature_value']
             tc = v['excluded']['target_counts']
-            sc = v['excluded']['synthetic_counts']
+            sc = v['excluded']['deidentified_counts']
             if k.startswith('POVPIP'):
                 fv = '501 (Not in poverty: income above 5 x poverty line)'
             elif fv == -1:
@@ -459,7 +459,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
             if "excluded" in v:
                 fv = v['excluded']['feature_value']
                 tc = v['excluded']['target_counts']
-                sc = v['excluded']['synthetic_counts']
+                sc = v['excluded']['deidentified_counts']
                 if k.startswith('POVPIP'):
                     fv = '501 (Not in poverty: income above 5 x poverty line)'
                 elif fv == -1:

@@ -142,12 +142,12 @@ class UnivariatePlots:
                     val_df = pd.DataFrame(unique_ind_codes, columns=[f])
 
                     t_counts_df = st_df.groupby(by=f)[f].size().reset_index(name='count_target')
-                    s_counts_df = ss_df.groupby(by=f)[f].size().reset_index(name='count_synthetic')
+                    s_counts_df = ss_df.groupby(by=f)[f].size().reset_index(name='count_deidentified')
                     merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
                         .fillna(0)
                     merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
                         .fillna(0)
-                    div = l1(pk=merged['count_target'], qk=merged['count_synthetic'])
+                    div = l1(pk=merged['count_target'], qk=merged['count_deidentified'])
                     selected.append([merged, div, s])
                 selected = sorted(selected, key=lambda l: l[1], reverse=True)
 
@@ -158,8 +158,8 @@ class UnivariatePlots:
                     merged = merged.sort_values(by=f)
                     x_axis = np.arange(merged.shape[0])
                     plt.figure(figsize=(8, 3), dpi=100)
-                    plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
-                    plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label='Deid.')
+                    plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
+                    plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
                     plt.xlabel('Feature Values')
                     plt.ylabel('Record Counts')
                     plt.gca().set_xticks(x_axis, merged[f].values.tolist())
@@ -198,7 +198,7 @@ class UnivariatePlots:
                 values = sorted(values)
                 val_df = pd.DataFrame(values, columns=[f])
                 t_counts_df = target.groupby(by=f)[f].size().reset_index(name='count_target')
-                s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(name='count_synthetic')
+                s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(name='count_deidentified')
                 merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
                     .fillna(0)
                 merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
@@ -224,21 +224,21 @@ class UnivariatePlots:
                     if c1 >= c2*3 or f in ['PINCP']:
                         f_val = c_sort_merged.loc[0, f]
                         f_tc = c_sort_merged.loc[0, 'count_target']
-                        f_sc = c_sort_merged.loc[0, 'count_synthetic']
+                        f_sc = c_sort_merged.loc[0, 'count_deidentified']
                         c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
                         self.feat_data[title] = {
                             "excluded": {
                                 "feature_value": f_val,
                                 "target_counts": int(f_tc),
-                                "synthetic_counts": int(f_sc)
+                                "deidentified_counts": int(f_sc)
                             }
                         }
 
                 merged = c_sort_merged.sort_values(by=f)
 
                 x_axis = np.arange(merged.shape[0])
-                plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label=TARGET)
-                plt.bar(x_axis + 0.2, merged['count_synthetic'], width=bar_width, label='Deid.')
+                plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
+                plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
                 plt.xlabel('Feature Values')
                 plt.ylabel('Record Counts')
                 vals = merged[f].values.tolist()
