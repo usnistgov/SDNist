@@ -66,7 +66,7 @@ lr_paragraphs = [
         "distributions. Redder areas are where the deidentified data has created too many "
         "people, bluer areas are where it's created too few people.",
 
-        "We've broken this metric down into demographic groups so we can see not only how "
+        "We've broken this metric down into demographic subgroups so we can see not only how "
         "well the privacy techniques preserve the overall relationship between these features, "
         "but also whether they preserve how that overall relationship is built up from the "
         "different relationships that hold at each major demographic subgroup. "
