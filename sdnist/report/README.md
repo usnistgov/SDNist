@@ -38,7 +38,7 @@ SDNist v2.0 requires Python version 3.7 or greater. If you have installed a prev
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v2.0/sdnist-2.0.0-py3-none-any.whl).
+4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the Github [SDNist Release 2.0](https://github.com/usnistgov/SDNist/releases/download/v2.0/sdnist-2.0.0-py3-none-any.whl).
 
 
 5.  Move the downloaded sdnist-2.0.0-py3-none-any.whl file to the sdnist-project directory.
