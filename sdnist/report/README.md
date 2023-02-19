@@ -1,4 +1,4 @@
-SDNist v1.4 beta: Deidentified Data Report Tool
+SDNist v2.0: Deidentified Data Report Tool
 ====================================
 
 This tool evaluates utility and privacy of a given deidentified dataset and generates a summary quality report with performance of a deide dataset enumerated and illustrated for each utility and privacy metric.
@@ -18,7 +18,7 @@ Setting Up the SDNIST Report Tool
 
 ### Brief Setup Instructions
 
-SDNist v1.4 requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend uninstalling or installing v1.4 in a virtual environment. v1.4 can be installed via [Release 1.4.0b](https://github.com/usnistgov/SDNist/releases/tag/v1.4.1-b.1). The NIST Diverse Community Exceprt data will download on the fly.
+SDNist v2.0 requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend uninstalling or installing v2.0 in a virtual environment. v2.0 can be installed via [Release 2.0](https://github.com/usnistgov/SDNist/releases/tag/v2.0.0). The NIST Diverse Community Exceprt data will download on the fly.
 
 
 ### Detailed Setup Instructions
@@ -38,10 +38,10 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-1.4.1b-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.1-b.1/sdnist-1.4.1b1-py3-none-any.whl).
+4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v2.0/sdnist-2.0.0-py3-none-any.whl).
 
 
-5.  Move the downloaded sdnist-1.4.1b1-py3-none-any.whl file to the sdnist-project directory.
+5.  Move the downloaded sdnist-2.0.0-py3-none-any.whl file to the sdnist-project directory.
 
 
 6.  Using the terminal on Mac/Linux or powershell on Windows, navigate to the sdnist-project directory.
@@ -94,7 +94,7 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
     ```
 
 
-10. Per step 5 above, the sdnist-1.4.1b1-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
+10. Per step 5 above, the sdnist-2.0.0-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
       **MAC OS/Linux:**
        ```
@@ -104,12 +104,12 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
        ```
        (venv) c:\\sdnist-project> dir
        ```
-       The sdnist-1.4.0b2-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
+       The sdnist-2.0.0-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
 
 
 11. Install sdnist Python library:
        ```
-       (venv) c:\\sdnist-project> pip install sdnist-1.4.1b1-py3-none-any.whl
+       (venv) c:\\sdnist-project> pip install sdnist-2.0.0-py3-none-any.whl
        ```
 
 
@@ -127,8 +127,9 @@ SDNist v1.4 requires Python version 3.7 or greater. If you have installed a prev
        TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given deidentified dataset  
     
        optional arguments:  
-       \-h, \--help            show this help message and exit  
-       \--data-root DATA_ROOT                      Path of the directory to be used as the root for the target datasets\--download DOWNLOAD   Download toy datasets if not present locallyChoices for Target Dataset Name::
+       \-h, \--help            Show this help message and exit  
+       \--data-root DATA_ROOT  Path of the directory to be used as the root for the target datasets  
+       \--download DOWNLOAD    Download toy datasets if not present locallyChoices for Target Dataset Name::
     
         (dataname)         (filename)  
         MA                        ma2019
@@ -188,7 +189,7 @@ Generate Data Quality Report
        - TX
        - NATIONAL
 
-     - **--data-root**: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to if it is not available locally. The default directory is set to sdnist_toy_data.
+     - **--data-root**: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to if it is not available locally. The default directory is set to **diverse_community_excerpts_data**.
 
 
 ## Setup Data for SDNIST Report Tool
@@ -199,7 +200,7 @@ Generate Data Quality Report
       (venv) c:\\sdnist-project> python -m sdnist.report syn_tx.csv TX
 
       Downloading all SDNist datasets from:  
-      https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip ...  
+      https://github.com/usnistgov/SDNist/releases/download/v2.0/diverse_community_excerpts_data.zip ...  
       ...5%, 47352 KB, 8265 KB/s, 5 seconds elapsed
       ```
 
@@ -211,30 +212,30 @@ Generate Data Quality Report
 
 3. The sdnist.report package also needs a deidentified dataset that it can evaluate against its original counterpart. Since the sdnist.report package comes bundled with the datasets, the deidentified dataset should be generated using the bundled datasets.
 
-   You can download a copy of the datasets from [Github Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts). This copy is similar to the one bundled with the sdnist.report package, but it contains more documentation and a description of the datasets.
+   You can download a copy of the datasets from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts). This copy is similar to the one bundled with the sdnist.report package, but it contains more documentation and a description of the datasets.
 
 
-4. You can download the toy deidentified datasets from [Github Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/toy_synthetic_data.zip). Unzip the downloaded file, and move the unzipped toy_synthetic_dataset directory to the sdnist-project directory.
+4. You can download the toy deidentified datasets from Github [Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v2.0/toy_deidentified_data.zip). Unzip the downloaded file, and move the unzipped toy_synthetic_dataset directory to the sdnist-project directory.
 
 
-5. Each toy deidentified dataset file is generated using the [Sdnist Toy Dataset](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
+5. Each toy deidentified dataset file is generated using the [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0/diverse_community_excerpts_data.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
 
 
 6. Use the following commands for generating reports if you are using a toy deidentified dataset file:
 
    For evaluating the Massachusetts dataset:
    ```
-   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_ma.csv MA
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_deidentified_data/syn_ma.csv MA
    ```
 
    For evaluating the Texas dataset:
    ```
-   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_tx.csv TX
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_deidentified_data/syn_tx.csv TX
    ```
 
    For evaluating the national dataset:
    ```
-   (venv) c:\\sdnist-project> python -m sdnist.report toy_synthetic_data/syn_national.csv NATIONAL
+   (venv) c:\\sdnist-project> python -m sdnist.report toy_deidentified_data/syn_national.csv NATIONAL
    ```
 
 7.  A deidentified dataset can be a .csv or a parquet file, and the path of this file is required
@@ -242,9 +243,6 @@ by the sdnist.report package to generate a data quality report.
 
 ## Download Data Manually
 
-1.  If the sdnist.report package is not able to download the datasets, you can download them from [Github:SDNist toy data beta release](https://github.com/usnistgov/SDNist/releases/download/v1.4.0-b.1/SDNist-toy-data-1.4.0-b.1.zip).
-2.  Move the downloaded SDNist-toy-data-1.4.0-b.1.zip file to the sdnist-project directory.
-3.  Unzip the SDNist-toy-data-1.4.0-b.1.zip file and move the data directory inside it to the sdnist-project directory.
-4.  Delete the SDNist-toy-data-1.4.0-b.1.zip file once the data directory is successfully moved out of the unzipped directory.
-5.  Also delete the now-empty SDNist-toy-data-1.4.0-b.1 directory from where the zip file was extracted.
-6.  And finally, to successfully install datasets manually, change the name of the data directory inside the sdnist-project directory to sdnist_toy_data.
+1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0/diverse_community_excerpts_data.zip).
+3.  Unzip the **diverse_community_excerpts_data.zip** file and move the unzipped **diverse_community_excerpts_data** directory to the **sdnist-project** directory.
+4.  Delete the **diverse_community_excerpts_data.zip** file once the data is successfully extracted from the zip.
