@@ -73,7 +73,7 @@ if __name__ == "__main__":
                         help="Select name of the target dataset "
                              "that was used to generated given deidentified dataset")
     parser.add_argument("--data-root", type=Path,
-                        default=Path("sdnist_toy_data"),
+                        default=Path("diverse_community_excerpts_data"),
                         help="Path of the directory "
                              "to be used as the root for the target datasets")
     parser.add_argument("--download", type=bool, default=True,

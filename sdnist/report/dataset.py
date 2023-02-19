@@ -188,25 +188,23 @@ class Dataset:
             download=self.download,
             public=False,
             test=self.test,
-            format_="csv",
-            data_name="toy-data"
+            format_="csv"
         )
         self.target_data_path = build_name(
             challenge=strs.CENSUS,
             root=self.data_root,
             public=False,
-            test=self.test,
-            data_name="toy-data"
+            test=self.test
         )
         self.schema = params[strs.SCHEMA]
-
+        configs_path = self.target_data_path.parent.parent
         # add config packaged with data and also the config package with sdnist.report package
-        config_1 = u.read_json(Path(self.target_data_path.parent, 'config.json'))
+        config_1 = u.read_json(Path(configs_path, 'config.json'))
         config_2 = u.read_json(Path(FILE_DIR, 'config.json'))
         self.config = {**config_1, **config_2}
 
-        self.mappings = u.read_json(Path(self.target_data_path.parent, 'mappings.json'))
-        self.data_dict = u.read_json(Path(self.target_data_path.parent, 'data_dictionary.json'))
+        self.mappings = u.read_json(Path(configs_path, 'mappings.json'))
+        self.data_dict = u.read_json(Path(configs_path, 'data_dictionary.json'))
         self.features = self.target_data.columns.tolist()
 
         drop_features = self.config[strs.DROP_FEATURES] \
