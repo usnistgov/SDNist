@@ -54,7 +54,7 @@ SDNist v2.0 requires Python version 3.7 or greater. If you have installed a prev
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v2.0/sdnist-2.0.0-py3-none-any.whl).
+4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/sdnist-2.0.0-py3-none-any.whl).
 
 
 5.  Move the downloaded sdnist-2.0.0-py3-none-any.whl file to the sdnist-project directory.
@@ -216,7 +216,7 @@ Generate Data Quality Report
       (venv) c:\\sdnist-project> python -m sdnist.report syn_tx.csv TX
 
       Downloading all SDNist datasets from:  
-      https://github.com/usnistgov/SDNist/releases/download/v2.0/diverse_community_excerpts_data.zip ...  
+      https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip ...  
       ...5%, 47352 KB, 8265 KB/s, 5 seconds elapsed
       ```
 
@@ -231,10 +231,10 @@ Generate Data Quality Report
    You can download a copy of the datasets from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts). This copy is similar to the one bundled with the sdnist.report package, but it contains more documentation and a description of the datasets.
 
 
-4. You can download the toy deidentified datasets from Github [Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v2.0/toy_deidentified_data.zip). Unzip the downloaded file, and move the unzipped toy_synthetic_dataset directory to the sdnist-project directory.
+4. You can download the toy deidentified datasets from Github [Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/toy_deidentified_data.zip). Unzip the downloaded file, and move the unzipped toy_synthetic_dataset directory to the sdnist-project directory.
 
 
-5. Each toy deidentified dataset file is generated using the [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0/diverse_community_excerpts_data.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
+5. Each toy deidentified dataset file is generated using the [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
 
 
 6. Use the following commands for generating reports if you are using a toy deidentified dataset file:
@@ -259,6 +259,6 @@ by the sdnist.report package to generate a data quality report.
 
 ## Download Data Manually
 
-1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0/diverse_community_excerpts_data.zip).
+1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip).
 3.  Unzip the **diverse_community_excerpts_data.zip** file and move the unzipped **diverse_community_excerpts_data** directory to the **sdnist-project** directory.
 4.  Delete the **diverse_community_excerpts_data.zip** file once the data is successfully extracted from the zip.
