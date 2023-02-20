@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import json
 import os
+import time
 
 from pathlib import Path
 
@@ -184,3 +185,81 @@ def df_filter(data: pd.DataFrame, filters: Optional[List] = None) -> pd.DataFram
         data = data[data[feature].isin(values)]
     return data
 
+
+class SimpleLogger:
+    ptrn = '/*\*/'  # separator pattern
+
+    def __init__(self):
+        self.level_messages = dict()
+        self.current_head = None
+        self.current_level = None
+        self.msg_path = dict()
+        self.root = None
+
+    def msg(self, message: str, level=1, timed=True):
+        if timed:
+            if self.root is None:
+                self.root = message
+                self.current_level = level
+
+            t = Time()
+            t.start(message)
+            msg_full_path = self.get_msg_path(message, level)
+            self.current_level = level
+            self.current_head = msg_full_path
+            self.level_messages[self.current_head] = (message, level, t)
+
+        if level < 3:
+            level_indent = '|' + ''.join(['--'
+                                          for _ in range(level)])
+
+            print(level_indent, message)
+        elif not timed:
+            level_indent = '|' + ''.join(['--'
+                                          for _ in range(level)])
+
+            print(level_indent, message)
+
+    def end_msg(self):
+        head_data = self.level_messages[self.current_head]
+        message, level, t = head_data
+        del self.level_messages[self.current_head]
+        if self.current_head != self.root:
+            parent_path = self.ptrn.join(self.current_head.split(self.ptrn)[:-1])
+            self.current_head = parent_path
+            self.current_level = level - 1
+        secs = t.time()
+        level_indent = '|' + ''.join(['--'
+                                      for _ in range(level)])
+        print(level_indent, f'>>>> Finished {message} | Time: {round(secs, 1)}s <<<<')
+
+    def get_msg_path(self, msg, level):
+        if self.current_level == level and self.current_head != self.root:
+            if self.current_head:
+                parent_path = self.ptrn.join(self.current_head.split(self.ptrn)[:-1])
+                msg_path = parent_path + self.ptrn + msg
+                return msg_path
+            else:
+                self.current_head = self.root
+                return self.current_head
+        else:
+            return self.current_head + self.ptrn + msg
+
+
+class Time:
+    def __init__(self):
+        self.labels = dict()
+        self.last_label = None
+
+    def start(self, label: str):
+        self.last_label = label
+        self.labels[label] = time.time()
+
+    def time(self):
+        if not self.last_label:
+            print('sdnist.utils.Time.time() Invalid Use of Time: No Label Found')
+            return
+        start = self.labels[self.last_label]
+        end = time.time() - start
+        self.labels[self.last_label] = end
+        return self.labels[self.last_label]

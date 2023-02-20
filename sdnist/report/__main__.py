@@ -15,37 +15,51 @@ from sdnist.report.dataset import data_description
 from sdnist.load import TestDatasetName
 
 from sdnist.strs import *
+from sdnist.utils import *
+# from setup import version
 
 
 def run(synthetic_filepath: Path,
         output_directory: Path = REPORTS_DIR,
         test: TestDatasetName = TestDatasetName.NONE,
-        data_root: Path = Path('sdnist_toy_data'),
+        data_root: Path = Path("diverse_community_excerpts_data"),
         download: bool = False,
         test_mode: bool = False):
     outfile = Path(output_directory, 'report.json')
     ui_data = ReportUIData(output_directory=output_directory)
     report_data = ReportData(output_directory=output_directory)
+    log = SimpleLogger()
+    log.msg('SDNist: Deidentified Data Report Tool', level=0, timed=False)
+    log.msg(f'Creating Evaluation Report for Deidentified Data at path: {synthetic_filepath}',
+            level=1)
 
     if not outfile.exists():
-        print('Loading Dataset...')
-        dataset = Dataset(synthetic_filepath, test, data_root, download)
+        log.msg('Loading Datasets', level=2)
+        dataset = Dataset(synthetic_filepath, log, test, data_root, download)
         ui_data = data_description(dataset, ui_data)
+        log.end_msg()
 
         # Create scores
-        print('Computing Utility Scores...')
-        ui_data, report_data = utility_score(dataset, ui_data, report_data)
-        print('Computing Privacy Scores...')
-        ui_data, report_data = privacy_score(dataset, ui_data, report_data)
+        log.msg('Computing Utility Scores', level=2)
+        ui_data, report_data = utility_score(dataset, ui_data, report_data, log)
+        log.end_msg()
+
+        log.msg('Computing Privacy Scores', level=2)
+        ui_data, report_data = privacy_score(dataset, ui_data, report_data, log)
+        log.end_msg()
+
+        log.msg('Saving Report Data')
         ui_data.save()
         report_data.save()
         ui_data = ui_data.data
+        log.end_msg()
     else:
         with open(outfile, 'r') as f:
             ui_data = json.load(f)
-
+    log.end_msg()
     # Generate Report
     generate(ui_data, output_directory, test_mode)
+    log.msg(f'Reports available at path: {output_directory}', level=0, timed=False)
 
 
 class NoAction(argparse.Action):

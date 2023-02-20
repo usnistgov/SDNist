@@ -170,6 +170,7 @@ def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
 @dataclass
 class Dataset:
     synthetic_filepath: Path
+    log: u.SimpleLogger
     test: TestDatasetName = TestDatasetName.NONE
     data_root: Path = Path('sdnist_toy_data')
     download: bool = True
@@ -238,6 +239,10 @@ class Dataset:
                         if c.startswith('IND_')]
         self.features = list(set(self.features).difference(set(ind_features)))
         self.features = list(set(self.features).intersection(list(common_columns)))
+
+        self.log.msg(f'Features ({len(self.features)}): {self.features}', level=3, timed=False)
+        self.log.msg(f'Deidentified Data Records Count: {self.synthetic_data.shape[0]}', level=3, timed=False)
+        self.log.msg(f'Target Data Records Count: {self.target_data.shape[0]}', level=3, timed=False)
 
         validate(self.synthetic_data, self.schema, self.features)
         # raw data
