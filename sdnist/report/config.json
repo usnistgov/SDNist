@@ -27,7 +27,9 @@
     "PINCP_DECILE",
     "DVET",
     "DEAR",
-    "DPHYS",
-    "DEYE"
+    "DPHY",
+    "DEYE",
+    "DREM",
+    "DENSITY"
   ]
 }
