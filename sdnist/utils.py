@@ -4,6 +4,7 @@ import pandas as pd
 import json
 import os
 import time
+import sys
 
 from pathlib import Path
 
@@ -213,12 +214,12 @@ class SimpleLogger:
             level_indent = '|' + ''.join(['--'
                                           for _ in range(level)])
 
-            print(level_indent, message)
+            sys_print(level_indent + ' ' + message)
         elif not timed:
             level_indent = '|' + ''.join(['--'
                                           for _ in range(level)])
 
-            print(level_indent, message)
+            sys_print(level_indent + ' ' + message)
 
     def end_msg(self):
         head_data = self.level_messages[self.current_head]
@@ -231,7 +232,7 @@ class SimpleLogger:
         secs = t.time()
         level_indent = '|' + ''.join(['--'
                                       for _ in range(level)])
-        print(level_indent, f'>>>> Finished {message} | Time: {round(secs, 1)}s <<<<')
+        sys_print(level_indent + f' >>>> Finished {message} | Time: {round(secs, 1)}s <<<<')
 
     def get_msg_path(self, msg, level):
         if self.current_level == level and self.current_head != self.root:
@@ -257,9 +258,14 @@ class Time:
 
     def time(self):
         if not self.last_label:
-            print('sdnist.utils.Time.time() Invalid Use of Time: No Label Found')
+            sys_print('sdnist.utils.Time.time() Invalid Use of Time: No Label Found')
             return
         start = self.labels[self.last_label]
         end = time.time() - start
         self.labels[self.last_label] = end
         return self.labels[self.last_label]
+
+
+def sys_print(data: str):
+    sys.stdout.flush()
+    sys.stdout.write(data + '\n')
