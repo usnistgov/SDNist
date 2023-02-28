@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 from typing import Dict, List
 from dataclasses import dataclass, field
@@ -154,6 +155,74 @@ def add_bin_for_NA(data, reference_data, features):
     return d
 
 
+def bin_density(data: pd.DataFrame, data_dict: Dict, update: bool = True) -> pd.DataFrame:
+    """
+    data: Data containing density feature
+    data_dict: Dictionary containing values range for density feature
+    update: if True, update the input data's density feature and return
+            else, create two new columns: binned_density and bin_range
+            and return the data
+    """
+    def get_bin_range_log(x):
+        for i, v in enumerate(bins):
+            if i == x:
+                return f'({round(v, 2)}, {round(bins[i + 1], 2)}]'
+    d = data
+    dd = data_dict
+    base = 10
+    # we remove first 8 bins from this bins list, and prepend
+    # two bins. So effective bins are 12. This is done to bottom
+    # code density category for the PUMAs with small density.
+    n_bins = 20  # number of bins
+    # max of range
+    n_max = dd['DENSITY']['values']['max'] + 500
+
+    bins = np.logspace(start=math.log(10, base), stop=math.log(n_max, base), num=n_bins+1)
+    # remove first 8 bins and prepend two new bins
+    bins = [0, 150] + list(bins[8:])
+    # print('Bins', bins)
+    # print('Densities', d['DENSITY'].unique().tolist())
+    n_bins = len(bins)  # update number of bins to effective bins
+    labels = [i for i in range(n_bins-1)]
+
+    # top code values to n_max and bottom code values to 0 in the data
+    d.loc[d['DENSITY'] < 0, 'DENSITY'] = float(0)
+    d.loc[d['DENSITY'] > n_max, 'DENSITY'] = float(n_max) - 100
+
+    if update:
+        d['DENSITY'] = pd.cut(d['DENSITY'], bins=bins, labels=labels)
+        return d
+    else:
+        d['binned_density'] = pd.cut(d['DENSITY'], bins=bins, labels=labels)
+
+        d['bin_range'] = d['binned_density'].apply(lambda x: get_bin_range_log(x))
+        return d
+
+
+def get_density_bins_description(data: pd.DataFrame, data_dict: Dict, mappings: Dict) -> Dict:
+    bin_desc = dict()
+    # If puma is not available in the features, return empty description dictionary
+    if 'PUMA' not in data:
+        return bin_desc
+
+    d = bin_density(data.copy(), data_dict, update=False)
+
+    for dbin, g in d.groupby(by=['binned_density']):
+        if g.shape[0] == 0:
+            continue
+
+        density_range = g['bin_range'].unique()[0]
+        bin_data = []
+        for puma, pg in g.groupby(by='PUMA'):
+            density = pg['DENSITY'].unique()[0]
+            bin_data.append([puma, density, mappings["PUMA"][puma]["name"]])
+        bin_df = pd.DataFrame(bin_data, columns=['PUMA', 'DENSITY', 'PUMA NAME'])
+        bin_desc[dbin] = (density_range, bin_df)
+    del d
+    # print(bin_desc)
+    return bin_desc
+
+
 def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
     """remove features from configuration that are not available in
     the input synthetic data"""
@@ -245,9 +314,19 @@ class Dataset:
         self.log.msg(f'Target Data Records Count: {self.target_data.shape[0]}', level=3, timed=False)
 
         validate(self.synthetic_data, self.schema, self.features)
+
         # raw data
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
+
+        # bin the density feature if present in the datasets
+        self.density_bin_desc = dict()
+        if 'DENSITY' in self.features:
+            self.density_bin_desc = get_density_bins_description(self.target_data,
+                                                                 self.data_dict,
+                                                                 self.mappings)
+            self.target_data = bin_density(self.target_data, self.data_dict)
+            self.synthetic_data = bin_density(self.synthetic_data, self.data_dict)
 
         # update config to contain only available features
         self.config = unavailable_features(self.config, self.synthetic_data)
@@ -351,6 +430,18 @@ def data_description(dataset: Dataset, ui_data: ReportUIData) -> ReportUIData:
             dd_as.append(Attachment(name=f_name,
                                     _data=data,
                                     _type=AttachmentType.Table))
+            if feat == 'DENSITY':
+                for bin, bdata in dataset.density_bin_desc.items():
+                    bdc = bdata[1].columns.tolist()  # bin data columns
+                    # report bin data: bin data format for report
+                    rbd = [{c: row[j] for j, c in enumerate(bdc)}
+                           for i, row in bdata[1].iterrows()]
+                    dd_as.append(Attachment(name=None,
+                                            _data=f'<b>Density Bin: {bin} | Bin Range: {bdata[0]}</b>',
+                                            _type=AttachmentType.String))
+                    dd_as.append(Attachment(name=None,
+                                            _data=rbd,
+                                            _type=AttachmentType.Table))
 
     r_ui_d.add(ScorePacket(metric_name='Data Dictionary',
                            score=None,
