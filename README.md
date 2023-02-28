@@ -1,7 +1,5 @@
 # SDNist v2.0: Deidentified Data Report Tool
 
-## We anticipate releasing SDNist v2 February 21 2023! 
-
 ## [SDNist is the offical software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
 
 Welcome! SDNist v2.0 is a python package that provides benchmark data and evaluation metrics for deidentified data generators. This version of SDNist supports using the [NIST Diverse Community Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts), a geographically partioned, limited feature data set.
@@ -25,10 +23,17 @@ Help us improve the package and this guide by reporting issues [here](https://gi
 
 ### Temporal Map Challenge Environment
 
-SDNist v1.4b and v2.0 does not support the Temporal Map Challenge environment.
+SDNist v2.0 does not support the Temporal Map Challenge environment.
 
 To run the testing environment from the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal) for the Chicago Taxi data sprint or the American Community Survey sprint, please go to the the [Temporal Map Challenge assets repository](https://github.com/usnistgov/Differential-Privacy-Temporal-Map-Challenge-assets).
 
+
+### Citing SDNist Deidentified Data Report Tool
+If you publish work that utilizes the SDNist Deidentified Data Tool, please cite the software. Citation recommendation:  
+> Task C., Bhagat K., and Howarth G.S. (2023), SDNist v2: Deidentified Data Report Tool, 
+> National Institute of Standards and Technology, 
+> https://doi.org/10.18434/mds2-2943    
+(NOTE: DOI is not yet active, but should be by 1 APR 2023).
 
 Setting Up the SDNIST Report Tool
 ------------------------
@@ -263,10 +268,3 @@ by the sdnist.report package to generate a data quality report.
 1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip).
 3.  Unzip the **diverse_community_excerpts_data.zip** file and move the unzipped **diverse_community_excerpts_data** directory to the **sdnist-project** directory.
 4.  Delete the **diverse_community_excerpts_data.zip** file once the data is successfully extracted from the zip.
-
-## Citing SDNist Deidentified Data Report Tool
-If you publish work that utilizes the SDNist Deidentified Data Tool, please cite the software. Citation recommendation:  
-> Task C., Bhagat K., and Howarth G.S. (2023), SDNist v2: Deidentified Data Report Tool, 
-> National Institute of Standards and Technology, 
-> https://doi.org/10.18434/mds2-2943    
-(NOTE: DOI is not yet active, but should be by 1 APR 2023).
