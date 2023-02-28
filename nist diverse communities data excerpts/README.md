@@ -15,6 +15,13 @@ The requirements we sought to meet included the following:
 - Geographic regions that include enough (but not an overwhelming amount) individuals and sufficient complexity to investigate relationships between features
 - Geographic regions whose typical feature values vary radically to explore performance on diverse data sets
 
+## Citing NIST Diverse Community Excerpts
+If you publish work that utilizes the NIST Diverse Community Excerpt Data, please cite the resource. Citation recommendation:  
+> Task C., Bhagat K., Streat D., and Howarth G.S. (2023), 
+> NIST Diverse Community Excerpt Data, National Institute of Standards and Technology, 
+> https://doi.org/10.18434/mds2-2895  
+(NOTE: DOI is not yet active, but should be live by 1 APR 2023).
+
 ## Data set description
 
 We are currently offering three geographic regions, each contained within its own directory, containing the data and a description of each PUMA within data we call "postcards".
@@ -95,9 +102,10 @@ Suggested partitioning feature: Sex + Disability
 
 ## Credits 
 
-- [Christine Task](https://github.com/ctask) - Project technical lead - christine.task@knexusresearch.com
+- [Christine Task]() - Project technical lead - christine.task@knexusresearch.com
 - [Karan Bhagat](https://github.com/kbtriangulum) - Contributor
 - [Aniruddha Sen](https://www.linkedin.com/in/senaniruddha/) - Contributor
+- [Damon Streat](https://www.linkedin.com/in/damon-streat-244106190?original_referer=https%3A%2F%2Fwww.google.com%2F) - Contributor
 - [Gary Howarth](https://www.nist.gov/people/gary-howarth) - Project PI - gary.howarth@nist.gov
 
 

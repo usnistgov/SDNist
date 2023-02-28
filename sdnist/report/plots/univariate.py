@@ -219,20 +219,20 @@ class UnivariatePlots:
                     "plot": relative_path(file_path)
                 }
 
-                if i < 3:
-                    self.feat_data[title] = dict()
-                    if c1 >= c2*3 or f in ['PINCP']:
-                        f_val = c_sort_merged.loc[0, f]
-                        f_tc = c_sort_merged.loc[0, 'count_target']
-                        f_sc = c_sort_merged.loc[0, 'count_deidentified']
-                        c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
-                        self.feat_data[title] = {
-                            "excluded": {
-                                "feature_value": f_val,
-                                "target_counts": int(f_tc),
-                                "deidentified_counts": int(f_sc)
-                            }
+
+                self.feat_data[title] = dict()
+                if c1 >= c2*3 or f in ['PINCP']:
+                    f_val = c_sort_merged.loc[0, f]
+                    f_tc = c_sort_merged.loc[0, 'count_target']
+                    f_sc = c_sort_merged.loc[0, 'count_deidentified']
+                    c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
+                    self.feat_data[title] = {
+                        "excluded": {
+                            "feature_value": f_val,
+                            "target_counts": int(f_tc),
+                            "deidentified_counts": int(f_sc)
                         }
+                    }
 
                 merged = c_sort_merged.sort_values(by=f)
 
@@ -274,9 +274,9 @@ class UnivariatePlots:
                 plt.savefig(Path(o_path, f'{f}.jpg'), bbox_inches='tight')
                 plt.close()
 
-                if i < 3:
-                    saved_file_paths.append(file_path)
-                    self.feat_data[title]['path'] = file_path
+                # if i < 3:
+                saved_file_paths.append(file_path)
+                self.feat_data[title]['path'] = file_path
         return saved_file_paths
 
 
