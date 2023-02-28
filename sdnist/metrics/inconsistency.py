@@ -24,6 +24,11 @@ ic_types = [
      ["AGEP", "EDU"]),
     ("a", "child_NOC", "Children (< 10) don't have children",
      ["AGEP", "NOC"]),
+    ("a", "adult_child", "Even when the AGEP feature is not explicitly used, "
+                         "features which use N to indicate children ( < 15) must agree",
+     ["MSP", "PINCP", "PINCP_DECILE"]),
+    ("a", "adult_N", "Adults ( > 14) must specify values (other than N) for all adult features",
+     ["AGEP", "MSP", "PINCP", "PINCP_DECILE", "EDU", "DPHY", "DREM"]),
     ("a", "toddler_DPHY", "Toddlers (< 5) naturally toddle, it's not a physical disability",
      ["AGEP", "DPHY"]),
     ("a", "toddler_DREM", "Toddlers (< 5) are naturally forgetful, it's not a cognitive disability",
@@ -154,6 +159,32 @@ class Inconsistencies:
                         if r["AGEP"] < 3:
                             if "EDU" in fl and not (r["EDU"] == 'N'):
                                 ic_dict["infant_EDU"].append(i)
+
+            if not ("AGEP" in fl):
+                # This forces agreement on MSP, PINCP and PINCP_DECILE if at least 2 exist.
+                if ("MSP" in fl and (r["MSP"] == 'N')) and (
+                        ("PINCP" in fl and not (r["PINCP"] == 'N')) or (
+                        "PINCP_DECILE" in fl and not (r["PINCP_DECILE"] == 'N'))):
+                    ic_dict["adult_child"].append(i)
+                if ("MSP" in fl and not (r["MSP"] == 'N')) and (
+                        ("PINCP" in fl and (r["PINCP"] == 'N')) or (
+                        "PINCP_DECILE" in fl and (r["PINCP_DECILE"] == 'N'))):
+                    ic_dict["adult_child"].append(i)
+                if not ("MSP" in fl) and ("PINCP" in fl) and ("PINCP_DECILE" in fl):
+                    if ((r["PINCP"] == 'N') and not (r["PINCP_DECILE"] == 'N')) or (
+                            not (r["PINCP"] == 'N') and (r["PINCP_DECILE"] == 'N')):
+                        ic_dict["adult_child"].append(i)
+
+            # this catches adults who still have the child 'N' for their features.
+            if "AGEP" in fl and r["AGEP"] > 15:
+                if ("MSP" in fl and (r["MSP"] == 'N')) or (
+                        "PINCP" in fl and (r["PINCP"] == 'N')) or (
+                        "PINCP_DECILE" in fl and (r["PINCP_DECILE"] == 'N')) or (
+                        "EDU" in fl and (r["EDU"] == 'N')) or (
+                        "DPHY" in fl and (r["DPHY"] == 'N')) or (
+                        "DREM" in fl and (r["DREM"] == 'N')):
+                    ic_dict["adult_N"].append(i)
+
 
             # -------------------work and finance related inconsistencies---------------
             # income > 300K

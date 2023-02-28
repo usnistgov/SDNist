@@ -8,8 +8,8 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='sdnist',
-    version='1.4.1',
-    description='SDNist: datasets and evaluation tools for data synthesizers',
+    version='2.0.0',
+    description='SDNist: Deidentified Data Report Generator',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/usnistgov/SDNist',

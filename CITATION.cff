@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+title: "SDNist: Deidentified Data Report Tool"
+abstract: "SDNist provides benchmark data and a suite of both machine- and human-readable outputs with more than ten metrics including univariate and multivariate statistics, database distance metrics, principal component analysis, propensity, basic privacy evaluation, and other information-rich tools. "
+message: >-
+  If you use this repository or present information about it publicly, please cite us.
+type: software
+version: 2.0.0
+doi: 10.18434/mds2-2943
+date-released: 2021-12-16
+contact:
+  - affiliation: "National Institute of Standards and Technology"
+    email: gary.howarth@nist.gov
+    family-names: Gary
+    given-names: Howarth
+authors:
+- family-names: Task
+  given-names: Christine
+  affiliation: Knexus Research Corporation
+  email: christine.task@knexusresearch.com
+- family-names: Bhagat
+  given-names: Karan
+  affiliation: Knexus Research Corporation
+- family-names: Howarth
+  given-names: Gary
+  affiliation: National Institute of Standards and Technology
+  email: gary.howarth@nist.gov
+  ORCID:  0000-0002-3587-0546

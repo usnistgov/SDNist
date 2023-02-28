@@ -428,13 +428,12 @@ def grid_plot_attachment(group_features: List[str],
     return gp_a
 
 
-def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportData) \
+def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportData,
+                  log: SimpleLogger) \
         -> Tuple[ReportUIData, ReportData]:
     ds = dataset
     r_ui_d = ui_data  # report ui data
     rd = report_data
-
-    scorers = []
 
     features = ds.features
     corr_features = ds.config[strs.CORRELATION_FEATURES]
@@ -442,10 +441,12 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     # Initiated k-marginal, correlation and propensity scorer
     # selected challenge type: census or taxi
     if ds.challenge == strs.CENSUS:
+        log.msg('Univariates', level=3)
         up = UnivariatePlots(ds.d_synthetic_data, ds.d_target_data,
                              ds, r_ui_d.output_directory, ds.challenge)
         u_feature_data = up.save()  # univariate features data
         rd.add('Univariate', up.report_data())
+
         u_as = []  # univariate attachments
 
         for k, v in u_feature_data.items():
@@ -476,7 +477,9 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                   strs.PATH: u_rel_path}],
                            _type=AttachmentType.ImageLinks)
             u_as.append(a)
+        log.end_msg()
 
+        log.msg('Correlations', level=3)
         cdp_saved_file_paths = []
         pcp_saved_file_paths = []
         if len(corr_features) > 1:
@@ -492,17 +495,12 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
 
             rd.add('Correlations', {"kendall correlation difference": cdp.report_data,
                                     "pearson correlation difference": pcp.report_data})
+        log.end_msg()
 
-        scorers = [CensusKMarginalScore(ds.d_target_data,
-                                        ds.d_synthetic_data,
-                                        ds.schema, **ds.config[strs.K_MARGINAL]),
-                   PropensityMSE(ds.t_target_data,
-                                 ds.t_synthetic_data,
-                                 r_ui_d.output_directory,
-                                 features)]
     else:
         raise Exception(f'Unknown challenge type: {ds.challenge}')
 
+    log.msg('K-Marginal', level=3)
     group_features = ds.config[strs.K_MARGINAL][strs.GROUP_FEATURES]
     f_val_dict = {
         f: {i: v for i, v in enumerate(ds.schema[f]['values'])}
@@ -513,59 +511,71 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     prop_pkt = None  # propensity score packet
 
     # compute scores and plots
-    for s in scorers:
-        s.compute_score()
-        metric_name = s.NAME
+    s = CensusKMarginalScore(ds.d_target_data,
+                                        ds.d_synthetic_data,
+                                        ds.schema, **ds.config[strs.K_MARGINAL])
+    s.compute_score()
+    metric_name = s.NAME
 
-        metric_score = int(s.score) if s.score > 100 else round(s.score, 5)
-        metric_attachments = []
+    metric_score = int(s.score) if s.score > 100 else round(s.score, 5)
+    metric_attachments = []
 
-        if s.NAME == CensusKMarginalScore.NAME \
-                and ds.challenge == strs.CENSUS:
+    if s.NAME == CensusKMarginalScore.NAME \
+            and ds.challenge == strs.CENSUS:
+        group_scores = s.scores if hasattr(s, 'scores') and len(s.scores) else None
+        subsample_scores = kmarginal_subsamples(ds, CensusKMarginalScore)
+        kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
+                                                              f_val_dict,
+                                                              ds,
+                                                              r_ui_d,
+                                                              rd,
+                                                              subsample_scores,
+                                                              'PUMA',
+                                                              group_features,
+                                                              group_scores)
+    log.end_msg()
 
-            group_scores = s.scores if hasattr(s, 'scores') and len(s.scores) else None
-            subsample_scores = kmarginal_subsamples(ds, CensusKMarginalScore)
-            kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
-                                                                  f_val_dict,
-                                                                  ds,
-                                                                  r_ui_d,
-                                                                  rd,
-                                                                  subsample_scores,
-                                                                  'PUMA',
-                                                                  group_features,
-                                                                  group_scores)
+    log.msg('PropensityMSE', level=3)
+    s = PropensityMSE(ds.t_target_data,
+                      ds.t_synthetic_data,
+                      r_ui_d.output_directory,
+                      features)
+    s.compute_score()
+    metric_name = s.NAME
 
-        elif s.NAME == PropensityMSE.NAME:
-            p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
-            # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
-            #
-            prop_rep_data = {**s.report_data, **p_dist_plot.report_data}
-            rd.add('propensity mean square error', prop_rep_data)
+    metric_score = int(s.score) if s.score > 100 else round(s.score, 5)
 
-            p_dist_paths = p_dist_plot.save()
-            # pps_paths = pps.save('spmse',
-            #                      'Two-Way Standardized Propensity Mean Square Error')
-            rel_pd_path = ["/".join(list(p.parts)[-2:])
-                            for p in p_dist_paths]
-            # rel_pps_path = ["/".join(list(p.parts)[-2:])
-            #                 for p in pps_paths]
+    p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
+    # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
+    #
+    prop_rep_data = {**s.report_data, **p_dist_plot.report_data}
+    rd.add('propensity mean square error', prop_rep_data)
 
-            # probability distribution attachment
-            pd_para_a = Attachment(name=None,
-                                   _data=propensity_para,
-                                   _type=AttachmentType.String)
-            pd_score_a = Attachment(name=None,
-                                    _data=f"Highlight-Score: {metric_score}",
-                                    _type=AttachmentType.String)
-            pd_a = Attachment(name=f'Propensities Distribution',
-                              _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                                     for p in rel_pd_path],
-                              _type=AttachmentType.ImageLinks)
+    p_dist_paths = p_dist_plot.save()
+    # pps_paths = pps.save('spmse',
+    #                      'Two-Way Standardized Propensity Mean Square Error')
+    rel_pd_path = ["/".join(list(p.parts)[-2:])
+                    for p in p_dist_paths]
+    # rel_pps_path = ["/".join(list(p.parts)[-2:])
+    #                 for p in pps_paths]
 
-            prop_pkt = UtilityScorePacket(metric_name,
-                                          None,
-                                          [pd_para_a, pd_score_a, pd_a])
+    # probability distribution attachment
+    pd_para_a = Attachment(name=None,
+                           _data=propensity_para,
+                           _type=AttachmentType.String)
+    pd_score_a = Attachment(name=None,
+                            _data=f"Highlight-Score: {metric_score}",
+                            _type=AttachmentType.String)
+    pd_a = Attachment(name=f'Propensities Distribution',
+                      _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                             for p in rel_pd_path],
+                      _type=AttachmentType.ImageLinks)
 
+    prop_pkt = UtilityScorePacket(metric_name,
+                                  None,
+                                  [pd_para_a, pd_score_a, pd_a])
+
+    log.end_msg()
 
     # rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
     #                            for p in up_saved_file_paths]
@@ -601,7 +611,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         corr_metric_a.append(pc_para_a)
         corr_metric_a.append(pc_a)
 
-
+    log.msg('PCA', level=3)
     pca = PCAMetric(dataset.t_target_data,
                     dataset.t_synthetic_data,
                     r_ui_d.output_directory)
@@ -622,6 +632,8 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                        _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                               for p in rel_pca_save_file_path],
                        _type=AttachmentType.ImageLinks)
+    log.end_msg()
+
 
     # Add metrics reports to UI
     if kmarg_sum_pkt:
@@ -639,16 +651,21 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     r_ui_d.add(UtilityScorePacket("Correlations",
                                   None,
                                   corr_metric_a))
+    log.msg('Linear Regression', level=3)
     lgr = LinearRegressionReport(ds, r_ui_d, rd)
     lgr.add_to_ui()
+    log.end_msg()
 
     if prop_pkt:
         r_ui_d.add(prop_pkt)
     r_ui_d.add(UtilityScorePacket("PCA",
                                   None,
                                   [pca_para_a, pca_a_tt, pca_a]))
+
+    log.msg('Inconsistencies', level=3)
     icr = InconsistenciesReport(ds, r_ui_d, rd)
     icr.add_to_ui()
+    log.end_msg()
 
     if kmarg_det_pkt:
         r_ui_d.add(kmarg_det_pkt)

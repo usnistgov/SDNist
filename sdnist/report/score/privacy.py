@@ -7,17 +7,21 @@ from sdnist.report.report_data import \
     PrivacyScorePacket, Attachment, AttachmentType
 from sdnist.report.score.paragraphs import *
 from sdnist.strs import *
+from sdnist.utils import *
 
 
-def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data) \
+def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: SimpleLogger) \
         -> Tuple[ReportUIData, ReportData]:
     ds = dataset
     r_ui_d = ui_data
     rd = report_data
 
+    log.msg('Apparent Match Distribution', level=3)
     quasi_idf = []  # list of quasi-identifier features
     excluded = []  # list of excluded features from apparent match computation
     if ds.challenge == CENSUS:
+
+
         quasi_idf = ['SEX', 'RAC1P', 'EDU', 'INDP_CAT', 'MST']
         quasi_idf = list(set(ds.features).intersection(set(quasi_idf)))
         excluded = ['PUMA', 'RACE']
@@ -82,4 +86,5 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data) \
                                total_quasi_matched,
                                adp_para_a,
                                adp]))
+    log.end_msg()
     return r_ui_d, rd

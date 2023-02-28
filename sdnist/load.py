@@ -16,6 +16,8 @@ import numpy as np
 
 import sdnist.strs as strs
 
+DEFAULT_DATASET = 'diverse_community_excerpts_data'
+
 
 class TestDatasetName(Enum):
     NONE = 1
@@ -27,6 +29,13 @@ class TestDatasetName(Enum):
     ma2019 = 7
     tx2019 = 8
     national2019 = 9
+
+
+dataset_name_state_map = {
+    TestDatasetName.national2019.name: 'national',
+    TestDatasetName.ma2019.name: 'massachusetts',
+    TestDatasetName.tx2019.name: 'texas'
+}
 
 
 data_challenge_map = {
@@ -76,7 +85,8 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
         version = "1.4.0-b.1"
 
         version_v = f"v{version}"
-        sdnist_version = f"SDNist-{data_name}-{version}"
+        sdnist_version = DEFAULT_DATASET
+
         download_link = f"https://github.com/usnistgov/SDNist/releases/download/{version_v}/{sdnist_version}.zip"
         if zip_path.exists() and error_opening_zip(zip_path):
             os.remove(zip_path)
@@ -90,14 +100,15 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
                     zip_path.as_posix(),
                     reporthook
                 )
-                print('\n Success! Downloaded all datasets zipfile to'.format(zip_path))
+                print(f'\n Success! Downloaded all datasets to "{root}" directory\n')
             except:
-                shutil.rmtree(zip_path)
+                if zip_path.exists():
+                    shutil.rmtree(zip_path)
                 raise RuntimeError(f"Unable to download {name}. Try: \n   "
                                    f"- re-running the command, \n   "
                                    f"- downloading manually from {download_link} "
-                                   f"and unpack the zip, and copy 'data' directory in the root/working-directory, \n   "
-                                   f"- or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
+                                   f"and unpack the zip. \n   "
+                                   f"- or download the data as part of a release: https://github.com/usnistgov/SDNist/releases\n")
 
         if zip_path.exists():
             # extract zipfile
@@ -110,7 +121,8 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
                         raise e
             # delete zipfile
             os.remove(zip_path)
-            copy_from_path = str(Path(extract_path, sdnist_version, 'data'))
+            print()
+            copy_from_path = str(Path(extract_path, sdnist_version))
             copy_to_path = str(Path(root))
             copy_tree(copy_from_path, copy_to_path)
             shutil.rmtree(extract_path)
@@ -122,11 +134,11 @@ def build_name(challenge: str,
                root: Path = Path("data"),
                public: bool = False,
                test: TestDatasetName = TestDatasetName.NONE,
-               data_name: str = strs.DATA):
+               data_name: str = DEFAULT_DATASET):
     root = root.expanduser()
     directory = root
 
-    if data_name == "toy-data":
+    if data_name == DEFAULT_DATASET:
         directory = root
     elif challenge == strs.CENSUS:
         directory = root / "census" / "dataset"
@@ -164,7 +176,8 @@ def build_name(challenge: str,
 
     else:
         raise ValueError(f"Unrecognized challenge {challenge}")
-
+    if fname in dataset_name_state_map.keys():
+        fname = Path(dataset_name_state_map[fname], fname)
     return directory / fname
 
 
@@ -173,7 +186,7 @@ def load_parameters(challenge: str,
                     public: bool = True,
                     test: TestDatasetName = TestDatasetName.NONE,
                     download: bool = True,
-                    data_name: str = strs.DATA) -> dict:
+                    data_name: str = DEFAULT_DATASET) -> dict:
     dataset_path = build_name(challenge=challenge, root=root,
                               public=public, test=test, data_name=data_name)
     dataset_parameters = dataset_path.with_suffix('.json')
@@ -211,7 +224,7 @@ def load_dataset(challenge: str,
                  test: TestDatasetName = TestDatasetName.NONE,
                  download: bool = True,
                  format_: str = "parquet",
-                 data_name: str = 'data') -> Tuple[pd.DataFrame, dict]:
+                 data_name: str = DEFAULT_DATASET) -> Tuple[pd.DataFrame, dict]:
     """ Load one of the original SDNist datasets.
 
     :param challenge: str: base challenge. Must be `census` or `taxi`.
@@ -275,7 +288,7 @@ def load_dataset(challenge: str,
     else:
         raise ValueError(f"Unknown format {format_}")
 
-    if data_name != 'toy-data':
+    if data_name != DEFAULT_DATASET:
         config = load_config(challenge, root, public, test, download)
     params[strs.CONFIG] = config
     return dataset, params

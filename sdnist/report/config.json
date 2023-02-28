@@ -15,7 +15,7 @@
     "PUMA",
     "SEX",
     "AGEP",
-    "MST",
+    "MSP",
     "HISP",
     "RAC1P",
     "NOC",
@@ -27,7 +27,9 @@
     "PINCP_DECILE",
     "DVET",
     "DEAR",
-    "DPHYS",
-    "DEYE"
+    "DPHY",
+    "DEYE",
+    "DREM",
+    "DENSITY"
   ]
 }
