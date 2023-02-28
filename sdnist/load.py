@@ -100,7 +100,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
                     zip_path.as_posix(),
                     reporthook
                 )
-                print(f'\n Success! Downloaded all datasets to "{root}" directory')
+                print(f'\n Success! Downloaded all datasets to "{root}" directory\n')
             except:
                 if zip_path.exists():
                     shutil.rmtree(zip_path)
@@ -108,7 +108,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
                                    f"- re-running the command, \n   "
                                    f"- downloading manually from {download_link} "
                                    f"and unpack the zip. \n   "
-                                   f"- or download the data as part of a release: https://github.com/usnistgov/SDNist/releases")
+                                   f"- or download the data as part of a release: https://github.com/usnistgov/SDNist/releases\n")
 
         if zip_path.exists():
             # extract zipfile
