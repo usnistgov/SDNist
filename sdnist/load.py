@@ -121,6 +121,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
                         raise e
             # delete zipfile
             os.remove(zip_path)
+            print()
             copy_from_path = str(Path(extract_path, sdnist_version))
             copy_to_path = str(Path(root))
             copy_tree(copy_from_path, copy_to_path)
