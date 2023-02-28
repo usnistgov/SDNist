@@ -1,4 +1,4 @@
-# SDNist v2.0: Deidentified Data Report Tool
+q# SDNist v2.0: Deidentified Data Report Tool
 
 ## [SDNist is the offical software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
 
@@ -53,7 +53,7 @@ SDNist v2.0 requires Python version 3.7 or greater. If you have installed a prev
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the [Github:SDNist beta release](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/sdnist-2.0.0-py3-none-any.whl).
+4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the Github: [Release 2.0](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/sdnist-2.0.0-py3-none-any.whl).
 
 
 5.  Move the downloaded sdnist-2.0.0-py3-none-any.whl file to the sdnist-project directory.
@@ -262,7 +262,7 @@ by the sdnist.report package to generate a data quality report.
 3.  Unzip the **diverse_community_excerpts_data.zip** file and move the unzipped **diverse_community_excerpts_data** directory to the **sdnist-project** directory.
 4.  Delete the **diverse_community_excerpts_data.zip** file once the data is successfully extracted from the zip.
 
-### Citing SDNist Deidentified Data Report Tool
+## Citing SDNist Deidentified Data Report Tool
 If you publish work that utilizes the SDNist Deidentified Data Tool, please cite the software. Citation recommendation:  
 > Task C., Bhagat K., and Howarth G.S. (2023), SDNist v2: Deidentified Data Report Tool, 
 > National Institute of Standards and Technology, 
