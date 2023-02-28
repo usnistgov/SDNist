@@ -30,13 +30,6 @@ SDNist v1.4b and v2.0 does not support the Temporal Map Challenge environment.
 To run the testing environment from the [*NIST PSCR Differential Privacy Temporal Map Challenge*](https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges/2020-differential-privacy-temporal) for the Chicago Taxi data sprint or the American Community Survey sprint, please go to the the [Temporal Map Challenge assets repository](https://github.com/usnistgov/Differential-Privacy-Temporal-Map-Challenge-assets).
 
 
-### Citing SDNist Deidentified Data Report Tool
-If you publish work that utilizes the SDNist Deidentified Data Tool, please cite the software. Citation recommendation:  
-> Task C., Bhagat K., and Howarth G.S. (2023), SDNist v2: Deidentified Data Report Tool, 
-> National Institute of Standards and Technology, 
-> https://doi.org/10.18434/mds2-2943    
-(NOTE: DOI is not yet active, but should be by 1 MAR 2023).
-
 Setting Up the SDNIST Report Tool
 ------------------------
 
@@ -270,3 +263,10 @@ by the sdnist.report package to generate a data quality report.
 1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip).
 3.  Unzip the **diverse_community_excerpts_data.zip** file and move the unzipped **diverse_community_excerpts_data** directory to the **sdnist-project** directory.
 4.  Delete the **diverse_community_excerpts_data.zip** file once the data is successfully extracted from the zip.
+
+## Citing SDNist Deidentified Data Report Tool
+If you publish work that utilizes the SDNist Deidentified Data Tool, please cite the software. Citation recommendation:  
+> Task C., Bhagat K., and Howarth G.S. (2023), SDNist v2: Deidentified Data Report Tool, 
+> National Institute of Standards and Technology, 
+> https://doi.org/10.18434/mds2-2943    
+(NOTE: DOI is not yet active, but should be by 1 APR 2023).
