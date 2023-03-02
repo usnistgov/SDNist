@@ -1,12 +1,12 @@
-# The NIST Diverse Community Excerpts
+# The NIST Diverse Communities Data Excerpts
 
-The Diverse Community Excepts data are designed to be a resource to investigate performance of data synthesizers and similar privacy-enhancing technologies when applied to data collected from three communities (Boston area, Dallas-Forth Worth area, and US national) with radically different demographics. The data are drawn from real records released in the [American Community Survey](https://www.census.gov/programs-surveys/acs), a product of the US Census Bureau.
+The Diverse Communities Data Excerpts are designed to be a resource to investigate performance of data synthesizers and similar privacy-enhancing technologies when applied to data collected from three communities (Boston area, Dallas-Forth Worth area, and US national) with radically different demographics. The data are drawn from real records released in the [American Community Survey](https://www.census.gov/programs-surveys/acs), a product of the US Census Bureau.
 
 ## Purpose and design
 
-The Diverse Communities Excerpt Data were developed to address a recurring problem identified in the NIST Differential Privacy Synthetic Data Challenge, NIST Differential Privacy Temporal Map Challenge, and the HLG-MOS Synthetic Data Test Drive. Specifically, if the data are too complex, it’s hard to tell for sure what’s going on with it. These data are designed to support a deeper and more formal understanding of algorithm behavior on real human data.
+The Diverse Communities Data Excerpts were developed to address a recurring problem identified in the NIST Differential Privacy Synthetic Data Challenge, NIST Differential Privacy Temporal Map Challenge, and the HLG-MOS Synthetic Data Test Drive. Specifically, if the data are too complex, it’s hard to tell for sure what’s going on with it. These data are designed to support a deeper and more formal understanding of algorithm behavior on real human data.
 
-The Diverse Community Excerpt Data were designed with input from US Census Bureau experts in adaptive sampling design (consider [Coffey 2020](https://doi.org/10.1093/jssam/smz026)) and leveraged previous work on geographical differences in CART-modeled synthetic data to identify Public Use Microdata Areas (PUMAs) with challenging distributions (see Appendix B, [Abowd 2021](https://ui.adsabs.harvard.edu/link_gateway/2021arXiv211013239A/arxiv:2110.13239)).
+The Diverse Communities Data Excerpts were designed with input from US Census Bureau experts in adaptive sampling design (consider [Coffey 2020](https://doi.org/10.1093/jssam/smz026)) and leveraged previous work on geographical differences in CART-modeled synthetic data to identify Public Use Microdata Areas (PUMAs) with challenging distributions (see Appendix B, [Abowd 2021](https://ui.adsabs.harvard.edu/link_gateway/2021arXiv211013239A/arxiv:2110.13239)).
 
 Effectively, we attempt to provide a model-sized version of the problem that we were trying to understand. Like a ship in a bottle&mdash;pieces small enough that they can be assembled by hand&mdash;so that we can start to see how they fit together.
 
@@ -15,10 +15,10 @@ The requirements we sought to meet included the following:
 - Geographic regions that include enough (but not an overwhelming amount) individuals and sufficient complexity to investigate relationships between features
 - Geographic regions whose typical feature values vary radically to explore performance on diverse data sets
 
-## Citing NIST Diverse Community Excerpts
-If you publish work that utilizes the NIST Diverse Community Excerpt Data, please cite the resource. Citation recommendation:  
+## Citing NIST Diverse Communities Data Excerpts
+If you publish work that utilizes the NIST Diverse Communities Data Excerpts, please cite the resource. Citation recommendation:  
 > Task C., Bhagat K., Streat D., and Howarth G.S. (2023), 
-> NIST Diverse Community Excerpt Data, National Institute of Standards and Technology, 
+> NIST Diverse Communities Data Excerpts, National Institute of Standards and Technology, 
 > https://doi.org/10.18434/mds2-2895  
 (NOTE: DOI is not yet active, but should be live by 1 APR 2023).
 
@@ -102,7 +102,7 @@ Suggested partitioning feature: Sex + Disability
 
 ## Credits 
 
-- [Christine Task]() - Project technical lead - christine.task@knexusresearch.com
+- [Christine Task](mailto:christine.task@knexusresearch.com) - Project technical lead - christine.task@knexusresearch.com
 - [Karan Bhagat](https://github.com/kbtriangulum) - Contributor
 - [Aniruddha Sen](https://www.linkedin.com/in/senaniruddha/) - Contributor
 - [Damon Streat](https://www.linkedin.com/in/damon-streat-244106190?original_referer=https%3A%2F%2Fwww.google.com%2F) - Contributor
