@@ -268,3 +268,11 @@ If you publish work that utilizes the SDNist Deidentified Data Tool, please cite
 > National Institute of Standards and Technology, 
 > https://doi.org/10.18434/mds2-2943    
 (NOTE: DOI is not yet active, but should be by 1 APR 2023).
+
+## Credits 
+
+- [Christine Task](mailto:christine.task@knexusresearch.com) - Project technical lead - christine.task@knexusresearch.com
+- [Karan Bhagat](https://github.com/kbtriangulum) - Contributor
+- [David Lee](https://www.linkedin.com/in/david-lee-13872922/) - Documentation
+- [Gary Howarth](https://www.nist.gov/people/gary-howarth) - Project PI - gary.howarth@nist.gov
+
