@@ -3,20 +3,18 @@ import os
 import datetime
 import argparse
 from pathlib import Path
-from sdnist.report.spinner import Spinner
 
 from sdnist.report.common import REPORTS_DIR
 import sdnist.load
 from sdnist.load import data_challenge_map
 from sdnist.report import \
-    generate, Path, utility_score, privacy_score,\
+    generate, utility_score, privacy_score,\
     ReportUIData, Dataset, ReportData
 from sdnist.report.dataset import data_description
 from sdnist.load import TestDatasetName
 
 from sdnist.strs import *
 from sdnist.utils import *
-# from setup import version
 
 
 def run(synthetic_filepath: Path,
@@ -90,10 +88,9 @@ if __name__ == "__main__":
                         default=Path("diverse_community_excerpts_data"),
                         help="Path of the directory "
                              "to be used as the root for the target datasets")
-    parser.add_argument("--download", type=bool, default=True,
-                        help="Download toy datasets if not present locally")
 
-    group = parser.add_argument_group(title='Choices for Target Dataset Name:')
+    group = parser.add_argument_group(title='Choices for Target Dataset Name')
+    group.add_argument('[DATASET NAME]', help='[FILENAME]', action='none')
     for k, v in bundled_datasets.items():
         group.add_argument(str(k), help=f"{v.name}", action='none')
 
@@ -117,7 +114,7 @@ if __name__ == "__main__":
         SYNTHETIC_FILEPATH: Path(args.deidentified_dataset.name),
         DATA_ROOT: Path(args.data_root),
         OUTPUT_DIRECTORY: this_report_dir,
-        DOWNLOAD: args.download
+        DOWNLOAD: True,
     }
 
     run(**input_cnf)
