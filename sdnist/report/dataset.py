@@ -1,6 +1,6 @@
 import math
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 
 import pandas as pd
@@ -276,6 +276,7 @@ class Dataset:
         self.mappings = u.read_json(Path(configs_path, 'mappings.json'))
         self.data_dict = u.read_json(Path(configs_path, 'data_dictionary.json'))
         self.features = self.target_data.columns.tolist()
+        self.target_data_features = self.features
 
         drop_features = self.config[strs.DROP_FEATURES] \
             if strs.DROP_FEATURES in self.config else []
@@ -378,19 +379,25 @@ class Dataset:
         return list(set(corr_features).difference(unavailable_features))
 
 
-def data_description(dataset: Dataset, ui_data: ReportUIData) -> ReportUIData:
+def data_description(dataset: Dataset,
+                     ui_data: ReportUIData,
+                     labels: Optional[Dict] = None) -> ReportUIData:
     ds = dataset
     r_ui_d = ui_data
 
+    if labels is None:
+        labels = dict()
+
     r_ui_d.add_data_description(DatasetType.Target,
-                            DataDescriptionPacket(ds.target_data_path.stem,
-                                                  ds.target_data.shape[0],
-                                                  ds.target_data.shape[1]))
+                                DataDescriptionPacket(ds.target_data_path.stem,
+                                                      ds.target_data.shape[0],
+                                                      len(ds.target_data_features)))
 
     r_ui_d.add_data_description(DatasetType.Synthetic,
-                            DataDescriptionPacket(ds.synthetic_filepath.stem,
-                                                  ds.synthetic_data.shape[0],
-                                                  ds.synthetic_data.shape[1]))
+                                DataDescriptionPacket(ds.synthetic_filepath.stem,
+                                                      ds.synthetic_data.shape[0],
+                                                      ds.synthetic_data.shape[1],
+                                                      labels))
 
     f = dataset.features
     f = [_ for _ in dataset.data_dict.keys() if _ in f]

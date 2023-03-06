@@ -285,26 +285,27 @@
 
 {% macro data_description(title, key) %}
     {{ heading_2(title) }}
-    <div class="table-div">
-        <table>
-            <tr>
-                <th style="width: 50%">Property</th>
-                <th style="width: 50%">Value</th>
-            </tr>
-            <tr>
-                <td>Filename</td>
-                <td>{{ data['data_description'][key]['filename']}}</td>
-            </tr>
-            <tr>
-                <td>Total Records</td>
-                <td>{{ data['data_description'][key]['records']}}</td>
-            </tr>
-            <tr>
-                <td>Total Features</td>
-                <td>{{ data['data_description'][key]['features'] }}</td>
-            </tr>
-        </table>
-    </div>
+    {{ table(data['data_description'][key]) }}
+{#    <div class="table-div">#}
+{#        <table>#}
+{#            <tr>#}
+{#                <th style="width: 50%">Property</th>#}
+{#                <th style="width: 50%">Value</th>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Filename</td>#}
+{#                <td>{{ data['data_description'][key]['filename']}}</td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Total Records</td>#}
+{#                <td>{{ data['data_description'][key]['records']}}</td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Total Features</td>#}
+{#                <td>{{ data['data_description'][key]['features'] }}</td>#}
+{#            </tr>#}
+{#        </table>#}
+{#    </div>#}
 {% endmacro %}
 
 {% macro feature_description(title) %}
@@ -397,7 +398,7 @@
             {{ section_title('Data Description') }}
             {{ data_description('Deidentified (Deid.) Data', 'synthetic') }}
             {{ data_description('Target Data', 'target')}}
-            {{ feature_description('Data Features')}}
+            {{ feature_description('Evaluated Data Features')}}
         </div>
         <br>
         <div class="heading-2-div">

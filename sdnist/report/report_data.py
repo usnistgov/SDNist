@@ -5,6 +5,7 @@ from enum import Enum
 from pathlib import Path
 
 from sdnist.report import REPORTS_DIR
+import sdnist.strs as strs
 
 
 class DatasetType(Enum):
@@ -75,12 +76,21 @@ class DataDescriptionPacket:
     filename: str
     records: int
     columns: int
+    others: Dict = field(default_factory=dict)
 
     @property
-    def data(self) -> Dict[str, any]:
-        return {'filename': self.filename,
-                'records': self.records,
-                'features': self.columns}
+    def data(self) -> List[Dict[str, any]]:
+        d = {'filename': self.filename,
+             'records': self.records,
+             'features': self.columns}
+        d = {**d, **self.others}
+        d_list = []
+        for k, v in d.items():
+            d_list.append({
+                'Property': str(k).title(),
+                'Value': v
+            })
+        return d_list
 
 
 @dataclass
@@ -96,7 +106,7 @@ class FeatureDescriptionPacket:
                  "Feature Description": fd,
                  "Feature Type": ft,
                  "Feature Has 'N' (N/A) values?": hn}
-                for f,fd, ft, hn
+                for f, fd, ft, hn
                 in zip(self.features, self.feature_desc, self.feature_types, self.has_nans)]
 
 
@@ -126,17 +136,17 @@ class ReportUIData:
                                       feature_desc=feature_desc,
                                       feature_types=dtypes,
                                       has_nans=has_nans)
-        self.feature_desc["Data Features"] = dp
+        self.feature_desc["Evaluated Data Features"] = dp
 
     @property
     def data(self) -> Dict[str, any]:
         d = dict()
-        d['data_description'] = dict()
+        d[strs.DATA_DESCRIPTION] = dict()
         for d_type_name, d_desc in self.datasets.items():
-            d['data_description'][d_type_name] = d_desc.data
+            d[strs.DATA_DESCRIPTION][d_type_name] = d_desc.data
 
         for k, v in self.feature_desc.items():
-            d['data_description'][k] = v.data
+            d[strs.DATA_DESCRIPTION][k] = v.data
 
         d[EvaluationType.Utility.value] = []
         d[EvaluationType.Privacy.value] = []
