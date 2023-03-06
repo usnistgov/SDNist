@@ -1,7 +1,15 @@
-SDNist v2.0: Deidentified Data Report Tool
-====================================
+# SDNist v2.0: Deidentified Data Report Tool
 
-This tool evaluates utility and privacy of a given deidentified dataset and generates a summary quality report with performance of a deide dataset enumerated and illustrated for each utility and privacy metric.
+## [SDNist is the offical software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
+
+Welcome! SDNist v2.0 is a python package that provides benchmark data and evaluation metrics for deidentified data generators. This version of SDNist supports using the [NIST Diverse Communities Data Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts), a geographically partioned, limited feature data set.
+
+The deidentified data report evaluates utility and privacy of a given deidentified dataset and generates a summary quality report with performance of a deidentified dataset enumerated and illustrated for each utility and privacy metric.
+
+[Preview sample reports produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports)
+
+This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues]  if you catch a bug or would like have feature suggestions. 
+
 
 ### Project Team  
 **Karan Bhagat**, *Knexus Research* - Developer *sdnist.report* package  
@@ -10,8 +18,9 @@ This tool evaluates utility and privacy of a given deidentified dataset and gene
 
 **Gary Howarth**, *NIST* - Project PI [gary.howarth@nist.gov](mailto:gary.howarth@nist.gov)
 
-### Reporting Issues:
+### Reporting Issues
 Help us improve the package and this guide by reporting issues [here](https://github.com/usnistgov/SDNist/issues).
+
 
 Setting Up the SDNIST Report Tool
 ------------------------
@@ -38,7 +47,7 @@ SDNist v2.0 requires Python version 3.7 or greater. If you have installed a prev
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the Github [SDNist Release 2.0](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/sdnist-2.0.0-py3-none-any.whl).
+4.  Download the sdnist installable wheel (sdnist-2.0.0-py3-none-any.whl) from the Github: [Release 2.0](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/sdnist-2.0.0-py3-none-any.whl).
 
 
 5.  Move the downloaded sdnist-2.0.0-py3-none-any.whl file to the sdnist-project directory.
@@ -119,24 +128,26 @@ SDNist v2.0 requires Python version 3.7 or greater. If you have installed a prev
        ```
        Output:
        ```
-       usage: __main__.py [-h] [--data-root DATA_ROOT] [--download DOWNLOAD] PATH_DEIDENTIFIED_DATASET TARGET_DATASET_NAME  
-    
-       positional arguments:  
-       PATH_DEIDENTIFIED_DATASET  
-                             Location of deidentified dataset (csv or parquet file)  
-       TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given deidentified dataset  
-    
-       optional arguments:  
-       \-h, \--help            Show this help message and exit  
-       \--data-root DATA_ROOT  Path of the directory to be used as the root for the target datasets  
-       \--download DOWNLOAD    Download toy datasets if not present locallyChoices for Target Dataset Name::
-    
-        (dataname)         (filename)  
-        MA                        ma2019
-    
-        TX                        tx2019
-    
-        NATIONAL                  national2019
+        usage: __main__.py [-h] [--data-root DATA_ROOT]
+                           PATH_DEIDENTIFIED_DATASET TARGET_DATASET_NAME
+        
+        positional arguments:
+          PATH_DEIDENTIFIED_DATASET
+                                Location of deidentified dataset (csv or parquet file)
+          TARGET_DATASET_NAME   Select name of the target dataset that was used to
+                                generated given deidentified dataset
+        
+        options:
+          -h, --help            show this help message and exit
+          --data-root DATA_ROOT
+                                Path of the directory to be used as the root for the
+                                target datasets
+        
+        Choices for Target Dataset Name:
+          [DATASET NAME]        [FILENAME]
+          MA                    ma2019
+          TX                    tx2019
+          NATIONAL              national2019
        ```
 
 
@@ -212,13 +223,13 @@ Generate Data Quality Report
 
 3. The sdnist.report package also needs a deidentified dataset that it can evaluate against its original counterpart. Since the sdnist.report package comes bundled with the datasets, the deidentified dataset should be generated using the bundled datasets.
 
-   You can download a copy of the datasets from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts). This copy is similar to the one bundled with the sdnist.report package, but it contains more documentation and a description of the datasets.
+   You can download a copy of the datasets from Github [Diverse Communities Data Excerpts](https://github.com/usnistgov/SDNist/tree/main/nist%20diverse%20communities%20data%20excerpts). This copy is similar to the one bundled with the sdnist.report package, but it contains more documentation and a description of the datasets.
 
 
-4. You can download the toy deidentified datasets from Github [Sdnist Toy Synthetic Dataset](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/toy_deidentified_data.zip). Unzip the downloaded file, and move the unzipped toy_synthetic_dataset directory to the sdnist-project directory.
+4. You can download the toy deidentified datasets from Github [Sdnist Toy Deidentified Dataset](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/toy_deidentified_data.zip). Unzip the downloaded file, and move the unzipped toy_deidentified_dataset directory to the sdnist-project directory.
 
 
-5. Each toy deidentified dataset file is generated using the [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy synthetic dataset files for testing whether the sdnist.report package is installed correctly on your system.
+5. Each toy deidentified dataset file is generated using the [Diverse Communities Data Excerpts](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy deidentified dataset files for testing whether the sdnist.report package is installed correctly on your system.
 
 
 6. Use the following commands for generating reports if you are using a toy deidentified dataset file:
@@ -243,6 +254,21 @@ by the sdnist.report package to generate a data quality report.
 
 ## Download Data Manually
 
-1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Community Excerpts Data](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip).
+1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Communities Data Excerpts](https://github.com/usnistgov/SDNist/releases/download/v2.0.0/diverse_community_excerpts_data.zip).
 3.  Unzip the **diverse_community_excerpts_data.zip** file and move the unzipped **diverse_community_excerpts_data** directory to the **sdnist-project** directory.
 4.  Delete the **diverse_community_excerpts_data.zip** file once the data is successfully extracted from the zip.
+
+## Citing SDNist Deidentified Data Report Tool
+If you publish work that utilizes the SDNist Deidentified Data Tool, please cite the software. Citation recommendation:  
+> Task C., Bhagat K., and Howarth G.S. (2023), SDNist v2: Deidentified Data Report Tool, 
+> National Institute of Standards and Technology, 
+> https://doi.org/10.18434/mds2-2943    
+(NOTE: DOI is not yet active, but should be by 1 APR 2023).
+
+## Credits 
+
+- [Christine Task](mailto:christine.task@knexusresearch.com) - Project technical lead - christine.task@knexusresearch.com
+- [Karan Bhagat](https://github.com/kbtriangulum) - Contributor
+- [David Lee](https://www.linkedin.com/in/david-lee-13872922/) - Documentation
+- [Gary Howarth](https://www.nist.gov/people/gary-howarth) - Project PI - gary.howarth@nist.gov
+

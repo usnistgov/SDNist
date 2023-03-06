@@ -134,24 +134,26 @@ SDNist v2.0 requires Python version 3.7 or greater. If you have installed a prev
        ```
        Output:
        ```
-       usage: __main__.py [-h] [--data-root DATA_ROOT] [--download DOWNLOAD] PATH_DEIDENTIFIED_DATASET TARGET_DATASET_NAME  
-    
-       positional arguments:  
-       PATH_DEIDENTIFIED_DATASET  
-                             Location of deidentified dataset (csv or parquet file)  
-       TARGET_DATASET_NAME   Select name of the target dataset that was used to generated given deidentified dataset  
-    
-       optional arguments:  
-       \-h, \--help            Show this help message and exit  
-       \--data-root DATA_ROOT  Path of the directory to be used as the root for the target datasets  
-       \--download DOWNLOAD    Download toy datasets if not present locallyChoices for Target Dataset Name::
-    
-        (dataname)         (filename)  
-        MA                        ma2019
-    
-        TX                        tx2019
-    
-        NATIONAL                  national2019
+        usage: __main__.py [-h] [--data-root DATA_ROOT]
+                           PATH_DEIDENTIFIED_DATASET TARGET_DATASET_NAME
+        
+        positional arguments:
+          PATH_DEIDENTIFIED_DATASET
+                                Location of deidentified dataset (csv or parquet file)
+          TARGET_DATASET_NAME   Select name of the target dataset that was used to
+                                generated given deidentified dataset
+        
+        options:
+          -h, --help            show this help message and exit
+          --data-root DATA_ROOT
+                                Path of the directory to be used as the root for the
+                                target datasets
+        
+        Choices for Target Dataset Name:
+          [DATASET NAME]        [FILENAME]
+          MA                    ma2019
+          TX                    tx2019
+          NATIONAL              national2019
        ```
 
 
