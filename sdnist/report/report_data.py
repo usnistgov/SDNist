@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+import datetime
 
 from sdnist.report import REPORTS_DIR
 import sdnist.strs as strs
@@ -76,21 +77,34 @@ class DataDescriptionPacket:
     filename: str
     records: int
     columns: int
-    others: Dict = field(default_factory=dict)
+    labels: Dict = field(default_factory=dict)
 
     @property
-    def data(self) -> List[Dict[str, any]]:
+    def data(self) -> Dict[str, any]:
+        dd_dict = dict()   # data description dict
         d = {'filename': self.filename,
              'records': self.records,
              'features': self.columns}
-        d = {**d, **self.others}
-        d_list = []
+        d_list = []  # data list
         for k, v in d.items():
             d_list.append({
                 'Property': str(k).title(),
                 'Value': v
             })
-        return d_list
+        dd_dict['data'] = d_list
+
+        if 'label' in self.labels:
+            dd_dict['label'] = self.labels['label']
+        elif len(self.labels):
+            l_list = []  # labels data list
+            for k, v in self.labels.items():
+                l_list.append({
+                    'Label Name': str(k).title(),
+                    'Label Value': v
+                })
+            dd_dict['labels'] = l_list
+
+        return dd_dict
 
 
 @dataclass
@@ -141,6 +155,7 @@ class ReportUIData:
     @property
     def data(self) -> Dict[str, any]:
         d = dict()
+        d['Created on'] = datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S")
         d[strs.DATA_DESCRIPTION] = dict()
         for d_type_name, d_desc in self.datasets.items():
             d[strs.DATA_DESCRIPTION][d_type_name] = d_desc.data

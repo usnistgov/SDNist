@@ -285,27 +285,23 @@
 
 {% macro data_description(title, key) %}
     {{ heading_2(title) }}
-    {{ table(data['data_description'][key]) }}
-{#    <div class="table-div">#}
-{#        <table>#}
-{#            <tr>#}
-{#                <th style="width: 50%">Property</th>#}
-{#                <th style="width: 50%">Value</th>#}
-{#            </tr>#}
-{#            <tr>#}
-{#                <td>Filename</td>#}
-{#                <td>{{ data['data_description'][key]['filename']}}</td>#}
-{#            </tr>#}
-{#            <tr>#}
-{#                <td>Total Records</td>#}
-{#                <td>{{ data['data_description'][key]['records']}}</td>#}
-{#            </tr>#}
-{#            <tr>#}
-{#                <td>Total Features</td>#}
-{#                <td>{{ data['data_description'][key]['features'] }}</td>#}
-{#            </tr>#}
-{#        </table>#}
-{#    </div>#}
+    {% set ddict=data['data_description'][key] %}
+    {% if 'label' in ddict %}
+        <div>
+            <p ><span style="color: var(--theme-color); font-weight: bold">
+                Deidentified data label:</span>
+                <b>{{ ddict['label'] }}</b></p>
+        </div>
+        {% set ddict=ddict['data'] %}
+    {% elif 'labels' in ddict %}
+        {{ table(ddict['labels']) }}
+        <br />
+        {% set ddict=ddict['data'] %}
+    {% else %}
+        {% set ddict=ddict['data'] %}
+    {% endif %}
+    <br />
+    {{ table(ddict) }}
 {% endmacro %}
 
 {% macro feature_description(title) %}
@@ -394,6 +390,9 @@
             <h1 class="title-text">Data Evaluation Report</h1>
         </div>
         <br>
+        <div style="color: var(--theme-color); font-weight: bold">
+            <p>Report Created on: {{ data['Created on'] }}</p>
+        </div>
         <div class="heading-2-div">
             {{ section_title('Data Description') }}
             {{ data_description('Deidentified (Deid.) Data', 'synthetic') }}

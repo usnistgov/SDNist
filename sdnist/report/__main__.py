@@ -50,8 +50,9 @@ def run(synthetic_filepath: Path,
 
         log.msg('Saving Report Data')
         ui_data.save()
-        report_data.save()
         ui_data = ui_data.data
+        report_data.data['created_on'] = ui_data['Created on']
+        report_data.save()
         log.end_msg()
     else:
         with open(outfile, 'r') as f:
