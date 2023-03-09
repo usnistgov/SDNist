@@ -41,18 +41,6 @@ propensity_para = "Can a decision tree classifier tell the difference between th
                   "Joshua Snoke and Gillian Raab</a> and <a href='https://www.researchgate.net/publication/323867757_STatistical_Election_to_Partition_Sequentially_STEPS_and_Its_Application_in_Differentially_Private_Release_and_Analysis_of_Youth_Voter_Registration_Data'>Claire Bowen</a>" \
                   ", all of whom have participated on the NIST Synthetic Data Challenges SME panels."
 
-pca_para = "This is another approach for visualizing where the distribution of the deidentified data has shifted away from the target data. " \
-           "In this approach, we begin by using <a href='https://en.wikipedia.org/wiki/Principal_component_analysis'>Principle Component Analysis</a> " \
-           "to find a way of representing the target data in a lower dimensional space (in 5 dimensions rather than the full 22 " \
-           "dimensions of the original feature space). Descriptions of these new five dimensions (components) are " \
-           "given in the components table; the components will change depending on which target data set you’re using. " \
-           "Five dimensions are better than 22, but we actually want to get down to two dimensions so we can plot the data " \
-           "on simple (x,y) axes– the plots below show the data across each possible pair combination of our five components. " \
-           "You can compare how the shapes change between the target data and the deidentified data, and consider what that might mean in light " \
-           "of the component definitions. This is a relatively new visualization metric that was introduced by the " \
-           "<a href='https://pages.nist.gov/HLG-MOS_Synthetic_Data_Test_Drive/submissions.html#ipums_international'>IPUMS International team</a> " \
-           "during the HLG-MOS Synthetic Data Test Drive."
-
 k_marg_break_para = "In the metrics above we’ve considered all of the data together; " \
                     "however we know that algorithms may behave differently on different " \
                     "subgroups in the population. Below we look in more detail at deidentification " \

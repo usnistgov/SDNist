@@ -15,13 +15,13 @@ from sdnist.metrics.propensity import \
 from sdnist.metrics.pearson_correlation import \
     PearsonCorrelationDifference
 from sdnist.metrics.pca import PCAMetric, plot_pca
-from sdnist.metrics.regression import LinearRegressionMetric
 
 from sdnist.report.score.paragraphs import *
 from sdnist.report.score.utility.linear_regression import \
     LinearRegressionReport
 from sdnist.report.score.utility.inconsistency import \
     InconsistenciesReport
+from sdnist.report.score.utility.pca import PCAReport
 from sdnist.report import Dataset
 from sdnist.report.report_data import \
     ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType, \
@@ -611,29 +611,6 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         corr_metric_a.append(pc_para_a)
         corr_metric_a.append(pc_a)
 
-    log.msg('PCA', level=3)
-    pca = PCAMetric(dataset.t_target_data,
-                    dataset.t_synthetic_data,
-                    r_ui_d.output_directory)
-    pca.compute_pca()
-    pca_saved_file_path = pca.plot()
-    rd.add('pca', pca.report_data)
-    rel_pca_save_file_path = ["/".join(list(p.parts)[-2:])
-                              for p in pca_saved_file_path]
-    pca_para_a = Attachment(name=None,
-                            _data=pca_para,
-                            _type=AttachmentType.String)
-    pca_a_tt = Attachment(name="Contribution of Features in Each Principal Component",
-                          _data=pca.t_comp_data,
-                          _type=AttachmentType.Table)
-    # pca_a_st = Attachment(name="Synthetic data: contribution of features in "
-    #                            "each principal component")
-    pca_a = Attachment(name=None,
-                       _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                              for p in rel_pca_save_file_path],
-                       _type=AttachmentType.ImageLinks)
-    log.end_msg()
-
 
     # Add metrics reports to UI
     if kmarg_sum_pkt:
@@ -658,9 +635,11 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
 
     if prop_pkt:
         r_ui_d.add(prop_pkt)
-    r_ui_d.add(UtilityScorePacket("PCA",
-                                  None,
-                                  [pca_para_a, pca_a_tt, pca_a]))
+
+    log.msg('PCA', level=3)
+    pca_r = PCAReport(ds, r_ui_d, rd)
+    pca_r.add_to_ui()
+    log.end_msg()
 
     log.msg('Inconsistencies', level=3)
     icr = InconsistenciesReport(ds, r_ui_d, rd)
