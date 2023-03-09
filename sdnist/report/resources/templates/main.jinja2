@@ -391,7 +391,13 @@
         </div>
         <br>
         <div style="color: var(--theme-color); font-weight: bold">
-            <p>Report Created on: {{ data['Created on'] }}</p>
+            <p>Report created on: {{ data['Created on'] }}</p>
+            <p>Created with
+                <a style="color: var(--theme-color); font-weight: bold"
+                    href="https://github.com/usnistgov/SDNist">
+                    SDNIST v{{ data['version'] }}
+                </a>
+            </p>
         </div>
         <div class="heading-2-div">
             {{ section_title('Data Description') }}

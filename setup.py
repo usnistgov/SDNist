@@ -5,10 +5,11 @@ from pathlib import Path
 
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
+version = open("sdnist/version.py").readlines()[-1].split()[-1].strip("\"'")
 
 setup(
     name='sdnist',
-    version='2.0.0',
+    version=version,
     description='SDNist: Deidentified Data Report Generator',
     long_description=long_description,
     long_description_content_type='text/markdown',

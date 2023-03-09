@@ -5,6 +5,7 @@ from enum import Enum
 from pathlib import Path
 import datetime
 
+from sdnist.version import __version__
 from sdnist.report import REPORTS_DIR
 import sdnist.strs as strs
 
@@ -156,6 +157,7 @@ class ReportUIData:
     def data(self) -> Dict[str, any]:
         d = dict()
         d['Created on'] = datetime.datetime.now().strftime("%B %d, %Y %H:%M:%S")
+        d['version'] = __version__
         d[strs.DATA_DESCRIPTION] = dict()
         for d_type_name, d_desc in self.datasets.items():
             d[strs.DATA_DESCRIPTION][d_type_name] = d_desc.data
