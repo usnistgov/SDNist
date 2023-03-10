@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-import strs
+import sdnist.strs as strs
 from sdnist.metrics.pca import PCAMetric
 from sdnist.report import Dataset
 from sdnist.report.report_data import \

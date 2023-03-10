@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-import strs
+import sdnist.strs as strs
 from sdnist.utils import *
 
 plt.style.use('seaborn-deep')
