@@ -241,7 +241,7 @@ def get_density_bins_description(data: pd.DataFrame, data_dict: Dict, mappings: 
 
     d = bin_density(data.copy(), data_dict, update=False)
 
-    for dbin, g in d.groupby(by=['binned_density']):
+    for dbin, g in d.groupby(by='binned_density'):
         if g.shape[0] == 0:
             continue
 
