@@ -72,6 +72,10 @@ def validate(synth_data: pd.DataFrame, schema, features):
                     v_intersect = set(f_unique).intersection(set(real_vals))
                     if len(v_intersect) < len(f_unique):
                         vob_features.append((f, list(set(f_unique).difference(v_intersect))))
+                else:
+                    f_unique = set(sd.loc[mask, f].unique().tolist())
+                    real_vals = [int(v) for v in real_vals]
+                    v_intersect = set(f_unique).intersection(set(real_vals))
 
 
     if len(missing_feature):
@@ -153,6 +157,7 @@ def percentile_rank_synthetic(synthetic: pd.DataFrame,
         st = pd.DataFrame(pd.to_numeric(s.loc[nna_mask, f]).astype(int), columns=[f])
         final_st = st.copy()
         max_b = 0
+        last_bin = sorted(target_binned[f].unique().tolist())[-1]
         for b, g in target_binned.sort_values(by=[f]).groupby(by=f):
             if b == -1:
                 continue
@@ -160,10 +165,13 @@ def percentile_rank_synthetic(synthetic: pd.DataFrame,
             if b == 0:
                 max_b = max(t_bp[f])
                 final_st.loc[(st[f] <= max_b), f] = b
-            else:
+            elif b != last_bin:
                 min_b = max_b
                 max_b = max(t_bp[f])
                 final_st.loc[(st[f] > min_b) & (st[f] <= max_b), f] = b
+            else:
+                min_b = max_b
+                final_st.loc[(st[f] > min_b), f] = b
         s.loc[nna_mask, f] = final_st
     return s
 

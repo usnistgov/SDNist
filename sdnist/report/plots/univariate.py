@@ -130,24 +130,33 @@ class UnivariatePlots:
                 all_sectors = o_tar[INDP_CAT].unique().tolist()
                 set(all_sectors).update(set(o_syn[INDP_CAT].unique().tolist()))
                 selected = []
+                # print(all_sectors)
                 for s in all_sectors:
                     if s == 'N':
                         continue
-                    st_df = o_tar[o_tar[INDP_CAT].isin([s])]
-                    ss_df = o_syn[o_syn[INDP_CAT].isin([s])]
-
-                    unique_ind_codes = st_df[INDP].unique().tolist()
-                    set(unique_ind_codes).update(set(ss_df[INDP].unique().tolist()))
+                    st_df = o_tar[o_tar[INDP_CAT].isin([s])].copy()
+                    st_df.loc[:, f] = pd.to_numeric(st_df[f]).astype(int)
+                    ss_df = o_syn[o_syn[INDP_CAT].isin([int(s)])]
+                    # print(s, type(s))
+                    # print(o_syn[INDP_CAT].unique().tolist())
+                    unique_ind_codes = st_df[f].unique().tolist()
+                    set(unique_ind_codes).update(set(ss_df[f].unique().tolist()))
                     unique_ind_codes = list(unique_ind_codes)
                     val_df = pd.DataFrame(unique_ind_codes, columns=[f])
 
                     t_counts_df = st_df.groupby(by=f)[f].size().reset_index(name='count_target')
                     s_counts_df = ss_df.groupby(by=f)[f].size().reset_index(name='count_deidentified')
+                    # print(s)
+                    # print(s_counts_df)
+                    # print(ss_df[f].unique().tolist())
+                    # print(ss_df.shape)
                     merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
                         .fillna(0)
                     merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
                         .fillna(0)
                     div = l1(pk=merged['count_target'], qk=merged['count_deidentified'])
+                    # print(s)
+                    # print(merged[['count_target', 'count_deidentified']])
                     selected.append([merged, div, s])
                 selected = sorted(selected, key=lambda l: l[1], reverse=True)
 
@@ -185,12 +194,12 @@ class UnivariatePlots:
                                                 f"Industry Category {s}")),
                         "plot": relative_path(file_path)
                     }
-                    if j < 2:
-                        saved_file_paths.append(file_path)
+                    # if j < 2:
+                    saved_file_paths.append(file_path)
 
-                        self.feat_data[title] = {
-                            "path": file_path
-                        }
+                    self.feat_data[title] = {
+                        "path": file_path
+                    }
             else:
                 plt.figure(figsize=(8, 3), dpi=100)
                 file_path = Path(o_path, f'{f}.jpg')
@@ -246,9 +255,6 @@ class UnivariatePlots:
                     updated_vals = []
                     for v in vals:
                         mv1 = o_tar[target[f].isin([v])][f].values.tolist()
-                        #TODO fix me
-                        # t = synthetic[f].isin([v])
-                        # mv2 = ds.synthetic_data[synthetic[f].isin([v])][f].values.tolist()
                         mv = mv1
                         if len(mv) and v != -1:
                             nv = min(mv)

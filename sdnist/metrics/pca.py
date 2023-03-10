@@ -146,7 +146,7 @@ class PCAMetric:
                 [h_tar_path, h_syn_path]
 
         e = time.time() - s
-        print('PCA TOOK TIME: ', e)
+        # print('PCA TOOK TIME: ', e)
         return plot_paths
 
 
