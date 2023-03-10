@@ -14,7 +14,6 @@ from sdnist.metrics.propensity import \
     PropensityMSE
 from sdnist.metrics.pearson_correlation import \
     PearsonCorrelationDifference
-from sdnist.metrics.pca import PCAMetric, plot_pca
 
 from sdnist.report.score.paragraphs import *
 from sdnist.report.score.utility.linear_regression import \
@@ -140,7 +139,7 @@ def worst_score_breakdown(worst_scores: List,
 
     for k, v in u_feature_data.items():
         u_path = v['path']
-        u_rel_path = "/".join(list(u_path.parts)[-2:])
+        u_rel_path = relative_path(u_path, level=3)
         name = k
         a = Attachment(name=None,
                        _data=f'h4{name}',

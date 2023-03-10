@@ -24,6 +24,7 @@ class AttachmentType(Enum):
     Table = "table"
     WideTable = 'wide_table'
     ImageLinks = "image_links"
+    ImageLinksHorizontal = "image_links_horizontal"
     String = 'string'
     ParaAndImage = 'para_and_image'
 

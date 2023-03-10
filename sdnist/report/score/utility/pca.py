@@ -64,7 +64,10 @@ class PCAReport:
                           self.dataset.t_synthetic_data)
 
         pca_m.compute_pca()
-        tar_path, died_path = pca_m.plot(o_path)
+        plot_paths = pca_m.plot(o_path)
+
+        # acpp: all components pair-plot paths
+        acpp_tar, acpp_deid = plot_paths[strs.ALL_COMPONENTS_PAIR_PLOT]
 
         # Add json report data for pca
         pca_rd = {
@@ -80,14 +83,14 @@ class PCAReport:
              save_data_frame(pca_m.s_pdf,
                              o_path,
                              'deidentified_components')),
-         "target_all_components_plot": relative_path(tar_path),
-         "deidentified_all_components_plot": relative_path(died_path)
+         "target_all_components_plot": relative_path(acpp_tar),
+         "deidentified_all_components_plot": relative_path(acpp_deid)
         }
 
         self.rd.add('pca', pca_rd)
 
         # create attachment objects for report UI data
-        rel_pca_plot_paths = relative_path([tar_path, died_path])
+        rel_pca_plot_paths = relative_path([acpp_tar, acpp_deid])
 
         # pca paragraph attachment for report UI
         pca_para_a = Attachment(name=None,
@@ -95,16 +98,42 @@ class PCAReport:
                                 _type=AttachmentType.String)
 
         # pca feature contribution table attachment for report UI
+        t_d = {'table': pca_m.t_comp_data,
+               'size': 80,
+               'column_widths': {
+                   0: 20,
+                   1: 80,
+               }}
         pca_tt_a = Attachment(name="Contribution of Features in Each Principal Component",
-                              _data=pca_m.t_comp_data,
-                              _type=AttachmentType.Table)
+                              _data=t_d,
+                              _type=AttachmentType.WideTable)
 
         pca_plot_a = Attachment(name=None,
                                 _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                        for p in rel_pca_plot_paths],
-                                _type=AttachmentType.ImageLinks)
+                                _type=AttachmentType.ImageLinksHorizontal)
 
-        self.attachments.extend([pca_para_a, pca_tt_a, pca_plot_a])
+        highlighted_attachments = []
+        for k, v in plot_paths[strs.HIGHLIGHTED].items():
+            name = k[1]
+            desc = k[2]
+
+            # highlighted attachment header
+            h_a_h = Attachment(name=None,
+                               _data=f'h4{name}: {desc}',
+                               _type=AttachmentType.String)
+            hcp_tar, hcp_deid = v
+            rel_pca_plot_paths = relative_path([hcp_tar, hcp_deid], level=3)
+
+            # highlighted attachment plots
+            h_a_p = Attachment(name=None,
+                               _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                                      for p in rel_pca_plot_paths],
+                               _type=AttachmentType.ImageLinksHorizontal)
+            highlighted_attachments.extend([h_a_h, h_a_p])
+
+        self.attachments.extend([pca_para_a, pca_tt_a, pca_plot_a]
+                                + highlighted_attachments)
 
     def add_to_ui(self):
         if len(self.attachments):

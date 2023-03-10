@@ -80,6 +80,13 @@
         }
         .heading-4-text {
         }
+        .horizontal-content {
+            display: inline-flex;
+            margin-top: 10px;
+        }
+        .horizontal-img {
+            margin-right: 50px;
+        }
         .img-div {
 
         }
@@ -223,6 +230,12 @@
         {% set size_style = "" %}
     {% endif %}
 
+    {% if 'column_widths' in data %}
+        {% set csize = data['column_widths'] %}
+    {% else %}
+        {% set csize = dict() %}
+    {% endif %}
+
     {% if tdata|length > 0 %}
         <div class="wide-table-div" style="{{ size_style }}">
             <table>
@@ -236,12 +249,17 @@
                 {% endfor %}
                 </colgroup>
                 <tr>
-                {% for col, _ in tdata[0].items() %}
+                {% for i, (col, _) in enumerate(tdata[0].items()) %}
                     {% set hl_col_syle = '' %}
                     {% if col in col_hl %}
                         {% set hl_col = 'color: black' %}
                     {% endif %}
-                    <th style="width: {{ (100/tdata[0].items()|length) }}%; {{ hl_col }}">
+                    {% if i in csize %}
+                        {% set cwidth = csize[i] %}
+                    {% else %}
+                        {% set cwidth = (100/tdata[0].items()|length) %}
+                    {% endif %}
+                    <th style="width: {{ cwidth }}%; {{ hl_col }}">
                         {{ col }}
                     </th>
                 {% endfor %}
@@ -281,6 +299,16 @@
             <img src={{ image_link['path'] }} alt={{ image_link['image_name'] }}>
         </div>
     {% endfor %}
+{% endmacro %}
+
+{% macro draw_images_horizontal(data) %}
+    <div class="horizontal-content">
+        {% for image_link in data %}
+            <div class="horizontal-img">
+                <img src={{ image_link['path'] }} alt={{ image_link['image_name'] }}>
+            </div>
+        {% endfor %}
+    </div>
 {% endmacro %}
 
 {% macro data_description(title, key) %}
@@ -338,11 +366,13 @@
         {% else %}
             {% set style = 'attachment-div' %}
         {% endif %}
+
         {% if a.dotted_break == True and i != data['attachments']|length - 1 %}
             {% set dashed_line = 'dashed-line' %}
         {% else %}
             {% set dashed_line = '' %}
         {% endif %}
+
         <div class="{{ style }} {{ dashed_line }}">
             {% if a.name and a.name != '--no-brake--' %}
                 <br>
@@ -356,6 +386,8 @@
                 {{ wide_table(a.data) }}
             {% elif a.type == "image_links" %}
                 {{ draw_images(a.data) }}
+            {% elif a.type == "image_links_horizontal" %}
+                {{ draw_images_horizontal(a.data) }}
             {% elif a.type == "string" %}
                 {{ string_data(a.data) }}
             {% elif a.type == "para_and_image" %}

@@ -146,11 +146,12 @@ def save_data_frame(data: pd.DataFrame, output_dir: Path, filename: str) -> Path
     return p
 
 
-def relative_path(path: Union[List[Path], Path]) -> Union[List[str], str]:
+def relative_path(path: Union[List[Path], Path],
+                  level: int = 2) -> Union[List[str], str]:
     if isinstance(path, Path):
-        return "/".join(list(path.parts)[-2:])
+        return "/".join(list(path.parts)[-level:])
     elif isinstance(path, List):
-        return ["/".join(list(p.parts)[-2:])
+        return ["/".join(list(p.parts)[-level:])
                 for p in path]
 
 
