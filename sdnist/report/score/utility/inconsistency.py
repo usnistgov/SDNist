@@ -17,7 +17,7 @@ class InconsistenciesReport:
     """
 
     def __init__(self, dataset: Dataset, ui_data: ReportUIData, report_data: ReportData):
-        self.s = dataset.synthetic_data
+        self.s = dataset.c_synthetic_data
         self.r_ui_d = ui_data
         self.rd = report_data
         self.ic = None

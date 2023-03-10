@@ -121,8 +121,8 @@ class UnivariatePlots:
         saved_file_paths = []
         INDP = 'INDP'
         INDP_CAT = "INDP_CAT"
-        o_tar = ds.target_data.loc[target.index]
-        o_syn = ds.synthetic_data.loc[synthetic.index]
+        o_tar = ds.target_data.iloc[target.index]
+        o_syn = ds.c_synthetic_data.iloc[synthetic.index]
 
         for i, f in enumerate(features):
             self.uni_counts[f] = dict()
@@ -219,7 +219,6 @@ class UnivariatePlots:
                     "plot": relative_path(file_path)
                 }
 
-
                 self.feat_data[title] = dict()
                 if c1 >= c2*3 or f in ['PINCP']:
                     f_val = c_sort_merged.loc[0, f]
@@ -243,7 +242,7 @@ class UnivariatePlots:
                 plt.ylabel('Record Counts')
                 vals = merged[f].values.tolist()
 
-                if f in ['AGEP', 'POVPIP', 'PINCP']:
+                if f in ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']:
                     updated_vals = []
                     for v in vals:
                         mv1 = o_tar[target[f].isin([v])][f].values.tolist()

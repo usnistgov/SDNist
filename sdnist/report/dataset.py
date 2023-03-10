@@ -35,23 +35,44 @@ def validate(synth_data: pd.DataFrame, schema, features):
 
         # check feature has out of bound value
         f_data = schema[f]
+
+        mask = sd[sd[f] != 'N'].index if 'has_null' in f_data else sd.index
         if 'min' in f_data:
             if f in ['POVPIP', 'PINCP']:
-                nna_mask = sd[sd[f] != 'N'].index
                 try:
-                    sd[f] = pd.to_numeric(sd.loc[nna_mask, f]).astype(int)
+                    sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f]).astype(float)
                 except Exception as e:
                     vob_features.append((f, []))
             else:
                 try:
-                    sd[f] = pd.to_numeric(sd[f]).astype(int)
+                    sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f]).astype(int)
                 except Exception as e:
                     vob_features.append((f, []))
+        elif f == 'PUMA':
+
+            # values intersection
+            f_unique = sd['PUMA'].unique().tolist()
+            v_intersect = set(f_unique).intersection(set(f_data['values']))
+            if len(v_intersect) < len(f_unique):
+                vob_features.append((f, list(set(f_unique).difference(v_intersect))))
         else:
-            d_vals = set(synth_data[f].unique().tolist())
-            diff = d_vals.difference(set(f_data['values']))
-            if len(diff):
-                vob_features.append((f, list(diff)))
+
+            try:
+                sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f]).astype(int)
+            except Exception as e:
+                nans = pd.to_numeric(sd.loc[mask, f], errors="coerce").astype(int).isna()
+                vob_features.append((f, sd.loc[nans, f].values.tolist()))
+            else:
+                real_vals = f_data['values']
+                if 'has_null' in f_data:
+                    real_vals.remove('N')
+                if f != 'INDP':
+                    f_unique = set(sd.loc[mask, f].unique().tolist())
+                    real_vals = [int(v) for v in real_vals]
+                    v_intersect = set(f_unique).intersection(set(real_vals))
+                    if len(v_intersect) < len(f_unique):
+                        vob_features.append((f, list(set(f_unique).difference(v_intersect))))
+
 
     if len(missing_feature):
         raise Exception(f'Error: Missing features in synthetic data: {missing_feature}')
@@ -65,6 +86,7 @@ def validate(synth_data: pd.DataFrame, schema, features):
                 print(f'Error: Value out of bound for feature {f}, out of bound values: {vals}')
 
         raise Exception(f'Values out of bound for features: {[f for f, v in vob_features]}')
+    return sd
 
 
 def transform(data: pd.DataFrame, schema: Dict):
@@ -84,14 +106,18 @@ def transform(data: pd.DataFrame, schema: Dict):
                 nna_mask = data[~data[c].isin(['N'])].index  # not na mask
                 if c == 'PINCP':
                     data[c] = data[c].replace(null_val, 9999999)
+                    data[c] = pd.to_numeric(data[c]).astype(float)
                 elif c == 'POVPIP':
                     data[c] = data[c].replace(null_val, 999)
+                    data[c] = pd.to_numeric(data[c]).astype(int)
+                else:
+                    data[c] = pd.to_numeric(data[c]).astype(int)
         if c == 'PUMA':
             data[c] = data[c].astype(pd.CategoricalDtype(desc["values"])).cat.codes
             if "N" in desc['values']:
                 data[c] = data[c].replace(0, -1)
         else:
-            data[c] = pd.to_numeric(data[c])
+            data[c] = pd.to_numeric(data[c]).astype(int)
 
     return data
 
@@ -276,6 +302,8 @@ class Dataset:
         self.mappings = u.read_json(Path(configs_path, 'mappings.json'))
         self.data_dict = u.read_json(Path(configs_path, 'data_dictionary.json'))
         self.features = self.target_data.columns.tolist()
+        # self.features = ["SEX", "MSP", "RAC1P", "OWN_RENT", "PINCP_DECILE", "EDU",
+        #                    "AGEP", "HOUSING_TYPE", "DVET", "DEYE"]
         self.target_data_features = self.features
 
         drop_features = self.config[strs.DROP_FEATURES] \
@@ -313,12 +341,17 @@ class Dataset:
         self.log.msg(f'Features ({len(self.features)}): {self.features}', level=3, timed=False)
         self.log.msg(f'Deidentified Data Records Count: {self.synthetic_data.shape[0]}', level=3, timed=False)
         self.log.msg(f'Target Data Records Count: {self.target_data.shape[0]}', level=3, timed=False)
-
-        validate(self.synthetic_data, self.schema, self.features)
+        # validate(self.target_data, self.schema, self.features)
+        # cleaned
 
         # raw data
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
+        self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
+        self.synthetic_data = self.synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
+
+        # clean data
+        self.c_synthetic_data = validate(self.synthetic_data, self.schema, self.features)
 
         # bin the density feature if present in the datasets
         self.density_bin_desc = dict()
@@ -338,7 +371,7 @@ class Dataset:
         self.t_synthetic_data = transform(self.synthetic_data, self.schema)
 
         # binned data
-        numeric_features = ['AGEP', 'POVPIP', 'PINCP']
+        numeric_features = ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']
         self.d_target_data = percentile_rank_target(self.target_data, numeric_features)
         self.d_target_data = add_bin_for_NA(self.d_target_data,
                                             self.target_data, numeric_features)
