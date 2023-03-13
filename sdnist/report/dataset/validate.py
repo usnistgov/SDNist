@@ -66,6 +66,7 @@ def validate(synth_data: pd.DataFrame,
                 sd = sd.dropna()
 
             mask = sd[sd[f] != 'N'].index if 'has_null' in f_data else sd.index
+            sd.loc[mask, f] = sd.loc[mask, f].astype(int)
             real_vals = f_data['values']
             if 'has_null' in f_data:
                 real_vals.remove('N')

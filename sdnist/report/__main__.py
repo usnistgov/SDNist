@@ -20,7 +20,7 @@ from sdnist.utils import *
 
 def run(synthetic_filepath: Path,
         output_directory: Path = REPORTS_DIR,
-        test: TestDatasetName = TestDatasetName.NONE,
+        dataset_name: TestDatasetName = TestDatasetName.NONE,
         data_root: Path = Path("diverse_community_excerpts_data"),
         labels_dict: Optional[Dict] = None,
         download: bool = False,
@@ -35,7 +35,7 @@ def run(synthetic_filepath: Path,
 
     if not outfile.exists():
         log.msg('Loading Datasets', level=2)
-        dataset = Dataset(synthetic_filepath, log, test, data_root, download)
+        dataset = Dataset(synthetic_filepath, log, dataset_name, data_root, download)
         ui_data = data_description(dataset, ui_data, labels_dict)
         log.end_msg()
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         labels = None
 
     input_cnf = {
-        TEST: TARGET_DATA,
+        DATASET_NAME: TARGET_DATA,
         SYNTHETIC_FILEPATH: Path(args.deidentified_dataset.name),
         DATA_ROOT: Path(args.data_root),
         OUTPUT_DIRECTORY: this_report_dir,
