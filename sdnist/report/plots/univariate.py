@@ -121,8 +121,8 @@ class UnivariatePlots:
         saved_file_paths = []
         INDP = 'INDP'
         INDP_CAT = "INDP_CAT"
-        o_tar = ds.target_data.iloc[target.index]
-        o_syn = ds.c_synthetic_data.iloc[synthetic.index]
+        o_tar = ds.target_data.loc[target.index]
+        o_syn = ds.c_synthetic_data.loc[synthetic.index]
 
         for i, f in enumerate(features):
             self.uni_counts[f] = dict()

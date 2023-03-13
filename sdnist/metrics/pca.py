@@ -135,8 +135,8 @@ class PCAMetric:
 
             f_tdf = df_filter(self.tar, h_filters)
             f_sdf = df_filter(self.syn, h_filters)
-            f_tdf = self.t_pdf_s.iloc[f_tdf.index]
-            f_sdf = self.s_pdf_s.iloc[f_sdf.index]
+            f_tdf = self.t_pdf_s.loc[f_tdf.index]
+            f_sdf = self.s_pdf_s.loc[f_sdf.index]
 
             plot_single_component_pair(f'Target Dataset: PC{hc[0]}-PC{hc[1]}',
                                        f_tdf, h_tar_path, h_t_cp_o_path, t_cp_o_path, hc)

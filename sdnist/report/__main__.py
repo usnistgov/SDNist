@@ -31,7 +31,7 @@ def run(synthetic_filepath: Path,
     log = SimpleLogger()
     log.msg('SDNist: Deidentified Data Report Tool', level=0, timed=False)
     log.msg(f'Creating Evaluation Report for Deidentified Data at path: {synthetic_filepath}',
-            level=1)
+            level=1, msg_type='finish_mark')
 
     if not outfile.exists():
         log.msg('Loading Datasets', level=2)
@@ -60,7 +60,8 @@ def run(synthetic_filepath: Path,
     log.end_msg()
     # Generate Report
     generate(ui_data, output_directory, test_mode)
-    log.msg(f'Reports available at path: {output_directory}', level=0, timed=False)
+    log.msg(f'Reports available at path: {output_directory}', level=0, timed=False,
+            msg_type='important')
 
 
 class NoAction(argparse.Action):

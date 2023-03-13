@@ -5,7 +5,7 @@ import json
 import os
 import time
 import sys
-
+from colorama import Fore
 from pathlib import Path
 
 
@@ -198,7 +198,7 @@ class SimpleLogger:
         self.msg_path = dict()
         self.root = None
 
-    def msg(self, message: str, level=1, timed=True):
+    def msg(self, message: str, level=1, timed=True, msg_type:str = ''):
         if timed:
             if self.root is None:
                 self.root = message
@@ -209,29 +209,47 @@ class SimpleLogger:
             msg_full_path = self.get_msg_path(message, level)
             self.current_level = level
             self.current_head = msg_full_path
-            self.level_messages[self.current_head] = (message, level, t)
+            self.level_messages[self.current_head] = (message, level, t, msg_type)
+
+        level_indent = ''
+        if msg_type == 'error':
+            level_indent = Fore.RED
+        elif msg_type == 'important':
+            level_indent = Fore.BLUE
+        else:
+            level_indent = Fore.YELLOW
 
         if level < 3:
-            level_indent = '|' + ''.join(['--'
+
+            level_indent = level_indent + '|' + ''.join(['--'
                                           for _ in range(level)])
 
             sys_print(level_indent + ' ' + message)
         elif not timed:
-            level_indent = '|' + ''.join(['--'
+            level_indent = level_indent + '|' + ''.join(['--'
                                           for _ in range(level)])
 
             sys_print(level_indent + ' ' + message)
 
     def end_msg(self):
         head_data = self.level_messages[self.current_head]
-        message, level, t = head_data
+        message, level, t, msg_type = head_data
         del self.level_messages[self.current_head]
         if self.current_head != self.root:
             parent_path = self.ptrn.join(self.current_head.split(self.ptrn)[:-1])
             self.current_head = parent_path
             self.current_level = level - 1
         secs = t.time()
-        level_indent = '|' + ''.join(['--'
+        if msg_type == 'error':
+            level_indent = Fore.RED
+        elif msg_type == 'important':
+            level_indent = Fore.BLUE
+        elif msg_type == 'finish_mark':
+            level_indent = Fore.GREEN
+        else:
+            level_indent = Fore.YELLOW
+
+        level_indent = level_indent + '|' + ''.join(['--'
                                       for _ in range(level)])
         sys_print(level_indent + f' >>>> Finished {message} | Time: {round(secs, 1)}s <<<<')
 
