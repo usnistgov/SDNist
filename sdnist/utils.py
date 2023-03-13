@@ -213,11 +213,15 @@ class SimpleLogger:
 
         level_indent = ''
         if msg_type == 'error':
-            level_indent = Fore.RED
-        elif msg_type == 'important':
+            level_indent = Fore.RED + 'Error: '
+        elif level == 0:
             level_indent = Fore.BLUE
+        elif level == 1:
+            level_indent = Fore.CYAN
+        elif level == 2:
+            level_indent = Fore.LIGHTYELLOW_EX
         else:
-            level_indent = Fore.YELLOW
+            level_indent = Fore.LIGHTMAGENTA_EX
 
         if level < 3:
 
@@ -240,18 +244,15 @@ class SimpleLogger:
             self.current_head = parent_path
             self.current_level = level - 1
         secs = t.time()
+        fore_clr = ''
         if msg_type == 'error':
-            level_indent = Fore.RED
-        elif msg_type == 'important':
-            level_indent = Fore.BLUE
-        elif msg_type == 'finish_mark':
-            level_indent = Fore.GREEN
+            fore_clr = Fore.RED
         else:
-            level_indent = Fore.YELLOW
-
+            fore_clr = Fore.LIGHTGREEN_EX
+        level_indent = fore_clr
         level_indent = level_indent + '|' + ''.join(['--'
                                       for _ in range(level)])
-        sys_print(level_indent + f' >>>> Finished {message} | Time: {round(secs, 1)}s <<<<')
+        sys_print(level_indent + f' Finished {message} | {Fore.WHITE} Time: {round(secs, 1)}s {fore_clr}<<<<')
 
     def get_msg_path(self, msg, level):
         if self.current_level == level and self.current_head != self.root:

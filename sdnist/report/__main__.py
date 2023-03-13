@@ -31,7 +31,7 @@ def run(synthetic_filepath: Path,
     log = SimpleLogger()
     log.msg('SDNist: Deidentified Data Report Tool', level=0, timed=False)
     log.msg(f'Creating Evaluation Report for Deidentified Data at path: {synthetic_filepath}',
-            level=1, msg_type='finish_mark')
+            level=1)
 
     if not outfile.exists():
         log.msg('Loading Datasets', level=2)
