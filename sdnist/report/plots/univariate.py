@@ -198,7 +198,7 @@ class UnivariatePlots:
                     saved_file_paths.append(file_path)
 
                     self.feat_data[title] = {
-                        "path": file_path
+                        "path": ''
                     }
             else:
                 plt.figure(figsize=(8, 3), dpi=100)

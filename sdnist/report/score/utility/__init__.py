@@ -139,6 +139,8 @@ def worst_score_breakdown(worst_scores: List,
 
     for k, v in u_feature_data.items():
         u_path = v['path']
+        if len(str(u_path)) == 0:
+            continue
         u_rel_path = relative_path(u_path, level=3)
         name = k
         a = Attachment(name=None,
@@ -450,6 +452,8 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
 
         for k, v in u_feature_data.items():
             u_path = v['path']
+            if len(str(u_path)) == 0:
+                continue
             u_rel_path = "/".join(list(u_path.parts)[-2:])
             name = k
             a = Attachment(name=None,
