@@ -45,10 +45,14 @@ def validate(synth_data: pd.DataFrame,
                 console_out(f'Value out of bound for feature {f}, '
                       f'out of bound values: {vob_vals}. '
                             f'Dropping feature from evaluation.')
+
             mask = sd[sd[f] != 'N'].index if 'has_null' in f_data else sd.index
+
             if f in ['PINCP'] and not len(nans):
+                sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f])
                 sd.loc[mask, f] = sd.loc[mask, f].astype(float)
             elif not len(nans):
+                sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f])
                 sd.loc[mask, f] = sd.loc[mask, f].astype(int)
         elif f == 'PUMA':
             # values intersection
@@ -87,6 +91,7 @@ def validate(synth_data: pd.DataFrame,
                       f'out of bound values: {vob_vals}. Dropping feature from evaluation.')
             else:
                 mask = sd[sd[f] != 'N'].index if 'has_null' in f_data else sd.index
+                sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f])
                 sd.loc[mask, f] = sd.loc[mask, f].astype(int)
 
         if len(vob_features):

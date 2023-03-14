@@ -288,7 +288,7 @@ def kmarginal_score_packet(k_marginal_score: int,
              "Sub-Sample K-Marginal Score": subsample_scores[frac],
              "Deidentified Data K-marginal score": k_marginal_score,
              "Absolute Diff. From Deidentified Data K-marginal Score":
-                 f"{abs(subsample_scores[frac] - k_marginal_score)}"
+                 f"{round(abs(subsample_scores[frac] - k_marginal_score), 2)}"
              }
             for frac in sorted_frac]
 
@@ -521,7 +521,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     s.compute_score()
     metric_name = s.NAME
 
-    metric_score = int(s.score) if s.score > 100 else round(s.score, 5)
+    metric_score = int(s.score) if s.score > 100 else round(s.score, 2)
     metric_attachments = []
 
     if s.NAME == CensusKMarginalScore.NAME \
