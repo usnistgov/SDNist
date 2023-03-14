@@ -515,8 +515,9 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
 
     # compute scores and plots
     s = CensusKMarginalScore(ds.d_target_data,
-                                        ds.d_synthetic_data,
-                                        ds.schema, **ds.config[strs.K_MARGINAL])
+                             ds.d_synthetic_data,
+                             ds.schema,
+                             **ds.config[strs.K_MARGINAL])
     s.compute_score()
     metric_name = s.NAME
 
@@ -546,7 +547,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     s.compute_score()
     metric_name = s.NAME
 
-    metric_score = int(s.score) if s.score > 100 else round(s.score, 5)
+    metric_score = int(s.score) if s.score > 100 else round(s.score, 3)
 
     p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
     # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)

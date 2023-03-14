@@ -25,7 +25,7 @@ class KMarginalScore:
     NAME = 'K-Marginal'
 
     RANK: int = 2  # Actual rank is RANK + len(ALWAYS_GROUPBY)
-    N_PERMUTATIONS: int = 100
+    N_PERMUTATIONS: int = 50
 
     def __init__(self,
                  private_dataset: pd.DataFrame,
@@ -77,9 +77,7 @@ class KMarginalScore:
     def columns(self):
         assert self.COLUMNS is not None
         random_state = np.random.RandomState(seed=self.seed)
-
-        cols = list(set(self.COLUMNS) - set(self.drop_columns))
-
+        cols = sorted(list(set(self.COLUMNS) - set(self.drop_columns)))
         for _ in range(self.N_PERMUTATIONS):
             yield list(random_state.choice(cols, size=self.RANK))
 
@@ -87,6 +85,7 @@ class KMarginalScore:
         if self.ALWAYS_GROUPBY:
             return self._compute_score_grouped()
         else:
+            self.RANK = 3
             return self._compute_score()
 
     def _compute_score_grouped(self):

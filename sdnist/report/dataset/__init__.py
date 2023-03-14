@@ -39,7 +39,7 @@ class Dataset:
     synthetic_filepath: Path
     log: u.SimpleLogger
     test: TestDatasetName = TestDatasetName.NONE
-    data_root: Path = Path('sdnist_toy_data')
+    data_root: Path = Path('diverse_community_excerpts_data')
     download: bool = True
 
     challenge: str = strs.CENSUS
@@ -114,6 +114,7 @@ class Dataset:
         self.synthetic_data = self.synthetic_data[self.features]
         self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.synthetic_data = self.synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
+        self.features = self.synthetic_data.columns.tolist()
 
         # bin the density feature if present in the datasets
         self.density_bin_desc = dict()
