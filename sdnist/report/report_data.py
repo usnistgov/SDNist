@@ -80,6 +80,7 @@ class DataDescriptionPacket:
     records: int
     columns: int
     labels: Dict = field(default_factory=dict)
+    validations: Dict = field(default_factory=dict)
 
     @property
     def data(self) -> Dict[str, any]:
@@ -105,6 +106,20 @@ class DataDescriptionPacket:
                     'Label Value': v
                 })
             dd_dict['labels'] = l_list
+
+        v_list = []
+        dd_dict['validations'] = v_list
+        if self.validations is not None:
+            if 'values_out_of_bound' in self.validations:
+                for k, v in self.validations['values_out_of_bound'].items():
+                    v = str(v) if len(v) <= 5 \
+                        else str(v + [f' and other {len(v) - 5} values'])
+                    v = v[1:-1]
+                    v_list.append({
+                        'Dropped Feature': k,
+                        'Out of Bound Values': v
+                    })
+        dd_dict['validations'] = v_list
 
         return dd_dict
 

@@ -47,6 +47,7 @@ class Dataset:
     target_data_path: Path = field(init=False)
     synthetic_data: pd.DataFrame = field(init=False)
     schema: Dict = field(init=False)
+    validation_log: Dict = field(init=False)
 
     def __post_init__(self):
         # load target dataset which is used to score synthetic dataset
@@ -112,6 +113,17 @@ class Dataset:
         # raw data
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
+
+        # validation and clean data
+        self.c_synthetic_data, self.validation_log \
+            = validate(self.synthetic_data, self.schema, self.features, self.log)
+        self.features = self.c_synthetic_data.columns.tolist()
+
+        # update data after validation and cleaning
+        self.synthetic_data = self.synthetic_data[self.features]
+        self.target_data = self.target_data[self.features]
+
+        # sort columns in the data
         self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.synthetic_data = self.synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
         self.features = self.synthetic_data.columns.tolist()
@@ -125,9 +137,7 @@ class Dataset:
             self.target_data = bin_density(self.target_data, self.data_dict)
             self.synthetic_data = bin_density(self.synthetic_data, self.data_dict)
 
-        # clean data
-        self.c_synthetic_data = validate(self.synthetic_data, self.schema, self.features, self.log)
-        self.synthetic_data = self.synthetic_data.iloc[self.c_synthetic_data.index]
+
 
         self.log.msg(f'Features ({len(self.features)}): {self.features}', level=3, timed=False)
         self.log.msg(f'Deidentified Data Records Count: {self.c_synthetic_data.shape[0]}', level=3, timed=False)
@@ -201,7 +211,8 @@ def data_description(dataset: Dataset,
                                 DataDescriptionPacket(ds.synthetic_filepath.stem,
                                                       ds.synthetic_data.shape[0],
                                                       ds.synthetic_data.shape[1],
-                                                      labels))
+                                                      labels,
+                                                      ds.validation_log))
 
     f = dataset.features
     f = [_ for _ in dataset.data_dict.keys() if _ in f]
