@@ -22,8 +22,6 @@ ic_types = [
      ["AGEP", "INDP_CAT"]),
     ("a", "child_phd", "Children (< 15) don't have PhDs",
      ["AGEP", "EDU"]),
-    ("a", "child_NOC", "Children (< 10) don't have children",
-     ["AGEP", "NOC"]),
     ("a", "adult_child", "Even when the AGEP feature is not explicitly used, "
                          "features which use N to indicate children ( < 15) must agree",
      ["MSP", "PINCP", "PINCP_DECILE"]),
@@ -145,8 +143,8 @@ class Inconsistencies:
                     ic_dict["child_phd"].append(i)
 
                 if r["AGEP"] < 10:
-                    if "NOC" in fl and not (r["NOC"] == 'N'):
-                        ic_dict["child_NOC"].append(i)
+                    # if "NOC" in fl and not (r["NOC"] == 'N'):
+                    #     ic_dict["child_NOC"].append(i)
 
                     if r["AGEP"] < 5:
                         if "DPHY" in fl and not (r["DPHY"] == 'N'):
