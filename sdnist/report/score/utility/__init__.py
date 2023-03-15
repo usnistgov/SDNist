@@ -3,9 +3,9 @@ from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 
 import pandas as pd
-
-from sdnist.metrics.kmarginal import \
-    CensusKMarginalScore, TaxiKMarginalScore, KMarginalScore
+from sdnist.metrics.kmarginal import KMarginal
+# from sdnist.metrics.kmarg_old import \
+#     CensusKMarginalScore, TaxiKMarginalScore, KMarginalScore
 from sdnist.metrics.hoc import \
     TaxiHigherOrderConjunction
 from sdnist.metrics.graph_edge_map import \
@@ -215,7 +215,8 @@ def worst_score_breakdown(worst_scores: List,
 
 
 def kmarginal_subsamples(dataset: Dataset,
-                         k_marginal_cls) \
+                         k_marginal_cls,
+                         group_features) \
         -> Dict[float, int]:
     # mapping of sub sample frac to k-marginal score of fraction
     ssample_score = dict()  # subsample scores dictionary
@@ -230,8 +231,7 @@ def kmarginal_subsamples(dataset: Dataset,
             s_sd = pd.concat([s_sd, rr_sd])
         s_kmarg = k_marginal_cls(dataset.d_target_data,
                                  s_sd,
-                                 dataset.schema,
-                                 **dataset.config[strs.K_MARGINAL])
+                                 group_features)
         s_kmarg.compute_score()
         s_score = int(s_kmarg.score)
         ssample_score[i * 0.1] = s_score
@@ -514,20 +514,20 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     prop_pkt = None  # propensity score packet
 
     # compute scores and plots
-    s = CensusKMarginalScore(ds.d_target_data,
-                             ds.d_synthetic_data,
-                             ds.schema,
-                             **ds.config[strs.K_MARGINAL])
+    s = KMarginal(ds.d_target_data,
+                  ds.d_synthetic_data,
+                  group_features)
+
     s.compute_score()
     metric_name = s.NAME
 
     metric_score = int(s.score) if s.score > 100 else round(s.score, 2)
     metric_attachments = []
 
-    if s.NAME == CensusKMarginalScore.NAME \
+    if s.NAME == KMarginal.NAME \
             and ds.challenge == strs.CENSUS:
         group_scores = s.scores if hasattr(s, 'scores') and len(s.scores) else None
-        subsample_scores = kmarginal_subsamples(ds, CensusKMarginalScore)
+        subsample_scores = kmarginal_subsamples(ds, KMarginal, group_features)
         kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
                                                               f_val_dict,
                                                               ds,

@@ -126,6 +126,7 @@ class Dataset:
         # sort columns in the data
         self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.synthetic_data = self.synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
+        self.c_synthetic_data = self.c_synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
         self.features = self.synthetic_data.columns.tolist()
 
         # bin the density feature if present in the datasets
@@ -135,7 +136,7 @@ class Dataset:
                                                                  self.data_dict,
                                                                  self.mappings)
             self.target_data = bin_density(self.target_data, self.data_dict)
-            self.synthetic_data = bin_density(self.synthetic_data, self.data_dict)
+            self.synthetic_data = bin_density(self.c_synthetic_data, self.data_dict)
 
 
 

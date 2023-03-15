@@ -1,4 +1,4 @@
-from sdnist.metrics.kmarginal import KMarginalScore
+from sdnist.metrics.kmarg_old import KMarginalScore
 
 
 class TaxiGraphEdgeMapScore(KMarginalScore):
