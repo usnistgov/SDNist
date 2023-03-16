@@ -492,7 +492,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                   strs.PATH: u_rel_path}],
                            _type=AttachmentType.ImageLinks)
             u_as.append(a)
-            
+
             if "excluded" in v:
                 fv = v['excluded']['feature_value']
                 tc = v['excluded']['target_counts']

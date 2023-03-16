@@ -17,11 +17,12 @@ from sdnist.load import TestDatasetName
 from sdnist.strs import *
 from sdnist.utils import *
 
+from sdnist.load import DEFAULT_DATASET
 
 def run(synthetic_filepath: Path,
         output_directory: Path = REPORTS_DIR,
         dataset_name: TestDatasetName = TestDatasetName.NONE,
-        data_root: Path = Path("diverse_community_excerpts_data"),
+        data_root: Path = Path(DEFAULT_DATASET),
         labels_dict: Optional[Dict] = None,
         download: bool = False,
         test_mode: bool = False):
@@ -91,10 +92,10 @@ if __name__ == "__main__":
     parser.add_argument("--labels",
                         default="",
                         help="A string with a single label"
-                             "or a json file path containing multiple labels and values that "
+                             " or a json file path containing multiple labels and values that "
                              "uniquely identifies deidentified data")
     parser.add_argument("--data-root", type=Path,
-                        default=Path("diverse_community_excerpts_data"),
+                        default=Path(DEFAULT_DATASET),
                         help="Path of the directory "
                              "to be used as the root for the target datasets.")
 

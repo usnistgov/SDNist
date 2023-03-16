@@ -20,6 +20,7 @@ from sdnist.report.dataset.binning import *
 import sdnist.strs as strs
 
 import sdnist.utils as u
+from sdnist.load import DEFAULT_DATASET
 
 def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
     """remove features from configuration that are not available in
@@ -39,7 +40,7 @@ class Dataset:
     synthetic_filepath: Path
     log: u.SimpleLogger
     test: TestDatasetName = TestDatasetName.NONE
-    data_root: Path = Path('diverse_community_excerpts_data')
+    data_root: Path = Path(DEFAULT_DATASET)
     download: bool = True
 
     challenge: str = strs.CENSUS
