@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 import pandas as pd
 import numpy as np
 
-import utils
 from sdnist.report import ReportUIData, FILE_DIR
 from sdnist.report.report_data import \
     DatasetType, DataDescriptionPacket, ScorePacket,\

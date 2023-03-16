@@ -23,7 +23,8 @@ setup(
               "sdnist.report",
               "sdnist.report.score",
               "sdnist.report.plots",
-              "sdnist.report.score.utility"],
+              "sdnist.report.score.utility",
+              "sdnist.report.dataset"],
     # data_files=[('', ['sdnist/report2.jinja2'])],
     install_requires=[
         "jinja2>=3",
