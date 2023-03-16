@@ -33,9 +33,7 @@ class PearsonCorrelationPlot:
                                                                     'correlation_difference')),
             "plot": relative_path(file_path)
         }
-
-        cd = self.cd.reindex(sorted(self.cd.columns), axis=1)
-        cd = cd.sort_index()
+        cd = self.cd
         cd = cd.abs()
         fig = plt.figure(figsize=(6, 6), dpi=100)
         v_max = 0.15

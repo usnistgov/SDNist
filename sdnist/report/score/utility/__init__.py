@@ -464,7 +464,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
 
     features = ds.features
     corr_features = ds.config[strs.CORRELATION_FEATURES]
-
+    corr_features = [f for f in ds.data_dict.keys() if f in corr_features]
     # Initiated k-marginal, correlation and propensity scorer
     # selected challenge type: census or taxi
     if ds.challenge == strs.CENSUS:
