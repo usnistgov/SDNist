@@ -12,6 +12,41 @@ def compute_marginal_densities(data, marginals):
 
 
 class KMarginal:
+    """
+    [t1, t2, t3, t4] are target densities.   t1 = count / tN
+    [s1, s2, s3, s4] are synthetic densities. s1 = count /sN
+    Sum(ti) = 1.   Sum (si) = 1
+     |(t1 - s1)| + |(t2 - s2)| + |(t3-s3)| + |(t4-s4)|  \in range [0, 2]
+
+    Puma A = (1,2),  Puma B = (3,4)
+    total pop of Puma A is: (t1 + t2)*N
+    total pop of Puma B is: (t3 + t4)*N
+
+    (|(t1 - s1)| + |(t2 - s2)|) ) * N/pop(A)
+    (|(t1 - s1)| + |(t2 - s2)|) ) * N/((t1 + t2)*N).  = scaled PUMA A score
+    (|(t1 - s1)| + |(t2 - s2|)  ) * 1/(t1 + t2).
+    (|(t1 - s1)| / (t1 + t2)) +  (|(t2 - s2)| / (t1 + t2))
+
+
+    (|(t3 - s3)| + |(t4 - s4)|) ) * N/pop(B)
+    (|(t3 - s3)| + |(t4 - s4)|) ) * N/((t3 + t4)*N).  = scaled PUMA B score
+    (|(t3 - s3)| + |(t4 - s4|)  ) * 1/(t3 + t4).
+    (|(t3 - s3)| / (t3 + t4)) +  (|(t4 - s4)| / (t3 + t4))
+    Problem if s4 giant and t3+t4 tiny
+
+    replace the (|(t3 - s3)| + |(t4 - s4|)) numerator sum with:
+    min((t3 + t4), (|(t3 - s3)| + |(t4 - s4| ) )
+
+    Then change the converstion to the 0-1000 score to work as follows
+    (1 - avg-density-differences(PUMA A))* 1000
+
+    Instead of what it used to be:
+    (2- avg-density-differences(PUMA A))* 1000)
+
+    Because now the max will let you differ is by the size of the whole target data,
+    and that means you max out at 1 (note, we should only do this for PUMA,
+    because the target population size for every PUMA is reasonable)
+    """
     NAME = 'K-Marginal'
     def __init__(self,
                  target_data: pd.DataFrame,
@@ -21,7 +56,7 @@ class KMarginal:
         self.deid = deidentified_data
         self.group_features = group_features or []
         self.features = self.td.columns.tolist()
-        marg_cols = list(set(self.features).difference(['PUMA']))
+        marg_cols = list(set(self.features).difference(['PUMA', 'INDP']))
         marg_cols = sorted(marg_cols)
         self.marginals = [(f1, f2)
                            for i, f1 in enumerate(marg_cols)
@@ -85,7 +120,11 @@ class KMarginal:
             t_den, s_den, abs_den_diff = self.marginal_densities(self.td, marg)
 
             # get sum of abs densities differences for group feature
+            group_t_den_sum = t_den.groupby(gf).sum()
+            # sum density differences in each group
             group_den_sum = abs_den_diff.groupby(gf).sum()
+            # take minimum of target density difference sum and group density difference sum
+            group_den_sum = group_t_den_sum.where(group_t_den_sum <= group_den_sum).fillna(group_den_sum)
             # scale back group feature density different sums
             group_den_scaled = (group_den_sum * len(self.td)) / group_N
             # add this marginal's scaled density differences to other marginals aggregate
@@ -98,8 +137,9 @@ class KMarginal:
         # find average of overall score and each group feature score
         mean_tdds = tdds/len(self.marginals)
         mean_group_tdds = group_tdds / len(self.marginals)
+
         # convert to NIST 0 - 1000 score range
-        self.scores = (2 - mean_group_tdds) * 500
+        self.scores = (1 - mean_group_tdds) * 1000
         self.score = (2 - mean_tdds) * 500
 
         return self.score

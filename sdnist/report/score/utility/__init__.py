@@ -521,7 +521,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     s.compute_score()
     metric_name = s.NAME
 
-    metric_score = int(s.score) if s.score > 100 else round(s.score, 2)
+    metric_score = int(s.score)
     metric_attachments = []
 
     if s.NAME == KMarginal.NAME \
@@ -624,9 +624,6 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                   None,
                                   [Attachment(name=None,
                                               _data=univ_dist_para,
-                                              _type=AttachmentType.String),
-                                   Attachment(name="Three Worst Performing Features",
-                                              _data="",
                                               _type=AttachmentType.String)] + u_as))
 
     r_ui_d.add(UtilityScorePacket("Correlations",
