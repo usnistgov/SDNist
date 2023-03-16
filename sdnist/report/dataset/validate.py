@@ -76,7 +76,7 @@ def validate(synth_data: pd.DataFrame,
             mask = fd[fd[f] != 'N'].index if 'has_null' in f_data else fd.index
             fd.loc[mask, f] = fd.loc[mask, f].astype(int)
             real_vals = f_data['values']
-            if 'has_null' in f_data:
+            if 'N' in real_vals:
                 real_vals.remove('N')
             if f != 'INDP':
                 f_unique = set(fd.loc[mask, f].unique().tolist())
@@ -93,6 +93,8 @@ def validate(synth_data: pd.DataFrame,
                 mask = sd[sd[f] != 'N'].index if 'has_null' in f_data else sd.index
                 sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f])
                 sd.loc[mask, f] = sd.loc[mask, f].astype(int)
+        if 'has_null' in f_data:
+            sd[f] = sd[f].astype(object)
 
         if len(vob_features):
             last_vob_f, vob_vals = vob_features[-1]

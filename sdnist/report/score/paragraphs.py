@@ -13,8 +13,9 @@ sub_sample_para = "Here we provide a sampling error baseline: Taking a random su
 k_marg_all_puma_para = "Different PUMA have different subpopulations and " \
                        "distributions; how much has each PUMA shifted during deidentification?"
 
-univ_dist_para = "Here we provide single feature distribution comparisons for the worst " \
-                 "performing features (based on the L1 norm of density differences)."
+univ_dist_para = "Here we provide single feature distribution comparisons ordered to show " \
+                 "worst performing features first " \
+                 "(based on the L1 norm of density differences)."
 
 corr_para = "A key goal of deidentified data is to preserve the feature correlations from the target " \
             "data, so that analyses performed on the deidentified data provide meaningful insight about " \

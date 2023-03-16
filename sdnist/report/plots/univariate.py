@@ -88,7 +88,7 @@ class UnivariatePlots:
 
     def save(self) -> Dict:
         if self.challenge == CENSUS:
-            ignore_features = ['PUMA', 'YEAR']
+            ignore_features = ['YEAR']
         elif self.challenge == TAXI:
             ignore_features = ['pickup_community_area', 'shift', 'company_id']
         else:
@@ -123,6 +123,7 @@ class UnivariatePlots:
         INDP_CAT = "INDP_CAT"
         o_tar = ds.target_data.loc[target.index]
         o_syn = ds.c_synthetic_data.loc[synthetic.index]
+        schema = ds.schema
 
         for i, f in enumerate(features):
             self.uni_counts[f] = dict()
@@ -179,7 +180,7 @@ class UnivariatePlots:
                         plt.xticks(fontsize=8, rotation=45)
                     plt.tight_layout()
                     title = f'Industries in Industry Category ' \
-                            f'{dataset.data_dict["INDP_CAT"]["values"][s]}'
+                            f'{dataset.data_dict["INDP_CAT"]["values"][str(s)]}'
                     plt.title(title,
                               fontdict={'fontsize': 12})
 
@@ -267,6 +268,10 @@ class UnivariatePlots:
                 if "-1" in vals:
                     idx = vals.index("-1")
                     vals[idx] = "N"
+
+                if f == 'PUMA':
+                    f_val_dict = {i: v for i, v in enumerate(ds.schema[f]['values'])}
+                    vals = [f_val_dict[int(v)] for v in vals]
 
                 plt.gca().set_xticks(x_axis, vals)
                 plt.legend(loc='upper right')

@@ -117,6 +117,7 @@ class Dataset:
         # validation and clean data
         self.c_synthetic_data, self.validation_log \
             = validate(self.synthetic_data, self.schema, self.features, self.log)
+        self.c_target_data, _ = validate(self.target_data, self.schema, self.features, self.log)
         self.features = self.c_synthetic_data.columns.tolist()
 
         # update data after validation and cleaning
@@ -127,39 +128,40 @@ class Dataset:
         self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.synthetic_data = self.synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
         self.c_synthetic_data = self.c_synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
+        self.c_target_data = self.c_target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.features = self.synthetic_data.columns.tolist()
 
         # bin the density feature if present in the datasets
         self.density_bin_desc = dict()
         if 'DENSITY' in self.features:
-            self.density_bin_desc = get_density_bins_description(self.target_data,
+            self.density_bin_desc = get_density_bins_description(self.c_target_data,
                                                                  self.data_dict,
                                                                  self.mappings)
-            self.target_data = bin_density(self.target_data, self.data_dict)
+            self.target_data = bin_density(self.c_target_data, self.data_dict)
             self.synthetic_data = bin_density(self.c_synthetic_data, self.data_dict)
 
 
 
         self.log.msg(f'Features ({len(self.features)}): {self.features}', level=3, timed=False)
         self.log.msg(f'Deidentified Data Records Count: {self.c_synthetic_data.shape[0]}', level=3, timed=False)
-        self.log.msg(f'Target Data Records Count: {self.target_data.shape[0]}', level=3, timed=False)
+        self.log.msg(f'Target Data Records Count: {self.c_target_data.shape[0]}', level=3, timed=False)
 
         # update config to contain only available features
         self.config = unavailable_features(self.config, self.synthetic_data)
 
         # transformed data
-        self.t_target_data = transform(self.target_data, self.schema)
+        self.t_target_data = transform(self.c_target_data, self.schema)
 
         self.t_synthetic_data = transform(self.c_synthetic_data, self.schema)
 
         # binned data
         numeric_features = ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']
-        self.d_target_data = percentile_rank_target(self.target_data, numeric_features)
+        self.d_target_data = percentile_rank_target(self.c_target_data, numeric_features)
         self.d_target_data = add_bin_for_NA(self.d_target_data,
-                                            self.target_data, numeric_features)
+                                            self.c_target_data, numeric_features)
 
         self.d_synthetic_data = percentile_rank_synthetic(self.c_synthetic_data,
-                                                          self.target_data,
+                                                          self.c_target_data,
                                                           self.d_target_data,
                                                           numeric_features)
 
