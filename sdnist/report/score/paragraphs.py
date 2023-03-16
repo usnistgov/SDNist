@@ -15,7 +15,8 @@ k_marg_all_puma_para = "Different PUMA have different subpopulations and " \
 
 univ_dist_para = "Here we provide single feature distribution comparisons ordered to show " \
                  "worst performing features first " \
-                 "(based on the L1 norm of density differences)."
+                 "(based on the L1 norm of density differences). Especially high-count values " \
+                 "in the target data are not displayed on the charts but are provided below each distribution figure"
 
 corr_para = "A key goal of deidentified data is to preserve the feature correlations from the target " \
             "data, so that analyses performed on the deidentified data provide meaningful insight about " \

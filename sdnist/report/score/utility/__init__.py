@@ -486,6 +486,13 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                            _data=f'h4{name}',
                            _type=AttachmentType.String)
             u_as.append(a)
+
+            a = Attachment(name=None,
+                           _data=[{strs.IMAGE_NAME: Path(u_rel_path).stem,
+                                  strs.PATH: u_rel_path}],
+                           _type=AttachmentType.ImageLinks)
+            u_as.append(a)
+            
             if "excluded" in v:
                 fv = v['excluded']['feature_value']
                 tc = v['excluded']['target_counts']
@@ -500,12 +507,6 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                      f"<br>Deidentified Data Counts: {sc}",
                                _type=AttachmentType.String)
                 u_as.append(a)
-
-            a = Attachment(name=None,
-                           _data=[{strs.IMAGE_NAME: Path(u_rel_path).stem,
-                                  strs.PATH: u_rel_path}],
-                           _type=AttachmentType.ImageLinks)
-            u_as.append(a)
         log.end_msg()
 
         log.msg('Correlations', level=3)
