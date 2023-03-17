@@ -17,7 +17,7 @@ The requirements we sought to meet included the following:
 
 ## Citing NIST Diverse Communities Data Excerpts
 If you publish work that utilizes the NIST Diverse Communities Data Excerpts, please cite the resource. Citation recommendation:  
-> Task C., Bhagat K., Streat D., and Howarth G.S. (2023), 
+> Task C., Bhagat K., Streat D., Simpson A., and Howarth G.S. (2023), 
 > NIST Diverse Communities Data Excerpts, National Institute of Standards and Technology, 
 > https://doi.org/10.18434/mds2-2895  
 (NOTE: DOI is not yet active, but should be live by 1 APR 2023).
@@ -105,7 +105,8 @@ Suggested partitioning feature: Sex + Disability
 - [Christine Task](mailto:christine.task@knexusresearch.com) - Project technical lead - christine.task@knexusresearch.com
 - [Karan Bhagat](https://github.com/kbtriangulum) - Contributor
 - [Aniruddha Sen](https://www.linkedin.com/in/senaniruddha/) - Contributor
-- [Damon Streat](https://www.linkedin.com/in/damon-streat-244106190?original_referer=https%3A%2F%2Fwww.google.com%2F) - Contributor
+- [Damon Streat](https://www.linkedin.com/in/damon-streat-244106190) - Contributor
+- [Ashley Simpson](https://www.linkedin.com/in/ashleysimpson33) - Contributor
 - [Gary Howarth](https://www.nist.gov/people/gary-howarth) - Project PI - gary.howarth@nist.gov
 
 
