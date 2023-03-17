@@ -41,7 +41,7 @@ setup(
     ],
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Programming Language :: Python :: 3.8',
-                 'License :: Other/Proprietary License',
+                 'License :: Public Domain',
                  'Intended Audience :: Science/Research'],
     include_package_data=True
 )
