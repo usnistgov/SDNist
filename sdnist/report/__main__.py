@@ -91,9 +91,11 @@ if __name__ == "__main__":
                              "that was used to generated given deidentified dataset.")
     parser.add_argument("--labels",
                         default="",
-                        help="A string with a single label"
-                             " or a json file path containing multiple labels and values that "
-                             "uniquely identifies deidentified data")
+                        help="This argument is used to add meta-data to help identify which "
+                             "deidentified data was was evaluated in the report. The argument "
+                             "can be a string that is a plain text label for the file, or it "
+                             "can be a file path to a json file containing [label, value] pairs. "
+                             "This labels will be included in the printed report.")
     parser.add_argument("--data-root", type=Path,
                         default=Path(DEFAULT_DATASET),
                         help="Path of the directory "
