@@ -155,12 +155,22 @@ def worst_score_breakdown(worst_scores: List,
             fv = v['excluded']['feature_value']
             tc = v['excluded']['target_counts']
             sc = v['excluded']['deidentified_counts']
+            f_name = name.split(':')[0]
             if k.startswith('POVPIP'):
-                fv = '501 (Not in poverty: income above 5 x poverty line)'
+                fv = '501 [Not in poverty: income above 5 x poverty line]'
             elif fv == -1:
-                fv = 'N (N/A)'
+                f_detail = '[N/A]'
+                if 'values' in ds.data_dict[f_name]:
+                    f_detail = ds.data_dict[f_name]['values']['N']
+                fv = f'N [{f_detail}]'
+            else:
+                f_detail = ''
+                if 'values' in ds.data_dict[f_name]:
+                    f_detail = ds.data_dict[f_name]['values'][str(fv)]
+                fv = f'{fv} [{f_detail}]'
             a = Attachment(name=None,
-                           _data=f"Feature Value: {fv}"
+                           _data=f"Feature Values not shown in the chart:"
+                                 f"<br>Value: {fv}"
                                  f"<br>Target Data Counts: {tc}"
                                  f"<br>Deidentified Data Counts: {sc}",
                            _type=AttachmentType.String)
@@ -171,9 +181,10 @@ def worst_score_breakdown(worst_scores: List,
                                strs.PATH: u_rel_path}],
                        _type=AttachmentType.ImageLinks)
         u_as.append(a)
-
+    corr_features = ds.config[strs.CORRELATION_FEATURES]
+    corr_features = [f for f in ds.data_dict.keys() if f in corr_features]
     pcd = PearsonCorrelationDifference(t, s,
-                                       ds.config[strs.CORRELATION_FEATURES])
+                                       corr_features)
     pcd.compute()
     pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, out_dir)
     pcp_saved_file_paths = pcp.save()
@@ -224,11 +235,11 @@ def kmarginal_subsamples(dataset: Dataset,
         -> Tuple[Dict[float, int], Optional[pd.DataFrame]]:
     def create_subsample(frac: float):
         s = dataset.d_target_data.sample(frac=frac)  # subsample as synthetic data
-        rows = dataset.d_target_data.shape[0]
-        remain_rows = rows - s.shape[0]
-        if remain_rows:
-            rr_s = s.sample(n=remain_rows, replace=True)
-            s = pd.concat([s, rr_s])
+        # rows = dataset.d_target_data.shape[0]
+        # remain_rows = rows - s.shape[0]
+        # if remain_rows:
+        #     rr_s = s.sample(n=remain_rows, replace=True)
+        #     s = pd.concat([s, rr_s])
         return s
 
     # mapping of sub sample frac to k-marginal score of fraction
@@ -487,26 +498,39 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                            _type=AttachmentType.String)
             u_as.append(a)
 
+            if "excluded" in v:
+                fv = v['excluded']['feature_value']
+                tc = v['excluded']['target_counts']
+                sc = v['excluded']['deidentified_counts']
+                f_name = name.split(':')[0]
+                if k.startswith('POVPIP'):
+                    fv = '501 [Not in poverty: income above 5 x poverty line]'
+                elif fv == -1:
+                    f_detail = '[N/A]'
+                    if 'values' in ds.data_dict[f_name]:
+                        f_detail = ds.data_dict[f_name]['values']['N']
+                    fv = f'N [{f_detail}]'
+                else:
+                    f_detail = ''
+                    if 'values' in ds.data_dict[f_name]:
+                        f_detail = ds.data_dict[f_name]['values'][str(fv)]
+                    fv = f'{fv} [{f_detail}]'
+
+                a = Attachment(name=None,
+                               _data=f"Feature Values not shown in the chart:"
+                                     f"<br>Value: {fv}"
+                                     f"<br>Target Data Counts: {tc}"
+                                     f"<br>Deidentified Data Counts: {sc}",
+                               _type=AttachmentType.String)
+                u_as.append(a)
+
             a = Attachment(name=None,
                            _data=[{strs.IMAGE_NAME: Path(u_rel_path).stem,
                                   strs.PATH: u_rel_path}],
                            _type=AttachmentType.ImageLinks)
             u_as.append(a)
 
-            if "excluded" in v:
-                fv = v['excluded']['feature_value']
-                tc = v['excluded']['target_counts']
-                sc = v['excluded']['deidentified_counts']
-                if k.startswith('POVPIP'):
-                    fv = '501 (Not in poverty: income above 5 x poverty line)'
-                elif fv == -1:
-                    fv = 'N (N/A)'
-                a = Attachment(name=None,
-                               _data=f"Feature Value: {fv}"
-                                     f"<br>Target Data Counts: {tc}"
-                                     f"<br>Deidentified Data Counts: {sc}",
-                               _type=AttachmentType.String)
-                u_as.append(a)
+
         log.end_msg()
 
         log.msg('Correlations', level=3)
