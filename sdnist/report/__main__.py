@@ -64,18 +64,7 @@ def run(synthetic_filepath: Path,
     log.msg(f'Reports available at path: {output_directory}', level=0, timed=False,
             msg_type='important')
 
-
-class NoAction(argparse.Action):
-    def __init__(self, **kwargs):
-        kwargs.setdefault('default', argparse.SUPPRESS)
-        kwargs.setdefault('nargs', 0)
-        super(NoAction, self).__init__(**kwargs)
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        pass
-
-
-if __name__ == "__main__":
+def setup():
     bundled_datasets = {"MA": TestDatasetName.ma2019,
                         "TX": TestDatasetName.tx2019,
                         "NATIONAL": TestDatasetName.national2019}
@@ -145,5 +134,19 @@ if __name__ == "__main__":
         LABELS_DICT: labels,
         DOWNLOAD: True,
     }
+    return input_cnf
 
+class NoAction(argparse.Action):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('default', argparse.SUPPRESS)
+        kwargs.setdefault('nargs', 0)
+        super(NoAction, self).__init__(**kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        pass
+
+
+if __name__ == "__main__":
+
+    input_cnf = setup()
     run(**input_cnf)
