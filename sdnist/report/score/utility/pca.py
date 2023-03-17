@@ -31,8 +31,20 @@ pca_para = "This is another approach for visualizing where the distribution of t
            "<a href='https://pages.nist.gov/HLG-MOS_Synthetic_Data_Test_Drive/submissions.html#ipums_international'>" \
            "IPUMS International team</a> " \
            "during the HLG-MOS Synthetic Data Test Drive."
+pca_para_2 = "All of the plots below (for both the target data and " \
+             "the deidentified data) use the principle component axes " \
+             "taken from the target data (listed in the table). Effectively, " \
+             "we're looking at the data from the exact same angles in " \
+             "both sets of plots so we can easily compare the target " \
+             "data and the deidentified data with respect to those angles."
 
-
+pca_highlight_para = "The queries below explore the PCA metric results in more detail " \
+                     "by zooming in on a single component-pair panel and highlighting " \
+                     "all individuals that satisfy a given constraint (such as MSP = “N”, " \
+                     "individuals who are unmarried because they are children). " \
+                     "If the deidentified data preserves the structure and feature " \
+                     "correlations of the target data, the highlighted areas should have " \
+                     "similar shape. "
 class PCAReport:
     def __init__(self,
                  dataset: Dataset,
@@ -96,7 +108,9 @@ class PCAReport:
         pca_para_a = Attachment(name=None,
                                 _data=pca_para,
                                 _type=AttachmentType.String)
-
+        pca_para_a2 = Attachment(name=None,
+                                _data=pca_para_2,
+                                _type=AttachmentType.String)
         # pca feature contribution table attachment for report UI
         t_d = {'table': pca_m.t_comp_data,
                'size': 80,
@@ -112,7 +126,12 @@ class PCAReport:
                                 _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                                        for p in rel_pca_plot_paths],
                                 _type=AttachmentType.ImageLinksHorizontal)
-
+        pca_highlight_head_a = Attachment(name=None,
+                                          _data=f'h3PCA Queries',
+                                          _type=AttachmentType.String)
+        pca_highlight_para_a = Attachment(name=None,
+                                _data=pca_highlight_para,
+                                _type=AttachmentType.String)
         highlighted_attachments = []
         for k, v in plot_paths[strs.HIGHLIGHTED].items():
             name = k[1]
@@ -132,7 +151,7 @@ class PCAReport:
                                _type=AttachmentType.ImageLinksHorizontal)
             highlighted_attachments.extend([h_a_h, h_a_p])
 
-        self.attachments.extend([pca_para_a, pca_tt_a, pca_plot_a]
+        self.attachments.extend([pca_para_a, pca_para_a2, pca_tt_a, pca_plot_a, pca_highlight_head_a, pca_highlight_para_a]
                                 + highlighted_attachments)
 
     def add_to_ui(self):

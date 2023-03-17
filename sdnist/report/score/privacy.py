@@ -20,29 +20,16 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
     quasi_idf = []  # list of quasi-identifier features
     excluded = []  # list of excluded features from apparent match computation
     if ds.challenge == CENSUS:
-
-
         quasi_idf = ['SEX', 'RAC1P', 'EDU', 'INDP_CAT', 'MST']
         quasi_idf = list(set(ds.features).intersection(set(quasi_idf)))
         excluded = ['PUMA', 'RACE']
-        amd_plot = ApparentMatchDistributionPlot(ds.synthetic_data,
-                                                 ds.target_data,
+        amd_plot = ApparentMatchDistributionPlot(ds.c_synthetic_data,
+                                                 ds.c_target_data,
                                                  r_ui_d.output_directory,
                                                  quasi_idf,
                                                  excluded)
         amd_plot_paths = amd_plot.save()
         rd.add('apparent_match_distribution', amd_plot.report_data)
-
-    elif ds.challenge == TAXI:
-        quasi_idf = ['company_id', 'trip_miles', 'payment_type']
-        quasi_idf = list(set(ds.features).intersection(set(quasi_idf)))
-        excluded = ['pickup_community_area', 'shift']
-        amd_plot = ApparentMatchDistributionPlot(ds.synthetic_data,
-                                                 ds.target_data,
-                                                 r_ui_d.output_directory,
-                                                 quasi_idf,
-                                                 excluded)
-        amd_plot_paths = amd_plot.save()
     else:
         raise Exception(f'Unknown challenge type: {ds.challenge}')
 
@@ -61,7 +48,7 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
                                  _type=AttachmentType.String)
     # Total rows matched on quasi-identifiers as attachment
     rec_matched = amd_plot.quasi_matched_df.shape[0]
-    rec_percent = round(rec_matched/ds.synthetic_data.shape[0], 3)
+    rec_percent = round(rec_matched/ds.c_synthetic_data.shape[0], 3)
 
     rec_mat_para_a = Attachment(name='Records Matched on Quasi-Identifiers',
                                 _data=rec_matched_para,

@@ -7,7 +7,7 @@ import pandas as pd
 import sdnist
 import sdnist.strs as strs
 from sdnist.load import load_dataset, TestDatasetName
-from sdnist.metrics.kmarginal import CensusKMarginalScore
+from sdnist.metrics.kmarg_old import CensusKMarginalScore
 
 from loguru import logger
 

@@ -87,8 +87,6 @@ def correlation_difference(synthetic: pd.DataFrame,
 def save_correlation_difference_plot(correlation_data: pd.DataFrame,
                                      output_directory: Path) -> List[Path]:
     cd = correlation_data
-    cd = cd.reindex(sorted(cd.columns), axis=1)
-    cd = cd.sort_index()
     cd = cd.abs()
     fig = plt.figure(figsize=(6, 6), dpi=100)
     v_max = 0.15

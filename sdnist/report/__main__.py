@@ -17,11 +17,12 @@ from sdnist.load import TestDatasetName
 from sdnist.strs import *
 from sdnist.utils import *
 
+from sdnist.load import DEFAULT_DATASET
 
 def run(synthetic_filepath: Path,
         output_directory: Path = REPORTS_DIR,
-        test: TestDatasetName = TestDatasetName.NONE,
-        data_root: Path = Path("diverse_community_excerpts_data"),
+        dataset_name: TestDatasetName = TestDatasetName.NONE,
+        data_root: Path = Path(DEFAULT_DATASET),
         labels_dict: Optional[Dict] = None,
         download: bool = False,
         test_mode: bool = False):
@@ -35,7 +36,7 @@ def run(synthetic_filepath: Path,
 
     if not outfile.exists():
         log.msg('Loading Datasets', level=2)
-        dataset = Dataset(synthetic_filepath, log, test, data_root, download)
+        dataset = Dataset(synthetic_filepath, log, dataset_name, data_root, download)
         ui_data = data_description(dataset, ui_data, labels_dict)
         log.end_msg()
 
@@ -63,18 +64,7 @@ def run(synthetic_filepath: Path,
     log.msg(f'Reports available at path: {output_directory}', level=0, timed=False,
             msg_type='important')
 
-
-class NoAction(argparse.Action):
-    def __init__(self, **kwargs):
-        kwargs.setdefault('default', argparse.SUPPRESS)
-        kwargs.setdefault('nargs', 0)
-        super(NoAction, self).__init__(**kwargs)
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        pass
-
-
-if __name__ == "__main__":
+def setup():
     bundled_datasets = {"MA": TestDatasetName.ma2019,
                         "TX": TestDatasetName.tx2019,
                         "NATIONAL": TestDatasetName.national2019}
@@ -90,11 +80,13 @@ if __name__ == "__main__":
                              "that was used to generated given deidentified dataset.")
     parser.add_argument("--labels",
                         default="",
-                        help="A string with a single label"
-                             "or a json file path containing multiple labels and values that "
-                             "uniquely identifies deidentified data")
+                        help="This argument is used to add meta-data to help identify which "
+                             "deidentified data was was evaluated in the report. The argument "
+                             "can be a string that is a plain text label for the file, or it "
+                             "can be a file path to a json file containing [label, value] pairs. "
+                             "This labels will be included in the printed report.")
     parser.add_argument("--data-root", type=Path,
-                        default=Path("diverse_community_excerpts_data"),
+                        default=Path(DEFAULT_DATASET),
                         help="Path of the directory "
                              "to be used as the root for the target datasets.")
 
@@ -135,12 +127,26 @@ if __name__ == "__main__":
         labels = None
 
     input_cnf = {
-        TEST: TARGET_DATA,
+        DATASET_NAME: TARGET_DATA,
         SYNTHETIC_FILEPATH: Path(args.deidentified_dataset.name),
         DATA_ROOT: Path(args.data_root),
         OUTPUT_DIRECTORY: this_report_dir,
         LABELS_DICT: labels,
         DOWNLOAD: True,
     }
+    return input_cnf
 
+class NoAction(argparse.Action):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('default', argparse.SUPPRESS)
+        kwargs.setdefault('nargs', 0)
+        super(NoAction, self).__init__(**kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        pass
+
+
+if __name__ == "__main__":
+
+    input_cnf = setup()
     run(**input_cnf)

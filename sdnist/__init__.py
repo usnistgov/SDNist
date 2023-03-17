@@ -4,7 +4,7 @@ import functools
 import pandas as pd
 
 import sdnist.load
-import sdnist.metrics.kmarginal
+import sdnist.metrics.kmarg_old
 import sdnist.schema
 import sdnist.challenge.submission
 import sdnist.utils
@@ -45,8 +45,8 @@ def score(private_dataset: pd.DataFrame,
     """
     # TODO : infer challenge from schema
     score_cls = {
-        "census": sdnist.metrics.kmarginal.CensusKMarginalScore,
-        "taxi": sdnist.metrics.kmarginal.TaxiKMarginalScore
+        "census": sdnist.metrics.kmarg_old.CensusKMarginalScore,
+        "taxi": sdnist.metrics.kmarg_old.TaxiKMarginalScore
     }
 
     log(f'Computing K-marginal for the challenge: {challenge}', verbose)

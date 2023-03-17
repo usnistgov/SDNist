@@ -320,16 +320,23 @@
                 Deidentified data label:</span>
                 <b>{{ ddict['label'] }}</b></p>
         </div>
-        {% set ddict=ddict['data'] %}
+{#        {% set ddict=ddict['data'] %}#}
     {% elif 'labels' in ddict %}
         {{ table(ddict['labels']) }}
         <br />
-        {% set ddict=ddict['data'] %}
-    {% else %}
-        {% set ddict=ddict['data'] %}
+{#        {% set ddict=ddict['data'] %}#}
+{#    {% else %}#}
+{#        {% set ddict=ddict['data'] %}#}
     {% endif %}
     <br />
-    {{ table(ddict) }}
+    {{ table(ddict['data']) }}
+    {% if ddict['validations']|length %}
+        <br />
+        {{ string_data('Following features has out of bound values, and
+        these are not used in the evaluations.') }}
+        <br />
+        {{ table(ddict['validations']) }}
+    {% endif %}
 {% endmacro %}
 
 {% macro feature_description(title) %}

@@ -3,9 +3,9 @@ from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 
 import pandas as pd
-
-from sdnist.metrics.kmarginal import \
-    CensusKMarginalScore, TaxiKMarginalScore, KMarginalScore
+from sdnist.metrics.kmarginal import KMarginal
+# from sdnist.metrics.kmarg_old import \
+#     CensusKMarginalScore, TaxiKMarginalScore, KMarginalScore
 from sdnist.metrics.hoc import \
     TaxiHigherOrderConjunction
 from sdnist.metrics.graph_edge_map import \
@@ -34,6 +34,7 @@ from sdnist.utils import *
 
 
 def best_worst_performing(scores: pd.Series,
+                          subsample_group_scores: pd.DataFrame,
                           dataset: Dataset,
                           group_features: List[str],
                           feature_values: Dict[str, Dict]) -> Tuple[List, List]:
@@ -61,7 +62,8 @@ def best_worst_performing(scores: pd.Series,
             if "name" in f_val_d:
                 return [f_val_d["name"], None]
 
-    ss = scores.sort_values()
+    ss = pd.concat([scores, subsample_group_scores], axis=1)
+    ss = ss.sort_values(by=[0])
     worst_scores = []
     best_scores = []
 
@@ -74,10 +76,11 @@ def best_worst_performing(scores: pd.Series,
                     for f, f_val in f_values.items()}
         worst_scores.append({
             **f_values,
-            strs.SCORE.capitalize(): int(ss[wf])
+            "40% Target Subsample Baseline": int(ss.loc[wf, 1]),
+            'Deidentified Data ' + strs.SCORE.capitalize(): int(ss.loc[wf, 0])
         })
 
-    ss = scores.sort_values(ascending=False)
+    ss = ss.sort_values(by=[0], ascending=False)
 
     for bf in ss.index:
         f_values = {f: (feature_values[f][bf[i]]
@@ -88,7 +91,8 @@ def best_worst_performing(scores: pd.Series,
                     for f, f_val in f_values.items()}
         best_scores.append({
             **f_values,
-            strs.SCORE.capitalize(): int(ss[bf])
+            "40% Target Subsample Baseline": int(ss.loc[bf, 1]),
+            strs.SCORE.capitalize(): int(ss.loc[bf, 0])
         })
 
     return worst_scores, best_scores
@@ -151,12 +155,22 @@ def worst_score_breakdown(worst_scores: List,
             fv = v['excluded']['feature_value']
             tc = v['excluded']['target_counts']
             sc = v['excluded']['deidentified_counts']
+            f_name = name.split(':')[0]
             if k.startswith('POVPIP'):
-                fv = '501 (Not in poverty: income above 5 x poverty line)'
+                fv = '501 [Not in poverty: income above 5 x poverty line]'
             elif fv == -1:
-                fv = 'N (N/A)'
+                f_detail = '[N/A]'
+                if 'values' in ds.data_dict[f_name]:
+                    f_detail = ds.data_dict[f_name]['values']['N']
+                fv = f'N [{f_detail}]'
+            else:
+                f_detail = ''
+                if 'values' in ds.data_dict[f_name]:
+                    f_detail = ds.data_dict[f_name]['values'][str(fv)]
+                fv = f'{fv} [{f_detail}]'
             a = Attachment(name=None,
-                           _data=f"Feature Value: {fv}"
+                           _data=f"Feature Values not shown in the chart:"
+                                 f"<br>Value: {fv}"
                                  f"<br>Target Data Counts: {tc}"
                                  f"<br>Deidentified Data Counts: {sc}",
                            _type=AttachmentType.String)
@@ -167,9 +181,10 @@ def worst_score_breakdown(worst_scores: List,
                                strs.PATH: u_rel_path}],
                        _type=AttachmentType.ImageLinks)
         u_as.append(a)
-
+    corr_features = ds.config[strs.CORRELATION_FEATURES]
+    corr_features = [f for f in ds.data_dict.keys() if f in corr_features]
     pcd = PearsonCorrelationDifference(t, s,
-                                       ds.config[strs.CORRELATION_FEATURES])
+                                       corr_features)
     pcd.compute()
     pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, out_dir)
     pcp_saved_file_paths = pcp.save()
@@ -215,28 +230,48 @@ def worst_score_breakdown(worst_scores: List,
 
 
 def kmarginal_subsamples(dataset: Dataset,
-                         k_marginal_cls) \
-        -> Dict[float, int]:
+                         k_marginal_cls,
+                         group_features) \
+        -> Tuple[Dict[float, int], Optional[pd.DataFrame]]:
+    def create_subsample(frac: float):
+        s = dataset.d_target_data.sample(frac=frac)  # subsample as synthetic data
+        # rows = dataset.d_target_data.shape[0]
+        # remain_rows = rows - s.shape[0]
+        # if remain_rows:
+        #     rr_s = s.sample(n=remain_rows, replace=True)
+        #     s = pd.concat([s, rr_s])
+        return s
+
     # mapping of sub sample frac to k-marginal score of fraction
     ssample_score = dict()  # subsample scores dictionary
     # find k-marginal of 10%, 20% ... 90% of sub-sample of target data
     for i in range(1, 11):
         # using subsample of target data as synthetic data
-        s_sd = dataset.d_target_data.sample(frac=i * 0.1)  # subsample as synthetic data
-        rows = dataset.d_target_data.shape[0]
-        remain_rows = rows - s_sd.shape[0]
-        if remain_rows:
-            rr_sd = s_sd.sample(n=remain_rows, replace=True)
-            s_sd = pd.concat([s_sd, rr_sd])
+        s_sd = create_subsample(frac=i * 0.1)
         s_kmarg = k_marginal_cls(dataset.d_target_data,
                                  s_sd,
-                                 dataset.schema,
-                                 **dataset.config[strs.K_MARGINAL])
+                                 group_features)
         s_kmarg.compute_score()
         s_score = int(s_kmarg.score)
         ssample_score[i * 0.1] = s_score
 
-    return ssample_score
+    puma_scores = None
+    if len(group_features):
+        # subsample scores for each PUMA
+        for i in range(5):
+            s_sd = create_subsample(frac=4 * 0.1)
+            s_kmarg = k_marginal_cls(dataset.d_target_data,
+                                     s_sd,
+                                     group_features)
+            s_kmarg.compute_score()
+            scores = s_kmarg.scores
+            if i == 0:
+                puma_scores = scores
+            else:
+                puma_scores += scores
+        puma_scores /= 5
+
+    return ssample_score, puma_scores
 
 
 def kmarginal_score_packet(k_marginal_score: int,
@@ -245,9 +280,10 @@ def kmarginal_score_packet(k_marginal_score: int,
                            ui_data: ReportUIData,
                            report_data: ReportData,
                            subsample_scores: Dict[float, int],
+                           subsample_group_scores: Optional[pd.DataFrame],
                            worst_breakdown_feature: str,
                            group_features: List[str],
-                           group_scores: Optional[pd.Series] = None) \
+                           group_scores: Optional[pd.DataFrame] = None) \
         -> Tuple[UtilityScorePacket, UtilityScorePacket]:
 
     def min_index(data_list: List[float]):
@@ -288,7 +324,7 @@ def kmarginal_score_packet(k_marginal_score: int,
              "Sub-Sample K-Marginal Score": subsample_scores[frac],
              "Deidentified Data K-marginal score": k_marginal_score,
              "Absolute Diff. From Deidentified Data K-marginal Score":
-                 f"{abs(subsample_scores[frac] - k_marginal_score)}"
+                 f"{round(abs(subsample_scores[frac] - k_marginal_score), 2)}"
              }
             for frac in sorted_frac]
 
@@ -330,6 +366,7 @@ def kmarginal_score_packet(k_marginal_score: int,
     kmarg_det_pkt = None  # k-marginal details breakdown packet
     if group_scores is not None:
         worst_scores, best_scores = best_worst_performing(group_scores,
+                                                          subsample_group_scores,
                                                           dataset,
                                                           group_features,
                                                           feature_values)
@@ -438,7 +475,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
 
     features = ds.features
     corr_features = ds.config[strs.CORRELATION_FEATURES]
-
+    corr_features = [f for f in ds.data_dict.keys() if f in corr_features]
     # Initiated k-marginal, correlation and propensity scorer
     # selected challenge type: census or taxi
     if ds.challenge == strs.CENSUS:
@@ -460,16 +497,28 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                            _data=f'h4{name}',
                            _type=AttachmentType.String)
             u_as.append(a)
+
             if "excluded" in v:
                 fv = v['excluded']['feature_value']
                 tc = v['excluded']['target_counts']
                 sc = v['excluded']['deidentified_counts']
+                f_name = name.split(':')[0]
                 if k.startswith('POVPIP'):
-                    fv = '501 (Not in poverty: income above 5 x poverty line)'
+                    fv = '501 [Not in poverty: income above 5 x poverty line]'
                 elif fv == -1:
-                    fv = 'N (N/A)'
+                    f_detail = '[N/A]'
+                    if 'values' in ds.data_dict[f_name]:
+                        f_detail = ds.data_dict[f_name]['values']['N']
+                    fv = f'N [{f_detail}]'
+                else:
+                    f_detail = ''
+                    if 'values' in ds.data_dict[f_name]:
+                        f_detail = ds.data_dict[f_name]['values'][str(fv)]
+                    fv = f'{fv} [{f_detail}]'
+
                 a = Attachment(name=None,
-                               _data=f"Feature Value: {fv}"
+                               _data=f"Feature Values not shown in the chart:"
+                                     f"<br>Value: {fv}"
                                      f"<br>Target Data Counts: {tc}"
                                      f"<br>Deidentified Data Counts: {sc}",
                                _type=AttachmentType.String)
@@ -480,6 +529,8 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                   strs.PATH: u_rel_path}],
                            _type=AttachmentType.ImageLinks)
             u_as.append(a)
+
+
         log.end_msg()
 
         log.msg('Correlations', level=3)
@@ -514,25 +565,28 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     prop_pkt = None  # propensity score packet
 
     # compute scores and plots
-    s = CensusKMarginalScore(ds.d_target_data,
-                                        ds.d_synthetic_data,
-                                        ds.schema, **ds.config[strs.K_MARGINAL])
+    s = KMarginal(ds.d_target_data,
+                  ds.d_synthetic_data,
+                  group_features)
+
     s.compute_score()
     metric_name = s.NAME
 
-    metric_score = int(s.score) if s.score > 100 else round(s.score, 5)
+    metric_score = int(s.score)
     metric_attachments = []
 
-    if s.NAME == CensusKMarginalScore.NAME \
+    if s.NAME == KMarginal.NAME \
             and ds.challenge == strs.CENSUS:
         group_scores = s.scores if hasattr(s, 'scores') and len(s.scores) else None
-        subsample_scores = kmarginal_subsamples(ds, CensusKMarginalScore)
+        # s_puma_score: subsample puma scores
+        subsample_scores, s_puma_scores = kmarginal_subsamples(ds, KMarginal, group_features)
         kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
                                                               f_val_dict,
                                                               ds,
                                                               r_ui_d,
                                                               rd,
                                                               subsample_scores,
+                                                              s_puma_scores,
                                                               'PUMA',
                                                               group_features,
                                                               group_scores)
@@ -546,7 +600,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     s.compute_score()
     metric_name = s.NAME
 
-    metric_score = int(s.score) if s.score > 100 else round(s.score, 5)
+    metric_score = int(s.score) if s.score > 100 else round(s.score, 3)
 
     p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
     # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
@@ -623,9 +677,6 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                   None,
                                   [Attachment(name=None,
                                               _data=univ_dist_para,
-                                              _type=AttachmentType.String),
-                                   Attachment(name="Three Worst Performing Features",
-                                              _data="",
                                               _type=AttachmentType.String)] + u_as))
 
     r_ui_d.add(UtilityScorePacket("Correlations",

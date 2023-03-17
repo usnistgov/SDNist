@@ -23,7 +23,8 @@ setup(
               "sdnist.report",
               "sdnist.report.score",
               "sdnist.report.plots",
-              "sdnist.report.score.utility"],
+              "sdnist.report.score.utility",
+              "sdnist.report.dataset"],
     # data_files=[('', ['sdnist/report2.jinja2'])],
     install_requires=[
         "jinja2>=3",
@@ -35,11 +36,12 @@ setup(
         "requests>=2",
         "scikit-learn>=1",
         "scipy>=1",
-        "tqdm>=4"
+        "tqdm>=4",
+        "colorama>=0.4"
     ],
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Programming Language :: Python :: 3.8',
-                 'License :: Other/Proprietary License',
+                 'License :: Public Domain',
                  'Intended Audience :: Science/Research'],
     include_package_data=True
 )
