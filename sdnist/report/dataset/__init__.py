@@ -86,7 +86,7 @@ class Dataset:
         # load synthetic dataset
         dtypes = {feature: desc["dtype"] for feature, desc in self.schema.items()}
         if str(self.synthetic_filepath).endswith('.csv'):
-            self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes)
+            self.synthetic_data = pd.read_csv(self.synthetic_filepath)
         elif str(self.synthetic_filepath).endswith('.parquet'):
             self.synthetic_data = pd.read_parquet(self.synthetic_filepath)
         else:
@@ -115,9 +115,10 @@ class Dataset:
         self.synthetic_data = self.synthetic_data[self.features]
 
         # validation and clean data
-        self.c_synthetic_data, self.validation_log \
-            = validate(self.synthetic_data, self.schema, self.features, self.log)
-        self.c_target_data, _ = validate(self.target_data, self.schema, self.features, self.log)
+        self.c_synthetic_data, self.validation_log = \
+            validate(self.synthetic_data, self.data_dict, self.features, self.log)
+        self.c_target_data, _ = \
+            validate(self.target_data, self.data_dict, self.features, self.log)
         self.features = self.c_synthetic_data.columns.tolist()
 
         # update data after validation and cleaning
