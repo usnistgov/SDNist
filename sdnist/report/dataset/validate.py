@@ -4,7 +4,7 @@ import pandas as pd
 from sdnist.utils import SimpleLogger
 
 def validate(synth_data: pd.DataFrame,
-             schema: Dict,
+             data_dict: Dict,
              features: List[str],
              log: Optional[SimpleLogger] = None):
     """
@@ -31,12 +31,14 @@ def validate(synth_data: pd.DataFrame,
 
     for f in features:
         # check feature has out of bound value
-        f_data = schema[f]
+        f_data = data_dict[f]
         has_nan = f in nan_features
+        has_N = 'N' in f_data['values'] if f != 'INDP' else True
+        f_vals = f_data['values'] if "values" in f_data else []
 
-        if 'min' in f_data:
+        if 'min' in f_vals:
             fd = sd[[f]].copy()
-            mask = fd[fd[f] != 'N'].index if 'has_null' in f_data else fd.index
+            mask = fd[fd[f] != 'N'].index if has_N else fd.index
             fd.loc[mask, f] = pd.to_numeric(fd.loc[mask, f], errors="coerce")
             nans = fd[fd.isna().any(axis=1)]
             if len(nans):
@@ -46,7 +48,7 @@ def validate(synth_data: pd.DataFrame,
                       f'out of bound values: {vob_vals}. '
                             f'Dropping feature from evaluation.')
 
-            mask = sd[sd[f] != 'N'].index if 'has_null' in f_data else sd.index
+            mask = sd[sd[f] != 'N'].index if has_N else sd.index
 
             if f in ['PINCP'] and not len(nans):
                 sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f])
@@ -57,7 +59,7 @@ def validate(synth_data: pd.DataFrame,
         elif f == 'PUMA':
             # values intersection
             f_unique = sd['PUMA'].unique().tolist()
-            v_intersect = set(f_unique).intersection(set(f_data['values']))
+            v_intersect = set(f_unique).intersection(set(f_vals))
             if len(v_intersect) < len(f_unique):
                 vob_vals = list(set(f_unique).difference(v_intersect))
                 vob_features.append((f, vob_vals))
@@ -65,7 +67,7 @@ def validate(synth_data: pd.DataFrame,
                             f'out of bound values: {vob_vals}. Dropping feature from evaluation.')
         else:
             fd = sd[[f]].copy()
-            mask = fd[fd[f] != 'N'].index if 'has_null' in f_data else fd.index
+            mask = fd[fd[f] != 'N'].index if has_N else fd.index
             fd.loc[mask, f] = pd.to_numeric(fd.loc[mask, f], errors="coerce")
             nans = fd[fd.isna().any(axis=1)]
             vob_vals = []
@@ -73,12 +75,13 @@ def validate(synth_data: pd.DataFrame,
                 vob_vals.extend(list(set(synth_data.loc[nans.index, f].values.tolist())))
                 fd = fd.dropna()
 
-            mask = fd[fd[f] != 'N'].index if 'has_null' in f_data else fd.index
+            mask = fd[fd[f] != 'N'].index if has_N else fd.index
             fd.loc[mask, f] = fd.loc[mask, f].astype(int)
-            real_vals = f_data['values']
-            if 'N' in real_vals:
-                real_vals.remove('N')
+
             if f != 'INDP':
+                real_vals = list(f_vals.keys())
+                if 'N' in real_vals:
+                    real_vals.remove('N')
                 f_unique = set(fd.loc[mask, f].unique().tolist())
                 real_vals = [int(v) for v in real_vals]
                 v_intersect = set(f_unique).intersection(set(real_vals))
@@ -90,10 +93,10 @@ def validate(synth_data: pd.DataFrame,
                 console_out(f'Value out of bound for feature {f}, '
                       f'out of bound values: {vob_vals}. Dropping feature from evaluation.')
             else:
-                mask = sd[sd[f] != 'N'].index if 'has_null' in f_data else sd.index
+                mask = sd[sd[f] != 'N'].index if has_N else sd.index
                 sd.loc[mask, f] = pd.to_numeric(sd.loc[mask, f])
                 sd.loc[mask, f] = sd.loc[mask, f].astype(int)
-        if 'has_null' in f_data:
+        if has_N:
             sd[f] = sd[f].astype(object)
 
         if len(vob_features):

@@ -115,9 +115,10 @@ class Dataset:
         self.synthetic_data = self.synthetic_data[self.features]
 
         # validation and clean data
-        self.c_synthetic_data, self.validation_log \
-            = validate(self.synthetic_data, self.schema, self.features, self.log)
-        self.c_target_data, _ = validate(self.target_data, self.schema, self.features, self.log)
+        self.c_synthetic_data, self.validation_log = \
+            validate(self.synthetic_data, self.data_dict, self.features, self.log)
+        self.c_target_data, _ = \
+            validate(self.target_data, self.data_dict, self.features, self.log)
         self.features = self.c_synthetic_data.columns.tolist()
 
         # update data after validation and cleaning
