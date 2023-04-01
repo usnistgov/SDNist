@@ -87,14 +87,6 @@ class PCAReport:
              save_data_frame(pca_m.comp_df,
                              o_path,
                              'components_eigenvector')),
-         "target_components": relative_path(
-             save_data_frame(pca_m.t_pdf,
-                             o_path,
-                             'target_components')),
-         "deidentified_components": relative_path(
-             save_data_frame(pca_m.s_pdf,
-                             o_path,
-                             'deidentified_components')),
          "target_all_components_plot": relative_path(acpp_tar),
          "deidentified_all_components_plot": relative_path(acpp_deid)
         }

@@ -1,3 +1,4 @@
+import shutil
 from typing import List, Union, Optional
 import numpy as np
 import pandas as pd
@@ -158,6 +159,10 @@ def relative_path(path: Union[List[Path], Path],
 def create_path(path: Path):
     if not path.exists():
         os.mkdir(path)
+
+def remove_path(path: Path):
+    if path.exists():
+        shutil.rmtree(str(path))
 
 def adaptive_round(decimal_num):
     dn = decimal_num
