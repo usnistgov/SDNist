@@ -124,7 +124,7 @@ def worst_score_breakdown(worst_scores: List,
         os.mkdir(out_dir)
 
     up = UnivariatePlots(s, t,
-                         ds, out_dir, ds.challenge)
+                         ds, out_dir, ds.challenge, worst_univariates_to_display=3)
     u_feature_data = up.save()
     k_marg_break_rd[f'worst_{len(wpf)}_puma_univariate'] = up.report_data()
     k_marg_break_rd[f'worst_{len(wpf)}_puma_k_marginal_scores'] = \
