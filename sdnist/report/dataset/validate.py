@@ -18,15 +18,15 @@ def validate(synth_data: pd.DataFrame,
     validation_log = dict()
     sd = synth_data.copy()
     vob_features = []  # value out of bound
-    nan_df = sd[sd.isna().any(axis=1)]
-
-    if len(nan_df):
-        sd = sd.dropna()
-        console_out(f'Found {len(nan_df)} records with NaN values. '
-                    f'Removed records with NaN values.')
-
-    nan_features = []
     sd = sd.replace('NA', np.nan)
+    nan_df = sd[sd.isna().any(axis=1)]
+    nan_features = []
+
+    # if len(nan_df):
+    #     sd = sd.dropna()
+    #     console_out(f'Found {len(nan_df)} records with NaN values. '
+    #                 f'Removed records with NaN values.')
+
     if len(nan_df):
         nan_features = sd.columns[sd.isna().any()].tolist()
         validation_log['nans'] = {
