@@ -88,7 +88,10 @@ class PCAReport:
                              o_path,
                              'components_eigenvector')),
          "target_all_components_plot": relative_path(acpp_tar),
-         "deidentified_all_components_plot": relative_path(acpp_deid)
+         "deidentified_all_components_plot": relative_path(acpp_deid),
+         "highlighted_plots": {f'{k[0]}-{k[1]}-{k[2]}':
+                                   [relative_path(v[0], 3), relative_path(v[1], 3)]
+             for k, v in plot_paths[strs.HIGHLIGHTED].items()}
         }
 
         self.rd.add('pca', pca_rd)
