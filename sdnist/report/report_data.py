@@ -5,7 +5,6 @@ from enum import Enum
 from pathlib import Path
 import datetime
 
-import strs
 from sdnist.version import __version__
 from sdnist.report import REPORTS_DIR
 import sdnist.strs as strs
