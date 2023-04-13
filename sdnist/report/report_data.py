@@ -5,6 +5,7 @@ from enum import Enum
 from pathlib import Path
 import datetime
 
+import strs
 from sdnist.version import __version__
 from sdnist.report import REPORTS_DIR
 import sdnist.strs as strs
@@ -18,6 +19,9 @@ class DatasetType(Enum):
 class EvaluationType(Enum):
     Utility = "utility"
     Privacy = "privacy"
+    Meta = "meta"
+    Motivation = "motivation"
+    Observations = "observations"
 
 
 class AttachmentType(Enum):
@@ -145,7 +149,7 @@ class FeatureDescriptionPacket:
 class ReportUIData:
     output_directory: Path = REPORTS_DIR
     # dictionary containing description of datasets
-    datasets: Dict[str, DataDescriptionPacket] = field(default_factory=dict, init=False)
+    datasets: Dict[str, List[DataDescriptionPacket]] = field(default_factory=dict, init=False)
     feature_desc: Dict[str, any] = field(default_factory=dict, init=False)
     # list containing ScorePacket objects
     scores: List[ScorePacket] = field(default_factory=list, init=False)
@@ -156,7 +160,10 @@ class ReportUIData:
     def add_data_description(self,
                              dataset_type: DatasetType,
                              data_description: DataDescriptionPacket):
-        self.datasets[dataset_type.value] = data_description
+        if dataset_type.value in self.datasets:
+            self.datasets[dataset_type.value].append(data_description)
+        else:
+            self.datasets[dataset_type.value] = [data_description]
 
     def add_feature_description(self,
                                 features: List[str],
@@ -176,19 +183,28 @@ class ReportUIData:
         d['version'] = __version__
         d[strs.DATA_DESCRIPTION] = dict()
         for d_type_name, d_desc in self.datasets.items():
-            d[strs.DATA_DESCRIPTION][d_type_name] = d_desc.data
+            d[strs.DATA_DESCRIPTION][d_type_name] = [desc.data for desc in d_desc]
 
         for k, v in self.feature_desc.items():
             d[strs.DATA_DESCRIPTION][k] = v.data
 
         d[EvaluationType.Utility.value] = []
         d[EvaluationType.Privacy.value] = []
+        d['comparisons'] = []
+        d['motivation'] = []
+        d['observations'] = []
 
         for s_pkt in self.scores:
             if s_pkt.evaluation_type == EvaluationType.Utility:
                 d[EvaluationType.Utility.value].append(s_pkt.data)
             elif s_pkt.evaluation_type == EvaluationType.Privacy:
                 d[EvaluationType.Privacy.value].append(s_pkt.data)
+            elif s_pkt.evaluation_type == EvaluationType.Meta:
+                d['comparisons'].append(s_pkt.data)
+            elif s_pkt.evaluation_type == EvaluationType.Motivation:
+                d['motivation'].append(s_pkt.data)
+            elif s_pkt.evaluation_type == EvaluationType.Observations:
+                d['observations'].append(s_pkt.data)
             elif s_pkt.evaluation_type == None:
                 d['Appendix'] = [s_pkt.data]
         return d
