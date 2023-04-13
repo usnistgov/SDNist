@@ -18,23 +18,37 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
     rd = report_data
 
     log.msg('Unique Exact Matches', level=3)
-    t_rec_matched, d_rec_matched, perc_t_rec_matched, perc_d_rec_matched = \
+    t_rec_matched, perc_t_rec_matched, \
+        unique_target_records, perc_unique_target_records = \
         unique_exact_matches(ds.c_target_data, ds.c_synthetic_data)
-
+    perc_t_rec_matched = perc_t_rec_matched
     uem_para_a = Attachment(name=None,
                             _data=unique_exact_match_para,
                             _type=AttachmentType.String)
-    target_matched_a = Attachment(name=None,
-                                     _data=f"Highlight-{t_rec_matched} records ({perc_t_rec_matched * 100}%) of "
-                                           f"target data exactly matched in deidentified data",
+
+    target_matched_a = Attachment(name="Target Data Properties",
+                                     _data=f"Feature space size (possible combinations): "
+                                           f"-Highlight-{f'{dataset.feature_space:,}'}-Highlight-<br>"
+                                           f"No. of unique records in Target Data: "
+                                           f"-Highlight-{unique_target_records} "
+                                           f"({perc_unique_target_records}%-Highlight-)",
+                                     _type=AttachmentType.String)
+    deid_matched_a = Attachment(name="Deidentified Data Properties",
+                                     _data=f"No. of Target Data records exactly "
+                                           f"matched in Deid. Data: "
+                                           f"-Highlight-{t_rec_matched} "
+                                           f"({perc_t_rec_matched}%)-Highlight-",
                                      _type=AttachmentType.String)
     r_ui_d.add(PrivacyScorePacket("Unique Exact Matches",
                               None,
                               [uem_para_a,
-                               target_matched_a]))
+                               target_matched_a,
+                               deid_matched_a]))
     rd.add('unique_exact_matches', {
         "records matched in target data": t_rec_matched,
-        "percent records matched in target data": perc_t_rec_matched
+        "percent records matched in target data": perc_t_rec_matched,
+        "unique target records": unique_target_records,
+        "percent unique target records": perc_unique_target_records,
     })
 
     log.end_msg()
@@ -77,8 +91,9 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
                                 _data=rec_matched_para,
                                 _type=AttachmentType.String)
     total_quasi_matched = Attachment(name=None,
-                                     _data=f"{rec_matched}, {rec_percent}% of "
-                                           f"the target data records",
+                                     _data=f"No. of Target Data records exactly matched "
+                                           f"in Deid. Data on Quasi-Identifiers: "
+                                           f"-Highlight-{rec_matched} ({rec_percent}%)-Highlight-",
                                      _type=AttachmentType.String)
     # Apparent match distribution plot as attachment
     adp_para_a = Attachment(name='Percentage Similarity of the Matched Records',
