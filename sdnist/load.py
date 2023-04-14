@@ -16,7 +16,7 @@ import numpy as np
 
 import sdnist.strs as strs
 
-DEFAULT_DATASET = 'new_diverse_communities_data_excerpts'
+DEFAULT_DATASET = 'diverse_communities_data_excerpts'
 
 
 class TestDatasetName(Enum):
@@ -82,7 +82,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
     if not name.exists():
         print(f"{name} does not exist.")
         zip_path = Path(root.parent, 'data.zip')
-        version = "2.1.1"
+        version = "2.2.0"
 
         version_v = f"v{version}"
         sdnist_version = DEFAULT_DATASET
