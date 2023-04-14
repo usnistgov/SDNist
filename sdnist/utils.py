@@ -1,3 +1,4 @@
+import shutil
 from typing import List, Union, Optional
 import numpy as np
 import pandas as pd
@@ -159,6 +160,20 @@ def create_path(path: Path):
     if not path.exists():
         os.mkdir(path)
 
+def remove_path(path: Path):
+    if path.exists():
+        shutil.rmtree(str(path))
+
+def adaptive_round(decimal_num):
+    dn = decimal_num
+
+    l = 10
+    round_by = 2
+    for i in range(1, l+1):
+        if 10**i * dn >= 1:
+            round_by = i + 1
+            break
+    return round(dn, round_by)
 
 def to_num(data: pd.DataFrame) -> pd.DataFrame:
     """Converts data to numeric and drops all the records

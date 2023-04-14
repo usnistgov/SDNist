@@ -145,8 +145,10 @@ class PCAMetric:
             plot_paths[strs.HIGHLIGHTED][(h_type, h_name, h_caption)] = \
                 [h_tar_path, h_syn_path]
 
-        e = time.time() - s
-        # print('PCA TOOK TIME: ', e)
+        # clear temporary data from report data
+        remove_path(t_cp_o_path)
+        remove_path(s_cp_o_path)
+
         return plot_paths
 
 

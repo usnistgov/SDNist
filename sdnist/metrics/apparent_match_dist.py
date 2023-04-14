@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 
 
 def cellchange(df1, df2, quasi, exclude_cols):
+    # use drop duplicates with keep argument as False,
+    # to retain only those records that occur only
+    # once in the data.
     uniques1 = df1.drop_duplicates(subset=quasi, keep=False)
     uniques2 = df2.drop_duplicates(subset=quasi, keep=False)
     matcheduniq = uniques1.merge(uniques2, how='inner', on=quasi)

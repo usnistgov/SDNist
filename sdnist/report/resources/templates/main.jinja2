@@ -311,9 +311,11 @@
     </div>
 {% endmacro %}
 
-{% macro data_description(title, key) %}
+{% macro data_description(title, key, index) %}
     {{ heading_2(title) }}
-    {% set ddict=data['data_description'][key] %}
+
+    {% set ddict=data['data_description'][key][index] %}
+
     {% if 'label' in ddict %}
         <div>
             <p ><span style="color: var(--theme-color); font-weight: bold">
@@ -355,6 +357,21 @@
         </div>
     {% elif data.startswith('h4') %}
         {{ heading_4(data[2:]) }}
+    {% elif '-Highlight-' in data %}
+        <div>
+            {% set parts = data.split('-Highlight-') %}
+            <p style="margin-bottom: 0px">
+            {% for i, part in enumerate(parts) %}
+                {% if i%2 == 0 %}
+                    {{ part }}
+                {% else %}
+                    <span style="color: var(--theme-color); font-weight: bold">
+                        {{ part }}
+                    </span>
+                {% endif %}
+            {% endfor %}
+            </p>
+        </div>
     {% else %}
         <div>
             {{ data }}
@@ -440,8 +457,17 @@
         </div>
         <div class="heading-2-div">
             {{ section_title('Data Description') }}
-            {{ data_description('Deidentified (Deid.) Data', 'synthetic') }}
-            {{ data_description('Target Data', 'target')}}
+            {% if 'synthetic' in data['data_description'] %}
+                {% for i, _ in enumerate(data['data_description']['synthetic']) %}
+                    {% set ddict=data['data_description'] %}
+                    {{ data_description('Deidentified (Deid.) Data', 'synthetic', i) }}
+                {% endfor %}
+            {% endif %}
+            {% if 'target' in data['data_description'] %}
+                {% for i, _ in enumerate(data['data_description']['target']) %}
+                    {{ data_description('Target Data', 'target', i) }}
+                {% endfor %}
+            {% endif %}
             {{ feature_description('Evaluated Data Features')}}
         </div>
         <br>

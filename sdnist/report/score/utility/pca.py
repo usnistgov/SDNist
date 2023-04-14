@@ -87,16 +87,11 @@ class PCAReport:
              save_data_frame(pca_m.comp_df,
                              o_path,
                              'components_eigenvector')),
-         "target_components": relative_path(
-             save_data_frame(pca_m.t_pdf,
-                             o_path,
-                             'target_components')),
-         "deidentified_components": relative_path(
-             save_data_frame(pca_m.s_pdf,
-                             o_path,
-                             'deidentified_components')),
          "target_all_components_plot": relative_path(acpp_tar),
-         "deidentified_all_components_plot": relative_path(acpp_deid)
+         "deidentified_all_components_plot": relative_path(acpp_deid),
+         "highlighted_plots": {f'{k[0]}-{k[1]}-{k[2]}':
+                                   [relative_path(v[0], 3), relative_path(v[1], 3)]
+             for k, v in plot_paths[strs.HIGHLIGHTED].items()}
         }
 
         self.rd.add('pca', pca_rd)
