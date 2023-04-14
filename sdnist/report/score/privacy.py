@@ -29,12 +29,12 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
     target_matched_a = Attachment(name="Target Data Properties",
                                      _data=f"Feature space size (possible combinations): "
                                            f"-Highlight-{f'{dataset.feature_space:,}'}-Highlight-<br>"
-                                           f"No. of unique records in Target Data: "
+                                           f"Number of unique records in Target Data: "
                                            f"-Highlight-{unique_target_records} "
                                            f"({perc_unique_target_records}%-Highlight-)",
                                      _type=AttachmentType.String)
     deid_matched_a = Attachment(name="Deidentified Data Properties",
-                                     _data=f"No. of Target Data records exactly "
+                                     _data=f"Number of unique Target Data records exactly "
                                            f"matched in Deid. Data: "
                                            f"-Highlight-{t_rec_matched} "
                                            f"({perc_t_rec_matched}%)-Highlight-",
@@ -91,7 +91,7 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
                                 _data=rec_matched_para,
                                 _type=AttachmentType.String)
     total_quasi_matched = Attachment(name=None,
-                                     _data=f"No. of Target Data records exactly matched "
+                                     _data=f"Number of Target Data records exactly matched "
                                            f"in Deid. Data on Quasi-Identifiers: "
                                            f"-Highlight-{rec_matched} ({rec_percent}%)-Highlight-",
                                      _type=AttachmentType.String)

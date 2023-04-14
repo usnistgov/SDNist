@@ -2,7 +2,7 @@ import math
 from pathlib import Path
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
-
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
@@ -20,6 +20,27 @@ import sdnist.strs as strs
 
 import sdnist.utils as u
 from sdnist.load import DEFAULT_DATASET
+
+st_code_to_str = {
+    '25': 'MA',
+    '48': 'TX',
+    '01': 'AL',
+    '06': 'CA',
+    '08': 'CO',
+    '13': 'GA',
+    '17': 'IL',
+    '19': 'IA',
+    '24': 'MD',
+    '26': 'MI',
+    '28': 'MS',
+    '29': 'MO',
+    '30': 'MT',
+    '32': 'NV',
+    '36': 'NY',
+    '38': 'ND',
+    '40': 'OK',
+    '51': 'VA'
+}
 
 def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
     """remove features from configuration that are not available in
@@ -172,8 +193,6 @@ class Dataset:
             self.target_data = bin_density(self.c_target_data, self.data_dict)
             self.synthetic_data = bin_density(self.c_synthetic_data, self.data_dict)
 
-
-
         self.log.msg(f'Features ({len(self.features)}): {self.features}', level=3, timed=False)
         self.log.msg(f'Deidentified Data Records Count: {self.c_synthetic_data.shape[0]}', level=3, timed=False)
         self.log.msg(f'Target Data Records Count: {self.c_target_data.shape[0]}', level=3, timed=False)
@@ -289,10 +308,6 @@ def data_description(dataset: Dataset,
                                     _type=AttachmentType.String))
 
         elif 'values' in dataset.data_dict[feat]:
-            data = [{f"{feat} Code": k,
-                     f"Code Description": v}
-                for k, v in dataset.data_dict[feat]['values'].items()
-            ]
             f_name = feat_title
             if 'link' in dataset.data_dict[feat] and feat in ['WGTP', 'PWGTP']:
                 s_data = f"<a href={dataset.data_dict[feat]['link']}>" \
@@ -301,6 +316,16 @@ def data_description(dataset: Dataset,
                                         _data=s_data,
                                         _type=AttachmentType.String))
                 f_name = None
+
+            data = [{f"{feat} Code": k,
+                     f"Code Description": v}
+                for k, v in dataset.data_dict[feat]['values'].items()
+            ]
+            if feat == 'PUMA':
+                data = [{f"{feat} Code": k,
+                         f"Code Description": f'{st_code_to_str[k.split("-")[0]]}: {v}'}
+                        for k, v in dataset.data_dict[feat]['values'].items()
+                        ]
             dd_as.append(Attachment(name=f_name,
                                     _data=data,
                                     _type=AttachmentType.Table))

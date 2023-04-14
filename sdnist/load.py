@@ -16,7 +16,7 @@ import numpy as np
 
 import sdnist.strs as strs
 
-DEFAULT_DATASET = 'diverse_communities_data_excerpts'
+DEFAULT_DATASET = 'new_diverse_communities_data_excerpts'
 
 
 class TestDatasetName(Enum):
@@ -124,6 +124,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
             print()
             copy_from_path = str(Path(extract_path, sdnist_version))
             copy_to_path = str(Path(root))
+            print(f"Copying {copy_from_path} to {copy_to_path} ...")
             copy_tree(copy_from_path, copy_to_path)
             shutil.rmtree(extract_path)
         else:

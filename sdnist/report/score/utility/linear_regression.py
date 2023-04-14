@@ -44,11 +44,12 @@ lr_paragraphs = [
         "<li>EDU: The highest education level this individual has attained, ranging "
         "from 1 (elementary school) to 12 (PhD). See Appendix of this report for "
         "the full list of code values.</li>"
-        "<li>PINCP_DECILE: The individual's income decile relative to their PUMA. "
+        "<li>PINCP_DECILE: The individual's income rank relative to other incomes from "
+        "their state, discretized into ten equal-width range bins. "
         "This helps us account for differences in cost of living across the country. "
-        "If an individual makes a moderate income but lives in a very low income area, "
+        "If an individual makes a moderate income but lives in a lower income area, "
         "they may have a high value for PINCP_DECILE indicating that they have a high "
-        "income for their PUMA).</li>"
+        "income for their state. </li>"
         "</ul>",
 
         "The basic idea is that higher values of EDU should lead to higher values of "
