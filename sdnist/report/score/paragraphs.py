@@ -66,9 +66,9 @@ app_match_para = "Deidentified data should reproduce the distribution of the tar
 
 quasi_idf_para = "These features are used to determine if a deidentified record looks like it might be a real person in the target data."
 
-rec_matched_para = "Based only on the quasi-identifier features, how many deidentified " \
-                   "records uniquely match an individual in the target data? What percentage of the " \
-                   "deidentified data has apparent real matches?"
+rec_matched_para = "Based only on the quasi-identifier features, how much of the target data has " \
+                   "apparent unique matches in the deidentified data? and then the " \
+                   "percent should be a percent of target data"
 
 percn_matched_para = "Considering the set of apparent matches, to what extent are they real matches? " \
                      "This distribution shows edit similarity between apparently matched pairs on how many of " \
@@ -77,3 +77,8 @@ percn_matched_para = "Considering the set of apparent matches, to what extent ar
                      "mimic target records and are potentially leaking information about real individuals. " \
                      "If the distribution is centered below 50% that means the deidentified records are very " \
                      "different from the target records, and the apparent matches are not real matches."
+
+unique_exact_match_para = "This is a count of unique records in the target data that were exactly reproduced " \
+                          "in the deidentified data. Because these records were unique outliers in the " \
+                          "target data, and they still appear unchanged in the deidentified data, " \
+                          "they are potentially vulnerable to reidentification."

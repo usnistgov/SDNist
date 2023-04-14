@@ -110,7 +110,9 @@ def bin_density(data: pd.DataFrame, data_dict: Dict, update: bool = True) -> pd.
         return d
 
 
-def get_density_bins_description(data: pd.DataFrame, data_dict: Dict, mappings: Dict) -> Dict:
+def get_density_bins_description(data: pd.DataFrame,
+                                 data_dict: Dict,
+                                 mappings: Dict) -> Dict:
     bin_desc = dict()
     # If puma is not available in the features, return empty description dictionary
     if 'PUMA' not in data:

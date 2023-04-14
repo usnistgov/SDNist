@@ -124,7 +124,7 @@ def worst_score_breakdown(worst_scores: List,
         os.mkdir(out_dir)
 
     up = UnivariatePlots(s, t,
-                         ds, out_dir, ds.challenge)
+                         ds, out_dir, ds.challenge, worst_univariates_to_display=3)
     u_feature_data = up.save()
     k_marg_break_rd[f'worst_{len(wpf)}_puma_univariate'] = up.report_data()
     k_marg_break_rd[f'worst_{len(wpf)}_puma_k_marginal_scores'] = \
@@ -166,7 +166,9 @@ def worst_score_breakdown(worst_scores: List,
             else:
                 f_detail = ''
                 if 'values' in ds.data_dict[f_name]:
-                    f_detail = ds.data_dict[f_name]['values'][str(fv)]
+                    v_data = ds.data_dict[f_name]['values']
+                    if str(fv) in v_data:
+                        f_detail = ds.data_dict[f_name]['values'][str(fv)]
                 fv = f'{fv} [{f_detail}]'
             a = Attachment(name=None,
                            _data=f"Feature Values not shown in the chart:"
@@ -513,7 +515,9 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                 else:
                     f_detail = ''
                     if 'values' in ds.data_dict[f_name]:
-                        f_detail = ds.data_dict[f_name]['values'][str(fv)]
+                        v_data = ds.data_dict[f_name]['values']
+                        if str(fv) in v_data:
+                            f_detail = ds.data_dict[f_name]['values'][str(fv)]
                     fv = f'{fv} [{f_detail}]'
 
                 a = Attachment(name=None,

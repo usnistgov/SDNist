@@ -37,7 +37,7 @@ def run(synthetic_filepath: Path,
     if not outfile.exists():
         log.msg('Loading Datasets', level=2)
         dataset = Dataset(synthetic_filepath, log, dataset_name, data_root, download)
-        ui_data = data_description(dataset, ui_data, labels_dict)
+        ui_data = data_description(dataset, ui_data, report_data, labels_dict)
         log.end_msg()
 
         # Create scores

@@ -152,13 +152,13 @@ class LinearRegressionMetric:
         self.diff = self.tcm - self.scm
 
         # calculate regression lines for target and synthetic data
-        if self.ts.shape[0] > 1:
-            self.t_reg = stats.linregress(self.ts[xc], self.ts[yc])
+        if self.ts.shape[0] > 1 and len(self.ts[xc].unique()) > 1:
+            self.t_reg = stats.linregress(self.ts[xc].astype(float), self.ts[yc].astype(float))
             self.t_slope = round(self.t_reg.slope, 2)
             self.t_intercept = round(self.t_reg.intercept, 2)
 
-        if self.ss.shape[0] > 1:
-            self.s_reg = stats.linregress(self.ss[xc], self.ss[yc])
+        if self.ss.shape[0] > 1 and len(self.ss[xc].unique()) > 1:
+            self.s_reg = stats.linregress(self.ss[xc].astype(float), self.ss[yc].astype(float))
             self.s_slope = round(self.s_reg.slope, 2)
             self.s_intercept = round(self.s_reg.intercept, 2)
 
@@ -186,10 +186,10 @@ class LinearRegressionMetric:
 
         r_tx_df = pd.DataFrame([[_ + 0.5, self.t_intercept + self.t_slope * (_ + 0.5)]
                                 for _ in tx], columns=['x', 'y'])
-        r_tx_df = r_tx_df[r_tx_df['y'] >= 0]
+        r_tx_df = r_tx_df[(r_tx_df['y'] >= 0) & (r_tx_df['y'] <= 10)]
         r_sx_df = pd.DataFrame([[_ + 0.5, self.s_intercept + self.s_slope * (_ + 0.5)]
                                 for _ in tx], columns=['x', 'y'])
-        r_sx_df = r_sx_df[r_sx_df['y'] >= 0]
+        r_sx_df = r_sx_df[(r_sx_df['y'] >= 0) & (r_sx_df['y'] <= 10)]
 
         ax0.plot(r_tx_df['x'],
                  r_tx_df['y'], color='red', label='Target')
