@@ -33,12 +33,13 @@ Setting Up the SDNIST Report Tool
 
 ### Brief Setup Instructions
 
-SDNist requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend uninstalling or installing v2.2 in a virtual environment. v2.2 can be installed via [Release 2.2](https://github.com/usnistgov/SDNist/releases/tag/v2.2.0). The NIST Diverse Community Exceprt data will download on the fly.
-```
-pip install sdnist
-```
+SDNist requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend installing v2.2 in a virtual environment. v2.2 can be installed via [Release 2.2](https://github.com/usnistgov/SDNist/releases/tag/v2.2.0) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
 
-### Detailed Setup Instructions
+The NIST Diverse Community Exceprt data will download on the fly.
+
+
+
+### Detailed Setup Instructions Using Pypi
 
 1. The SDNist Report Tool is a part of the sdnist Python library that can be installed on a user’s MAC OS, Windows, or Linux machine.
 
@@ -55,22 +56,14 @@ pip install sdnist
     c:\\sdnist-project>     
     ```
 
-4.  Download the sdnist installable wheel (sdnist-2.2.0-py3-none-any.whl) from the Github: [Release 2.2](https://github.com/usnistgov/SDNist/releases/download/v2.2.0/sdnist-2.2.0-py3-none-any.whl).
 
-
-5.  Move the downloaded sdnist-2.2.0-py3-none-any.whl file to the sdnist-project directory.
-
-
-6.  Using the terminal on Mac/Linux or powershell on Windows, navigate to the sdnist-project directory.
-
-
-7.  In the already-opened terminal or powershell window, execute the following command to create a new Python environment. The sdnist library will be installed in this newly created Python environment:
+4.  In the already-opened terminal or powershell window, execute the following command to create a new Python environment. The sdnist library will be installed in this newly created Python environment:
 
     ```
     c:\\sdnist-project> python -m venv venv
     ```
 
-8. The new Python environment will be created in the sdnist-project directory, and the files of the environment should be in the venv directory. To check whether a new Python environment was created successfully, use the following command to list all directories in the sdnist-project directory, and make sure the venv directory exists.
+6. The new Python environment will be created in the sdnist-project directory, and the files of the environment should be in the venv directory. To check whether a new Python environment was created successfully, use the following command to list all directories in the sdnist-project directory, and make sure the venv directory exists.
 
     **MAC OS/Linux:**
     ```
@@ -81,7 +74,7 @@ pip install sdnist
     c:\\sdnist-project> dir
     ```
 
-9. Now activate the Python environment and install the sdnist library into it.
+7. Now activate the Python environment and install the sdnist library into it.
 
     **MAC OS/Linux:**
     ```
@@ -111,7 +104,7 @@ pip install sdnist
     ```
 
 
-10. Per step 5 above, the sdnist-2.2.0-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
+8. Per step 5 above, the sdnist-2.2.0-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
 
       **MAC OS/Linux:**
        ```
@@ -124,13 +117,13 @@ pip install sdnist
        The sdnist-2.2.0-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
 
 
-11. Install sdnist Python library:
+9. Install sdnist Python library:
        ```
-       (venv) c:\\sdnist-project> pip install sdnist-2.2.0-py3-none-any.whl
+       (venv) c:\\sdnist-project> pip install sdnist
        ```
 
 
-12. Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
+10. Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
        ```
        (venv) c:\\sdnist-project> python -m sdnist.report -h
        ```
@@ -166,7 +159,7 @@ pip install sdnist
        ```
 
 
-13. These instructions install sdnist into a virtual environment. The virtual environment must be activated (step 9) each time a new terminal window is used with sdnist.
+11. These instructions install sdnist into a virtual environment. The virtual environment must be activated (step 9) each time a new terminal window is used with sdnist.
 
 
 Generate Data Quality Report
@@ -252,7 +245,7 @@ Setup Data for SDNIST Report Tool
       Follow the next subsection, Download Data Manually, if the sdnist.report package is unable to download the datasets.
 
 
-2. All the datasets required by the sdnist.report package are installed into the sdnist _toy _data directory, which should be now present inside the sdnist-project directory. sdnist _toy _data is also a data root directory. You can use some other directory as a data root by providing the –data-root argument to the sdnist.report package. If you provide a –data-root argument with a path, the sdnist.report package will look for datasets in the data root directory you have specified, and the package will download it if it is not present in the data root.
+2. All the datasets required by the sdnist.report package are installed into the sdnist \_toy \_data directory, which should be now present inside the sdnist-project directory. sdnist \_toy \_data is also a data root directory. You can use some other directory as a data root by providing the –data-root argument to the sdnist.report package. If you provide a –data-root argument with a path, the sdnist.report package will look for datasets in the data root directory you have specified, and the package will download it if it is not present in the data root.
 
 
 3. The sdnist.report package also needs a deidentified dataset that it can evaluate against its original counterpart. Since the sdnist.report package comes bundled with the datasets, the deidentified dataset should be generated using the bundled datasets.
