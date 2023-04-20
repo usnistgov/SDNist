@@ -18,35 +18,35 @@ app = QtWidgets.QApplication(sys.argv)
 page = QtWebEngineWidgets.QWebEnginePage()
 
 
-def html_to_pdf_2(html: Path, pdf: Path):
-    a = QApplication([])
-    document = QTextDocument()
-
-    class HTMLFilter(HTMLParser):
-        text = ""
-
-        def handle_data(self, data):
-            self.text += data
-
-    file = codecs.open(str(html), "r")
-    data = file.read()
-    # print(data)
-    # # f = HTMLFilter()
-    # # f.feed(data)
-    # # html = f.text
-    # print(data)
-    document.setHtml(data)
-
-    printer = QPrinter()
-    printer.setResolution(140)
-    printer.setPageSize(QPrinter.Letter)
-    printer.setOutputFormat(QPrinter.PdfFormat)
-    printer.setOutputFileName(str(pdf))
-    # printer.setPageMargins(12, 16, 12, 20, QPrinter.Millimeter)
-    document.setPageSize(QSizeF(printer.pageRect().size()))
-    # print(document.pageSize(), printer.resolution(), printer.pageRect())
-
-    document.print_(printer)
+# def html_to_pdf_2(html: Path, pdf: Path):
+#     a = QApplication([])
+#     document = QTextDocument()
+#
+#     class HTMLFilter(HTMLParser):
+#         text = ""
+#
+#         def handle_data(self, data):
+#             self.text += data
+#
+#     file = codecs.open(str(html), "r")
+#     data = file.read()
+#     # print(data)
+#     # # f = HTMLFilter()
+#     # # f.feed(data)
+#     # # html = f.text
+#     # print(data)
+#     document.setHtml(data)
+#
+#     printer = QPrinter()
+#     printer.setResolution(140)
+#     printer.setPageSize(QPrinter.Letter)
+#     printer.setOutputFormat(QPrinter.PdfFormat)
+#     printer.setOutputFileName(str(pdf))
+#     # printer.setPageMargins(12, 16, 12, 20, QPrinter.Millimeter)
+#     document.setPageSize(QSizeF(printer.pageRect().size()))
+#     # print(document.pageSize(), printer.resolution(), printer.pageRect())
+#
+#     document.print_(printer)
 
 # function taken from:
 # https://stackoverflow.com/questions/63382399/how-to-convert-a-local-html-file-to-pdf-using-pyqt5
@@ -90,18 +90,24 @@ def generate(report_data: Dict[str, any],
     main_template = env.get_template('main.jinja2')
     pdf_template = env.get_template('pdf.jinja2')
 
-    # out = main_template.render(data=data)
-    out = pdf_template.render(data=data)
+    out_main = main_template.render(data=data)
+    out_temp = pdf_template.render(data=data)
 
-    out_path = Path(out_dir, 'report.html')
+    out_path_main = Path(out_dir, 'report.html')
+    out_path_temp = Path(out_dir, 'report_temp.html')
     out_pdf_path = Path(out_dir, 'report.pdf')
 
-    with open(out_path, 'w') as f:
-        f.write(out)
+    with open(out_path_main, 'w') as f:
+        f.write(out_main)
+    with open(out_path_temp, 'w') as f:
+        f.write(out_temp)
 
     if not test_mode:
-        webbrowser.open(f"file://{out_path}", new=True)
-    html_to_pdf(out_path, out_pdf_path)
+        webbrowser.open(f"file://{out_path_main}", new=True)
+    html_to_pdf(out_path_temp, out_pdf_path)
+
+    if out_path_temp.exists():
+        out_path_temp.unlink()
 
 
 

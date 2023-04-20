@@ -46,10 +46,11 @@ def run(reports_path: List[Path], meta_report_out_dir:
         Path, filters: Dict, filter_keys: List[str],
         data_dict: Dict,
         config_name: str,
-        density_bins_description: Dict):
+        density_bins_description: Dict,
+        report_title: str):
     # meta report ui data
     m_ui_data = ReportUIData(output_directory=meta_report_out_dir)
-
+    m_ui_data.add_key_val('title', report_title)
     reports_data = dict()
 
     for report_path in reports_path:
@@ -165,14 +166,15 @@ def setup():
     # reports_path = [p for p in reports_dir.iterdir() if p.is_dir()]
     print(reports_path)
 
-
+    report_title = f"Test Title"
     return {"reports_path": reports_path,
             "meta_report_out_dir": this_m_report_dir,
             "filters": filters,
             "filter_keys": filter_keys,
             "data_dict": data_dict,
             "config_name": config_name,
-            "density_bins_description": density_bins_description}
+            "density_bins_description": density_bins_description,
+            "report_title": report_title}
 
 
 if __name__ == "__main__":
