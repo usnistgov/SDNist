@@ -197,14 +197,13 @@ class LinearRegressionComparison(BaseComparison):
             else:
                 ax_i = ax[j]
             if j == n_cols:
-                # ax_c = ax_i.pcolor(df_c, cmap='PuOr', vmin=-0.3, vmax=0.3)
                 v_min = 2
                 v_max = 20
                 norm = Normalize(v_min, v_max)
                 cmap = cm.get_cmap('Blues')
+                # temp fix reduce axes width by adding a colorbar and then removing it.
                 cb = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
                                   ax=ax_i, orientation='vertical', pad=.05, fraction=1)
-                # ax_c.cla()
                 cb.remove()
             ax_i.legend(handles=[line1, line2], loc='center left', title='Regression')
             ax_i.axis('off')
@@ -214,8 +213,6 @@ class LinearRegressionComparison(BaseComparison):
                     ax_i = ax[i, j]
                 else:
                     ax_i = ax[j]
-                # cb = fig.colorbar(ax_c, ax=ax_i, orientation='vertical', pad=.05, fraction=1)
-                # cb.remove()
                 ax_i.set_visible(False)
 
         for j in range(n_cols):
@@ -238,7 +235,7 @@ class LinearRegressionComparison(BaseComparison):
         #                 ax[j].axis('off')
 
         plt.tight_layout()
-        # fig.subplots_adjust(right=0.88)
+        fig.subplots_adjust(right=0.88)
         plt.savefig(plot_save_path, bbox_inches='tight')
         plt.close()
 

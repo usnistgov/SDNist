@@ -479,7 +479,7 @@
 <body>
     <div class="content-area">
         <div class="main-title">
-            <h1 class="title-text">Meta Evaluation Report</h1>
+            <h1 class="title-text">NIST CRC Meta Report: {{ data['title'] }}</h1>
         </div>
         <br>
         <div style="color: var(--theme-color); font-weight: bold">
@@ -516,7 +516,6 @@
             {% endfor %}
             <br>
             <br>
-{#            <div class="section-separator-bar"></div>#}
             <br>
         </div>
         <br>
@@ -535,7 +534,6 @@
             {% endfor %}
             <br>
             <br>
-{#            <div class="section-separator-bar"></div>#}
             <br>
         </div>
         <br>
@@ -554,18 +552,8 @@
             {% endfor %}
             <br>
             <br>
-{#            <div class="section-separator-bar"></div>#}
             <br>
         </div>
-{#        <br>#}
-{#        <div class="heading-2-div">#}
-{#            {{ section_title('Privacy Evaluation') }}#}
-{#            {% for item in data['privacy'] %}#}
-{#                <div class="evaluation-div">#}
-{#                    {{ evaluation(item) }}#}
-{#                </div>#}
-{#            {% endfor %}#}
-{#        </div>#}
         <br>
             <div class="heading-2-div">
             {{ section_title('Appendix') }}
