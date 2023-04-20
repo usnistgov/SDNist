@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<br lang="en">
+
+<head>
+    <title>Meta Evaluation Report</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 2cm;
+        }
+        :root {
+            --mgin: 10%;  /* defautl table left right margin */
+            --theme-color: #6280BA;
+        }
+        body {
+            font-family: sans-serif;
+        }
+        hr {
+            margin-top: -1%;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            position: inherit;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 3px;
+        }
+        th {
+            color: var(--theme-color);
+        }
+
+        .appendix-div {
+            page-break-after: always;
+        }
+        .attachment-div {
+        }
+        .attachment-div-break {
+            page-break-before: always;
+        }
+        .content-area {
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+        .dashed-line {
+            border-bottom: 2px dashed var(--theme-color);
+            padding-bottom: 25px;
+        }
+        .evaluation-div {
+            page-break-after: always;
+        }
+        .float-container {
+            display: flex;
+        }
+        .float-child-left {
+            float: left;
+            width: 20%
+        }
+        .float-child-right {
+            float: left;
+            width: 77%;
+            margin-left: 3%;
+        }
+        .heading-2-div {
+
+        }
+        .heading-2-text {
+            {#text-align: center;#}
+            {#margin-bottom: 5px;#}
+            color: var(--theme-color);
+        }
+        .heading-3-div {
+
+        }
+        .heading-3-text {
+        }
+        .heading-4-div {
+        }
+        .heading-4-text {
+        }
+        .horizontal-content {
+            display: inline-flex;
+            margin-top: 10px;
+        }
+        .horizontal-img {
+            margin-right: 50px;
+        }
+        .img-div {
+
+        }
+        .ul-margin-bottom li {
+            margin-bottom: 10px;
+        }
+        .main-title {
+            text-align: center;
+            font-size: 22px;
+            color: var(--theme-color);
+        }
+        .section-separator-bar {
+            width: 100%;
+            height: 5px;
+            background-color: var(--theme-color);
+        }
+        .table-div {
+            margin-left: var(--mgin);
+            margin-right: var(--mgin);
+        }
+        .title-div {
+            text-align: center;
+            background: var(--theme-color);
+            color: white;
+        }
+        .table-highlight {
+            background-color: #b3ccfc;
+            color: black !important;
+        }
+        .title-text {
+            display: inline;
+        }
+        .underline{
+            border-bottom: 1px solid black;
+            width: 100%;
+            display: block;
+        }
+        .wide-table-div {
+            margin-left: var(--mgin);
+            margin-right: var(--mgin);
+        }
+    </style>
+</head>
+
+{% macro section_title(title) %}
+    <div class="title-div">
+        <h1 class="title-text">{{ title }}</h1>
+    </div>
+{% endmacro %}
+
+{% macro heading_2(title) %}
+    <span class="heading-2-div">
+        <h2 class="heading-2-text">
+            <u>{{ title }}:</u>
+        </h2>
+    </span>
+{% endmacro%}
+
+
+{% macro heading_3(title) %}
+    <div class="heading-3-div">
+        <h3 class="heading-3-text">
+            {{ title }}:
+        </h3>
+    </div>
+{% endmacro %}
+
+
+{#{% macro heading_3(title) %}#}
+{#    {% set t_list = title.split('|') %}#}
+{#    {% set t_1 = t_list[0] %}#}
+{#    {% set t_rest = '' %}#}
+{#    {% if t_list|length > 1 %}#}
+{#        {% set t_rest = t_list[1:]|join('|') %}#}
+{#    {% endif %}#}
+{##}
+{#    <div class="heading-3-div">#}
+{#        <h3 class="heading-3-text">#}
+{#            {{ t_1 }}:#}
+{#        </h3>#}
+{#        {{ t_rest }}#}
+{#    </div>#}
+{#{% endmacro %}#}
+
+{% macro heading_4(title) %}
+    <div class="heading-4-div">
+        <h4 class="heading-4-text">
+            {{ title }}:
+        </h4>
+    </div>
+{% endmacro %}
+
+{% macro table(data) %}
+    {% if data|length > 0 %}
+        <div class="table-div">
+            <table>
+                <tr>
+                {% for col, _ in data[0].items() %}
+                    {% if col != "min_idx" %}
+                        <th style="width: {{ (100/data[0].items()|length) }}%">
+                            {{ col }}
+                        </th>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% for i, row in enumerate(data) %}
+                {% if "min_idx" in row %}
+                    {% set row_style = "background-color: #b3ccfc; color: black" %}
+                {% else %}
+                    {% set row_style = "" %}
+                {% endif %}
+                <tr style="{{ row_style }}">
+                {% for _, val in row.items() %}
+                    {% if val is iterable and val is not string  %}
+                        {% set out = val[0] %}
+                        {% if val[2] %}
+                            <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
+                        {% elif val[1] %}
+                            <td><p>{{ out }}: {{ val[1] }}</p></td>
+                        {% elif val[2] %}
+                            <td>{{ val }}</td>
+                        {% endif %}
+                    {% elif _ == "min_idx" %}
+                    {% else %}
+                        <td>{{ val }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro wide_table(data) %}
+    {% if 'table' in data %}
+        {% set tdata = data['table'] %}
+    {% else %}
+        {% set tdata = [] %}
+    {% endif %}
+
+    {% if 'highlight' in data %}
+        {% set highlight = data['highlight'] %}
+
+        {% if 'columns' in highlight %}
+            {% set col_hl = highlight['columns'] %}
+        {% else %}
+            {% set col_hl = [] %}
+        {% endif %}
+
+        {% if 'rows' in highlight %}
+            {% set row_hl = highlight['rows'] %}
+        {% else %}
+            {% set row_hl = [] %}
+        {% endif %}
+    {% endif %}
+
+    {% if 'size' in data %}
+        {% set tsize = data['size'] | int %}
+        {% set size_style = "--mgin: %d%%" % ((100 - tsize)/2) %}
+    {% else %}
+        {% set size_style = "" %}
+    {% endif %}
+
+    {% if 'column_widths' in data %}
+        {% set csize = data['column_widths'] %}
+    {% else %}
+        {% set csize = dict() %}
+    {% endif %}
+
+    {% if tdata|length > 0 %}
+        <div class="wide-table-div" style="{{ size_style }}">
+            <table>
+                <colgroup>
+                {% for col, _ in tdata[0].items() %}
+                    {% if col in col_hl %}
+                        <col class="table-highlight" />
+                    {% else %}
+                        <col />
+                    {% endif %}
+                {% endfor %}
+                </colgroup>
+                <tr>
+                {% for i, (col, _) in enumerate(tdata[0].items()) %}
+                    {% set hl_col_syle = '' %}
+                    {% if col in col_hl %}
+                        {% set hl_col = 'color: black' %}
+                    {% endif %}
+                    {% if i in csize %}
+                        {% set cwidth = csize[i] %}
+                    {% else %}
+                        {% set cwidth = (100/tdata[0].items()|length) %}
+                    {% endif %}
+                    <th style="width: {{ cwidth }}%; {{ hl_col }}">
+                        {{ col }}
+                    </th>
+                {% endfor %}
+                </tr>
+            {% for i, row in enumerate(tdata) %}
+                {% if i in row_hl %}
+                    {% set row_style = "table-highlight" %}
+                {% else %}
+                    {% set row_style = "" %}
+                {% endif %}
+                <tr class={{ row_style }}>
+                {% for _, val in row.items() %}
+                    {% if val is iterable and val is not string  %}
+                        {% set out = val[0] %}
+                        {% if val[2] %}
+                            <td><p>{{ out }}: <a href="{{ val[2] }}">{{ val[1] }}</a></p></td>
+                        {% elif val[1] %}
+                            <td><p>{{ out }}: {{ val[1] }}</p></td>
+                        {% elif val[2] %}
+                            <td>{{ val }}</td>
+                        {% endif %}
+                    {% elif _ == "min_idx" %}
+                    {% else %}
+                        <td>{{ val }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro draw_images(data) %}
+    {% for image_link in data %}
+        <div class="img-div">
+            <img src={{ image_link['path'] }} alt={{ image_link['image_name'] }}>
+        </div>
+    {% endfor %}
+{% endmacro %}
+
+{% macro draw_images_horizontal(data) %}
+    <div class="horizontal-content">
+        {% for image_link in data %}
+            <div class="horizontal-img">
+                <img src={{ image_link['path'] }} alt={{ image_link['image_name'] }}>
+            </div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro data_description(title, key, index) %}
+
+    {% set ddict=data['data_description'][key][index] %}
+    {% set library=[] %}
+    {% set algo=[] %}
+    {% set fset=[] %}
+    {% set variant=[] %}
+
+
+    {% if 'labels' in ddict %}
+        {% for l in ddict['labels'] %}
+
+            {% if l['Label Name'] == "Library" %}
+                {{ l['Label Name']|debug }}
+                {% set library=library.append(l['Label Value']) %}
+            {% endif %}
+            {% if l['Label Name'] == "Algorithm Name" %}
+                {% set algo=algo.append(l['Label Value']) %}
+            {% endif %}
+            {% if l['Label Name'] == "Feature Set" %}
+                {% set fset=fset.append(l['Label Value']) %}
+            {% endif %}
+            {% if l['Label Name'] == "Variant Label" %}
+                {% set variant=variant.append(l['Label Value']) %}
+            {% endif %}
+        {% endfor %}
+
+    {% endif %}
+
+    {{ string_data('h4' ~ [library[0], algo[0], fset[0], variant[0]]|join(" | ")) }}
+    {% if 'label' in ddict %}
+        <div>
+            <p ><span style="color: var(--theme-color); font-weight: bold">
+                Deidentified data label:</span>
+                <b>{{ ddict['label'] }}</b></p>
+        </div>
+{#        {% set ddict=ddict['data'] %}#}
+    {% elif 'labels' in ddict %}
+        {{ table(ddict['labels']) }}
+        <br />
+{#        {% set ddict=ddict['data'] %}#}
+{#    {% else %}#}
+{#        {% set ddict=ddict['data'] %}#}
+    {% endif %}
+    <br />
+    {{ table(ddict['data']) }}
+    {% if ddict['validations']|length %}
+        <br />
+        {{ string_data('Following features has out of bound values, and
+        these are not used in the evaluations.') }}
+        <br />
+        {{ table(ddict['validations']) }}
+    {% endif %}
+    <br />
+{% endmacro %}
+
+{% macro feature_description(title) %}
+    {{ heading_2(title) }}
+    {{ table(data['data_description'][title]) }}
+{% endmacro %}
+
+{% macro string_data(data) %}
+    {% if data.startswith('Highlight-') %}
+        <div style="color: var(--theme-color); font-weight: bold">
+            {{ data[10:] }}
+        </div>
+    {% elif data.startswith('h3') %}
+        <div>
+            {{ heading_3(data[2:]) }}
+        </div>
+    {% elif data.startswith('h4') %}
+        {{ heading_4(data[2:]) }}
+    {% else %}
+        <div>
+            {{ data }}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro evaluation(data) %}
+    {{ heading_2(data['metric_name']) }}
+    {% if 'scores' in data %}
+        <p>Score: {{ data['scores'] }}</p>
+    {% endif %}
+    {% for group, attachments in data['attachments'].items() %}
+        <div>
+            {% for i, a in enumerate(attachments) %}
+                {% if a.type == 'image_links' and i > 0 %}
+                    {% set style = 'attachment-div-break' %}
+                {% else %}
+                    {% set style = 'attachment-div' %}
+                {% endif %}
+
+                {% if a.dotted_break == True and i != data['attachments']|length - 1 %}
+                    {% set dashed_line = 'dashed-line' %}
+                {% else %}
+                    {% set dashed_line = '' %}
+                {% endif %}
+
+                <div class="{{ style }} {{ dashed_line }}">
+                    {% if a.name and a.name != '--no-brake--' %}
+                        <br>
+                        {{ heading_3(a.name) }}
+                    {% elif a.name == None %}
+                        <br>
+                    {% endif %}
+                    {% if a.type == "table" %}
+                        {{ table(a.data) }}
+                    {% elif a.type == "wide_table" %}
+                        {{ wide_table(a.data) }}
+                    {% elif a.type == "image_links" %}
+                        {{ draw_images(a.data) }}
+                    {% elif a.type == "image_links_horizontal" %}
+                        {{ draw_images_horizontal(a.data) }}
+                    {% elif a.type == "string" %}
+                        {{ string_data(a.data) }}
+                    {% elif a.type == "para_and_image" %}
+                        <div class="float-container">
+                            <div class="float-child-left">
+                                {% for d in a.data['para'] %}
+                                    {% if d[0] == 'heading' %}
+                                        {{ string_data('h4' + d[1]) }}
+                                    {%  elif d[0] == 'text' %}
+                                        {{ string_data(d[1]) }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="float-child-right">
+                                {{ draw_images(a.data['image']) }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+        {#        {% if a.dotted_break == True %}#}
+        {#            <div>#}
+        {#                <hr class="dashed-line">#}
+        {#            </div>#}
+        {#        {% endif %}#}
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% endmacro %}
+
+
+<body>
+    <div class="content-area">
+        <div class="main-title">
+            <h1 class="title-text">Meta Evaluation Report</h1>
+        </div>
+        <br>
+        <div style="color: var(--theme-color); font-weight: bold">
+            <p>Report created on: {{ data['Created on'] }}</p>
+            <p>Created with
+                <a style="color: var(--theme-color); font-weight: bold"
+                    href="https://github.com/usnistgov/SDNist">
+                    SDNIST v{{ data['version'] }}
+                </a>
+            </p>
+        </div>
+        <div class="heading-2-div">
+            {{ section_title('Data Description') }}
+            {% if 'synthetic' in data['data_description'] %}
+                {{ heading_2('Deidentified (Deid.) Datasets') }}
+                {% for i, _ in enumerate(data['data_description']['synthetic']) %}
+                    {% set ddict=data['data_description'] %}
+                    {{ data_description('', 'synthetic', i) }}
+                {% endfor %}
+            {% endif %}
+        </div>
+            <div class="heading-2-div">
+            {{ section_title('Motivation') }}
+            {% for i, item in enumerate(data['motivation']) %}
+                <div class="evaluation-div">
+                    {% if i > 0 %}
+                        <br>
+                        <br>
+                        <div class="section-separator-bar"></div>
+                        <br>
+                    {% endif %}
+                    {{ evaluation(item) }}
+                </div>
+            {% endfor %}
+            <br>
+            <br>
+{#            <div class="section-separator-bar"></div>#}
+            <br>
+        </div>
+        <br>
+        <div class="heading-2-div">
+            {{ section_title('Comparisons') }}
+            {% for i, item in enumerate(data['comparisons']) %}
+                <div class="evaluation-div">
+                    {% if i > 0 %}
+                        <br>
+                        <br>
+                        <div class="section-separator-bar"></div>
+                        <br>
+                    {% endif %}
+                    {{ evaluation(item) }}
+                </div>
+            {% endfor %}
+            <br>
+            <br>
+{#            <div class="section-separator-bar"></div>#}
+            <br>
+        </div>
+        <br>
+        <div class="heading-2-div">
+            {{ section_title('Observations') }}
+            {% for i, item in enumerate(data['observations']) %}
+                <div class="evaluation-div">
+                    {% if i > 0 %}
+                        <br>
+                        <br>
+                        <div class="section-separator-bar"></div>
+                        <br>
+                    {% endif %}
+                    {{ evaluation(item) }}
+                </div>
+            {% endfor %}
+            <br>
+            <br>
+{#            <div class="section-separator-bar"></div>#}
+            <br>
+        </div>
+{#        <br>#}
+{#        <div class="heading-2-div">#}
+{#            {{ section_title('Privacy Evaluation') }}#}
+{#            {% for item in data['privacy'] %}#}
+{#                <div class="evaluation-div">#}
+{#                    {{ evaluation(item) }}#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
+        <br>
+            <div class="heading-2-div">
+            {{ section_title('Appendix') }}
+            {% for item in data['Appendix'] %}
+                <div class="appendix-div">
+                    {{ evaluation(item) }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# a comment #}
+
+</body>
+</html>
