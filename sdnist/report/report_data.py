@@ -165,9 +165,12 @@ class ReportUIData:
     feature_desc: Dict[str, any] = field(default_factory=dict, init=False)
     # list containing ScorePacket objects
     scores: List[ScorePacket] = field(default_factory=list, init=False)
+    key_val_pairs: Dict[str, any] = field(default_factory=dict, init=False)
 
     def add(self, score_packet: ScorePacket):
         self.scores.append(score_packet)
+    def add_key_val(self, key: str, val: any):
+        self.key_val_pairs[key] = val
 
     def add_data_description(self,
                              dataset_type: DatasetType,
@@ -205,6 +208,8 @@ class ReportUIData:
         d['comparisons'] = []
         d['motivation'] = []
         d['observations'] = []
+        for k, v in self.key_val_pairs.items():
+            d[k] = v
 
         for s_pkt in self.scores:
             if s_pkt.evaluation_type == EvaluationType.Utility:
