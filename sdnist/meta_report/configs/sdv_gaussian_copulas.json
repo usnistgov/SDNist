@@ -1,0 +1,14 @@
+{
+  "filters": {"f1":  {
+    "algorithm name":  ["sdv-gaussian-copula"]
+  }},
+  "sort_by": {"epsilon": "desc",
+              "feature set":
+                   ["demographic-focused-except-AGEP-DEYE",
+                    "demographic-focused",
+                    "demographic-focused-except-DEYE",
+                    "industry-focused",
+                    "family-focused",
+                    "family-focused-with-DEYE",
+                    "all-features"]}
+}
