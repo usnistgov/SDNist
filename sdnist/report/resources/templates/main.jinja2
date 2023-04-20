@@ -384,58 +384,62 @@
     {% if 'scores' in data %}
         <p>Score: {{ data['scores'] }}</p>
     {% endif %}
-    {% for i, a in enumerate(data['attachments']) %}
-        {% if a.type == 'image_links' and i > 0 %}
-            {% set style = 'attachment-div-break' %}
-        {% else %}
-            {% set style = 'attachment-div' %}
-        {% endif %}
+    {% for group, attachments in data['attachments'].items() %}
+        <div>
+            {% for i, a in enumerate(attachments) %}
+                {% if a.type == 'image_links' and i > 0 %}
+                    {% set style = 'attachment-div-break' %}
+                {% else %}
+                    {% set style = 'attachment-div' %}
+                {% endif %}
 
-        {% if a.dotted_break == True and i != data['attachments']|length - 1 %}
-            {% set dashed_line = 'dashed-line' %}
-        {% else %}
-            {% set dashed_line = '' %}
-        {% endif %}
+                {% if a.dotted_break == True and i != data['attachments']|length - 1 %}
+                    {% set dashed_line = 'dashed-line' %}
+                {% else %}
+                    {% set dashed_line = '' %}
+                {% endif %}
 
-        <div class="{{ style }} {{ dashed_line }}">
-            {% if a.name and a.name != '--no-brake--' %}
-                <br>
-                {{ heading_3(a.name) }}
-            {% elif a.name == None %}
-                <br>
-            {% endif %}
-            {% if a.type == "table" %}
-                {{ table(a.data) }}
-            {% elif a.type == "wide_table" %}
-                {{ wide_table(a.data) }}
-            {% elif a.type == "image_links" %}
-                {{ draw_images(a.data) }}
-            {% elif a.type == "image_links_horizontal" %}
-                {{ draw_images_horizontal(a.data) }}
-            {% elif a.type == "string" %}
-                {{ string_data(a.data) }}
-            {% elif a.type == "para_and_image" %}
-                <div class="float-container">
-                    <div class="float-child-left">
-                        {% for d in a.data['para'] %}
-                            {% if d[0] == 'heading' %}
-                                {{ string_data('h4' + d[1]) }}
-                            {%  elif d[0] == 'text' %}
-                                {{ string_data(d[1]) }}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    <div class="float-child-right">
-                        {{ draw_images(a.data['image']) }}
-                    </div>
+                <div class="{{ style }} {{ dashed_line }}">
+                    {% if a.name and a.name != '--no-brake--' %}
+                        <br>
+                        {{ heading_3(a.name) }}
+                    {% elif a.name == None %}
+                        <br>
+                    {% endif %}
+                    {% if a.type == "table" %}
+                        {{ table(a.data) }}
+                    {% elif a.type == "wide_table" %}
+                        {{ wide_table(a.data) }}
+                    {% elif a.type == "image_links" %}
+                        {{ draw_images(a.data) }}
+                    {% elif a.type == "image_links_horizontal" %}
+                        {{ draw_images_horizontal(a.data) }}
+                    {% elif a.type == "string" %}
+                        {{ string_data(a.data) }}
+                    {% elif a.type == "para_and_image" %}
+                        <div class="float-container">
+                            <div class="float-child-left">
+                                {% for d in a.data['para'] %}
+                                    {% if d[0] == 'heading' %}
+                                        {{ string_data('h4' + d[1]) }}
+                                    {%  elif d[0] == 'text' %}
+                                        {{ string_data(d[1]) }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="float-child-right">
+                                {{ draw_images(a.data['image']) }}
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
-            {% endif %}
+        {#        {% if a.dotted_break == True %}#}
+        {#            <div>#}
+        {#                <hr class="dashed-line">#}
+        {#            </div>#}
+        {#        {% endif %}#}
+            {% endfor %}
         </div>
-{#        {% if a.dotted_break == True %}#}
-{#            <div>#}
-{#                <hr class="dashed-line">#}
-{#            </div>#}
-{#        {% endif %}#}
     {% endfor %}
 {% endmacro %}
 

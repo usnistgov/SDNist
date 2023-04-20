@@ -1,4 +1,5 @@
 import json
+import time
 from typing import List, Dict, Optional
 from dataclasses import dataclass, field
 from enum import Enum
@@ -32,12 +33,18 @@ class AttachmentType(Enum):
     ParaAndImage = 'para_and_image'
 
 
+
 @dataclass
 class Attachment:
     name: Optional[str]
     _data: any
+    group_id: int = -1
     _type: AttachmentType = field(default=AttachmentType.Table)
     dotted_break: bool = field(default=False)
+
+    def __post_init(self):
+        if self.group_id == -1:
+            self.group_id = int(time.time() * 100)
 
     @property
     def data(self) -> Dict[str, any]:
@@ -59,10 +66,16 @@ class ScorePacket:
 
     @property
     def data(self) -> Dict[str, any]:
+        attachments = dict()
+        for a in self.attachment:
+            if a.group_id in attachments:
+                attachments[a.group_id].append(a.data)
+            else:
+                attachments[a.group_id] = [a.data]
         d = {
             'metric_name': self.metric_name,
             'scores': self.score,
-            'attachments': [a.data for a in self.attachment]
+            'attachments': attachments
         }
         if self.score is None:
             del d['scores']
