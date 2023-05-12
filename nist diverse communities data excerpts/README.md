@@ -20,7 +20,7 @@ If you publish work that utilizes the NIST Diverse Communities Data Excerpts, pl
 > Task C., Bhagat K., Streat D., Simpson A., and Howarth G.S. (2023), 
 > NIST Diverse Communities Data Excerpts, National Institute of Standards and Technology, 
 > https://doi.org/10.18434/mds2-2895  
-(NOTE: DOI is not yet active, but should be live by 1 APR 2023).
+(NOTE: DOI is not yet active, but should be live by June 2023).
 
 ## Data set description
 

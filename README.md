@@ -293,8 +293,7 @@ Citing SDNist Deidentified Data Report Tool
 If you publish work that utilizes the SDNist Deidentified Data Tool, please cite the software. Citation recommendation:  
 > Task C., Bhagat K., and Howarth G.S. (2023), SDNist v2: Deidentified Data Report Tool, 
 > National Institute of Standards and Technology, 
-> https://doi.org/10.18434/mds2-2943    
-(NOTE: DOI is not yet active, but should be by 1 APR 2023).
+> https://doi.org/10.18434/mds2-2943.
 
 Credits 
 ----------
