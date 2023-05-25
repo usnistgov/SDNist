@@ -4,9 +4,9 @@ abstract: "SDNist provides benchmark data and a suite of both machine- and human
 message: >-
   If you use this repository or present information about it publicly, please cite us.
 type: software
-version: 2.0.0
+version: 2.2
 doi: 10.18434/mds2-2943
-date-released: 2021-12-16
+date-released: 2023-4-14
 contact:
   - affiliation: "National Institute of Standards and Technology"
     email: gary.howarth@nist.gov
