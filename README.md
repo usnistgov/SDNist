@@ -18,6 +18,10 @@ This tool is being actively developed. Please (raise an Issue)[https://github.co
 
 **Gary Howarth**, *NIST* - Project PI [gary.howarth@nist.gov](mailto:gary.howarth@nist.gov)
 
+### Acknowledgements
+
+SDNist v2 grew from [SDNist v1](https://github.com/usnistgov/Differential-Privacy-Temporal-Map-Challenge-assets), developed in partnership with Saurus Technologies under CRADA CN-21-0143.
+
 ### Reporting Issues
 Help us improve the package and this guide by reporting issues [here](https://github.com/usnistgov/SDNist/issues).
 
