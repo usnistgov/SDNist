@@ -1,6 +1,8 @@
 # The NIST Diverse Communities Data Excerpts
 
-The Diverse Communities Data Excerpts are designed to be a resource to investigate performance of data synthesizers and similar privacy-enhancing technologies when applied to data collected from three communities (Boston area, Dallas-Forth Worth area, and US national) with radically different demographics. The data are drawn from real records released in the [American Community Survey](https://www.census.gov/programs-surveys/acs), a product of the US Census Bureau.
+The Diverse Communities Data Excerpts are tabular demographic data from real household in the U.S. The Excerpts serve as benchmark data for the [SDNist v2: Deidentified Data Report Tool](https://github.com/usnistgov/SDNist/) and are the taget data for the [2023 NIST Collaborative Researtch Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle/).
+
+The Excerpts are designed to be a resource to investigate performance of data synthesizers and similar privacy-enhancing technologies when applied to data collected from three communities (Boston area, Dallas-Forth Worth area, and US national) with radically different demographics. The data are drawn from real records released in the 2019 [American Community Survey](https://www.census.gov/programs-surveys/acs), a product of the US Census Bureau.
 
 ## Purpose and design
 
@@ -17,10 +19,23 @@ The requirements we sought to meet included the following:
 
 ## Citing NIST Diverse Communities Data Excerpts
 If you publish work that utilizes the NIST Diverse Communities Data Excerpts, please cite the resource. Citation recommendation:  
-> Task C., Bhagat K., Streat D., Simpson A., and Howarth G.S. (2023), 
-> NIST Diverse Communities Data Excerpts, National Institute of Standards and Technology, 
-> https://doi.org/10.18434/mds2-2895  
-(NOTE: DOI is not yet active, but should be live by June 2023).
+```
+Task C., Bhagat K., Streat D., Simpson A., and Howarth G.S. (2023), 
+NIST Diverse Communities Data Excerpts, National Institute of Standards and Technology, 
+https://doi.org/10.18434/mds2-2895  
+
+@misc{task_nist_2022,
+	author = {Task, Christine and Bhagat, Karan and Damon, Streat and Howarth, Gary},
+	collaborator = {Howarth, Gary},
+	doi = {10.18434/MDS2-2895},
+	month = dec,
+	publisher = {National Institute of Standards and Technology},
+	title = {{NIST} {Diverse} {Community} {Excerpts} {Data}},
+	url = {https://data.nist.gov/od/id/mds2-2895},
+	year = {2022}}
+```
+
+
 
 ## Data set description
 
