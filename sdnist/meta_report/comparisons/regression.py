@@ -61,13 +61,13 @@ lr_paragraphs = [
         "It's important that deidentification techniques preserve these distinct "
         "subgroup patterns for analysis."
 ]
+
+
 class LinearRegressionComparison(BaseComparison):
-    def __init__(self, reports: Dict, report_dir: Path, label_keys: List[str],
-                 filters: Dict[str, List], data_dict: Dict[str, any],
-                 population_type: str):
-        super().__init__(reports, report_dir, label_keys, filters, data_dict)
-        self.pop_type = population_type
-        self.out_dir = Path(report_dir, f'linear_regression_{self.pop_type}_comparison')
+    def __init__(self, population_type: str, *args, **kargs):
+        super().__init__(*args, **kargs)
+        self.pop_type =population_type
+        self.out_dir = Path(self.report_dir, f'linear_regression_{self.pop_type}_comparison')
 
         if not self.out_dir.exists():
             self.out_dir.mkdir(parents=True)
@@ -85,8 +85,8 @@ class LinearRegressionComparison(BaseComparison):
             tar_bw_density_path = lr_data[TARGET_COUNTS]
 
             deid_bw_density_path = lr_data[TARGET_DEIDENTIFIED_COUNTS_DIFFERENCE]
-            tar_bw_density_path = Path(report_path, LINEAR_REGRESSION, tar_bw_density_path)
-            deid_bw_density_path = Path(report_path, LINEAR_REGRESSION, deid_bw_density_path)
+            tar_bw_density_path = Path(report_path, tar_bw_density_path)
+            deid_bw_density_path = Path(report_path, deid_bw_density_path)
             tar_bw_df = pd.read_csv(tar_bw_density_path, index_col=0)
             deid_bw_df = pd.read_csv(deid_bw_density_path, index_col=0)
 
@@ -94,22 +94,26 @@ class LinearRegressionComparison(BaseComparison):
             deid_slope_intercept = lr_data[DEIDENTIFIED_REGRESSION_SLOPE_AND_INTERCEPT]
 
             labels = report[strs.DATA_DESCRIPTION][DEID][LABELS]
-            f_set = labels[FEATURE_SET]
+            f_set = labels[FEATURE_SET_NAME]
             features = sorted(report[strs.DATA_DESCRIPTION][FEATURES])
-            _, features = self.compute_feature_space(f_set, features)
+            # _, features = self.compute_feature_space(f_set, features)
             target_dataset = labels[TARGET_DATASET]
 
+            # variant label
             # variant label
             unq_v_label = dict()
             for lk in self.label_keys:
                 if lk in labels and lk not in self.filters:
                     if lk == EPSILON:
-                        unq_v_label[f'{lk}:{labels[lk]}'] = ''
+                        unq_v_label[f'e:{labels[lk]}'] = ''
                     elif lk == VARIANT_LABEL:
                         lbl_str = labels[lk]
                         if len(lbl_str):
                             lbl_str = lbl_str if len(lbl_str) < 30 else lbl_str[:30] + '...'
                             unq_v_label[f'\n{lbl_str}'] = ''
+                    elif lk == 'submission number':
+                        lbl_str = labels[lk]
+                        unq_v_label[f's #[{lbl_str}]'] = ''
                     else:
                         lbl_str = str(labels[lk])
                         if len(lbl_str):
@@ -141,7 +145,7 @@ class LinearRegressionComparison(BaseComparison):
         n_reports = len(linear_regression_data)
         n_rows = math.ceil(n_reports / 4)
         n_cols = 4
-        fig, ax = plt.subplots(n_rows, n_cols + 1, figsize=(5 * n_cols, 3.2 * n_rows))
+        fig, ax = plt.subplots(n_rows, n_cols + 1, figsize=(4 * n_cols, 2.5 * n_rows))
         ax_c = None
         df_c = None
         line1 = None
@@ -266,7 +270,7 @@ class LinearRegressionComparison(BaseComparison):
                 f_set_str = f'Feature Set: {f_set[0]} | Target Dataset: {t_dataset_name}, ' \
                             f'{filter_str}' if len(filter_str) > 0 \
                     else f' Feature Set: {f_set[0]} | Target Dataset: {t_dataset_name}'
-                features_space_size, features = self.compute_feature_space(f_set[0], f_set[1])
+                features_space_size, features = self.compute_feature_space(f_set[0], f_set[1], t_dataset_name)
 
                 head_a = Attachment(name=f_set_str,
                                        _data=f'Features: {features}<br>'

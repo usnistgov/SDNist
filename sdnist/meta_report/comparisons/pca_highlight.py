@@ -32,10 +32,9 @@ pca_para = "This is another approach for visualizing where the distribution of t
            "during the HLG-MOS Synthetic Data Test Drive."
 
 class PCAHighlightComparison(BaseComparison):
-    def __init__(self, reports: Dict, report_dir: Path, label_keys: List[str],
-                 filters: Dict[str, List], data_dict: Dict[str, any]):
-        super().__init__(reports, report_dir, label_keys, filters, data_dict)
-        self.out_dir = Path(report_dir, 'pca_highlight_comparison')
+    def __init__(self, *args, **kargs):
+        super().__init__(*args, **kargs)
+        self.out_dir = Path(self.report_dir, 'pca_highlight_comparison')
 
         if not self.out_dir.exists():
             self.out_dir.mkdir(parents=True)
@@ -51,21 +50,25 @@ class PCAHighlightComparison(BaseComparison):
             pca_highlight_path = Path(report_path, pca_highlight_path)
             tar_pca_highlight_path = Path(report_path, tar_pca_highlight_path)
             labels = report[strs.DATA_DESCRIPTION][DEID][LABELS]
-            f_set = labels[FEATURE_SET]
+            f_set = labels[FEATURE_SET_NAME]
             features = report[strs.DATA_DESCRIPTION][FEATURES]
-            _, features = self.compute_feature_space(f_set, features)
+            # _, features = self.compute_feature_space(f_set, features)
             target_dataset = labels[TARGET_DATASET]
 
+            # variant label
             unq_v_label = dict()
             for lk in self.label_keys:
                 if lk in labels and lk not in self.filters:
                     if lk == EPSILON:
-                        unq_v_label[f'{lk}:{labels[lk]}'] = ''
+                        unq_v_label[f'e:{labels[lk]}'] = ''
                     elif lk == VARIANT_LABEL:
                         lbl_str = labels[lk]
                         if len(lbl_str):
                             lbl_str = lbl_str if len(lbl_str) < 30 else lbl_str[:30] + '...'
                             unq_v_label[f'\n{lbl_str}'] = ''
+                    elif lk == 'submission number':
+                        lbl_str = labels[lk]
+                        unq_v_label[f's #[{lbl_str}]'] = ''
                     else:
                         lbl_str = str(labels[lk])
                         if len(lbl_str):
@@ -95,7 +98,7 @@ class PCAHighlightComparison(BaseComparison):
         n_reports = len(pca_highlight_data)
         n_rows = math.ceil(n_reports / 4)
         n_cols = 4
-        fig, ax = plt.subplots(n_rows, n_cols, figsize=(3.5 * n_cols, 3.5 * n_rows))
+        fig, ax = plt.subplots(n_rows, n_cols, figsize=(3.2 * n_cols, 3.2 * n_rows))
         # pca_highlight_data[1:] = sorted(pca_highlight_data[1:], key=lambda x: x[0])
         for i, (v_label, pca_highlight_path) in enumerate(pca_highlight_data):
             r_i = i // n_cols
@@ -125,7 +128,7 @@ class PCAHighlightComparison(BaseComparison):
                         ax[i, j].axis('off')
                     else:
                         ax[j].axis('off')
-        fig.subplots_adjust(hspace=1.3)
+        fig.subplots_adjust(hspace=1.3, wspace=0.5)
         # fig.subplots_adjust(right=2.5, bottom=0.2, top=0.8)
         fig.tight_layout()
         fig.savefig(plot_save_path, bbox_inches='tight')
@@ -153,7 +156,7 @@ class PCAHighlightComparison(BaseComparison):
                 f_set_str = f'Feature Set: {f_set[0]} | Target Dataset: {t_dataset_name}, ' \
                             f'{filter_str}' if len(filter_str) > 0 \
                     else f' Feature Set: {f_set[0]} | Target Dataset: {t_dataset_name}'
-                features_space_size, features = self.compute_feature_space(f_set[0], f_set[1])
+                features_space_size, features = self.compute_feature_space(f_set[0], f_set[1], t_dataset_name)
 
                 head_a = Attachment(name=f_set_str,
                                        _data=f'Features: {features}<br>'

@@ -18,9 +18,9 @@ def add_observation(meta_report_ui_data: ReportUIData, config_name: str):
     if config_name == 'e_10':
         from sdnist.meta_report.configs import \
             e_10_observation_paras as observations_paras
-    elif config_name == 'tumult':
-        from sdnist.meta_report.configs import \
-            tumult_observation_paras as observations_paras
+    # elif config_name == 'tumult':
+    #     from sdnist.meta_report.configs import \
+    #         tumult_observation_paras as observations_paras
     elif config_name == 'sdcmicro_mst_tumult':
         from sdnist.meta_report.configs import \
             sdcmicro_mst_tumult_observation_paras as observations_paras
@@ -39,9 +39,9 @@ def add_observation(meta_report_ui_data: ReportUIData, config_name: str):
     elif config_name == 'sdv_copulas':
         from sdnist.meta_report.configs import \
             sdv_copulas_observation_paras as observations_paras
-    elif config_name == 'mostly_ai':
-        from sdnist.meta_report.configs import \
-            mostly_ai_observation_paras as observations_paras
+    # elif config_name == 'mostly_ai':
+    #     from sdnist.meta_report.configs import \
+    #         mostly_ai_observation_paras as observations_paras
     elif config_name == 'blizzard_wizard':
         from sdnist.meta_report.configs import \
             blizzard_wizard_observation_paras as observations_paras
@@ -51,12 +51,51 @@ def add_observation(meta_report_ui_data: ReportUIData, config_name: str):
     elif config_name == 'ccaim':
         from sdnist.meta_report.configs import \
             ccaim_observation_paras as observations_paras
-    elif config_name == 'lostinthenoise':
-        from sdnist.meta_report.configs import \
-            lostinthenoise_observation_paras as observations_paras
+    # elif config_name == 'lostinthenoise':
+    #     from sdnist.meta_report.configs import \
+    #         lostinthenoise_observation_paras as observations_paras
     elif config_name == 'sarus':
         from sdnist.meta_report.configs import \
             sarus_observation_paras as observations_paras
+    elif config_name == 'sdv_copula_blizzard_wizard_community_data':
+        from sdnist.meta_report.configs import \
+            sdv_copula_blizzard_wizard_community_data_observation_paras as observations_paras
+    elif config_name == "sdv":
+        from sdnist.meta_report.configs.libraries import \
+            sdv_observation_paras as observations_paras
+    elif config_name == "geneticsd":
+        from sdnist.meta_report.configs.libraries import \
+            geneticsd_observation_paras as observations_paras
+    elif config_name == "lostinthenoise":
+        from sdnist.meta_report.configs.libraries import \
+            lostinthenoise_observation_paras as observations_paras
+    elif config_name == "sarussdg":
+        from sdnist.meta_report.configs.libraries import \
+            sarussdg_observation_paras as observations_paras
+    elif config_name == "mostlyai":
+        from sdnist.meta_report.configs.libraries import \
+            mostlyai_observation_paras as observations_paras
+    elif config_name == "rsynthpop":
+        from sdnist.meta_report.configs.libraries import \
+            rsynthpop_observation_paras as observations_paras
+    elif config_name == "sdcmicro":
+        from sdnist.meta_report.configs.libraries import \
+            sdcmicro_observation_paras as observations_paras
+    elif config_name == "smartnoise":
+        from sdnist.meta_report.configs.libraries import \
+            smartnoise_observation_paras as observations_paras
+    elif config_name == "subsample":
+        from sdnist.meta_report.configs.libraries import \
+            subsample_observation_paras as observations_paras
+    elif config_name == "synthcity":
+        from sdnist.meta_report.configs.libraries import \
+            synthcity_observation_paras as observations_paras
+    elif config_name == "tumult":
+        from sdnist.meta_report.configs.libraries import \
+            tumult_observation_paras as observations_paras
+    elif config_name == "custom_1":
+        from sdnist.meta_report.configs import \
+            custom_1_observation_paras as observations_paras
 
     #  create attachment for each observations para
     for m_para in observations_paras:

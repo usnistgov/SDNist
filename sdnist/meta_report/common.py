@@ -13,7 +13,7 @@ from sdnist.report.report_data import AttachmentType, Attachment, ScorePacket, E
 DEID = "deid"
 EPSILON = 'epsilon'
 FEATURES = "features"
-FEATURE_SET = "feature set"
+FEATURE_SET_NAME = "feature set name"
 LABELS = "labels"
 LABEL_NAME = "Label Name"
 LABEL_VALUE = "Label Value"

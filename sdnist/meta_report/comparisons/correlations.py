@@ -6,7 +6,7 @@ from sdnist.meta_report.common import *
 from sdnist.meta_report.comparisons import BaseComparison
 
 CORRELATIONS = "Correlations"
-PERSON_CORRELATION_DIFFERENCE = "pearson correlation difference"
+PEARSON_CORRELATION_DIFFERENCE = "pearson correlation difference"
 CORRELATION_DIFFERENCE = "correlation_difference"
 
 pear_corr_para = "The <a href='https://en.wikipedia.org/wiki/Pearson_correlation_coefficient'>Pearson Correlation</a> " \
@@ -14,11 +14,11 @@ pear_corr_para = "The <a href='https://en.wikipedia.org/wiki/Pearson_correlation
                  "HLG-MOS Synthetic Data Test Drive</a>. Note that darker highlighting indicates pairs of features whose " \
                  "correlations were not well preserved by the deidentified data."
 
+
 class CorrelationComparison(BaseComparison):
-    def __init__(self, reports: Dict, report_dir: Path, label_keys: List[str],
-                 filters: Dict[str, List], data_dict: Dict[str, any]):
-        super().__init__(reports, report_dir, label_keys, filters, data_dict)
-        self.out_dir = Path(report_dir, 'correlation_comparison')
+    def __init__(self, *args, **kargs):
+        super().__init__(*args, **kargs)
+        self.out_dir = Path(self.report_dir, 'correlation_comparison')
 
         if not self.out_dir.exists():
             self.out_dir.mkdir(parents=True)
@@ -30,23 +30,23 @@ class CorrelationComparison(BaseComparison):
     def _create(self):
         for r_name, (report, report_path) in self.reports.items():
             # features = report['features']
-
             corr_path = report[CORRELATIONS] \
-                [PERSON_CORRELATION_DIFFERENCE][CORRELATION_DIFFERENCE]
+                [PEARSON_CORRELATION_DIFFERENCE][CORRELATION_DIFFERENCE]
             corr_path = Path(report_path, corr_path)
             corr_df = pd.read_csv(corr_path, index_col=0)
             labels = report[strs.DATA_DESCRIPTION][DEID][LABELS]
-            f_set = labels[FEATURE_SET]
+            f_set = labels[FEATURE_SET_NAME]
             features = sorted(report[strs.DATA_DESCRIPTION][FEATURES])
-            _, features = self.compute_feature_space(f_set, features)
             target_dataset = labels[TARGET_DATASET]
+            # _, features = self.compute_feature_space(f_set, features, target_dataset)
+
 
             # variant label
             unq_v_label = dict()
             for lk in self.label_keys:
                 if lk in labels and lk not in self.filters:
                     if lk == EPSILON:
-                        unq_v_label[f'{lk}:{labels[lk]}'] = ''
+                        unq_v_label[f'e:{labels[lk]}'] = ''
                     elif lk == VARIANT_LABEL:
                         lbl_str = labels[lk]
                         if len(lbl_str):
@@ -54,14 +54,14 @@ class CorrelationComparison(BaseComparison):
                             unq_v_label[f'\n{lbl_str}'] = ''
                     elif lk == 'submission number':
                         lbl_str = labels[lk]
-                        unq_v_label[f'submis #[{lbl_str}]'] = ''
+                        unq_v_label[f's #[{lbl_str}]'] = ''
                     else:
                         lbl_str = str(labels[lk])
                         if len(lbl_str):
                             unq_v_label[f'{lbl_str}'] = ''
             v_label = ' | '.join(unq_v_label.keys())
             # v_label = labels[VARIANT]
-
+            print('In Corr: ', report_path.parts[-2:], v_label, target_dataset)
             if target_dataset not in self.r_corr:
                 self.r_corr[target_dataset] = dict()
 
@@ -88,11 +88,15 @@ class CorrelationComparison(BaseComparison):
         n_cols = 4
         n_features = len(correlations_data[0][1].columns)
         if n_features < 12:
-            cell_size = 0.45
+            cell_size = 0.36
+        elif n_features >= 12 and n_features < 16:
+            cell_size = 0.30
         else:
-            cell_size = 0.23
+            cell_size = 0.20
+
         fig_width = cell_size * n_features * n_cols
         fig_height = cell_size * n_features * n_rows
+        print(fig_width, fig_height, n_features, n_cols, n_rows, plot_save_path)
         fig, ax = plt.subplots(n_rows, n_cols + 1, figsize=(fig_width, fig_height))
         # correlations_data = sorted(correlations_data, key=lambda x: x[0])
         v_max = 0.15
@@ -117,7 +121,10 @@ class CorrelationComparison(BaseComparison):
 
             ax_i.set_xticks([float(t)+0.5 for t in range(corr_df.shape[1])],
                             corr_df.columns, rotation=90)
-            ax_i.tick_params(axis='both', which='major', labelsize=10)
+            if n_features > 16:
+                ax_i.tick_params(axis='both', which='major', labelsize=9)
+            else:
+                ax_i.tick_params(axis='both', which='major', labelsize=10)
             ax_i.set_title(v_label, fontdict={'fontsize': 10, 'fontweight': 'bold'})
 
         for i in range(n_rows):
@@ -184,7 +191,7 @@ class CorrelationComparison(BaseComparison):
                 f_set_str = f'Feature Set: {f_set[0]} | Target Dataset: {t_dataset_name}, ' \
                             f'{filter_str}' if len(filter_str) > 0 \
                     else f' Feature Set: {f_set[0]} | Target Dataset: {t_dataset_name}'
-                features_space_size, features = self.compute_feature_space(f_set[0], f_set[1])
+                features_space_size, features = self.compute_feature_space(f_set[0], f_set[1], t_dataset_name)
 
                 head_a = Attachment(name=f_set_str,
                                     _data=f'Features: {features}<br>'

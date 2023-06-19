@@ -1,9 +1,8 @@
 {
   "filters": {"f1":  {
-    "team":  ["DataEvolution"]
+    "team":  ["CommunityData"]
   }},
   "sort_by": {"epsilon": "desc",
-              "submission number": "desc",
               "feature set":
                    ["demographic-focused-except-AGEP-DEYE",
                     "demographic-focused",

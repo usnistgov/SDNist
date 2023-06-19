@@ -1,7 +1,7 @@
 {
   "filters": {"f1":  {
-    "algorithm name":  ["sdv-ctgan"],
-    "target dataset": ["ma2019"]}},
+    "algorithm name":  ["ctgan"],
+    "library": ["sdv"]}},
   "sort_by": {"epsilon": "desc",
               "feature set":
                    ["demographic-focused-except-AGEP-DEYE",
