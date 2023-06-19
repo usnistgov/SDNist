@@ -43,7 +43,7 @@ propensity_para = "Can a decision tree classifier tell the difference between th
                   "Joshua Snoke and Gillian Raab</a> and <a href='https://www.researchgate.net/publication/323867757_STatistical_Election_to_Partition_Sequentially_STEPS_and_Its_Application_in_Differentially_Private_Release_and_Analysis_of_Youth_Voter_Registration_Data'>Claire Bowen</a>" \
                   ", all of whom have participated on the NIST Synthetic Data Challenges SME panels."
 
-k_marg_break_para = "In the metrics above we’ve considered all of the data together; " \
+k_marg_break_para = "In the metrics above we've considered all of the data together; " \
                     "however we know that algorithms may behave differently on different " \
                     "subgroups in the population. Below we look in more detail at deidentification " \
                     "performance just in the worst performing PUMA, based on k-marginal score."
@@ -78,7 +78,39 @@ percn_matched_para = "Considering the set of apparent matches, to what extent ar
                      "If the distribution is centered below 50% that means the deidentified records are very " \
                      "different from the target records, and the apparent matches are not real matches."
 
-unique_exact_match_para = "This is a count of unique records in the target data that were exactly reproduced " \
-                          "in the deidentified data. Because these records were unique outliers in the " \
-                          "target data, and they still appear unchanged in the deidentified data, " \
-                          "they are potentially vulnerable to reidentification."
+unique_exact_match_para_1 = "Unique Exact Match (UEM) is a simple privacy metric that counts the " \
+                            "percentage of singleton records in the target that are also present in " \
+                            "the deidentified data; these uniquely identifiable individuals leaked " \
+                            "through the deidentification process."
+
+unique_exact_match_para_2 = "Below we also include an estimate of the feature space size. The feature " \
+                            "space is the set of all possible record values given the selected target " \
+                            "data and feature subset. For instance, if we had two features, Hat" \
+                            " [cap, bonnet] and Color [green, blue, purple], our feature space would " \
+                            "consist of 2 x 3 = 6 possible combinations (e.g. 'green cap', " \
+                            "'blue bonnet').  Note that feature spaces are based on the " \
+                            "feature set, not on what records actually exist in the data. " \
+                            "Purple bonnet is a possible combination in this feature space, " \
+                            "but it's likely no one in the hypothetical data owns a purple " \
+                            "bonnet (and the count of that record value would be 0)."
+
+unique_exact_match_para_3 = "As we add features to the feature set, we increase the size of the " \
+                            "feature space, but we don't change the actual number of records in " \
+                            "the data-- it's the same people, but now they're spread out more thinly " \
+                            "across a wider set of possible record values. Large feature spaces will " \
+                            "disperse populations very sparsely (most possible record values will have " \
+                            "count 0 or 1) and as a result the data will contain very many uniquely " \
+                            "identifiable records. Intuitively, once you know enough pieces of " \
+                            "information about someone, everyone becomes very distinct from everyone else. " \
+                            "This can pose a challenge for privacy. "
+
+unique_exact_match_para_4 = "The Target Data Properties below provides an estimate of the feature " \
+                            "space size (100 is used for continuous feature), " \
+                            "along with the portion of the records in the ground truth " \
+                            "target data that are unique (ie, they are the only person " \
+                            "with that record value, they have a count of 1). " \
+                            "The Deidentified Data Properties reports the percentage " \
+                            "of those uniquely identifiable individuals that are still " \
+                            "present in the deidentified data. " \
+                            "Because they are unique, real records, they are " \
+                            "potentially vulnerable to reidentification."
