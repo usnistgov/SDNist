@@ -216,11 +216,12 @@ class LinearRegressionMetric:
         self.report_data = {
             "target_counts": relative_path(save_data_frame(self.tcm,
                                                            self.o_path,
-                                                           'target_counts')),
+                                                           'target_counts'), level=3),
             "target_deidentified_counts_difference": relative_path(save_data_frame(self.diff,
                                                                 self.o_path,
-                                                                "target_deidentified_counts_difference")),
-            "target_deidentified_difference_plot": relative_path(file_path),
+                                                                "target_deidentified_counts_difference"),
+                                                                   level=3),
+            "target_deidentified_difference_plot": relative_path(file_path, level=3),
             "target_regression_slope_and_intercept": (self.t_slope, self.t_intercept),
             "deidentified_regression_slope_and_intercept": (self.s_slope, self.s_intercept)
         }

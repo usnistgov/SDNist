@@ -24,14 +24,15 @@ class PearsonCorrelationPlot:
         if not self.o_path.exists():
             os.mkdir(self.o_path)
 
-    def save(self) -> List[Path]:
+    def save(self, path_level=2) -> List[Path]:
         file_path = Path(self.o_path, 'pearson_corr_diff.jpg')
 
         self.report_data = {
             "correlation_difference": relative_path(save_data_frame(self.cd,
                                                                     self.o_path,
-                                                                    'correlation_difference')),
-            "plot": relative_path(file_path)
+                                                                    'correlation_difference'),
+                                                     level=path_level),
+            "plot": relative_path(file_path, level=path_level)
         }
         cd = self.cd
         cd = cd.abs()

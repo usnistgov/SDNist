@@ -80,13 +80,14 @@ class UnivariatePlots:
             raise Exception(f'Path {self.o_dir} does not exist. Cannot save plots')
         os.mkdir(self.out_path)
 
-    def report_data(self):
+    def report_data(self, level=2):
         return {"divergence": relative_path(save_data_frame(self.div_data,
                                                             self.out_path,
-                                                            'divergence')),
+                                                            'divergence'),
+                                            level=level),
                 "counts": self.uni_counts}
 
-    def save(self) -> Dict:
+    def save(self, level=2) -> Dict:
         if self.challenge == CENSUS:
             ignore_features = ['YEAR']
         elif self.challenge == TAXI:
@@ -106,7 +107,8 @@ class UnivariatePlots:
                                     self.syn,
                                     self.tar,
                                     div_df[FEATURE].tolist(),
-                                    self.out_path)
+                                    self.out_path,
+                                    level=level)
         return self.feat_data
 
     def save_distribution_plot(self,
@@ -114,7 +116,8 @@ class UnivariatePlots:
                                synthetic: pd.DataFrame,
                                target: pd.DataFrame,
                                features: List,
-                               output_directory: Path):
+                               output_directory: Path,
+                               level=2):
         ds = dataset
         o_path = output_directory
         bar_width = 0.4
@@ -138,26 +141,24 @@ class UnivariatePlots:
                     st_df = o_tar[o_tar[INDP_CAT].isin([s])].copy()
                     st_df.loc[:, f] = pd.to_numeric(st_df[f]).astype(int)
                     ss_df = o_syn[o_syn[INDP_CAT].isin([int(s)])]
-                    # print(s, type(s))
-                    # print(o_syn[INDP_CAT].unique().tolist())
+
                     unique_ind_codes = st_df[f].unique().tolist()
                     set(unique_ind_codes).update(set(ss_df[f].unique().tolist()))
                     unique_ind_codes = list(unique_ind_codes)
                     val_df = pd.DataFrame(unique_ind_codes, columns=[f])
+                    val_df[f] = val_df.astype(str)
 
                     t_counts_df = st_df.groupby(by=f)[f].size().reset_index(name='count_target')
                     s_counts_df = ss_df.groupby(by=f)[f].size().reset_index(name='count_deidentified')
-                    # print(s)
-                    # print(s_counts_df)
-                    # print(ss_df[f].unique().tolist())
-                    # print(ss_df.shape)
+                    t_counts_df[f] = t_counts_df[f].astype(str)
+                    s_counts_df[f] = s_counts_df[f].astype(str)
+
                     merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
                         .fillna(0)
                     merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
                         .fillna(0)
                     div = l1(pk=merged['count_target'], qk=merged['count_deidentified'])
-                    # print(s)
-                    # print(merged[['count_target', 'count_deidentified']])
+
                     selected.append([merged, div, s])
                 selected = sorted(selected, key=lambda l: l[1], reverse=True)
 
@@ -192,8 +193,9 @@ class UnivariatePlots:
                         "divergence": div,
                         "counts": relative_path(save_data_frame(merged,
                                                 o_path,
-                                                f"Industry Category {s}")),
-                        "plot": relative_path(file_path)
+                                                f"Industry Category {s}"),
+                                                level=level),
+                        "plot": relative_path(file_path, level=level)
                     }
                     # if j < 2:
                     saved_file_paths.append(file_path)
@@ -225,8 +227,9 @@ class UnivariatePlots:
                 self.uni_counts[f] = {
                     "counts": relative_path(save_data_frame(c_sort_merged.copy(),
                                                             o_path,
-                                                            f'{f}_counts')),
-                    "plot": relative_path(file_path)
+                                                            f'{f}_counts'),
+                                            level=level),
+                    "plot": relative_path(file_path, level)
                 }
 
                 if self.worst_univariates_to_display is None \
@@ -267,13 +270,14 @@ class UnivariatePlots:
                     vals = updated_vals
 
                 vals = [str(v) for v in vals]
+
                 if "-1" in vals:
                     idx = vals.index("-1")
                     vals[idx] = "N"
 
                 if f == 'PUMA':
                     f_val_dict = {i: v for i, v in enumerate(ds.schema[f]['values'])}
-                    vals = [f_val_dict[int(v)] for v in vals]
+                    vals = [f_val_dict[int(v)] if v != 'N' else 'N' for v in vals]
 
                 plt.gca().set_xticks(x_axis, vals)
                 plt.legend(loc='upper right')

@@ -19,3 +19,17 @@ sdnist.egg-info/
 
 **.pkl
 build
+
+**/.idea/
+**/crc_acceleration_bundle_1.0/
+**/crc_n/
+**/crc_notebooks/
+**/create_data/
+**/data/
+**/diverse_communities_data_excerpts/
+**/meta_reports/
+**/reports/
+**/states_puma_geojson/
+**/venv/
+**/workspace/
+

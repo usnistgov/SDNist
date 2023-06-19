@@ -19,10 +19,10 @@ pca_para = "This is another approach for visualizing where the distribution of t
            "dimensions of the original feature space). Descriptions " \
            "of these new five dimensions (components) are " \
            "given in the components table; the components will change " \
-           "depending on which target data set you’re using. " \
+           "depending on which target data set you're using. " \
            "Five dimensions are better than 22, but we actually want to " \
            "get down to two dimensions so we can plot the data " \
-           "on simple (x,y) axes– the plots below show the data " \
+           "on simple (x,y) axes the plots below show the data " \
            "across each possible pair combination of our five components. " \
            "You can compare how the shapes change between the target data " \
            "and the deidentified data, and consider what that might mean in light " \
@@ -40,7 +40,7 @@ pca_para_2 = "All of the plots below (for both the target data and " \
 
 pca_highlight_para = "The queries below explore the PCA metric results in more detail " \
                      "by zooming in on a single component-pair panel and highlighting " \
-                     "all individuals that satisfy a given constraint (such as MSP = “N”, " \
+                     "all individuals that satisfy a given constraint (such as MSP='N', " \
                      "individuals who are unmarried because they are children). " \
                      "If the deidentified data preserves the structure and feature " \
                      "correlations of the target data, the highlighted areas should have " \

@@ -3,6 +3,7 @@ import pandas as pd
 
 from sdnist.utils import SimpleLogger
 
+
 def validate(synth_data: pd.DataFrame,
              data_dict: Dict,
              features: List[str],

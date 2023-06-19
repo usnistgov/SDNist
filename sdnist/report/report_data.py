@@ -1,4 +1,5 @@
 import json
+import time
 from typing import List, Dict, Optional
 from dataclasses import dataclass, field
 from enum import Enum
@@ -32,12 +33,18 @@ class AttachmentType(Enum):
     ParaAndImage = 'para_and_image'
 
 
+
 @dataclass
 class Attachment:
     name: Optional[str]
     _data: any
+    group_id: int = -1
     _type: AttachmentType = field(default=AttachmentType.Table)
     dotted_break: bool = field(default=False)
+
+    def __post_init(self):
+        if self.group_id == -1:
+            self.group_id = int(time.time() * 100)
 
     @property
     def data(self) -> Dict[str, any]:
@@ -59,10 +66,16 @@ class ScorePacket:
 
     @property
     def data(self) -> Dict[str, any]:
+        attachments = dict()
+        for a in self.attachment:
+            if a.group_id in attachments:
+                attachments[a.group_id].append(a.data)
+            else:
+                attachments[a.group_id] = [a.data]
         d = {
             'metric_name': self.metric_name,
             'scores': self.score,
-            'attachments': [a.data for a in self.attachment]
+            'attachments': attachments
         }
         if self.score is None:
             del d['scores']
@@ -152,9 +165,12 @@ class ReportUIData:
     feature_desc: Dict[str, any] = field(default_factory=dict, init=False)
     # list containing ScorePacket objects
     scores: List[ScorePacket] = field(default_factory=list, init=False)
+    key_val_pairs: Dict[str, any] = field(default_factory=dict, init=False)
 
     def add(self, score_packet: ScorePacket):
         self.scores.append(score_packet)
+    def add_key_val(self, key: str, val: any):
+        self.key_val_pairs[key] = val
 
     def add_data_description(self,
                              dataset_type: DatasetType,
@@ -192,6 +208,8 @@ class ReportUIData:
         d['comparisons'] = []
         d['motivation'] = []
         d['observations'] = []
+        for k, v in self.key_val_pairs.items():
+            d[k] = v
 
         for s_pkt in self.scores:
             if s_pkt.evaluation_type == EvaluationType.Utility:

@@ -19,13 +19,14 @@ from sdnist.utils import *
 
 from sdnist.load import DEFAULT_DATASET
 
+
 def run(synthetic_filepath: Path,
         output_directory: Path = REPORTS_DIR,
         dataset_name: TestDatasetName = TestDatasetName.NONE,
         data_root: Path = Path(DEFAULT_DATASET),
         labels_dict: Optional[Dict] = None,
         download: bool = False,
-        test_mode: bool = False):
+        show_report: bool = True):
     outfile = Path(output_directory, 'report.json')
     ui_data = ReportUIData(output_directory=output_directory)
     report_data = ReportData(output_directory=output_directory)
@@ -60,9 +61,10 @@ def run(synthetic_filepath: Path,
             ui_data = json.load(f)
     log.end_msg()
     # Generate Report
-    generate(ui_data, output_directory, test_mode)
+    generate(ui_data, output_directory, show_report)
     log.msg(f'Reports available at path: {output_directory}', level=0, timed=False,
             msg_type='important')
+
 
 def setup():
     bundled_datasets = {"MA": TestDatasetName.ma2019,
