@@ -22,13 +22,23 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
         unique_target_records, perc_unique_target_records = \
         unique_exact_matches(ds.c_target_data, ds.c_synthetic_data)
     perc_t_rec_matched = perc_t_rec_matched
-    uem_para_a = Attachment(name=None,
-                            _data=unique_exact_match_para,
+    uem_para1_a = Attachment(name=None,
+                            _data=unique_exact_match_para_1,
+                            _type=AttachmentType.String)
+    uem_para2_a = Attachment(name=None,
+                            _data=unique_exact_match_para_2,
+                            _type=AttachmentType.String)
+    uem_para3_a = Attachment(name=None,
+                            _data=unique_exact_match_para_3,
+                            _type=AttachmentType.String)
+    uem_para4_a = Attachment(name=None,
+                            _data=unique_exact_match_para_4,
                             _type=AttachmentType.String)
 
+    feat_space_str = "{:0.3e}".format(ds.feature_space)
     target_matched_a = Attachment(name="Target Data Properties",
                                      _data=f"Feature space size (possible combinations): "
-                                           f"-Highlight-{f'{dataset.feature_space:,}'}-Highlight-<br>"
+                                           f"-Highlight-{feat_space_str}-Highlight-<br>"
                                            f"Number of unique records in Target Data: "
                                            f"-Highlight-{unique_target_records} "
                                            f"({perc_unique_target_records}%-Highlight-)",
@@ -41,7 +51,7 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
                                      _type=AttachmentType.String)
     r_ui_d.add(PrivacyScorePacket("Unique Exact Matches",
                               None,
-                              [uem_para_a,
+                              [uem_para1_a, uem_para2_a, uem_para3_a, uem_para4_a,
                                target_matched_a,
                                deid_matched_a]))
     rd.add('unique_exact_matches', {

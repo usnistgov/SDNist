@@ -9,6 +9,22 @@ from sdnist.report.report_data import \
 
 from sdnist.utils import *
 
+ic_paragraphs = [
+    "In real world tabular data, it's common for record features to have "
+    "some deterministic, publicly known dependencies on each other: "
+    "knowing someone's AGEP= 3 necessarily tells you something about "
+    "their marital status, income and educational attainment. "
+    "Different deidentification methods may be better or worse at "
+    "automatically preserving these relationships. "
+    "When they fail (ex: producing toddlers with PhDs) we say "
+    "those records contain \"inconsistencies\". Our consistency "
+    "check metric below is not exhaustive, we don't catch everything "
+    "the way a production-grade system should, but this will give you "
+    "a sense of how consistency is preserved for age, work and household "
+    "features. Note that different deidentification approaches may do "
+    "better or worse with different types of inconsistencies."
+]
+
 
 class InconsistenciesReport:
     """
@@ -41,6 +57,13 @@ class InconsistenciesReport:
 
         # add inconsistencies stats and data to json report data
         self.rd.add('inconsistencies', self.ic.report_data)
+
+        # create report attachments
+        for p in ic_paragraphs:
+            para_a = Attachment(name=None,
+                                _data=p,
+                                _type=AttachmentType.String)
+            self.attachments.append(para_a)
 
         # --------- Add inconsistencies stats and dat to ui report data
         # UI attachment for summary of inconsistencies found in the deidentified data
