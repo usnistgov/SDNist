@@ -268,7 +268,7 @@ class Inconsistencies:
                          'inconsistency_features': ic_data[2],
                          'inconsistency_violations': int(ic_data[3].split(' ')[0]),
                          'inconsistent_data_indexes': ic_dict[i[NAME]],
-                         'inconsistent_record_example': relative_path(row_path)}
+                         'inconsistent_record_example': relative_path(row_path, level=3)}
                     )
 
         # ------- Compute work-based Inconsistencies------------
@@ -298,7 +298,7 @@ class Inconsistencies:
                          'inconsistency_features': ic_data[2],
                          'inconsistency_violations': int(ic_data[3].split(' ')[0]),
                          'inconsistent_data_indexes': ic_dict[i[NAME]],
-                         'inconsistent_record_example': relative_path(row_path)}
+                         'inconsistent_record_example': relative_path(row_path, level=3)}
                     )
 
         # ------- Compute housing-based Inconsistencies------------
@@ -328,7 +328,7 @@ class Inconsistencies:
                          'inconsistency_features': ic_data[2],
                          'inconsistency_violations': int(ic_data[3].split(' ')[0]),
                          'inconsistent_data_indexes': ic_dict[i[NAME]],
-                         'inconsistent_record_example': relative_path(row_path)}
+                         'inconsistent_record_example': relative_path(row_path, level=3)}
                     )
 
         # -------- Compute overall stats---------------------
