@@ -32,7 +32,13 @@ class PropensityDistribution:
              title: str = 'Distribution of data samples over 100 propensity bins') \
             -> List[Path]:
         file_path = Path(self.o_path, f'{filename}.jpg')
-        ax = self.p_dist.plot(title=title, xlabel="100 Propensity Bins", ylabel='Record Counts')
+        ax = self.p_dist.plot(title=title,
+                              xlabel="100 Propensity Bins",
+                              ylabel='Record Counts',
+                              color=['mediumblue', 'limegreen'],
+                              alpha=0.8,
+                              lw=2,
+                              figsize=(12, 6))
         fig = ax.get_figure()
         fig.savefig(file_path)
         self.report_data['plot'] = relative_path(file_path)
