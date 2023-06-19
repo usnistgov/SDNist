@@ -48,11 +48,10 @@ class PCAMetric:
         t_pca = PCA(n_components=cc)
 
         tdf_v = self.tar.values
-        sdf = self.syn.apply(lambda x: x - x.mean())
-        sdf_v = sdf.values
-
-        tdf_v = StandardScaler().fit_transform(tdf_v)
-        sdf_v = StandardScaler().fit_transform(sdf_v)
+        sdf_v = self.syn.values
+        scaler = StandardScaler().fit(tdf_v)
+        sdf_v = scaler.transform(sdf_v)
+        tdf_v = scaler.transform(tdf_v)
 
         t_pc = t_pca.fit_transform(tdf_v)
 
@@ -62,7 +61,7 @@ class PCAMetric:
         self.t_comp_data = []
         for i, comp in enumerate(t_pca.components_):
             qc = [[n, round(v, 2)] for n, v in zip(self.tar.columns.tolist(), comp)]
-            qc = sorted(qc, key=lambda x: x[1], reverse=True)
+            qc = sorted(qc, key=lambda x: abs(x[1]), reverse=True)
             qc = [f'{v[0]} ({v[1]})' for v in qc]
             self.t_comp_data.append({"Principal Component": f"PC-{i}",
                                      "Features Contribution: "
@@ -88,7 +87,9 @@ class PCAMetric:
         for c in self.t_pdf.columns:
             self.t_pdf_s[c] = min_max_scaling(self.t_pdf[c])
         for c in self.s_pdf.columns:
-            self.s_pdf_s[c] = min_max_scaling(self.s_pdf[c])
+            self.s_pdf_s[c] = min_max_scaling(self.s_pdf[c],
+                                              self.t_pdf[c].min(),
+                                              self.t_pdf[c].max())
 
     def plot(self, output_directory: Path) -> Dict[str, any]:
         s = time.time()
@@ -152,8 +153,13 @@ class PCAMetric:
         return plot_paths
 
 
-def min_max_scaling(series):
-    return (series - series.min()) / (series.max() - series.min())
+def min_max_scaling(series, min_val=None, max_val=None):
+    if min_val is None:
+        min_val = series.min()
+    if max_val is None:
+        max_val = series.max()
+
+    return (series - min_val) / (max_val - min_val)
 
 
 def plot_all_components_pairs(title: str,
