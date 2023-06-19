@@ -269,8 +269,17 @@ def add_privacy(paths: List[Path]):
                 if sub_dp_df.shape[0] == 1:
                     data['labels']['privacy label detail'] = sub_dp_df['privacy properties'].values[0]
 
-            if "research papers" not in data['labels'].keys():
-                data['labels']['research papers'] = ''
+            # if "research papers" not in data['labels'].keys():
+            m1 = dp_df['team'] == team
+            m2 = dp_df['algorithm name'] == algo
+            m3 = dp_df['library name'] == lib
+
+            m = m1 & m2 & m3
+            sub_dp_df = dp_df[m]
+            print('Trying to add research paper')
+            if sub_dp_df.shape[0] == 1:
+                print('Added research paper')
+                data['labels']['research papers'] = sub_dp_df['Research Papers'].values[0]
 
             with open(file, 'w') as f:
                 json.dump(data, f, indent=4)
