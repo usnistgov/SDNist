@@ -492,8 +492,14 @@
         <br>
         <div class="heading-2-div">
             {{ section_title('Privacy Evaluation') }}
-            {% for item in data['privacy'] %}
+            {% for i, item in enumerate(data['privacy']) %}
                 <div class="evaluation-div">
+                    {% if i > 0 %}
+                        <br>
+                        <br>
+                        <div class="section-separator-bar"></div>
+                        <br>
+                    {% endif %}
                     {{ evaluation(item) }}
                 </div>
             {% endfor %}
