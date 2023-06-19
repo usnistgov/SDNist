@@ -125,12 +125,13 @@ def worst_score_breakdown(worst_scores: List,
 
     up = UnivariatePlots(s, t,
                          ds, out_dir, ds.challenge, worst_univariates_to_display=3)
-    u_feature_data = up.save()
-    k_marg_break_rd[f'worst_{len(wpf)}_puma_univariate'] = up.report_data()
+    u_feature_data = up.save(level=3)
+    k_marg_break_rd[f'worst_{len(wpf)}_puma_univariate'] = up.report_data(level=3)
     k_marg_break_rd[f'worst_{len(wpf)}_puma_k_marginal_scores'] = \
         relative_path(save_data_frame(wsh,
                                       out_dir,
-                                      f'worst_{len(wpf)}_puma_k_marginal_scores'))
+                                      f'worst_{len(wpf)}_puma_k_marginal_scores'),
+                      level=2)
     u_as = []
     u_as.append(Attachment(name=None,
                            _data=f"h3Univariate Distribution of Worst "
@@ -189,7 +190,7 @@ def worst_score_breakdown(worst_scores: List,
                                        corr_features)
     pcd.compute()
     pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, out_dir)
-    pcp_saved_file_paths = pcp.save()
+    pcp_saved_file_paths = pcp.save(path_level=3)
     k_marg_break_rd['correlation_difference'] = {
         "pearson_correlation_difference": pcp.report_data
     }
@@ -246,16 +247,17 @@ def kmarginal_subsamples(dataset: Dataset,
 
     # mapping of sub sample frac to k-marginal score of fraction
     ssample_score = dict()  # subsample scores dictionary
-    # find k-marginal of 10%, 20% ... 90% of sub-sample of target data
-    for i in range(1, 11):
+    # find k-marginal of 1%, 5%, 10%, 20% ... 90% of sub-sample of target data
+    sample_sizes = [1, 5] + [i*10 for i in range(1, 10)]
+    for i in sample_sizes:
         # using subsample of target data as synthetic data
-        s_sd = create_subsample(frac=i * 0.1)
+        s_sd = create_subsample(frac=i * 0.01)
         s_kmarg = k_marginal_cls(dataset.d_target_data,
                                  s_sd,
                                  group_features)
         s_kmarg.compute_score()
         s_score = int(s_kmarg.score)
-        ssample_score[i * 0.1] = s_score
+        ssample_score[i * 0.01] = s_score
 
     puma_scores = None
     if len(group_features):
@@ -344,6 +346,7 @@ def kmarginal_score_packet(k_marginal_score: int,
     # add k-marginal subsample and deidentified data scores to json report
     k_marg_synop_rd['subsample_error_comparison'] = \
         relative_path(save_data_frame(sedf_df, k_marg_synopsys_path, 'subsample_error_comparison'))
+    k_marg_synop_rd['sub_sampling_equivalent'] = int(min_frac * 100)
     k_marg_synop_rd['k_marginal_score'] = k_marginal_score
 
     report_data.add('k_marginal', {
@@ -420,10 +423,7 @@ def kmarginal_score_packet(k_marginal_score: int,
         bs_a = Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
                           _data=best_scores)
 
-        report_data.add('k_marginal', {
-            "k_marginal_breakdown": k_marg_break_rd
-        })
-
+        report_data.add('worst_PUMA_breakdown', k_marg_break_rd)
         attachments.extend([as_para_a, as_a])
 
         metric_attachments = [k_marg_break_para_a, ws_para_a, ws_a]
@@ -436,7 +436,7 @@ def kmarginal_score_packet(k_marginal_score: int,
             metric_attachments.append(gp_a)
         metric_attachments.extend(worst_break_down)
 
-        kmarg_det_pkt = UtilityScorePacket('K-Marginal Score Breakdown',
+        kmarg_det_pkt = UtilityScorePacket('Worst Performing PUMAs Breakdown',
                                            None,
                                            metric_attachments)
 
@@ -609,10 +609,10 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
     # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
     #
-    prop_rep_data = {**s.report_data, **p_dist_plot.report_data}
-    rd.add('propensity mean square error', prop_rep_data)
 
     p_dist_paths = p_dist_plot.save()
+    prop_rep_data = {**s.report_data, **p_dist_plot.report_data}
+    rd.add('propensity mean square error', prop_rep_data)
     # pps_paths = pps.save('spmse',
     #                      'Two-Way Standardized Propensity Mean Square Error')
     rel_pd_path = ["/".join(list(p.parts)[-2:])
