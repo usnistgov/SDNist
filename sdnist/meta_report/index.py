@@ -248,7 +248,8 @@ def index_data(paths: List[Path], out_dir: Path):
 
     index_df = index_df[column_order]
     index_df = index_df.sort_values(by=column_order[:5])
-    index_df.to_csv(str(Path(out_dir, 'index.csv')), index=False)
+    index_df = index_df.reset_index(drop=True)
+    index_df.to_csv(str(Path(out_dir, 'index.csv')))
     return index_df
 
 # paths = [Path("toy_synthetic_data/syn/synthetic"),
