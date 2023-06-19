@@ -79,11 +79,16 @@ from sdnist.report import FILE_DIR
 
 def generate(report_data: Dict[str, any],
              output_directory_path: Path,
-             test_mode: bool = False):
+             show_report: bool = True):
     out_dir = output_directory_path
     data = report_data
 
+    def debug(text):
+        print(text)
+        return ''
+
     env = Environment(loader=FileSystemLoader(Path(FILE_DIR, 'resources/templates')))
+    env.filters['debug'] = debug
     env.globals["enumerate"] = enumerate
 
     main_template = env.get_template('main.jinja2')
@@ -96,7 +101,7 @@ def generate(report_data: Dict[str, any],
     with open(out_path, 'w') as f:
         f.write(out)
 
-    if not test_mode:
+    if show_report:
         webbrowser.open(f"file://{out_path}", new=True)
     # html_to_pdf(out_path, out_pdf_path)
 
@@ -106,7 +111,7 @@ if __name__ == "__main__":
     p_p = Path(FILE_DIR, '../../reports/TX_ACS_EXCERPT_2019_08-02-2022T15.14.12/report.pdf')
     p_o = Path(FILE_DIR, '../../reports/TX_ACS_EXCERPT_2019_08-02-2022T15.14.12/report0.pdf')
 
-    html_to_pdf_2(h_p, p_p)
+    # html_to_pdf_2(h_p, p_p)
 
 
 
