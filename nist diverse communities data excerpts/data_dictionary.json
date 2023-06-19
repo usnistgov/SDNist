@@ -127,12 +127,13 @@
   },
   "INDP": {
     "description": "Industry codes",
+    "details": "There are a total of 271 possible codes for INDP, 269 of these codes appear in the Diverse Community Data Excerpts (233 in MA, 264 in Texas and National)",
     "link": "https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2019.pdf"
   },
   "INDP_CAT": {
     "description": "Industry categories",
     "values": {
-      "N": "N/A (less than 16 years old/NILF who last worked more than 5 years ago or never worked)",
+      "N": "N/A (less than 16 years old, or last worked more than 5 years ago, or never worked)",
       "0": "AGR: Agriculture, Forestry, Fishing and Hunting",
       "1": "EXT: Mining, Quarrying, and Oil and Gas Extraction",
       "2": "UTL: Utilities",
@@ -160,7 +161,7 @@
       "N": "N/A (less than 3 years old)",
       "1": "No schooling completed",
       "2": "Nursery school, Preschool, or Kindergarten",
-      "3": "Grade 4 to grade 8",
+      "3": "Grade 1 to grade 8",
       "4": "Grade 9 to grade 12, no diploma",
       "5": "High School diploma",
       "6": "GED",
@@ -181,7 +182,7 @@
     }
   },
   "PINCP_DECILE": {
-    "description": "Person's total income in 10-percentile bins",
+    "description": "Person's total income rank (with respect to their state) discretized into 10% bins.",
     "values": {
       "N": "N/A (less than 15 years old",
       "9": "90th percentile",
