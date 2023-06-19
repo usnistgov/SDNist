@@ -54,30 +54,24 @@ def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
 
     return cnf
 
-def compute_feature_space(data_dict: Dict,
-                          features: List[str]):
-    # list of features and their value length
-    f_list = []
-    for f in features:
-        if "values" not in data_dict[f]:
-            vals = [0] * 269  # in case of INDP feature
-        else:
-            vals = data_dict[f]["values"]
-        if "min" in vals and f != 'AGEP':
-            continue
-        if f == 'AGEP':
-            f_list.append([f, 100])
-        else:
-            f_list.append([f, len(vals)])
 
-    f_df = pd.DataFrame(f_list, columns=['feature', 'len'])
-    f_df = f_df.sort_values(by='len')
+def feature_space_size(target_df: pd.DataFrame, data_dict: Dict):
+    size = 1
 
-    # get product of all feature lengths
-    n_features = f_df['len'].astype(object).product()
+    for col in target_df.columns:
+        if col in ['PINCP', 'POVPIP', 'WGTP', 'PWGTP', 'AGEP']:
+            size = size * 100
+        elif col in ['SEX', 'MSP', 'HISP', 'RAC1P', 'HOUSING_TYPE', 'OWN_RENT',
+                     'INDP_CAT', 'EDU', 'PINCP_DECILE', 'DVET', 'DREM', 'DPHY', 'DEYE',
+                     'DEAR']:
+            size = size * len(data_dict[col]['values'])
+        elif col in ['PUMA', 'DENSITY']:
+            size = size * len(target_df['PUMA'].unique())
+        elif col in ['NOC', 'NPF', 'INDP']:
+            size = size * len(target_df[col].unique())
 
-    # return number of features and sorted list of features
-    return n_features
+    return size
+
 
 @dataclass
 class Dataset:
@@ -159,11 +153,11 @@ class Dataset:
         self.features = list(set(self.features).difference(set(ind_features)))
         self.features = list(set(self.features).intersection(list(common_columns)))
 
-        self.feature_space = compute_feature_space(self.data_dict, self.features)
-
         # raw subset data
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
+
+        self.feature_space = feature_space_size(self.target_data, self.data_dict)
 
         # validation and clean data
         self.c_synthetic_data, self.validation_log = \
@@ -175,6 +169,12 @@ class Dataset:
         # update data after validation and cleaning
         self.synthetic_data = self.synthetic_data[self.features]
         self.target_data = self.target_data[self.features]
+
+        # for f in self.target_data.columns:
+        #     if f not in ['PINCP', 'INDP', 'PWGTP', 'WGTP', 'POVPIP', 'DENSITY']:
+        #         print('T', f, self.target_data[f].unique().tolist())
+        #         print('S', f, self.synthetic_data[f].unique().tolist())
+        #         print()
 
         # sort columns in the data
         self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
@@ -299,12 +299,16 @@ def data_description(dataset: Dataset,
         f_desc = dataset.data_dict[feat]['description']
         feat_title = f'{feat}: {f_desc}'
         if 'link' in dataset.data_dict[feat] and feat == 'INDP':
-            data = f"<a href={dataset.data_dict[feat]['link']}>" \
+            data_1 = f"<a href={dataset.data_dict[feat]['link']}>" \
                    f"See codes in ACS data dictionary.</a> " \
                    f"Find codes by searching the string: {feat}, in " \
                    f"the ACS data dictionary"
+            data_2 = dataset.data_dict[feat]['details']
             dd_as.append(Attachment(name=feat_title,
-                                    _data=data,
+                                    _data=data_1,
+                                    _type=AttachmentType.String))
+            dd_as.append(Attachment(name=None,
+                                    _data=data_2,
                                     _type=AttachmentType.String))
 
         elif 'values' in dataset.data_dict[feat]:

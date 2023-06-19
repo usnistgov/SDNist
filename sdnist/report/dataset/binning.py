@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import math
 
+
 def percentile_rank_target(data: pd.DataFrame, features: List[str]):
     data = data.copy()
     for c in features:
