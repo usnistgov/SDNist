@@ -1,4 +1,4 @@
-# SDNist v2.2: Deidentified Data Report Tool
+# SDNist v2.3: Deidentified Data Report Tool
 
 ## [SDNist is the offical software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
 
@@ -37,7 +37,7 @@ Setting Up the SDNIST Report Tool
 
 ### Brief Setup Instructions
 
-SDNist requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend installing v2.2 in a virtual environment. v2.2 can be installed via [Release 2.2](https://github.com/usnistgov/SDNist/releases/tag/v2.2.0) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
+SDNist requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend installing v2.3 in a virtual environment. v2.3 can be installed via [Release 2.3](https://github.com/usnistgov/SDNist/releases/tag/v2.3.0) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
 
 The NIST Diverse Community Exceprt data will download on the fly.
 
@@ -61,13 +61,13 @@ The NIST Diverse Community Exceprt data will download on the fly.
     ```
 
 
-4.  In the already-opened terminal or powershell window, execute the following command to create a new Python environment. The sdnist library will be installed in this newly created Python environment:
+4. In the already-opened terminal or powershell window, execute the following command to create a new Python environment. The sdnist library will be installed in this newly created Python environment:
 
     ```
     c:\\sdnist-project> python -m venv venv
     ```
 
-6. The new Python environment will be created in the sdnist-project directory, and the files of the environment should be in the venv directory. To check whether a new Python environment was created successfully, use the following command to list all directories in the sdnist-project directory, and make sure the venv directory exists.
+5. The new Python environment will be created in the sdnist-project directory, and the files of the environment should be in the venv directory. To check whether a new Python environment was created successfully, use the following command to list all directories in the sdnist-project directory, and make sure the venv directory exists.
 
     **MAC OS/Linux:**
     ```
@@ -78,7 +78,7 @@ The NIST Diverse Community Exceprt data will download on the fly.
     c:\\sdnist-project> dir
     ```
 
-7. Now activate the Python environment and install the sdnist library into it.
+6. Now activate the Python environment and install the sdnist library into it.
 
     **MAC OS/Linux:**
     ```
@@ -107,27 +107,12 @@ The NIST Diverse Community Exceprt data will download on the fly.
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
     ```
 
-
-8. Per step 5 above, the sdnist-2.2.0-py3-none-any.whl file should already be present in the sdnist-project directory. Check whether that is true by listing the files in the sdnist-project directory.
-
-      **MAC OS/Linux:**
-       ```
-       (venv) sdnist-project> ls
-       ```
-      **Windows:**
-       ```
-       (venv) c:\\sdnist-project> dir
-       ```
-       The sdnist-2.2.0-py3-none-any.whl file should be in the list printed by the above command; otherwise, follow steps 4 and 5 again to download the .whl file.
-
-
-9. Install sdnist Python library:
+7. Install sdnist Python library:
        ```
        (venv) c:\\sdnist-project> pip install sdnist
        ```
 
-
-10. Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
+8. Installation is successful if executing the following command outputs a help menu for the sdnist.report package:
        ```
        (venv) c:\\sdnist-project> python -m sdnist.report -h
        ```
@@ -162,8 +147,7 @@ The NIST Diverse Community Exceprt data will download on the fly.
           NATIONAL              national2019
        ```
 
-
-11. These instructions install sdnist into a virtual environment. The virtual environment must be activated (step 9) each time a new terminal window is used with sdnist.
+9. These instructions install sdnist into a virtual environment. The virtual environment must be activated (step 9) each time a new terminal window is used with sdnist.
 
 
 Generate Data Quality Report
@@ -260,7 +244,7 @@ Setup Data for SDNIST Report Tool
 4. You can download the toy deidentified datasets from Github [Sdnist Toy Deidentified Dataset](https://github.com/usnistgov/SDNist/releases/download/v2.1.1/toy_deidentified_data.zip). Unzip the downloaded file, and move the unzipped toy_deidentified_dataset directory to the sdnist-project directory.
 
 
-5. Each toy deidentified dataset file is generated using the [Diverse Communities Data Excerpts](https://github.com/usnistgov/SDNist/releases/download/v2.2.0/diverse_communities_data_excerpts.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy deidentified dataset files for testing whether the sdnist.report package is installed correctly on your system.
+5. Each toy deidentified dataset file is generated using the [Diverse Communities Data Excerpts](https://github.com/usnistgov/SDNist/releases/download/v2.3.0/diverse_communities_data_excerpts.zip). The syn_ma.csv, syn_tx.csv, and syn_national.csv deidentified dataset files are created from target datasets MA (ma2019.csv), TX (tx2019.csv), and NATIONAL(national2019.csv), respectively. You can use one of the toy deidentified dataset files for testing whether the sdnist.report package is installed correctly on your system.
 
 
 6. Use the following commands for generating reports if you are using a toy deidentified dataset file:
@@ -287,7 +271,7 @@ by the sdnist.report package to generate a data quality report.
 Download Data Manually
 ----------------------
 
-1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Communities Data Excerpts](https://github.com/usnistgov/SDNist/releases/download/v2.2.0/diverse_communities_data_excerpts.zip).
+1.  If the sdnist.report package is not able to download the datasets, you can download them from Github [Diverse Communities Data Excerpts](https://github.com/usnistgov/SDNist/releases/download/v2.3.0/diverse_communities_data_excerpts.zip).
 3.  Unzip the **diverse_community_excerpts_data.zip** file and move the unzipped **diverse_community_excerpts_data** directory to the **sdnist-project** directory.
 4.  Delete the **diverse_community_excerpts_data.zip** file once the data is successfully extracted from the zip.
 
@@ -306,4 +290,3 @@ Credits
 - [Karan Bhagat](https://github.com/kbtriangulum) - Contributor
 - [David Lee](https://www.linkedin.com/in/david-lee-13872922/) - Documentation
 - [Gary Howarth](https://www.nist.gov/people/gary-howarth) - Project PI - gary.howarth@nist.gov
-
