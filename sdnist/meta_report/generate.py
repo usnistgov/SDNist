@@ -74,6 +74,7 @@ def html_to_pdf(html: Path, pdf: Path):
     page.load(QtCore.QUrl.fromLocalFile(s_html))
     app.exec_()
 
+
 def debug(text):
   print(text)
   return ''

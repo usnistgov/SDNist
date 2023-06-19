@@ -140,7 +140,9 @@
 {% macro heading_2(title) %}
     <span class="heading-2-div">
         <h2 class="heading-2-text">
-            <u>{{ title }}:</u>
+            {% if title|length > 0 %}
+                <u>{{ title }}:</u>
+            {% endif %}
         </h2>
     </span>
 {% endmacro%}
@@ -479,7 +481,8 @@
 <body>
     <div class="content-area">
         <div class="main-title">
-            <h1 class="title-text">NIST CRC Meta Report: {{ data['title'] }}</h1>
+            <h1 class="title-text">NIST CRC Meta Report</h1><br>
+            <h2 class="title-text">{{data['title']}}</h2>
         </div>
         <br>
         <div style="color: var(--theme-color); font-weight: bold">
@@ -491,17 +494,8 @@
                 </a>
             </p>
         </div>
+
         <div class="heading-2-div">
-            {{ section_title('Data Description') }}
-            {% if 'synthetic' in data['data_description'] %}
-                {{ heading_2('Deidentified (Deid.) Datasets') }}
-                {% for i, _ in enumerate(data['data_description']['synthetic']) %}
-                    {% set ddict=data['data_description'] %}
-                    {{ data_description('', 'synthetic', i) }}
-                {% endfor %}
-            {% endif %}
-        </div>
-            <div class="heading-2-div">
             {{ section_title('Motivation') }}
             {% for i, item in enumerate(data['motivation']) %}
                 <div class="evaluation-div">
@@ -555,7 +549,18 @@
             <br>
         </div>
         <br>
-            <div class="heading-2-div">
+        <div class="heading-2-div">
+            {{ section_title('Data Description') }}
+            {% if 'synthetic' in data['data_description'] %}
+                {{ heading_2('Deidentified (Deid.) Datasets') }}
+                {% for i, _ in enumerate(data['data_description']['synthetic']) %}
+                    {% set ddict=data['data_description'] %}
+                    {{ data_description('', 'synthetic', i) }}
+                {% endfor %}
+            {% endif %}
+        </div>
+        <br>
+        <div class="heading-2-div">
             {{ section_title('Appendix') }}
             {% for item in data['Appendix'] %}
                 <div class="appendix-div">

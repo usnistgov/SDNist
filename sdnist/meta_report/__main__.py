@@ -24,6 +24,7 @@ from sdnist.report.dataset.binning import get_density_bins_description
 import sdnist.strs as strs
 import sdnist.utils as u
 
+
 def update_reports_data(reports_data: Dict[str, Tuple]):
     for r_name in reports_data.keys():
         report, report_path = reports_data[r_name]
@@ -42,6 +43,7 @@ def add_data_description(reports_data: Dict[str, Tuple], m_ui_data: ReportUIData
         m_ui_data.add_data_description(DatasetType.Synthetic,
                                        desc_pck)
 
+
 def run(reports_path: List[Path], meta_report_out_dir:
         Path, filters: Dict, filter_keys: List[str],
         data_dict: Dict,
@@ -53,6 +55,34 @@ def run(reports_path: List[Path], meta_report_out_dir:
     m_ui_data.add_key_val('title', report_title)
     reports_data = dict()
 
+    CWD = Path.cwd()
+    # Store path to the target dataset base directory which is
+    # diverse_communities_data_excerpts.
+    TARGET_DATA_DIR = Path(CWD, 'diverse_communities_data_excerpts')
+    # Store path to all the three datasets: ma2019, tx2019, and national2019
+    MA_PATH = Path(TARGET_DATA_DIR, 'massachusetts', 'ma2019.csv')
+    TX_PATH = Path(TARGET_DATA_DIR, 'texas', 'tx2019.csv')
+    NAT_PATH = Path(TARGET_DATA_DIR, 'national', 'national2019.csv')
+
+    # Set name of the target datasets as constants. We use these
+    # later in the notebooks
+    MA2019 = 'ma2019'
+    TX2019 = 'tx2019'
+    NATIONAL2019 = 'national2019'
+
+    # load ma2019 csv into massachusetts dataframe
+    ma_df = pd.read_csv(MA_PATH)
+    # load tx2019 csv into texas dataframe
+    tx_df = pd.read_csv(TX_PATH)
+    # load national2019 csv into national dataframe
+    nat_df = pd.read_csv(NAT_PATH)
+
+    target_datasets = {
+        "ma2019": ma_df,
+        "tx2019": tx_df,
+        "national2019": nat_df
+    }
+
     for report_path in reports_path:
         rjson = Path(report_path, "report.json")
         if not rjson.exists():
@@ -60,15 +90,17 @@ def run(reports_path: List[Path], meta_report_out_dir:
             continue
         with open(rjson, 'r') as f:
             report: Dict = json.load(f)
-        reports_data[report_path.stem] = (report, report_path)
+        reports_data[report_path] = (report, report_path)
     label_keys = ['team', 'algorithm name', 'epsilon', 'variant label', 'submission number']
+    # print(reports_data.keys())
+    report_copies_path = Path(meta_report_out_dir, 'detailed_data_reports')
 
-
-    report_copies_path = Path(meta_report_out_dir, 'deidentified_data_reports')
     for report_path in reports_path:
-        dest = Path(report_copies_path, report_path.stem)
+        print(report_path)
+        state = report_path.parts[-2]
+        dest = Path(report_copies_path, state, report_path.stem)
         dest = shutil.copytree(report_path, dest)
-    shutil.make_archive(str(report_copies_path), 'zip',str(report_copies_path))
+    shutil.make_archive(str(report_copies_path), 'zip', str(report_copies_path))
     shutil.rmtree(str(report_copies_path))
     # update reports data
     reports_data = update_reports_data(reports_data)
@@ -81,7 +113,8 @@ def run(reports_path: List[Path], meta_report_out_dir:
     # Add Report Motivation section
     add_motivation(m_ui_data, config_name)
 
-    args: List[any] = [reports_data, meta_report_out_dir, label_keys, filters, data_dict]
+    args: List[any] = [reports_data, meta_report_out_dir, label_keys,
+                       filters, data_dict, target_datasets]
     # correlation comparison
     corr = CorrelationComparison(*args)
     corr.ui_data(m_ui_data)
@@ -94,11 +127,11 @@ def run(reports_path: List[Path], meta_report_out_dir:
     pca_h.ui_data(m_ui_data)
 
     # Linear regression white men
-    lr_wm = LinearRegressionComparison(*(args + ['white_men']))
+    lr_wm = LinearRegressionComparison('white_men', *args)
     lr_wm.ui_data(m_ui_data)
 
     # Linear regression black women
-    lr_bw = LinearRegressionComparison(*(args + ['black_women']))
+    lr_bw = LinearRegressionComparison('black_women', *args)
     lr_bw.ui_data(m_ui_data)
 
     # add observation
@@ -119,11 +152,11 @@ def setup():
                         help="Location of sdnist data evaluation reports.")
     args = parser.parse_args()
 
-
     meta_reports_dir = Path(Path.cwd(), 'meta_reports')
     reports_dir = Path(args.sdnist_reports_dir)
     data_dict_path = Path(Path.cwd(), 'diverse_communities_data_excerpts', 'data_dictionary.json')
-    config_path = Path(Path.cwd(), 'sdnist', 'meta_report', 'configs', 'sdcmicro_mst_tumult.json')
+    config_path = Path(Path.cwd(), 'sdnist', 'meta_report', 'configs', 'libraries',
+                       'sdv.json')
     config_name = str(config_path.stem)
     time_now = datetime.datetime.now().strftime('%m-%d-%YT%H.%M.%S')
 
@@ -143,7 +176,8 @@ def setup():
 
     density_bins_description = get_density_bins_description(df, data_dict, mappings)
     # path where the meta report of this evaluation instance is stored.
-    this_m_report_dir = Path(meta_reports_dir, f'meta_report_{time_now}')
+    this_m_report_dir = Path(meta_reports_dir, f'{config_name}')
+    # this_m_report_dir = Path(meta_reports_dir, f'meta_report_{time_now}')
 
     if not this_m_report_dir.exists():
         this_m_report_dir.mkdir(parents=True)
@@ -152,7 +186,10 @@ def setup():
         raise FileNotFoundError(str(reports_dir))
 
     # load index csv file
-    index_df = pd.read_csv('index.csv')
+    index_path = Path("crc_acceleration_bundle_1.0",
+                       "crc_data_and_metric_bundle_1.1",
+                      "index.csv")
+    index_df = pd.read_csv(index_path)
 
     # load config file
     config = u.read_json(config_path)
@@ -160,13 +197,15 @@ def setup():
     filters = config['filters']
     sort_by = config['sort_by']
 
+    title = ""
+    if "title" in config:
+        title = config["title"]
     filter_keys = ['epsilon']
     reports_path = reports_from_index(index_df, filters, sort_by)
-    reports_path = [ Path(p) for p in reports_path]
+    reports_path = [Path("crc_acceleration_bundle_1.0", "crc_data_and_metric_bundle_1.1", p) for p in reports_path]
     # reports_path = [p for p in reports_dir.iterdir() if p.is_dir()]
-    print(reports_path)
 
-    report_title = f"Test Title"
+    report_title = title
     return {"reports_path": reports_path,
             "meta_report_out_dir": this_m_report_dir,
             "filters": filters,
