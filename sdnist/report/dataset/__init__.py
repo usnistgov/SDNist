@@ -303,13 +303,14 @@ def data_description(dataset: Dataset,
                    f"See codes in ACS data dictionary.</a> " \
                    f"Find codes by searching the string: {feat}, in " \
                    f"the ACS data dictionary"
-            data_2 = dataset.data_dict[feat]['details']
             dd_as.append(Attachment(name=feat_title,
                                     _data=data_1,
                                     _type=AttachmentType.String))
-            dd_as.append(Attachment(name=None,
-                                    _data=data_2,
-                                    _type=AttachmentType.String))
+            if "details" in dataset.data_dict[feat]:
+                data_2 = dataset.data_dict[feat]['details']
+                dd_as.append(Attachment(name=None,
+                                        _data=data_2,
+                                        _type=AttachmentType.String))
 
         elif 'values' in dataset.data_dict[feat]:
             f_name = feat_title
