@@ -97,12 +97,15 @@ def add_observation(meta_report_ui_data: ReportUIData, config_name: str):
         from sdnist.meta_report.configs import \
             custom_1_observation_paras as observations_paras
 
+    print('Observations')
     #  create attachment for each observations para
     for m_para in observations_paras:
         m_a = Attachment(name=None,
                          _data=m_para,
                          _type=AttachmentType.String)
         attachments.append(m_a)
+        print(m_para)
+        print()
 
     scr_pck = ScorePacket(metric_name='',
                               attachment=attachments)

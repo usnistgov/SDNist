@@ -94,9 +94,9 @@ def run(reports_path: List[Path], meta_report_out_dir:
     label_keys = ['team', 'algorithm name', 'epsilon', 'variant label', 'submission number']
     # print(reports_data.keys())
     report_copies_path = Path(meta_report_out_dir, 'detailed_data_reports')
-
+    print(config_name)
     for report_path in reports_path:
-        print(report_path)
+        # print(report_path)
         state = report_path.parts[-2]
         dest = Path(report_copies_path, state, report_path.stem)
         dest = shutil.copytree(report_path, dest)
@@ -113,32 +113,32 @@ def run(reports_path: List[Path], meta_report_out_dir:
     # Add Report Motivation section
     add_motivation(m_ui_data, config_name)
 
-    args: List[any] = [reports_data, meta_report_out_dir, label_keys,
-                       filters, data_dict, target_datasets]
-    # correlation comparison
-    corr = CorrelationComparison(*args)
-    corr.ui_data(m_ui_data)
-    # unique exact matches comparison
-    uem = UniqueExactMatchesComparison(*args)
-    uem.ui_data(m_ui_data)
-
-    # pca msp_n highlights
-    pca_h = PCAHighlightComparison(*args)
-    pca_h.ui_data(m_ui_data)
-
-    # Linear regression white men
-    lr_wm = LinearRegressionComparison('white_men', *args)
-    lr_wm.ui_data(m_ui_data)
-
-    # Linear regression black women
-    lr_bw = LinearRegressionComparison('black_women', *args)
-    lr_bw.ui_data(m_ui_data)
-
+    # args: List[any] = [reports_data, meta_report_out_dir, label_keys,
+    #                    filters, data_dict, target_datasets]
+    # # correlation comparison
+    # corr = CorrelationComparison(*args)
+    # corr.ui_data(m_ui_data)
+    # # unique exact matches comparison
+    # uem = UniqueExactMatchesComparison(*args)
+    # uem.ui_data(m_ui_data)
+    #
+    # # pca msp_n highlights
+    # pca_h = PCAHighlightComparison(*args)
+    # pca_h.ui_data(m_ui_data)
+    #
+    # # Linear regression white men
+    # lr_wm = LinearRegressionComparison('white_men', *args)
+    # lr_wm.ui_data(m_ui_data)
+    #
+    # # Linear regression black women
+    # lr_bw = LinearRegressionComparison('black_women', *args)
+    # lr_bw.ui_data(m_ui_data)
+    #
     # add observation
     add_observation(m_ui_data, config_name)
-
-    # add data dictionary
-    add_data_dict(data_dict, m_ui_data, density_bins_description)
+    #
+    # # add data dictionary
+    # add_data_dict(data_dict, m_ui_data, density_bins_description)
 
     m_ui_data.save()
 
@@ -156,7 +156,7 @@ def setup():
     reports_dir = Path(args.sdnist_reports_dir)
     data_dict_path = Path(Path.cwd(), 'diverse_communities_data_excerpts', 'data_dictionary.json')
     config_path = Path(Path.cwd(), 'sdnist', 'meta_report', 'configs', 'libraries',
-                       'sdv.json')
+                       'tumult.json')
     config_name = str(config_path.stem)
     time_now = datetime.datetime.now().strftime('%m-%d-%YT%H.%M.%S')
 
@@ -186,7 +186,7 @@ def setup():
         raise FileNotFoundError(str(reports_dir))
 
     # load index csv file
-    index_path = Path("crc_acceleration_bundle_1.0",
+    index_path = Path("crc_acceleration_bundle_1.1",
                        "crc_data_and_metric_bundle_1.1",
                       "index.csv")
     index_df = pd.read_csv(index_path)
@@ -202,7 +202,7 @@ def setup():
         title = config["title"]
     filter_keys = ['epsilon']
     reports_path = reports_from_index(index_df, filters, sort_by)
-    reports_path = [Path("crc_acceleration_bundle_1.0", "crc_data_and_metric_bundle_1.1", p) for p in reports_path]
+    reports_path = [Path("crc_acceleration_bundle_1.1", "crc_data_and_metric_bundle_1.1", p) for p in reports_path]
     # reports_path = [p for p in reports_dir.iterdir() if p.is_dir()]
 
     report_title = title

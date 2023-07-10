@@ -94,11 +94,14 @@ def add_motivation(meta_report_ui_data: ReportUIData, config_name: str):
             custom_1_motivation_paras as motivation_paras
 
     #  create attachment for each motivation para
+    print('Motivations:')
     for m_para in motivation_paras:
         m_a = Attachment(name=None,
                          _data=m_para,
                          _type=AttachmentType.String)
         attachments.append(m_a)
+        print(m_para)
+        print()
 
     scr_pck = ScorePacket(metric_name='',
                           attachment=attachments)
