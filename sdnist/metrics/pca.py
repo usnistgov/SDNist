@@ -44,7 +44,7 @@ class PCAMetric:
         self.comp_df = None
 
     def compute_pca(self):
-        cc = 5
+        cc = 5 if self.tar.shape[1] > 5 else self.tar.shape[1]
         t_pca = PCA(n_components=cc)
 
         tdf_v = self.tar.values
