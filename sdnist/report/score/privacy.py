@@ -66,22 +66,15 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
     log.msg('Apparent Match Distribution', level=3)
     quasi_idf = []  # list of quasi-identifier features
     excluded = []  # list of excluded features from apparent match computation
-    if ds.challenge == CENSUS:
-        quasi_idf = ['SEX', 'MSP', 'RAC1P', 'OWN_RENT', 'EDU', 'PUMA', 'INDP_CAT', 'HISP']
-        quasi_idf = list(set(ds.features).intersection(set(quasi_idf)))
-        excluded = []
-        amd_plot = ApparentMatchDistributionPlot(ds.c_synthetic_data,
-                                                 ds.c_target_data,
-                                                 r_ui_d.output_directory,
-                                                 quasi_idf,
-                                                 excluded)
-        amd_plot_paths = amd_plot.save()
-        rd.add('apparent_match_distribution', amd_plot.report_data)
-    else:
-        raise Exception(f'Unknown challenge type: {ds.challenge}')
-
-    rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
-                                for p in amd_plot_paths]
+    use_apparent_match = True
+    quasi_idf = ['SEX', 'MSP', 'RAC1P', 'OWN_RENT', 'EDU', 'PUMA', 'INDP_CAT', 'HISP']
+    quasi_idf = list(set(ds.features).intersection(set(quasi_idf)))
+    if len(quasi_idf) == 0:
+        log.msg('No quasi-identifier feature found in the dataset. Skipping Apparent Match Distribution.',
+                level=2,
+                timed=False,
+                msg_type='error')
+        use_apparent_match = False
 
     amd_para_a = Attachment(name=None,
                             _data=app_match_para,
@@ -93,36 +86,56 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
     quasi_list_atch = Attachment(name=None,
                                  _data=', '.join(quasi_idf),
                                  _type=AttachmentType.String)
-    # Total rows matched on quasi-identifiers as attachment
-    rec_matched = amd_plot.quasi_matched_df.shape[0]
-    rec_percent = round(rec_matched/ds.c_target_data.shape[0] * 100, 2)
 
-    rec_mat_para_a = Attachment(name='Records Matched on Quasi-Identifiers',
-                                _data=rec_matched_para,
+    if use_apparent_match:
+        excluded = []
+        amd_plot = ApparentMatchDistributionPlot(ds.c_synthetic_data,
+                                                 ds.c_target_data,
+                                                 r_ui_d.output_directory,
+                                                 quasi_idf,
+                                                 excluded)
+        amd_plot_paths = amd_plot.save()
+        rd.add('apparent_match_distribution', amd_plot.report_data)
+
+        rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
+                                    for p in amd_plot_paths]
+
+        # Total rows matched on quasi-identifiers as attachment
+        rec_matched = amd_plot.quasi_matched_df.shape[0]
+        rec_percent = round(rec_matched/ds.c_target_data.shape[0] * 100, 2)
+
+        rec_mat_para_a = Attachment(name='Records Matched on Quasi-Identifiers',
+                                    _data=rec_matched_para,
+                                    _type=AttachmentType.String)
+        total_quasi_matched = Attachment(name=None,
+                                         _data=f"Number of Target Data records exactly matched "
+                                               f"in Deid. Data on Quasi-Identifiers: "
+                                               f"-Highlight-{rec_matched} ({rec_percent}%)-Highlight-",
+                                         _type=AttachmentType.String)
+        # Apparent match distribution plot as attachment
+        adp_para_a = Attachment(name='Percentage Similarity of the Matched Records',
+                                _data=percn_matched_para,
                                 _type=AttachmentType.String)
-    total_quasi_matched = Attachment(name=None,
-                                     _data=f"Number of Target Data records exactly matched "
-                                           f"in Deid. Data on Quasi-Identifiers: "
-                                           f"-Highlight-{rec_matched} ({rec_percent}%)-Highlight-",
-                                     _type=AttachmentType.String)
-    # Apparent match distribution plot as attachment
-    adp_para_a = Attachment(name='Percentage Similarity of the Matched Records',
-                            _data=percn_matched_para,
-                            _type=AttachmentType.String)
-    adp = Attachment(name=None,
-                     _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
-                            for p in rel_cdp_saved_file_paths],
-                     _type=AttachmentType.ImageLinks)
-    r_ui_d.add(PrivacyScorePacket("Apparent Match Distribution",
-                              None,
-                              [amd_para_a,
-                               quasi_para_a,
-                               quasi_list_atch,
-                               rec_mat_para_a,
-                               total_quasi_matched,
-                               adp_para_a,
-                               adp]))
-    log.end_msg()
+        adp = Attachment(name=None,
+                         _data=[{IMAGE_NAME: Path(p).stem, PATH: p}
+                                for p in rel_cdp_saved_file_paths],
+                         _type=AttachmentType.ImageLinks)
 
+        r_ui_d.add(PrivacyScorePacket("Apparent Match Distribution",
+                                  None,
+                                  [amd_para_a,
+                                   quasi_para_a,
+                                   quasi_list_atch,
+                                   rec_mat_para_a,
+                                   total_quasi_matched,
+                                   adp_para_a,
+                                   adp]))
+    else:
+        r_ui_d.add(PrivacyScorePacket("Apparent Match Distribution",
+                                  None,
+                                  [amd_para_a,
+                                   quasi_para_a,
+                                   quasi_list_atch]))
+    log.end_msg()
 
     return r_ui_d, rd
