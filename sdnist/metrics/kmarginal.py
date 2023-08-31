@@ -6,6 +6,7 @@ from sdnist.report.dataset import Dataset
 import sdnist.load as load
 import sdnist.utils as utils
 
+
 def compute_marginal_densities(data, marginals):
     counts = data.groupby(marginals).size()
     return counts / data.shape[0]
@@ -48,6 +49,7 @@ class KMarginal:
     because the target population size for every PUMA is reasonable)
     """
     NAME = 'K-Marginal'
+
     def __init__(self,
                  target_data: pd.DataFrame,
                  deidentified_data: pd.DataFrame,
@@ -56,7 +58,8 @@ class KMarginal:
         self.deid = deidentified_data
         self.group_features = group_features or []
         self.features = self.td.columns.tolist()
-        marg_cols = list(set(self.features).difference(['PUMA', 'INDP']))
+        grouped_features = list(set(['PUMA', 'INDP']).intersection(set(self.group_features)))
+        marg_cols = list(set(self.features).difference(grouped_features))
         marg_cols = sorted(marg_cols)
         self.marginals = [(f1, f2)
                            for i, f1 in enumerate(marg_cols)
@@ -143,6 +146,7 @@ class KMarginal:
         self.score = (2 - mean_tdds) * 500
 
         return self.score
+
 
 if __name__ == "__main__":
     THIS_DIR = Path(__file__).parent
