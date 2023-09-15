@@ -2,7 +2,7 @@
 
 The Diverse Communities Data Excerpts are tabular demographic data from real household in the U.S. The Excerpts serve as benchmark data for the [SDNist v2: Deidentified Data Report Tool](https://github.com/usnistgov/SDNist/) and are the taget data for the [2023 NIST Collaborative Researtch Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle/).
 
-The Excerpts are designed to be a resource to investigate performance of data synthesizers and similar privacy-enhancing technologies when applied to data collected from three communities (Boston area, Dallas-Forth Worth area, and US national) with radically different demographics. The data are drawn from real records released in the 2019 [American Community Survey](https://www.census.gov/programs-surveys/acs), a product of the US Census Bureau.
+The Excerpts are designed to be a resource to investigate performance of data synthesizers and similar privacy-enhancing technologies when applied to data collected from three communities (Boston area, Dallas-Forth Worth area, and US national) with radically different demographics. The data are drawn from real records released in the 2019 [American Community Survey](https://www.census.gov/programs-surveys/acs), a product of the US Census Bureau. We also include 2018 sample as a control set. Currently, sdnist is only configured to run against 2019 files. Any analysis of 2018 data is entirely up to the user. 
 
 ## Purpose and design
 
