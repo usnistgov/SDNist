@@ -1,6 +1,6 @@
 import math
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from dataclasses import dataclass, field
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -75,7 +75,7 @@ def feature_space_size(target_df: pd.DataFrame, data_dict: Dict):
 
 @dataclass
 class Dataset:
-    synthetic_filepath: Path
+    synthetic_filepath: Union[Path, pd.DataFrame]
     log: u.SimpleLogger
     test: TestDatasetName = TestDatasetName.NONE
     data_root: Path = Path(DEFAULT_DATASET)
@@ -128,7 +128,10 @@ class Dataset:
 
         # load synthetic dataset
         dtypes = {feature: desc["dtype"] for feature, desc in self.schema.items()}
-        if str(self.synthetic_filepath).endswith('.csv'):
+
+        if isinstance(self.synthetic_filepath, pd.DataFrame):
+            self.synthetic_data = self.synthetic_filepath
+        elif str(self.synthetic_filepath).endswith('.csv'):
             self.synthetic_data = pd.read_csv(self.synthetic_filepath)
         elif str(self.synthetic_filepath).endswith('.parquet'):
             self.synthetic_data = pd.read_parquet(self.synthetic_filepath)
@@ -170,12 +173,6 @@ class Dataset:
         self.synthetic_data = self.synthetic_data[self.features]
         self.target_data = self.target_data[self.features]
 
-        # for f in self.target_data.columns:
-        #     if f not in ['PINCP', 'INDP', 'PWGTP', 'WGTP', 'POVPIP', 'DENSITY']:
-        #         print('T', f, self.target_data[f].unique().tolist())
-        #         print('S', f, self.synthetic_data[f].unique().tolist())
-        #         print()
-
         # sort columns in the data
         self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.synthetic_data = self.synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
@@ -193,9 +190,10 @@ class Dataset:
             self.target_data = bin_density(self.c_target_data, self.data_dict)
             self.synthetic_data = bin_density(self.c_synthetic_data, self.data_dict)
 
-        self.log.msg(f'Features ({len(self.features)}): {self.features}', level=3, timed=False)
-        self.log.msg(f'Deidentified Data Records Count: {self.c_synthetic_data.shape[0]}', level=3, timed=False)
-        self.log.msg(f'Target Data Records Count: {self.c_target_data.shape[0]}', level=3, timed=False)
+        # TODO: UNCOMMENT FOR THE CLI
+        # self.log.msg(f'Features ({len(self.features)}): {self.features}', level=3, timed=False)
+        # self.log.msg(f'Deidentified Data Records Count: {self.c_synthetic_data.shape[0]}', level=3, timed=False)
+        # self.log.msg(f'Target Data Records Count: {self.c_target_data.shape[0]}', level=3, timed=False)
 
         # update config to contain only available features
         self.config = unavailable_features(self.config, self.synthetic_data)
