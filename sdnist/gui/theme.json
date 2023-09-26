@@ -1,0 +1,111 @@
+{
+     "defaults":
+     {
+         "colours":
+         {
+             "normal_bg":"#45494e",
+             "hovered_bg":"#35393e",
+             "disabled_bg":"#25292e",
+             "selected_bg":"#193754",
+             "dark_bg":"#15191e",
+             "normal_text":"#c5cbd8",
+             "hovered_text":"#FFFFFF",
+             "selected_text":"#FFFFFF",
+             "disabled_text":"#6d736f",
+             "link_text": "#0000EE",
+             "link_hover": "#2020FF",
+             "link_selected": "#551A8B",
+             "text_shadow": "#777777",
+             "normal_border": "#DDDDDD",
+             "hovered_border": "#B0B0B0",
+             "disabled_border": "#808080",
+             "selected_border": "#8080B0",
+             "active_border": "#8080B0",
+             "filled_bar":"#f4251b",
+             "unfilled_bar":"#CCCCCC"
+         }
+     },
+     "panel":
+     {
+         "colours":
+         {
+             "dark_bg":"#21282D",
+             "normal_border": "#999999"
+         },
+         "misc":
+         {
+             "shape": "rectangle",
+             "shape_corner_radius": "0",
+             "border_width": "0",
+             "shadow_width": "0"
+         }
+     },
+    "text_box":
+     {
+         "colours":
+         {
+             "dark_bg":"#21282D",
+             "normal_border": "#999999",
+             "link_text": "#FF0000",
+             "link_hover": "#FFFF00",
+             "link_selected": "#FFFFFF"
+         },
+
+         "misc":
+         {
+             "border_width": "1",
+             "padding": "10,10",
+             "link_normal_underline": "0",
+             "link_hover_underline": "1",
+             "line_spacing": "1.0"
+         }
+     },
+     "text_box.vertical_scroll_bar":
+     {
+         "colours":
+         {
+            "dark_bg": "#505068"
+         }
+     },
+     "text_box.vertical_scroll_bar.#sliding_button":
+     {
+         "misc":
+         {
+            "border_width": "0"
+         }
+     },
+    "window":
+     {
+        "colours":
+        {
+           "dark_bg":"#21282D",
+           "normal_border": "#999999"
+        },
+
+        "misc":
+        {
+           "shape": "rectangle",
+           "shape_corner_radius": "0",
+           "border_width": "0",
+           "shadow_width": "0",
+           "title_bar_height": "20",
+           "enable_close_button": "0"
+        }
+     },
+     "window.#title_bar":
+     {
+        "misc": {
+          "text_horiz_alignment": "center"
+        }
+     },
+      "label":
+     {
+         "colours":
+         {
+         },
+         "misc":
+         {
+             "text_horiz_alignment": "left"
+         }
+     }
+ }

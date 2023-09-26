@@ -1,0 +1,134 @@
+{
+    "Anonos Data Embassy SDK": [
+        "neural net",
+        "non_dp"
+    ],
+    "DPHist": [
+        "histogram",
+        "dp"
+    ],
+    "Genetic SD": [
+        "query matching",
+        "dp"
+    ],
+    "MWEM+PGM": [
+        "query matching",
+        "dp"
+    ],
+    "MostlyAI SD": [
+        "neural net",
+        "non_dp"
+    ],
+    "Sarus SDG": [
+        "neural net",
+        "dp"
+    ],
+    "YData Fabric Synthesizers": [
+        "neural net",
+        "non_dp"
+    ],
+    "adsgan": [
+        "neural net",
+        "non_dp"
+    ],
+    "aim": [
+        "stat model",
+        "dp"
+    ],
+    "bayesian_network": [
+        "stat model",
+        "non_dp"
+    ],
+    "cart": [
+        "stat model",
+        "non_dp"
+    ],
+    "catall": [
+        "histogram",
+        "dp"
+    ],
+    "catall_NonDP": [
+        "histogram",
+        "non_dp"
+    ],
+    "copula-gan": [
+        "neural net",
+        "non_dp"
+    ],
+    "ctgan": [
+        "neural net",
+        "non_dp"
+    ],
+    "dpgan": [
+        "neural net",
+        "dp"
+    ],
+    "fastml": [
+        "neural net",
+        "non_dp"
+    ],
+    "gaussian-copula": [
+        "stat model",
+        "non_dp"
+    ],
+    "ipf": [
+        "query matching",
+        "dp"
+    ],
+    "ipf_NonDP": [
+        "query matching",
+        "non_dp"
+    ],
+    "kanonymity": [
+        "sdc",
+        "sdc"
+    ],
+    "mst": [
+        "stat model",
+        "dp"
+    ],
+    "mwem": [
+        "query matching",
+        "dp"
+    ],
+    "pacsynth": [
+        "query matching",
+        "dp"
+    ],
+    "patectgan": [
+        "neural net",
+        "dp"
+    ],
+    "pategan": [
+        "neural net",
+        "dp"
+    ],
+    "pram": [
+        "sdc",
+        "sdc"
+    ],
+    "privbayes": [
+        "stat model",
+        "dp"
+    ],
+    "smote": [
+        "geometric",
+        "non_dp"
+    ],
+    "subsample_1pcnt": [
+        "sdc",
+        "sdc"
+    ],
+    "subsample_40pcnt": [
+        "sdc",
+        "sdc"
+    ],
+    "subsample_5pcnt": [
+        "sdc",
+        "sdc"
+    ],
+    "tvae": [
+        "neural net",
+        "non_dp"
+    ]
+}
