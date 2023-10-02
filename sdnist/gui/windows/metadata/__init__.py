@@ -2,7 +2,6 @@ from typing import Optional, Tuple, List, Dict
 from pathlib import Path
 import json
 from functools import partial
-import hashlib
 import pandas as pd
 from itertools import chain
 
@@ -13,12 +12,22 @@ from pygame_gui.elements.ui_button import UIButton
 from pygame_gui.elements.ui_label import UILabel
 from pygame_gui.elements.ui_text_entry_line import UITextEntryLine
 
+from sdnist.index import feature_space_size
+from sdnist.gui.target import TargetData
 from sdnist.gui.elements.textline import CustomUITextEntryLine
-from sdnist.gui.panels import AbstractPanel
+
 from sdnist.gui.elements import UICallbackButton
-from sdnist.gui.pages.dashboard.metadata.labels import *
-from sdnist.gui.pages.dashboard.metadata.formfield import \
+from sdnist.gui.windows.window import AbstractWindow
+from sdnist.gui.windows.metadata.labels import *
+from sdnist.gui.windows.metadata.formfield import \
     MetadataFormField
+from sdnist.gui.windows.longtext import \
+    LongTextWindow
+
+from sdnist.gui.windows.metadata.featureset import \
+    feature_set
+from sdnist.index.deid_id import \
+    deid_data_hash
 import sdnist.gui.strs as strs
 from sdnist.gui.constants import *
 from sdnist.gui.config import \
@@ -26,94 +35,7 @@ from sdnist.gui.config import \
     load_library_names
 
 
-def labels_hash(deid_data_path: str) -> str:
-    with open(deid_data_path, 'r') as f:
-        data_lines = f.readlines()
-    data_str = ''
-    for l in data_lines:
-        data_str += l
-    hasher = hashlib.sha1()
-    hasher.update(data_str.encode('utf-8'))
-    return hasher.hexdigest()
-
-
-featureset_dict = {
-    strs.ALL_FEATURES: all_features,
-    strs.SIMPLE_FEATURES: simple_features,
-    strs.DEMOGRAPHIC_FOCUSED: demographic_focused,
-    strs.DETAILED_INDUSTRY_FOCUSED: detailed_industry_focused,
-    strs.FAMILY_FOCUSED: family_focused,
-    strs.INDUSTRY_FOCUSED: industry_focused,
-    strs.SMALL_CATEGORICAL: small_categorical,
-    strs.TINY_CATEGORICAL: tiny_categorical
-}
-
-
-def featureset(deid_data: pd.DataFrame) -> Tuple[str, List[str]]:
-    # check for unnamed columns
-    dd = deid_data
-    dd = dd.loc[:, ~dd.columns.str.startswith('Unnamed')]
-
-    d_cols = set(dd.columns.tolist())
-
-    for fs_name, fs in featureset_dict.items():
-        if d_cols == set(fs):
-            return fs_name, sorted(fs)
-
-    t_cols = len(d_cols)
-    return f'custom-features-{t_cols}', sorted(list(d_cols))
-
-
-def feature_space_size(target_df: pd.DataFrame, data_dict: Dict):
-    size = 1
-
-    for col in target_df.columns:
-        if col in ['PINCP', 'POVPIP', 'WGTP', 'PWGTP', 'AGEP']:
-            size = size * 100
-        elif col in ['SEX', 'MSP', 'HISP', 'RAC1P', 'HOUSING_TYPE', 'OWN_RENT',
-                     'INDP_CAT', 'EDU', 'PINCP_DECILE', 'DVET', 'DREM', 'DPHY', 'DEYE',
-                     'DEAR']:
-            size = size * len(data_dict[col]['values'])
-        elif col in ['PUMA', 'DENSITY']:
-            size = size * len(target_df['PUMA'].unique())
-        elif col in ['NOC', 'NPF', 'INDP']:
-            size = size * len(target_df[col].unique())
-    return size
-
-
-def deduce_target_dataset(deid_data_path: str) -> Optional[str]:
-    checks = {
-        "ma2019": {
-            "in": ['_ma_', '-ma-', 'ma2019'],
-            "starts_with": ['ma_', 'ma-'],
-            "ends_with": ['_ma', '-ma']
-        },
-        "tx2019": {
-            "in": ['_tx_', '-tx-', 'tx2019'],
-            "starts_with": ['tx_', 'tx-'],
-            "ends_with": ['_tx', '-tx']
-        },
-        "national2019": {
-            "in": ['_na_', '-na-', 'na2019', '_national_', '-national-', 'national2019'],
-            "starts_with": ['na_', 'na-', 'national_', 'national-'],
-            "ends_with": ['_na', '-na', '_national', '-national']
-        }
-    }
-
-    for k, v in checks.items():
-        for i in v['in']:
-            if i in deid_data_path:
-                return k
-        for i in v['starts_with']:
-            if deid_data_path.startswith(i):
-                return k
-        for i in v['ends_with']:
-            if deid_data_path.endswith(i):
-                return k
-    return None
-
-
-class MetaDataForm(AbstractPanel):
+class MetaDataForm(AbstractWindow):
     def __init__(self, rect: pg.Rect,
                  manager: pggui.UIManager,
                  settings: dict,
@@ -125,33 +47,57 @@ class MetaDataForm(AbstractPanel):
         self.test_data_btn = None
         self.labels = dict()
         self._file = file_path
-        self._csv_file = self._file
+        self.json_file = self._file
+        self.csv_file = self._file
+        self.deid_data = None
+        self.labels_data = None
 
         self._copy_from_csv_file = copy_from_file
         if Path(self._file).suffix == '.json':
-            self.csv_file = self._file.replace('.json', '.csv')
+            self.csv_file = self._file.replace('json', 'csv')
             self.deid_data = pd.read_csv(self.csv_file)
+        elif Path(self._file).suffix == '.csv':
+            self.json_file = self._file.replace('csv', 'json')
+        if Path(self.json_file).exists():
+            with open(self.json_file, 'r') as f:
+                self.labels_data = json.load(f)
+                self.labels_data = self.labels_data['labels']
+                print(self.labels_data)
 
-        fset_name, fset = featureset(self.deid_data)
+        self.deid_df = pd.read_csv(self.csv_file)
+        self.deid_df = self.deid_df.loc[:,
+                                        ~self.deid_df.columns
+                                        .str.startswith('Unnamed')]
+        fset_name, fset = feature_set(self.deid_data)
         fset_str = ', '.join(fset)
+
         self.libraries = load_library_names()
         self.algorithms = load_algorithm_names()
         self.algorithm_types = list(set(chain([v[0] for k, v in self.algorithms.items()])))
         self.privacy_categories = list(set(chain([v[1] for k, v in self.algorithms.items()])))
+
+        self.target = TargetData(DATA_ROOT_PATH)
+        self.target_name = self.target.deduce_target_data(self.csv_file)
+        self.feature_space = ''
+        if self.target_name:
+            t_df, t_sch, d_dict = self.target.get(self.target_name,
+                                                  self.deid_df.columns.tolist())
+            self.feature_space = feature_space_size(t_df, d_dict)
+            self.feature_space = f'{self.feature_space}  ({self.feature_space:.1e})'
         # Metadata form definition
         # [label name, label value, label input type, editable,
-        # options, is_required
+        # is_required, options
         self.form_dfn = {
             "base fields": {
                 TEAM: [TEAM, self.settings[strs.TEAM_NAME], "string", False, True, None],
-                DEID_DATA_ID: [DEID_DATA_ID, labels_hash(self._csv_file), "string", False, True, None],
+                DEID_DATA_ID: [DEID_DATA_ID, deid_data_hash(self.csv_file), "string", False, True, None],
                 FEATURE_SET_NAME: [FEATURE_SET_NAME, fset_name, "string", False, True, None],
                 FEATURES_LIST: [FEATURES_LIST, fset_str, "string", False, True, None],
-                FEATURE_SPACE_SIZE: [FEATURE_SPACE_SIZE, '', "string", False, True, None]
+                FEATURE_SPACE_SIZE: [FEATURE_SPACE_SIZE, self.feature_space, "string", False, True, None]
             },
             "required fields": {
-                TARGET_DATASET: [TARGET_DATASET, deduce_target_dataset(self._csv_file), "dropdown",
-                 True, True, target_datasets],
+                TARGET_DATASET: [TARGET_DATASET, self.target_name, "dropdown",
+                 False, True, target_datasets],
                 LIBRARY_NAME: [LIBRARY_NAME, None, "dropdown", True, True,
                  list(self.libraries.keys())],
                 ALGORITHM_NAME: [ALGORITHM_NAME, None, "dropdown", True, True,
@@ -177,9 +123,19 @@ class MetaDataForm(AbstractPanel):
             }
         }
 
+        if self.labels_data:
+            for lbl_name, lbl_data in self.form_dfn['required fields'].items():
+                if lbl_name in self.labels_data:
+                    lbl_data[1] = str(self.labels_data[lbl_name])
+            for lbl_name, lbl_data in self.form_dfn['optional fields'].items():
+                if lbl_name in self.labels_data:
+                    lbl_data[1] = str(self.labels_data[lbl_name])
+
         self.form_elems = dict()
         self.form_elem_id = dict()
         self.active_dropdown_lbl = None
+        self.active_longtext_lbl = None
+        self.active_longtext = None
         self._create()
 
     @property
@@ -196,7 +152,10 @@ class MetaDataForm(AbstractPanel):
         test_meta_path = Path(file_path, '..', '..', 'test_metadata.json')
         partial_load_testdata = partial(self.load_test_data,
                                         test_meta_path)
-        self.window = UIWindow(rect=self.rect,
+        window_rect = pg.Rect((self.rect.x, self.rect.y),
+                              (self.rect.w * 0.7,
+                                       self.rect.h))
+        self.window = UIWindow(rect=window_rect,
                                manager=self.manager,
                                window_display_title=
                                "Deid File Metadata Form: " +
@@ -244,6 +203,10 @@ class MetaDataForm(AbstractPanel):
                                        self.manager,
                                        self.window,
                                        *lbl)
+                if lbl[2] == 'long-string':
+                    text_change = partial(self.on_textline_update, lbl_title)
+                    ff.text_in.on_change = text_change
+
                 if ff.text_in:
                     part_callback = partial(self._on_textline_clicked,
                                             lbl_title)
@@ -257,6 +220,8 @@ class MetaDataForm(AbstractPanel):
                 if lbl_title not in self.form_elems:
                     self.form_elems[lbl_title] = ff
                     self.form_elem_id[ff] = lbl_title
+        # set on selected change on target dataset
+        self.form_elems[TARGET_DATASET].on_selected_val_change = self.update_feature_space
 
     def _update(self):
         self.window.set_display_title(
@@ -304,7 +269,23 @@ class MetaDataForm(AbstractPanel):
         pass
 
     def _on_textline_clicked(self, label_name: str):
-        self.handle_dropdown(label_name)
+        if self.active_dropdown_lbl != label_name:
+            if self.active_longtext:
+                self.active_longtext.destroy()
+                self.active_longtext = None
+            self.active_longtext_lbl = None
+        if self.active_dropdown_lbl != label_name:
+            if self.active_dropdown_lbl in self.form_elems:
+                elem = self.form_elems[self.active_dropdown_lbl]
+                elem.destroy_selection_list()
+                print(f'ACTIVE: {label_name} | DESTROYED: {self.active_dropdown_lbl}')
+            self.active_dropdown_lbl = None
+
+        lbl_elem = self.form_elems[label_name]
+        if lbl_elem.is_dropdown:
+            self.handle_dropdown(label_name)
+        elif lbl_elem.label_type == 'long-string':
+            self.handle_longtext(label_name)
 
     def handle_dropdown(self, label_name: str):
         # check if assumed active dropdown has not
@@ -320,7 +301,6 @@ class MetaDataForm(AbstractPanel):
         # then deactivate the dropdown
         if self.active_dropdown_lbl and \
                 self.active_dropdown_lbl == label_name:
-            print('ACTIVE')
             self.active_dropdown_lbl = None
             elem = self.form_elems[label_name]
             elem.destroy_selection_list()
@@ -336,6 +316,33 @@ class MetaDataForm(AbstractPanel):
                     elem.create_selection_list()
                     self.active_dropdown_lbl = label_name
 
+    def handle_longtext(self, label_name: str):
+        elem = self.form_elems[label_name]
+        if elem.label_type != 'long-string':
+            if self.active_longtext:
+                self.active_longtext.destroy()
+                self.active_longtext = None
+            self.active_longtext_lbl = None
+
+        if self.active_longtext_lbl == label_name:
+            return
+        else:
+            if self.active_longtext:
+                self.active_longtext.destroy()
+                self.active_longtext = None
+            lt_rect = pg.Rect((self.rect.x + self.rect.w * 0.7, self.rect.y),
+                              (self.rect.w * 0.3, self.rect.h))
+            text_callback = partial(self.on_longtext_update, label_name)
+            elem = self.form_elems[label_name]
+            self.active_longtext = LongTextWindow(lt_rect,
+                                                  self.manager,
+                                                  text_change_callback=text_callback,
+                                                  container=self.window,
+                                                  initial_text=elem.text_in.get_text(),
+                                                  data=label_name)
+
+            self.active_longtext_lbl = label_name
+
     def load_test_data(self, data_path: str):
 
         with open(data_path, 'r') as f:
@@ -348,14 +355,32 @@ class MetaDataForm(AbstractPanel):
                 lbl_input[1].set_text(str(test_meta[lbl_title]))
 
     def save_data(self):
-        file_name = Path(self.file).name
-        json_file = Path(self.file).parent.joinpath(file_name.split('.')[0] + '.json')
-
         meta = dict()
         meta['labels'] = dict()
-        for lbl_title, lbl_input in self.labels.items():
-            meta['labels'][lbl_title] = lbl_input[1].get_text()
+        for lbl_title, lbl_input in self.form_elems.items():
+            meta['labels'][lbl_title] = lbl_input.text_in.get_text()
 
-        with open(json_file, 'w') as f:
+        with open(self.json_file, 'w') as f:
             json.dump(meta, f, indent=4)
 
+    def update_feature_space(self, target_name: str):
+        self.target_name = target_name
+        if self.target_name:
+            t_df, t_sch, d_dict = self.target.get(self.target_name,
+                                                  self.deid_df.columns.tolist())
+            self.feature_space = feature_space_size(t_df, d_dict)
+            self.feature_space = f'{self.feature_space}  ' \
+                                 f'({self.feature_space:.1e})'
+            self.form_elems[FEATURE_SPACE_SIZE].text_in.set_text(self.feature_space)
+
+    def on_longtext_update(self, label_name: str):
+        elem = self.form_elems[label_name]
+        if self.active_longtext_lbl == label_name:
+            elem.text_in.set_text(self.active_longtext.text_in.get_text())
+
+    def on_textline_update(self, label_name: str):
+        elem = self.form_elems[label_name]
+
+        if self.active_longtext_lbl == label_name and \
+                self.active_longtext:
+            self.active_longtext.text_in.set_text(elem.text_in.get_text())

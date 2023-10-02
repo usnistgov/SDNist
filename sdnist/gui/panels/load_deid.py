@@ -6,81 +6,128 @@ from pygame_gui.windows import \
     UIFileDialog
 from pygame_gui.elements.ui_panel import UIPanel
 from pygame_gui.elements.ui_button import UIButton
+from pygame_gui.elements.ui_window import UIWindow
 from pygame_gui.elements.ui_label import UILabel
 from pygame_gui.elements.ui_text_entry_line import \
     UITextEntryLine
 
 from sdnist.gui.panels.panel import AbstractPanel
+from sdnist.gui.elements.textline import CustomUITextEntryLine
+from sdnist.gui.elements.button import UICallbackButton
+
+from sdnist.gui.windows import DoneWindow
+
+# title = 'Load De-identified Data Directory'
 
 
-class ChooseDeidPathPanel(AbstractPanel):
-    def __init__(self, rect, manager, container=None, data=None):
-        super().__init__(rect, manager, container=container, data=data)
-        self.panel = None
+class LoadDeidData(AbstractPanel):
+    def __init__(self, rect,
+                 manager,
+                 container=None,
+                 data=None,
+                 done_button_visible=False,
+                 done_button_callback=None):
+        super().__init__(
+                         rect=rect, manager=manager,
+                         container=container,
+                         data=data)
         self.gui_data_path = Path(Path.cwd(), 'gui_data')
         self.label = None
         self.path_text = None
         self.load_button = None
+        self.base = None
+        self.done_button_visible = done_button_visible
+        self.done_button_callback = done_button_callback
+        self.done_window = None
+
         self.file_dialog = None
         self.picked_path = None
-
+        if self.data and Path(self.data).exists():
+            self.picked_path = Path(self.data)
         self._create()
 
     def _create(self):
         if self.container is None:
-            self.panel = UIPanel(self.rect,
-                                 starting_height=1,
-                                 manager=self.manager)
-        else:
-            self.panel = UIPanel(self.rect,
-                                 starting_height=1,
+            window_rect = pg.Rect(self.rect.w//2, self.rect.h//2,
+                                  self.rect.w, self.rect.h)
+            self.base = UIWindow(rect=window_rect,
                                  manager=self.manager,
-                                 container=self.container)
+                                 window_display_title=
+                                 'Load De-identified Data Directory',
+                                 draggable=True,
+                                 resizable=True)
+        else:
+            self.base = UIPanel(self.rect,
+                                starting_height=1,
+                                manager=self.manager,
+                                container=self.container)
+
 
         # create UILabel with text Select Directory Containing
         # De-identified Data csv files
         label_h = int(self.rect.h * 0.3)
         label_rect = pg.Rect((0, label_h), (-1, 50))
         self.label = UILabel(relative_rect=label_rect,
-                                 container=self.panel,
-                                 parent_element=self.panel,
-                                 text='Select a directory that contains '
-                                       'de-identified data csv files',
-                                 manager=self.manager,
-                                 anchors={'centerx': 'centerx',
-                                          'top': 'top'})
+                             container=self.base,
+                             parent_element=self.base,
+                             text='Select a directory that contains '
+                                   'de-identified data csv files',
+                             manager=self.manager,
+                             anchors={'centerx': 'centerx',
+                                      'top': 'top'})
 
         # Create UITextEntryLine for user to enter path
         # under the path_text element
         text_w = int(self.rect.w * 0.6)
-        load_btn_w = int(self.rect.w * 0.2)
+        load_btn_w = 200
 
         text_x = (self.rect.w - text_w - load_btn_w - 2*10)//2 + 10
         text_rect = pg.Rect((text_x, label_h + 50), (text_w, 50))
+        init_text = str(self.picked_path) if self.picked_path else ''
 
-        self.path_text = UITextEntryLine(relative_rect=text_rect,
-                                          container=self.panel,
-                                          parent_element=self.panel,
-                                          manager=self.manager,
-                                          anchors={'top': 'top',
-                                                   'left': 'left'})
-
+        self.path_text = CustomUITextEntryLine(on_click=None,
+                                             relative_rect=text_rect,
+                                             container=self.base,
+                                             parent_element=self.base,
+                                             manager=self.manager,
+                                             anchors={'left': 'left',
+                                                      'top': 'top'},
+                                             initial_text=init_text,
+                                             text_end_visible=True)
         # Create UIButton for user to load data
         # next to the text entry line
         load_btn_x = text_w + text_x + 10
         button_rect = pg.Rect((load_btn_x, label_h + 50), (load_btn_w, 50))
         self.load_button = UIButton(relative_rect=button_rect,
-                                    container=self.panel,
-                                    parent_element=self.panel,
+                                    container=self.base,
+                                    parent_element=self.base,
                                     text='Select Directory',
                                     manager=self.manager,
                                     anchors={'top': 'top',
                                              'left': 'left'})
 
+        if self.done_button_visible:
+            done_btn_w = 200
+            done_btn_h = 50
+            done_btn_x = int(self.rect.w * 0.5) - done_btn_w//2
+            done_btn_y = self.rect.h - 100
+            print(done_btn_y)
+            button_rect = pg.Rect((done_btn_x, done_btn_y),
+                                  (done_btn_w, done_btn_h))
+            self.done_button = UICallbackButton(
+                                        callback=self.done_button_callback,
+                                        relative_rect=button_rect,
+                                        container=self.base,
+                                        parent_element=self.base,
+                                        text='DONE',
+                                        manager=self.manager,
+                                        anchors={'top': 'top',
+                                                 'left': 'left'})
+
     def destroy(self):
-        if self.panel:
-            self.panel.kill()
-            self.panel = None
+        if self.base:
+            self.base.kill()
+            self.base = None
         if self.label:
             self.label.kill()
             self.label = None
@@ -93,6 +140,10 @@ class ChooseDeidPathPanel(AbstractPanel):
 
     def handle_event(self, event: pg.event.Event):
         if event.type == pg.USEREVENT:
+            if event.user_type == pggui.UI_WINDOW_CLOSE:
+                if event.ui_element == self.base:
+                    if self.done_button_callback:
+                        self.done_button_callback(save_path=False)
             if event.user_type == pggui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.load_button:
                     # Create a file dialog

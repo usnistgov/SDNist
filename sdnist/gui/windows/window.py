@@ -1,21 +1,17 @@
-from typing import Optional
 from abc import ABC, abstractmethod
 import pygame as pg
 import pygame_gui as pggui
 
 
-class AbstractPanel(ABC):
+class AbstractWindow(ABC):
     @abstractmethod
     def __init__(self, rect: pg.Rect,
                  manager: pggui.UIManager,
-                 container: Optional[any] = None,
-                 data: any = None,
-                 **kwargs):
+                 data: any = None):
         self.w, self.h = manager.window_resolution
         self.manager = manager
         self.data = data
         self.rect = rect
-        self.container = container
 
     @abstractmethod
     def _create(self):

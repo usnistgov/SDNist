@@ -19,7 +19,8 @@ from sdnist.gui.panels import AbstractPanel
 
 
 class MetadataFormField(AbstractPanel):
-    def __init__(self, rect: pg.Rect,
+    def __init__(self,
+                 rect: pg.Rect,
                  manager: pggui.UIManager,
                  container: any,
                  label_name: str,
@@ -48,6 +49,9 @@ class MetadataFormField(AbstractPanel):
         self.panel = None
         self.dropdown = None
         self.selected_val = None
+        self.on_change = None
+        # assign a callback to this variable
+        self.on_selected_val_change = None
         self._create()
 
     def _create(self):
@@ -71,22 +75,30 @@ class MetadataFormField(AbstractPanel):
         inp_w = self.rect.w * 0.7
         if self.label_type in ['string', 'int', 'float']:
             self.input_rect = pg.Rect((lbl_rect.right, 0), (inp_w, self.rect.h))
+
             self.text_in = CustomUITextEntryLine(on_click=None,
+                                                 on_change=self.on_change,
+                                                 editable=self.is_editable,
                                                  relative_rect=self.input_rect ,
                                                  container=self.panel,
                                                  parent_element=self.panel,
                                                  manager=self.manager,
                                                  anchors={'left': 'left',
                                                            'top': 'top'},
-                                                 initial_text=self.label_value)
+                                                initial_text=self.label_value)
         elif self.label_type in ['dropdown', 'multi-dropdown']:
             # dropdown input width
             d_in_w = inp_w * 0.9
             d_in_btn_w = inp_w * 0.1
 
+            if self.label_value and self.label_value in self.options:
+                self.selected_val = self.label_value
+
             self.input_rect  = pg.Rect((lbl_rect.right, 0), (d_in_w, self.rect.h))
             self.text_in = CustomUITextEntryLine(on_click=None,
-                                                 relative_rect=self.input_rect ,
+                                                 on_change=self.on_change,
+                                                 editable=self.is_editable,
+                                                 relative_rect=self.input_rect,
                                                  container=self.panel,
                                                  parent_element=self.panel,
                                                  manager=self.manager,
@@ -107,11 +119,10 @@ class MetadataFormField(AbstractPanel):
                                anchors={'left': 'left',
                                         'top': 'top'})
         elif self.label_type == 'long-string':
-            d_in_w = inp_w * 0.9
-            d_in_btn_w = inp_w * 0.1
+            self.input_rect = pg.Rect((lbl_rect.right, 0), (inp_w, self.rect.h))
 
-            self.input_rect = pg.Rect((lbl_rect.right, 0), (d_in_w, self.rect.h))
             self.text_in = CustomUITextEntryLine(on_click=None,
+                                                 on_change=self.on_change,
                                                  relative_rect=self.input_rect ,
                                                  container=self.panel,
                                                  parent_element=self.panel,
@@ -119,19 +130,6 @@ class MetadataFormField(AbstractPanel):
                                                  anchors={'left': 'left',
                                                            'top': 'top'},
                                                  initial_text=self.label_value)
-
-            inp_btn_rect = pg.Rect((self.input_rect .right, 0),
-                                   (d_in_btn_w, self.rect.h))
-
-            self.inp_btn = UICallbackButton(
-                               callback=None,
-                               relative_rect=inp_btn_rect,
-                               container=self.panel,
-                               parent_element=self.panel,
-                               manager=self.manager,
-                               text='+',
-                               anchors={'left': 'left',
-                                        'top': 'top'})
 
     def destroy(self):
         pass
@@ -184,7 +182,12 @@ class MetadataFormField(AbstractPanel):
     def set_value(self, value: any):
         if self.multiselect:
             value = ', '.join(value)
+
+        prev_selected = self.selected_val
         self.selected_val = value
+        if prev_selected != self.selected_val:
+            if self.on_selected_val_change:
+                self.on_selected_val_change(self.selected_val)
         self.text_in.set_text(value)
 
         if not self.multiselect:

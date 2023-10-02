@@ -1,3 +1,9 @@
+from pathlib import Path
+# Target Data Root
+cwd = Path(__file__).parent.parent.parent
+
+DATA_ROOT_PATH = Path(cwd, 'diverse_communities_data_excerpts')
+
 # SDNIST Data Evaluation Report
 DER_FULL = 'Data Evaluation Report'
 REPORT_DIR_PREFIX = 'SDNIST_DER'

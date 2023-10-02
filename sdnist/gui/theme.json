@@ -89,7 +89,7 @@
            "border_width": "0",
            "shadow_width": "0",
            "title_bar_height": "20",
-           "enable_close_button": "0"
+           "enable_close_button": "1"
         }
      },
      "window.#title_bar":

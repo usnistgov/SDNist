@@ -52,7 +52,7 @@ def sdnist_gui():
     screen.fill('white')
 
     manager = pygame_gui.UIManager(dim, str(theme_path))
-    # manager.set_visual_debug_mode(True)
+    manager.set_visual_debug_mode(True)
     # Create a button
 
     clock = pygame.time.Clock()
@@ -61,7 +61,7 @@ def sdnist_gui():
     # test_data_path = Path(Path(gui_pkg_path, '..', '..',
     #                            'gui_data', 'in_data', 'data1', 'anonos_sdk_Anonos'))
     test_data_path = Path(Path(gui_pkg_path, '..', '..',
-                               'gui_data', 'in_data', 'data1'))
+                               'gui_data', 'in_data'))
     # test_data_path = Path(Path(gui_pkg_path, '..', '..',
     #                            'gui_data', 'in_data'))
     pages = {
@@ -86,7 +86,7 @@ def sdnist_gui():
                     dim = (width, height)
                     screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
                     manager = pygame_gui.UIManager(dim, str(theme_path))
-                    # manager.set_visual_debug_mode(True)
+                    manager.set_visual_debug_mode(True)
                     pages = {
                         Page.HOME: Home(manager, enable=False),
                         Page.DASHBOARD: Dashboard(manager, str(test_data_path))
@@ -106,11 +106,9 @@ def sdnist_gui():
         #     if next_page == Page.DASHBOARD:
         #         pages[next_page].create()
         #     current_page = next_page
-
-        screen.fill('#1c3a3c')
-        pages[current_page].draw(screen)
-
         manager.update(time_delta)
+        pages[current_page].draw(screen)
+        screen.fill('#1c3a3c')
         manager.draw_ui(screen)
         pygame.display.update()
     pygame.quit()

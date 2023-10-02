@@ -20,7 +20,7 @@ toolbar_btns = [METADATA_BTN,
                 METAREPORT_BTN]
 
 
-class ToolBar(AbstractPanel):
+class StatusBar(AbstractPanel):
     def __init__(self, rect, manager):
         super().__init__(rect, manager)
         self.panel = None

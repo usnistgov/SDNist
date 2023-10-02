@@ -7,32 +7,29 @@ from pygame_gui.elements.ui_label import UILabel
 from sdnist.gui.panels.panel import AbstractPanel
 from sdnist.gui.elements import UICallbackButton
 
-METADATA_BTN = 'Metadata'
-REPORT_BTN = 'Report'
-INDEX_BTN = 'Index'
-ARCHIVE_BTN = 'Archive'
-METAREPORT_BTN = 'Metareport'
+LOAD_DATA = 'Load Data'
+TARGET_DATA = 'Target Data'
+SETTINGS = 'Settings'
 
-toolbar_btns = [METADATA_BTN,
-                REPORT_BTN,
-                INDEX_BTN,
-                ARCHIVE_BTN,
-                METAREPORT_BTN]
+menubar_btns = [
+    LOAD_DATA,
+    TARGET_DATA,
+    SETTINGS
+]
 
 
-class ToolBar(AbstractPanel):
-    def __init__(self, rect, manager):
-        super().__init__(rect, manager)
+class MenuBar(AbstractPanel):
+    def __init__(self, rect, manager, data=None):
+        super().__init__(rect, manager, data)
         self.panel = None
-        self.btns = dict()
-
+        self.buttons = dict()
         self._create()
 
     def set_callback(self, btn_name: str,
                      callback: Callable):
-        if btn_name not in self.btns:
+        if btn_name not in self.buttons:
             raise ValueError(f'Invalid button name: {btn_name}')
-        btn = self.btns[btn_name]
+        btn = self.buttons[btn_name]
         btn.callback = callback
 
     def _create(self):
@@ -43,26 +40,27 @@ class ToolBar(AbstractPanel):
             return
 
         net_width = 0
-
-        for btn_name in toolbar_btns[::-1]:
+        for i, btn_name in enumerate(menubar_btns):
             btn_rect = pg.Rect((0, 0), (120, 30))
-            btn_rect.right = -1 * net_width
+            btn_rect.left = net_width
+            print('LEFT', btn_rect.left)
             btn = UICallbackButton(relative_rect=btn_rect,
                                    callback=empty,
                                    text=btn_name,
                                    container=self.panel,
                                    parent_element=self.panel,
                                    manager=self.manager,
-                                   anchors={'right': 'right',
+                                   anchors={'left': 'left',
                                             'centery': 'centery'})
             net_width += btn.relative_rect.width
-            self.btns[btn_name] = btn
+            print('NET WIDTH', net_width)
+            self.buttons[btn_name] = btn
 
     def destroy(self):
         if self.panel is not None:
             self.panel.kill()
             self.panel = None
-        self.btns.clear()
+        self.buttons.clear()
 
     def handle_event(self, event: pg.event.Event):
         pass

@@ -26,6 +26,11 @@ def load_cfg() -> Dict:
         return json.load(f)
 
 
+def save_cfg(config: Dict):
+    with open(cfg_path, 'w') as f:
+        json.dump(config, f, indent=4)
+
+
 def load_algorithm_names() -> Dict:
     with open(algorithms_path, 'r') as f:
         return json.load(f)

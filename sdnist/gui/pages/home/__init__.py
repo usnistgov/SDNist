@@ -10,8 +10,8 @@ from sdnist.gui.pages.page import AbstractPage
 from sdnist.gui.panels import SettingsPanel
 from sdnist.gui.pages.home.choose_team import \
     ChooseTeamPanel
-from sdnist.gui.pages.home.choose_deid import \
-    ChooseDeidPathPanel
+from sdnist.gui.panels import \
+    LoadDeidData
 from sdnist.gui.elements import UICallbackButton
 
 from sdnist.gui.config import cfg_path
@@ -82,7 +82,7 @@ class Home(AbstractPage):
             # Create choose deid path
             choose_load_path_rect = pg.Rect(0, 0,
                                             self.w_w, self.w_h * 0.8)
-            self.choose_deid_path = ChooseDeidPathPanel(choose_load_path_rect,
+            self.choose_deid_path = LoadDeidData(choose_load_path_rect,
                                                         self.manager,
                                                         container=self.window)
             self.current_panel = self.choose_deid_path
@@ -146,9 +146,9 @@ class Home(AbstractPage):
 
         choose_load_path_rect = pg.Rect(0, 0,
                                         self.w_w, self.w_h * 0.8)
-        self.choose_deid_path = ChooseDeidPathPanel(choose_load_path_rect,
-                                                    self.manager,
-                                                    container=self.window)
+        self.choose_deid_path = LoadDeidData(choose_load_path_rect,
+                                             self.manager,
+                                             container=self.window)
         self.current_panel = self.choose_deid_path
         with open(cfg_path, 'w') as f:
             json.dump(self.sdnist_cfg, f, indent=4)
