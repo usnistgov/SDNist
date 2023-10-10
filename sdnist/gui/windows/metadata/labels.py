@@ -1,3 +1,5 @@
+from enum import Enum
+
 ALGORITHM_NAME = 'algorithm name'
 ALGORITHM_TYPE = 'algorithm type'
 DATA_PATH = 'data path'
@@ -10,6 +12,8 @@ FEATURES_LIST = 'features list'
 INDEX = 'index'
 LABELS_PATH = 'labels path'
 LIBRARY_NAME = 'library name'
+LIBRARY_VERSION = 'library version'
+LIBRARY_LINK = 'library link'
 PRAM_FEATURES = 'pram features'
 PRAM_FEATURES_EXCEPTION = 'pram features exception'
 PRIVACY_CATEGORY = 'privacy category'
@@ -24,6 +28,11 @@ TEAM = 'team'
 VARIANT_LABEL = 'variant label'
 VARIANT_LABEL_DETAIL = 'variant label detail'
 
+# Label Categories
+BASE_LABELS = 'base labels'
+REQUIRED_LABELS = 'required labels'
+OPTIONAL_LABELS = 'optional labels'
+
 label_titles = [
     TEAM,
     DEID_DATA_ID,
@@ -31,6 +40,8 @@ label_titles = [
     ALGORITHM_TYPE,
     ALGORITHM_NAME,
     LIBRARY_NAME,
+    LIBRARY_VERSION,
+    LIBRARY_LINK,
     VARIANT_LABEL,
     VARIANT_LABEL_DETAIL,
     EPSILON,
@@ -44,3 +55,13 @@ label_titles = [
     SUBMISSION_NUMBER,
     SUBMISSION_TIMESTAMP,
 ]
+
+
+class LabelType(Enum):
+    DROPDOWN = "dropdown"
+    MULTI_DROPDOWN = "multi-dropdown"
+    STRING = "string"
+    LONG_STRING = "long-string"
+    INT = "int"
+    FLOAT = "float"
+

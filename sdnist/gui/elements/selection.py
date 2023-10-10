@@ -22,4 +22,4 @@ class CallbackSelectionList(UISelectionList):
                 else:
                     self.callback(self.get_single_selection())
 
-        return response
+        return True

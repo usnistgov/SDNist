@@ -14,8 +14,9 @@ from sdnist.gui.elements.textline import CustomUITextEntryLine
 
 from sdnist.gui.elements.button import UICallbackButton
 from sdnist.gui.elements.selection import CallbackSelectionList
-
+from sdnist.gui.elements import CustomUIPanel
 from sdnist.gui.panels import AbstractPanel
+from sdnist.gui.windows.metadata.labels import LabelType as LabelT
 
 
 class MetadataFormField(AbstractPanel):
@@ -25,7 +26,7 @@ class MetadataFormField(AbstractPanel):
                  container: any,
                  label_name: str,
                  label_value: Optional[str],
-                 label_type: str,
+                 label_type: LabelT,
                  is_editable: bool = False,
                  is_required: bool = False,
                  options: Optional[list] = None):
@@ -39,9 +40,9 @@ class MetadataFormField(AbstractPanel):
         self.is_required = is_required
         self.options = options
         self.is_dropdown = True if self.label_type in \
-                                   ['dropdown', 'multi-dropdown'] \
+                                   [LabelT.DROPDOWN, LabelT.MULTI_DROPDOWN] \
                                 else False
-        self.multiselect = True if self.label_type == 'multi-dropdown' \
+        self.multiselect = True if self.label_type == LabelT.MULTI_DROPDOWN \
             else False
 
         self.input_rect = None
@@ -56,12 +57,15 @@ class MetadataFormField(AbstractPanel):
 
     def _create(self):
         # create panel
-        self.panel = UIPanel(relative_rect=self.rect,
+        self.panel = CustomUIPanel(
+                             callback=partial(self.test_panel_callback),
+                             relative_rect=self.rect,
                              container=self.container,
                              starting_height=0,
                              manager=self.manager,
                              anchors={'left': 'left',
                                       'top': 'top'})
+        self.panel.on_hovered()
         lbl_w = self.rect.w * 0.3
         lbl_rect = pg.Rect((0, 0), (lbl_w, self.rect.h))
         label = UILabel(relative_rect=lbl_rect,
@@ -73,7 +77,7 @@ class MetadataFormField(AbstractPanel):
                                  'top': 'top'})
         # input width
         inp_w = self.rect.w * 0.7
-        if self.label_type in ['string', 'int', 'float']:
+        if self.label_type in [LabelT.STRING, LabelT.INT, LabelT.FLOAT]:
             self.input_rect = pg.Rect((lbl_rect.right, 0), (inp_w, self.rect.h))
 
             self.text_in = CustomUITextEntryLine(on_click=None,
@@ -86,7 +90,7 @@ class MetadataFormField(AbstractPanel):
                                                  anchors={'left': 'left',
                                                            'top': 'top'},
                                                 initial_text=self.label_value)
-        elif self.label_type in ['dropdown', 'multi-dropdown']:
+        elif self.label_type in [LabelT.DROPDOWN, LabelT.MULTI_DROPDOWN]:
             # dropdown input width
             d_in_w = inp_w * 0.9
             d_in_btn_w = inp_w * 0.1
@@ -118,7 +122,7 @@ class MetadataFormField(AbstractPanel):
                                text='+',
                                anchors={'left': 'left',
                                         'top': 'top'})
-        elif self.label_type == 'long-string':
+        elif self.label_type in [LabelT.LONG_STRING]:
             self.input_rect = pg.Rect((lbl_rect.right, 0), (inp_w, self.rect.h))
 
             self.text_in = CustomUITextEntryLine(on_click=None,
@@ -130,6 +134,9 @@ class MetadataFormField(AbstractPanel):
                                                  anchors={'left': 'left',
                                                            'top': 'top'},
                                                  initial_text=self.label_value)
+
+    def test_panel_callback(self):
+        print(self.label_name, 'panel hovered')
 
     def destroy(self):
         pass
@@ -158,6 +165,7 @@ class MetadataFormField(AbstractPanel):
             default_val = self.selected_val
         self.dropdown = CallbackSelectionList(
                                         callback=self.set_value,
+                                        starting_height=1,
                                         relative_rect=dr,
                                         container=self.container,
                                         parent_element=self.container,

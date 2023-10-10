@@ -21,8 +21,15 @@ from sdnist.gui.windows.window import AbstractWindow
 from sdnist.gui.windows.metadata.labels import *
 from sdnist.gui.windows.metadata.formfield import \
     MetadataFormField
-from sdnist.gui.windows.longtext import \
-    LongTextWindow
+from sdnist.gui.panels.longtextinput import \
+    LongTextInputPanel
+from sdnist.gui.panels.longtext import \
+    LongTextPanel
+from sdnist.gui.windows.metadata.labels import \
+    LabelType as LabelT
+
+from sdnist.gui.windows.metadata.labelinfo import \
+    LabelInfoPanel
 
 from sdnist.gui.windows.metadata.featureset import \
     feature_set
@@ -30,9 +37,10 @@ from sdnist.index.deid_id import \
     deid_data_hash
 import sdnist.gui.strs as strs
 from sdnist.gui.constants import *
-from sdnist.gui.config import \
+from sdnist.gui.res import \
+    load_library_names, \
     load_algorithm_names, \
-    load_library_names
+    get_index_definition
 
 
 class MetaDataForm(AbstractWindow):
@@ -49,7 +57,6 @@ class MetaDataForm(AbstractWindow):
         self._file = file_path
         self.json_file = self._file
         self.csv_file = self._file
-        self.deid_data = None
         self.labels_data = None
 
         self._copy_from_csv_file = copy_from_file
@@ -62,17 +69,18 @@ class MetaDataForm(AbstractWindow):
             with open(self.json_file, 'r') as f:
                 self.labels_data = json.load(f)
                 self.labels_data = self.labels_data['labels']
-                print(self.labels_data)
 
         self.deid_df = pd.read_csv(self.csv_file)
         self.deid_df = self.deid_df.loc[:,
                                         ~self.deid_df.columns
                                         .str.startswith('Unnamed')]
-        fset_name, fset = feature_set(self.deid_data)
+        fset_name, fset = feature_set(self.deid_df)
         fset_str = ', '.join(fset)
 
         self.libraries = load_library_names()
         self.algorithms = load_algorithm_names()
+        self.lbl_desc = get_index_definition()
+
         self.algorithm_types = list(set(chain([v[0] for k, v in self.algorithms.items()])))
         self.privacy_categories = list(set(chain([v[1] for k, v in self.algorithms.items()])))
 
@@ -86,48 +94,50 @@ class MetaDataForm(AbstractWindow):
             self.feature_space = f'{self.feature_space}  ({self.feature_space:.1e})'
         # Metadata form definition
         # [label name, label value, label input type, editable,
-        # is_required, options
+        # is_required, options]
         self.form_dfn = {
-            "base fields": {
-                TEAM: [TEAM, self.settings[strs.TEAM_NAME], "string", False, True, None],
-                DEID_DATA_ID: [DEID_DATA_ID, deid_data_hash(self.csv_file), "string", False, True, None],
-                FEATURE_SET_NAME: [FEATURE_SET_NAME, fset_name, "string", False, True, None],
-                FEATURES_LIST: [FEATURES_LIST, fset_str, "string", False, True, None],
-                FEATURE_SPACE_SIZE: [FEATURE_SPACE_SIZE, self.feature_space, "string", False, True, None]
+            BASE_LABELS: {
+                TEAM: [TEAM, self.settings[strs.TEAM_NAME], LabelT.STRING, False, True, None],
+                DEID_DATA_ID: [DEID_DATA_ID, deid_data_hash(self.csv_file), LabelT.STRING, False, True, None],
+                FEATURE_SET_NAME: [FEATURE_SET_NAME, fset_name, LabelT.STRING, False, True, None],
+                FEATURES_LIST: [FEATURES_LIST, fset_str, LabelT.STRING, False, True, None],
+                FEATURE_SPACE_SIZE: [FEATURE_SPACE_SIZE, self.feature_space, LabelT.STRING, False, True, None],
             },
-            "required fields": {
-                TARGET_DATASET: [TARGET_DATASET, self.target_name, "dropdown",
-                 False, True, target_datasets],
-                LIBRARY_NAME: [LIBRARY_NAME, None, "dropdown", True, True,
-                 list(self.libraries.keys())],
-                ALGORITHM_NAME: [ALGORITHM_NAME, None, "dropdown", True, True,
-                 list(self.algorithms.keys())],
-                VARIANT_LABEL: [VARIANT_LABEL, None, "string", True, True, None],
-                SUBMISSION_NUMBER: [SUBMISSION_NUMBER, None, "int", True, True, None],
+            REQUIRED_LABELS: {
+                TARGET_DATASET: [TARGET_DATASET, self.target_name, LabelT.DROPDOWN,
+                                 False, True, target_datasets],
+                LIBRARY_NAME: [LIBRARY_NAME, None, LabelT.DROPDOWN, True, True,
+                               list(self.libraries.keys())],
+                LIBRARY_VERSION: [LIBRARY_VERSION, None, LabelT.STRING, True, True, None],
+                LIBRARY_LINK: [LIBRARY_LINK, None, LabelT.STRING, True, True, None],
+                ALGORITHM_NAME: [ALGORITHM_NAME, None, LabelT.DROPDOWN, True, True,
+                                 list(self.algorithms.keys())],
+                VARIANT_LABEL: [VARIANT_LABEL, None, LabelT.STRING, True, True, None],
+                SUBMISSION_NUMBER: [SUBMISSION_NUMBER, None, LabelT.INT, True, True, None],
             },
-            "optional fields": {
-                EPSILON: [EPSILON, None, "float", True, False, None],
-                DELTA: [DELTA, None, "float", True, False, None],
+            OPTIONAL_LABELS: {
+                EPSILON: [EPSILON, None, LabelT.FLOAT, True, False, None],
+                DELTA: [DELTA, None, LabelT.FLOAT, True, False, None],
                 QUASI_IDENTIFIERS_SUBSET: [QUASI_IDENTIFIERS_SUBSET,
-                                           None, "multi-dropdown", True, False, fset],
+                                           None, LabelT.MULTI_DROPDOWN, True, False, fset],
                 VARIANT_LABEL_DETAIL: [VARIANT_LABEL_DETAIL,
-                                       None, 'long-string', True, False, None],
+                                       None, LabelT.LONG_STRING, True, False, None],
                 PRIVACY_LABEL_DETAIL: [PRIVACY_LABEL_DETAIL,
-                                       None, 'long-string', True, False, None],
+                                       None, LabelT.LONG_STRING, True, False, None],
                 ALGORITHM_TYPE: [ALGORITHM_TYPE,
-                                 None, 'dropdown', True, False, self.algorithm_types],
+                                 None, LabelT.DROPDOWN, True, False, self.algorithm_types],
                 PRIVACY_CATEGORY: [PRIVACY_CATEGORY,
-                                   None, 'dropdown', True, False, self.privacy_categories],
+                                   None, LabelT.DROPDOWN, True, False, self.privacy_categories],
                 RESEARCH_PAPERS: [RESEARCH_PAPERS,
-                                  None, 'long-string', True, False, None],
+                                  None, LabelT.LONG_STRING, True, False, None],
             }
         }
 
         if self.labels_data:
-            for lbl_name, lbl_data in self.form_dfn['required fields'].items():
+            for lbl_name, lbl_data in self.form_dfn[REQUIRED_LABELS].items():
                 if lbl_name in self.labels_data:
                     lbl_data[1] = str(self.labels_data[lbl_name])
-            for lbl_name, lbl_data in self.form_dfn['optional fields'].items():
+            for lbl_name, lbl_data in self.form_dfn[OPTIONAL_LABELS].items():
                 if lbl_name in self.labels_data:
                     lbl_data[1] = str(self.labels_data[lbl_name])
 
@@ -136,6 +146,8 @@ class MetaDataForm(AbstractWindow):
         self.active_dropdown_lbl = None
         self.active_longtext_lbl = None
         self.active_longtext = None
+        self.active_label_info_lbl = None
+        self.active_label_info = None
         self._create()
 
     @property
@@ -153,8 +165,8 @@ class MetaDataForm(AbstractWindow):
         partial_load_testdata = partial(self.load_test_data,
                                         test_meta_path)
         window_rect = pg.Rect((self.rect.x, self.rect.y),
-                              (self.rect.w * 0.7,
-                                       self.rect.h))
+                              (self.rect.w,
+                               self.rect.h))
         self.window = UIWindow(rect=window_rect,
                                manager=self.manager,
                                window_display_title=
@@ -203,10 +215,12 @@ class MetaDataForm(AbstractWindow):
                                        self.manager,
                                        self.window,
                                        *lbl)
-                if lbl[2] == 'long-string':
+                if lbl[2] == LabelT.LONG_STRING:
                     text_change = partial(self.on_textline_update, lbl_title)
                     ff.text_in.on_change = text_change
 
+                ff.panel.callback = partial(self.show_label_info,
+                                            lbl_title)
                 if ff.text_in:
                     part_callback = partial(self._on_textline_clicked,
                                             lbl_title)
@@ -240,8 +254,8 @@ class MetaDataForm(AbstractWindow):
         elif Path(self.file).suffix == '.json':
             with open(self._file, 'r') as f:
                 meta = json.load(f)
-            if 'labels' in meta:
-                meta = meta['labels']
+            if strs.LABELS in meta:
+                meta = meta[strs.LABELS]
 
             for lbl_title, lbl_input in self.labels.items():
                 if lbl_title in meta:
@@ -263,9 +277,6 @@ class MetaDataForm(AbstractWindow):
             lbl_input.kill()
 
     def handle_event(self, event: pg.event.Event):
-        # if event.type == pg.USEREVENT:
-        #     if event.ui_element in self.form_elem_id.keys():
-        #         print('found')
         pass
 
     def _on_textline_clicked(self, label_name: str):
@@ -278,18 +289,17 @@ class MetaDataForm(AbstractWindow):
             if self.active_dropdown_lbl in self.form_elems:
                 elem = self.form_elems[self.active_dropdown_lbl]
                 elem.destroy_selection_list()
-                print(f'ACTIVE: {label_name} | DESTROYED: {self.active_dropdown_lbl}')
             self.active_dropdown_lbl = None
 
         lbl_elem = self.form_elems[label_name]
         if lbl_elem.is_dropdown:
             self.handle_dropdown(label_name)
-        elif lbl_elem.label_type == 'long-string':
+        elif lbl_elem.label_type == LabelT.LONG_STRING:
             self.handle_longtext(label_name)
 
     def handle_dropdown(self, label_name: str):
         # check if assumed active dropdown has not
-        # become inactive after user selected an
+        # become inactive aLabelTer user selected an
         # item from the dropdown
         for lbl, elem in self.form_elems.items():
             if elem.dropdown is None \
@@ -318,7 +328,7 @@ class MetaDataForm(AbstractWindow):
 
     def handle_longtext(self, label_name: str):
         elem = self.form_elems[label_name]
-        if elem.label_type != 'long-string':
+        if elem.label_type != LabelT.LONG_STRING:
             if self.active_longtext:
                 self.active_longtext.destroy()
                 self.active_longtext = None
@@ -330,16 +340,16 @@ class MetaDataForm(AbstractWindow):
             if self.active_longtext:
                 self.active_longtext.destroy()
                 self.active_longtext = None
-            lt_rect = pg.Rect((self.rect.x + self.rect.w * 0.7, self.rect.y),
+            lt_rect = pg.Rect((self.rect.w * 0.7, 0),
                               (self.rect.w * 0.3, self.rect.h))
             text_callback = partial(self.on_longtext_update, label_name)
             elem = self.form_elems[label_name]
-            self.active_longtext = LongTextWindow(lt_rect,
-                                                  self.manager,
-                                                  text_change_callback=text_callback,
-                                                  container=self.window,
-                                                  initial_text=elem.text_in.get_text(),
-                                                  data=label_name)
+            self.active_longtext = LongTextInputPanel(lt_rect,
+                                                      self.manager,
+                                                      text_change_callback=text_callback,
+                                                      container=self.window,
+                                                      initial_text=elem.text_in.get_text(),
+                                                      data=label_name)
 
             self.active_longtext_lbl = label_name
 
@@ -348,7 +358,7 @@ class MetaDataForm(AbstractWindow):
         with open(data_path, 'r') as f:
             test_meta = json.load(f)
 
-        test_meta = test_meta['labels']
+        test_meta = test_meta[strs.LABELS]
 
         for lbl_title, lbl_input in self.labels.items():
             if lbl_title in test_meta:
@@ -356,9 +366,9 @@ class MetaDataForm(AbstractWindow):
 
     def save_data(self):
         meta = dict()
-        meta['labels'] = dict()
+        meta[strs.LABELS] = dict()
         for lbl_title, lbl_input in self.form_elems.items():
-            meta['labels'][lbl_title] = lbl_input.text_in.get_text()
+            meta[strs.LABELS][lbl_title] = lbl_input.text_in.get_text()
 
         with open(self.json_file, 'w') as f:
             json.dump(meta, f, indent=4)
@@ -384,3 +394,30 @@ class MetaDataForm(AbstractWindow):
         if self.active_longtext_lbl == label_name and \
                 self.active_longtext:
             self.active_longtext.text_in.set_text(elem.text_in.get_text())
+
+    def show_label_info(self, label_name: str, hovered: bool = False):
+        if hovered:
+            if label_name != self.active_label_info_lbl:
+                if self.active_label_info:
+                    self.active_label_info.destroy()
+                    self.active_label_info = None
+                    self.active_label_info_lbl = None
+                lt_rect = pg.Rect((self.rect.w * 0.7, 0),
+                                  (self.rect.w * 0.3, self.rect.h))
+                elem = self.form_elems[label_name]
+                desc = '\n'.join(self.lbl_desc.get(label_name, []))
+                self.active_label_info = LabelInfoPanel(lt_rect,
+                                                        self.manager,
+                                                        label_name,
+                                                        elem.label_type,
+                                                        desc,
+                                                        container=self.window,
+                                                        initial_text=elem.text_in.get_text(),
+                                                        data=label_name)
+
+                self.active_label_info_lbl = label_name
+        else:
+            if label_name == self.active_label_info_lbl:
+                self.active_label_info.destroy()
+                self.active_label_info = None
+                self.active_label_info_lbl = None

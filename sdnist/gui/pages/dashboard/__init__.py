@@ -84,7 +84,7 @@ class Dashboard(AbstractPage):
     def create(self):
         header_rect = pg.Rect(0, 0, self.w // 2, self.header_height)
 
-        self.header = Header(header_rect,self.manager)
+        self.header = Header(header_rect, self.manager)
 
         toolbar_rect = pg.Rect(self.w // 2, 0,
                                self.w // 2, self.header_height)
@@ -118,8 +118,12 @@ class Dashboard(AbstractPage):
            or self.filetree.selected[0] == str(self.selected_path):
             return
 
+        if str(self.selected_path) == self.filetree.selected[0]:
+            return
         self.selected_path = Path(self.filetree.selected[0])
 
+        if self.metaform:
+            self.metaform.destroy()
         path_type = 'dir'
         if self.selected_path.is_file() and self.selected_path.suffix == '.csv':
             path_type = 'csv'
@@ -128,7 +132,7 @@ class Dashboard(AbstractPage):
 
         # metaform_csv = '' if self.metaform is None else self.metaform.file
 
-        if path_type in ['json', 'csv'] and self.metaform is None:
+        if path_type in ['json', 'csv']:
             self.metaform = MetaDataForm(
                 pg.Rect(self.filetree.window_rect.right,
                         self.filetree.window_rect.top,
@@ -201,18 +205,18 @@ class Dashboard(AbstractPage):
             )
             for i in inputs
         ]
-        pool = Pool(5)
+        # pool = Pool(5)
         # res = pool.starmap(run, inputs)
         # self.left_panel = SidePanel(0, self.header_height,
         #                             self.manager, str(self.data))
-        for i in inputs:
-            self.report_pool.append(pool.apply_async(run, (*i,),
-                                                     callback=self.update_progress))
-        # for input in inputs:
-        #     print(input)
-        #     run(**input)
-        #     self.left_panel = SidePanel(0, self.header_height,
-        #                                 self.manager, str(self.data))
+        # for i in inputs:
+        #     self.report_pool.append(pool.apply_async(run, (*i,),
+        #                                              callback=self.update_progress))
+        for input in inputs:
+            print(input)
+            run(*input)
+            # self.left_panel = SidePanel(0, self.header_height,
+            #                             self.manager, str(self.data))
 
     def index_callback(self):
         if self.selected_path is None:

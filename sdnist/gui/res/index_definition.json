@@ -1,0 +1,85 @@
+{
+    "library name": [
+        "Software library used for this submission, or team name if a private codebase was used"
+    ],
+    "algorithm name": [
+        "Algorithm name"
+    ],
+    "algorithm type": [
+        "A label indicating the general category of approach as specified below",
+        "sdc = 'Statistical Disclosure Control anonymization techniques-- Does direct perturbation, anonymization, redaction or generalization on individual records of target data'",
+        "query matching = 'Query Matching based synthetic data techniques-- Initializes a default synthetic data distribution and iteratively updates it to mimic query results on target data, using optimization or constraint satisfaction approaches'",
+        "neural net = 'Neural Network based synthetic data techniques-- Includes both GAN and Transformer Networks / Autoencoders'",
+        "stat model = 'Statistical Model based synthetic data techniques-- Uses some approach, other than a neural network, to construct a model of the feature relationships in the target data and uses this model to generate new records.'",
+        "histogram = 'Histogram based generation techniques-- Transforms the target data into a set of counts of record occurrences, then adds noise to these counts to produce new data.'",
+        "geometric = 'Geometric based sampling techniques-- Samples new records directly from the feature space based on the geometry of the target distribution.  May involve interpolation or clustering of records in the target data.'"
+    ],
+    "target dataset": [
+        "The ground truth input data set which the algorithm deidentified; comes from the NIST Diverse Community Excerpts. Can be:",
+        "ma2019 = 7634 records, less diverse",
+        "tx2019 =  9276 records, more diverse",
+        "national2019 = 27253 records, very diverse"
+    ],
+    "feature set name": [
+        "If this algorithm was run on one of our recommended feature subsets, the name is provided here. Submissions that use custom feature sets not in this list are marked custom-features-[feature count]. Labels can be:",
+        "demographic-focused = 10 features focused on diverse demographic groups. Includes features such as RACE, SEX, AGE, Disability ",
+        "family-focused = 11 features focused on family and household features. Includes features such marital status, number of own children, number of people in family, household poverty status",
+        "industry-focused = 9 features focused on work features. Includes features such as industry category, geography",
+        "simple-features =  21 features including all features except detailed industry code INDP and survey ampling weights.",
+        "all-features = 24 features, all features in the schema."
+    ],
+    "feature space size": [
+        "Possible record values that could exist for a given schema-- with two features COLOR = {red, blue, green} and HAT = {cap, top hat}, our feature space would consist of 3 x 2 = 6 possible record values (eg: green top hat, blue cap, etc). We compute this size as the product of feature cardinalities from the schema.json for the selected  target data set and features list. We use 100 as the cardinality for continuous features (PINCP, POVPIP, WGTP, PWGTP). Note that DENSITY always has the same cardinality as PUMA. Deidentification is generally more difficult for larger feature spaces."
+    ],
+    "features list": [
+        "The exact list of features included in the deidentified data."
+    ],
+    "privacy category": [
+        "A code indicating the general category of privacy protection as specified below",
+        "sdc = 'Statistical Disclosure Control'",
+        "dp = 'Differential Privacy'",
+        "non_dp = 'Synthetic Data (Non-differentially Private)'"
+    ],
+    "privacy label detail": [
+        "More detailed explanation of privacy parameters. For external submissions this contains the privacy description provided by the submitting team."
+    ],
+    "epsilon": [
+        "If the algorithm satisfies differential privacy, this is the value of epsilon (privacy loss budget parameter) that was used in this submission. Smaller values of epsilon mean stronger privacy and generally worse utility."
+    ],
+    "delta": [
+        "If the algorithm satisfies approximate differential privacy, this parameter indicates a (generally negligible) probability of violating the epsilon differential privacy guarantee. Recommended values of delta are 10^-5 and less."
+    ],
+    "variant label": [
+        "Additional parameter value information for this submission."
+    ],
+    "variant label detail": [
+        "Optional detailed parameter information for this submission. For external submissions this contains the variant label detail provided by the submitting team."
+    ],
+    "research papers": [
+        "If the algorithm or library has an associated research paper, we provide the url or doi here. Some algorithms have multiple papers."
+    ],
+    "data path": [
+        "Local path to access the data file from inside the data_and_metrics_bundle folder. Append this to the directory path where the bundle is located on your computer to programmatically access this data file. See CRC Notebooks for examples."
+    ],
+    "labels path": [
+        "Local path to access the .json metadata for this submission, from inside the data_and_metrics_bundle folder. Append this to the directory path where the bundle is located on your computer to programmatically access this metadata file. See CRC Notebooks for examples."
+    ],
+    "report path": [
+        "Local path to access the report metrics folder for this submission, from inside the data_and_metrics_bundle folder. Append this to the directory path where the bundle is located on your computer to programmatically access the evaluation metrics for this submission. See CRC Notebooks for examples."
+    ],
+    "team": [
+        "Team that submitted this sample of deidentified data, if this was external submission."
+    ],
+    "submission number": [
+        "When the same external team made multiple submissions, this number indicates the sequence of submissions. Later submissions (higher numbers) may show better performance than earlier ones"
+    ],
+    "submission timestamp": [
+        "Timestamp when data was submitted."
+    ],
+    "quasi identifiers subset": [
+        "Some algorithms only apply privacy protection to certain features and leave the other features untouched. The features that are selected for privacy protection are called quasi-identifying features, and are considered especially risky for reidentification attacks. For those algorithms, this lists which features had privacy processing applied."
+    ],
+    "deid data id": [
+        "A unique ID hash code for this deidentified data csv file."
+    ]
+}

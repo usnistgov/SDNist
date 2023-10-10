@@ -13,4 +13,7 @@ SMALL_CATEGORICAL = 'small-categorical'
 SIMPLE_FEATURES = 'simple-features'
 TINY_CATEGORICAL = 'tiny-categorical'
 
+# Others
+LABELS = 'labels'
+
 

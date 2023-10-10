@@ -30,12 +30,3 @@ def save_cfg(config: Dict):
     with open(cfg_path, 'w') as f:
         json.dump(config, f, indent=4)
 
-
-def load_algorithm_names() -> Dict:
-    with open(algorithms_path, 'r') as f:
-        return json.load(f)
-
-
-def load_library_names() -> Dict:
-    with open(libraries_path, 'r') as f:
-        return json.load(f)
