@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn-deep')
 
 from sdnist.utils import *
+from sdnist.strs import *
 
 
 def convert_counts_to_matrix(target_df: pd.DataFrame,
@@ -70,10 +71,12 @@ class LinearRegressionMetric:
     NAME = 'Linear Regression'
 
     def __init__(self,
+                 cfg: Dict[str, any],
                  target: pd.DataFrame,
                  synthetic: pd.DataFrame,
                  data_dictionary: Dict,
                  output_directory: Path):
+        self.cfg = cfg
         self.tar = target
         self.syn = synthetic
         self.d_dict = data_dictionary
@@ -162,6 +165,18 @@ class LinearRegressionMetric:
             self.s_slope = round(self.s_reg.slope, 2)
             self.s_intercept = round(self.s_reg.intercept, 2)
 
+        self.report_data = {
+            "target_counts": relative_path(save_data_frame(self.tcm,
+                                                           self.o_path,
+                                                           'target_counts'), level=3),
+            "target_deidentified_counts_difference": relative_path(save_data_frame(self.diff,
+                                                                  self.o_path,
+                                                                  "target_deidentified_counts_difference"),
+                                                                   level=3),
+            "target_regression_slope_and_intercept": (self.t_slope, self.t_intercept),
+            "deidentified_regression_slope_and_intercept": (self.s_slope, self.s_intercept)
+        }
+
     def plots(self) -> List[Path]:
         """
         Create plots for target and deidentified data's density distribution and
@@ -169,7 +184,8 @@ class LinearRegressionMetric:
         Also saves the plots to the regression metric report output directory.
         Saves regression metric statistics to the json report data dictionary.
         """
-
+        if self.cfg[ONLY_NUMERICAL_METRIC_RESULTS]:
+            return []
         # -------- Creates and saves plots for target and deidentified data
         fig, ax = plt.subplots(1, 2, figsize=(10, 3.3))
         plt.subplots_adjust(wspace=0.9)
@@ -213,17 +229,7 @@ class LinearRegressionMetric:
         plt.close()
 
         # --------- saves regression metric statistics to json report dictionary
-        self.report_data = {
-            "target_counts": relative_path(save_data_frame(self.tcm,
-                                                           self.o_path,
-                                                           'target_counts'), level=3),
-            "target_deidentified_counts_difference": relative_path(save_data_frame(self.diff,
-                                                                self.o_path,
-                                                                "target_deidentified_counts_difference"),
-                                                                   level=3),
-            "target_deidentified_difference_plot": relative_path(file_path, level=3),
-            "target_regression_slope_and_intercept": (self.t_slope, self.t_intercept),
-            "deidentified_regression_slope_and_intercept": (self.s_slope, self.s_intercept)
-        }
+        self.report_data["target_regression_slope_and_intercept"] = \
+            (self.t_slope, self.t_intercept)
 
         return [file_path]

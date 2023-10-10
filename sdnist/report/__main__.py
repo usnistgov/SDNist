@@ -9,8 +9,9 @@ from sdnist.report.common import REPORTS_DIR
 import sdnist.load
 from sdnist.load import data_challenge_map
 from sdnist.report import \
-    generate, utility_score, privacy_score,\
-    ReportUIData, Dataset, ReportData
+    generate, ReportUIData, Dataset, ReportData
+from sdnist.report.score import \
+    utility_score, privacy_score
 from sdnist.report.dataset import data_description
 from sdnist.load import TestDatasetName
 
@@ -20,37 +21,61 @@ from sdnist.utils import *
 from sdnist.load import DEFAULT_DATASET
 
 
-def run(synthetic_filepath: Path,
+def run(deid_filepath: Path,
         output_directory: Path = REPORTS_DIR,
         dataset_name: TestDatasetName = TestDatasetName.NONE,
         data_root: Path = Path(DEFAULT_DATASET),
         labels_dict: Optional[Dict] = None,
         download: bool = False,
-        show_report: bool = True):
+        show_report: bool = True,
+        only_numerical_metric_results: bool = False):
+    """
+    Run the report generation pipeline.
+    deid_filepath: Path to the deidentified dataset (csv/parquet)
+    output_directory: Path to the directory where the report data will be saved
+    dataset_name: Name of the target dataset that was used to generate the deidentified dataset
+    data_root: Path to the directory where the target dataset is stored
+    labels_dict: Dictionary containing labels for the deidentified dataset
+    download: Boolean flag to indicate whether the target dataset should be downloaded
+    show_report: Boolean flag to indicate whether the report should be displayed in the browser
+    only_numerical_metric_results: Boolean flag to indicate whether only numerical metric results
+        from the report should be stored. This do not include the plots, and also does not include
+        html report.
+    """
     if not output_directory.exists():
         os.mkdir(output_directory)
 
+    # program configurations
+    cfg = {
+        ONLY_NUMERICAL_METRIC_RESULTS: only_numerical_metric_results,
+    }
+
     outfile = Path(output_directory, 'report.json')
+    # Object to store UI data that is populated on a jinja template
     ui_data = ReportUIData(output_directory=output_directory)
+    # Object to store report data to be output as a json file
     report_data = ReportData(output_directory=output_directory)
     log = SimpleLogger()
     log.msg('SDNist: Deidentified Data Report Tool', level=0, timed=False)
-    log.msg(f'Creating Evaluation Report for Deidentified Data at path: {synthetic_filepath}',
+    log.msg(f'Creating Evaluation Report for Deidentified Data at path: {deid_filepath}',
             level=1)
 
+    # The report data json file doesn't exist, so we need to generate it
     if not outfile.exists():
         log.msg('Loading Datasets', level=2)
-        dataset = Dataset(synthetic_filepath, log, dataset_name, data_root, download)
+        # Use Dataset object to load, validate and transform the target and deid data
+        dataset = Dataset(deid_filepath, log, dataset_name, data_root, download)
+        # Add description of target data codes to the UI report
         ui_data = data_description(dataset, ui_data, report_data, labels_dict)
         log.end_msg()
 
-        # Create scores
+        # Compute Utility and Privacy Scores
         log.msg('Computing Utility Scores', level=2)
-        ui_data, report_data = utility_score(dataset, ui_data, report_data, log)
+        ui_data, report_data = utility_score(cfg, dataset, ui_data, report_data, log)
         log.end_msg()
 
         log.msg('Computing Privacy Scores', level=2)
-        ui_data, report_data = privacy_score(dataset, ui_data, report_data, log)
+        ui_data, report_data = privacy_score(cfg, dataset, ui_data, report_data, log)
         log.end_msg()
 
         log.msg('Saving Report Data')

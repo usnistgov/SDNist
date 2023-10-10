@@ -118,7 +118,9 @@ def unstack(dataset, user_id: str = "sim_individual_id", time: str = "YEAR", fla
     return df
 
 
-def stack(dataset, user_id: str = "sim_individual_id", time: str = "YEAR"):
+def stack(dataset,
+          user_id: str = "sim_individual_id",
+          time: str = "YEAR"):
     if not isinstance(dataset.columns, pd.MultiIndex):
         dataset.columns = pd.MultiIndex.from_tuples(dataset.columns)
 
@@ -160,9 +162,11 @@ def create_path(path: Path):
     if not path.exists():
         os.mkdir(path)
 
+
 def remove_path(path: Path):
     if path.exists():
         shutil.rmtree(str(path))
+
 
 def adaptive_round(decimal_num):
     dn = decimal_num
@@ -175,11 +179,11 @@ def adaptive_round(decimal_num):
             break
     return round(dn, round_by)
 
+
 def to_num(data: pd.DataFrame) -> pd.DataFrame:
     """Converts data to numeric and drops all the records
     with N values"""
     d = data
-
     for f in d.columns:
         d = d[~d[f].isin(['N'])]
     for f in d.columns:
@@ -201,6 +205,48 @@ def df_filter(data: pd.DataFrame, filters: Optional[List] = None) -> pd.DataFram
         values = d_filter[1]
         data = data[data[feature].isin(values)]
     return data
+
+
+def l1(pk: List[int], qk: List[int]) -> float:
+    """
+    Compute the L1 distance between two normalized distributions.
+
+    Parameters:
+    - pk: List[int] - The first distribution represented as a list of integers.
+    - qk: List[int] - The second distribution represented as a list of integers.
+
+    Returns:
+    - float: The L1 distance between the two normalized distributions.
+
+    Note:
+    - The distributions pk and qk are first normalized by their maximum value before
+      computing the L1 distance to ensure that each element of the distribution is
+      between 0 and 1.
+    - If the maximum value of a distribution is 0, all elements of the normalized
+      distribution are set to 0 to avoid division by zero.
+    """
+
+    # Get the maximum value of each distribution
+    pk_max = max(pk)
+    qk_max = max(qk)
+
+    # Normalize each distribution by its maximum value, handling the case where the maximum value is 0
+    if pk_max == 0:
+        pk_n = [0 for _ in pk]  # if max is 0, all elements of normalized distribution are 0
+    else:
+        pk_n = [p / pk_max for p in pk]  # else, divide each element by the max value
+
+    if qk_max == 0:
+        qk_n = [0 for _ in qk]  # same process for the second distribution
+    else:
+        qk_n = [q / qk_max for q in qk]
+
+    # Compute the L1 distance between the two normalized distributions
+    # This is done by summing the absolute differences
+    # between corresponding elements
+    distance_sum = sum([abs(p - q) for p, q in zip(pk_n, qk_n)])
+
+    return distance_sum
 
 
 class SimpleLogger:

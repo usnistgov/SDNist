@@ -11,15 +11,17 @@ import sdnist.strs as strs
 from sdnist.utils import *
 
 
-def compute_linear_regression(target: pd.DataFrame,
+def compute_linear_regression(cfg: Dict[str, any],
+                              target: pd.DataFrame,
                               synthetic: pd.DataFrame,
                               output_dir: Path,
-                              data_dictionary: Dict):
+                              data_dictionary: Dict) -> \
+        [LinearRegressionMetric, List[Path]]:
     tar = target
     syn = synthetic
     o_dir = output_dir
 
-    reg_m = LinearRegressionMetric(tar, syn, data_dictionary, o_dir)
+    reg_m = LinearRegressionMetric(cfg, tar, syn, data_dictionary, o_dir)
 
     reg_m.compute()
     reg_m_paths = reg_m.plots()
@@ -81,7 +83,12 @@ class LinearRegressionReport:
     OTHER_REQ_FEATURES = ['RAC1P', 'SEX']
     AIANNH = 'American Indian, Alaskan Native and Native Hawaiians (AIANNH)'
 
-    def __init__(self, dataset: Dataset, ui_data: ReportUIData, report_data: ReportData):
+    def __init__(self,
+                 cfg: Dict[str, int],
+                 dataset: Dataset,
+                 ui_data: ReportUIData,
+                 report_data: ReportData):
+        self.cfg = cfg
         # required features
         req_f = self.REQUIRED_FEATURES + self.OTHER_REQ_FEATURES
         # available features
@@ -118,16 +125,19 @@ class LinearRegressionReport:
         o_path = Path(self.r_ui_d.output_directory, 'linear_regression')
         create_path(o_path)
         for k, v in self.labels.items():
-            if k != 'total_population' and not self.can_compute_demographics():
+            if k != 'total_population' \
+                    and not self.can_compute_demographics():
                 continue
             k_o_path = Path(o_path, k)
             create_path(k_o_path)
             ts = df_filter(self.t, v[1])
             ss = df_filter(self.s, v[1])
-            reg, image_path = compute_linear_regression(ts, ss, k_o_path,
-                                                        {k: self.d_dict[k]
-                                                            for k in self.REQUIRED_FEATURES})
-            self.eval_data[k] = [reg, image_path]
+            reg, image_paths = \
+                compute_linear_regression(self.cfg,
+                                          ts, ss, k_o_path,
+                                          {k: self.d_dict[k]
+                                           for k in self.REQUIRED_FEATURES})
+            self.eval_data[k] = [reg, image_paths]
 
         # create report attachments
         for p in lr_paragraphs:
@@ -139,30 +149,30 @@ class LinearRegressionReport:
         for k, v in self.eval_data.items():
             if not len(v):
                 continue
-            reg, img_path = v[0], v[1]
+            reg, img_paths = v[0], v[1]
             self.rd.add('linear_regression', {k: reg.report_data})
             rel_reg_paths = ["/".join(list(p.parts)[-3:])
-                             for p in img_path]
-
+                             for p in img_paths]
+            if self.s.shape[0] > 0:
             # attachment data
-            a_data = {
-                "para": [["heading", 'Target Data'],
-                         ["text", f'{reg.ts.shape[0]} records, '
-                                  f'{round(reg.ts.shape[0]/self.t.shape[0] * 100, 2)}% of adult (>15) data'],
-                         ["text", f'Regression: {reg.t_slope} slope,'
-                                  f' {reg.t_intercept} intercept'],
-                         ["heading", 'Deidentified Data'],
-                         ["text", f'{reg.ss.shape[0]} records, '
-                                  f'{round(reg.ss.shape[0]/self.s.shape[0] * 100, 2)}% of adult (>15) data'],
-                         ["text", f'Regression: {reg.s_slope} slope, '
-                                  f'{reg.s_intercept} intercept']],
-                "image": [{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                          for p in rel_reg_paths]
-            }
-            reg_m_a = Attachment(name=self.labels[k][0],
-                                 _data=a_data,
-                                 _type=AttachmentType.ParaAndImage)
-            self.attachments.append(reg_m_a)
+                a_data = {
+                    "para": [["heading", 'Target Data'],
+                             ["text", f'{reg.ts.shape[0]} records, '
+                                      f'{round(reg.ts.shape[0]/self.t.shape[0] * 100, 2)}% of adult (>15) data'],
+                             ["text", f'Regression: {reg.t_slope} slope,'
+                                      f' {reg.t_intercept} intercept'],
+                             ["heading", 'Deidentified Data'],
+                             ["text", f'{reg.ss.shape[0]} records, '
+                                      f'{round(reg.ss.shape[0]/self.s.shape[0] * 100, 2)}% of adult (>15) data'],
+                             ["text", f'Regression: {reg.s_slope} slope, '
+                                      f'{reg.s_intercept} intercept']],
+                    "image": [{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                              for p in rel_reg_paths]
+                }
+                reg_m_a = Attachment(name=self.labels[k][0],
+                                     _data=a_data,
+                                     _type=AttachmentType.ParaAndImage)
+                self.attachments.append(reg_m_a)
 
     def can_compute(self):
         return set(self.REQUIRED_FEATURES).issubset(set(self.s.columns.tolist()))

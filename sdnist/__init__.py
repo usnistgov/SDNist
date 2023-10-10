@@ -6,16 +6,16 @@ import pandas as pd
 import sdnist.load
 import sdnist.metrics.kmarg_old
 import sdnist.schema
-import sdnist.challenge.submission
+# import sdnist.challenge.submission
 import sdnist.utils
 import sdnist.strs as strs
 
 from sdnist.metrics.hoc import TaxiHigherOrderConjunction
 from sdnist.metrics.graph_edge_map import TaxiGraphEdgeMapScore
 
-census = functools.partial(sdnist.load.load_dataset, challenge="census")
-taxi = functools.partial(sdnist.load.load_dataset, challenge="taxi")
-run = sdnist.challenge.submission.run
+# census = functools.partial(sdnist.load.load_dataset, challenge="census")
+# taxi = functools.partial(sdnist.load.load_dataset, challenge="taxi")
+# run = sdnist.challenge.submission.run
 
 
 def log(message: str, verbose: bool = False):

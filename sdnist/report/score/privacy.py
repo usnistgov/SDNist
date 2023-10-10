@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Dict
 from pathlib import Path
 
 from sdnist.report import Dataset, ReportData, ReportUIData
@@ -11,7 +11,11 @@ from sdnist.strs import *
 from sdnist.utils import *
 
 
-def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: SimpleLogger) \
+def privacy_score(cfg: Dict[str, any],
+                  dataset: Dataset,
+                  ui_data: ReportUIData,
+                  report_data,
+                  log: SimpleLogger) \
         -> Tuple[ReportUIData, ReportData]:
     ds = dataset
     r_ui_d = ui_data
@@ -89,7 +93,8 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
 
     if use_apparent_match:
         excluded = []
-        amd_plot = ApparentMatchDistributionPlot(ds.c_synthetic_data,
+        amd_plot = ApparentMatchDistributionPlot(cfg,
+                                                 ds.c_synthetic_data,
                                                  ds.c_target_data,
                                                  r_ui_d.output_directory,
                                                  quasi_idf,

@@ -1,20 +1,16 @@
-import os
-from typing import List
-from pathlib import Path
+from typing import List, Dict
 
-import matplotlib.pyplot
 import matplotlib.pyplot as plt
-from matplotlib import colors
-import numpy as np
-import pandas as pd
 
 from sdnist.utils import *
+from sdnist.strs import *
 
 plt.style.use('seaborn-deep')
 
 
 class CorrelationDifferencePlot:
     def __init__(self,
+                 cfg: Dict[str, any],
                  synthetic: pd.DataFrame,
                  target: pd.DataFrame,
                  output_directory: Path,
@@ -25,6 +21,8 @@ class CorrelationDifferencePlot:
 
         Parameters
         ----------
+            cfg: Dict[str, any]
+                Program configuration
             synthetic : pd.Dataframe
                 synthetic dataset
             target : pd.Dataframe
@@ -34,6 +32,7 @@ class CorrelationDifferencePlot:
             features: List[str]
                 List of names of features for which to compute correlation
         """
+        self.cfg: Dict[str, any] = cfg
         self.syn = synthetic
         self.tar = target
         self.o_dir = output_directory
@@ -51,11 +50,15 @@ class CorrelationDifferencePlot:
 
     def save(self) -> List[Path]:
         corr_df = correlation_difference(self.syn, self.tar, self.features)
-        plot_paths = save_correlation_difference_plot(corr_df, self.o_path)
-        self.report_data = {"correlation_difference": relative_path(save_data_frame(corr_df,
-                                                                      self.o_path,
-                                                                      'correlation_difference')),
-                            "plot": relative_path(plot_paths[0])}
+
+        self.report_data = {"correlation_difference":
+                            relative_path(save_data_frame(corr_df,
+                                                          self.o_path,
+                                                          'correlation_difference'))}
+        plot_paths = []
+        if not self.cfg[ONLY_NUMERICAL_METRIC_RESULTS]:
+            plot_paths = save_correlation_difference_plot(corr_df, self.o_path)
+            self.report_data[PLOT] = relative_path(plot_paths[0])
         return plot_paths
 
 

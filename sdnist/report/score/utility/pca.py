@@ -1,5 +1,4 @@
-import pandas as pd
-from pathlib import Path
+from typing import Dict
 
 import sdnist.strs as strs
 from sdnist.metrics.pca import PCAMetric
@@ -45,11 +44,15 @@ pca_highlight_para = "The queries below explore the PCA metric results in more d
                      "If the deidentified data preserves the structure and feature " \
                      "correlations of the target data, the highlighted areas should have " \
                      "similar shape. "
+
+
 class PCAReport:
     def __init__(self,
+                 cfg: Dict[str, any],
                  dataset: Dataset,
                  ui_data: ReportUIData,
                  report_data: ReportData):
+        self.cfg = cfg
         self.dataset = dataset
         # For holding report data to create
         # machine-readable json
@@ -76,28 +79,40 @@ class PCAReport:
                           self.dataset.t_synthetic_data)
 
         pca_m.compute_pca()
-        plot_paths = pca_m.plot(o_path)
-
-        # acpp: all components pair-plot paths
-        acpp_tar, acpp_deid = plot_paths[strs.ALL_COMPONENTS_PAIR_PLOT]
-
-        # Add json report data for pca
         pca_rd = {
          "components_eigenvector": relative_path(
              save_data_frame(pca_m.comp_df,
                              o_path,
-                             'components_eigenvector')),
-         "target_all_components_plot": relative_path(acpp_tar),
-         "deidentified_all_components_plot": relative_path(acpp_deid),
-         "highlighted_plots": {f'{k[0]}-{k[1]}-{k[2]}':
-                                   [relative_path(v[0], 3), relative_path(v[1], 3)]
-             for k, v in plot_paths[strs.HIGHLIGHTED].items()}
+                             'components_eigenvector'))
         }
+
+        if not self.cfg[strs.ONLY_NUMERICAL_METRIC_RESULTS]:
+            plot_paths = pca_m.plot(o_path)
+
+            # acpp: all components pair-plot paths
+            acpp_tar, acpp_deid = plot_paths[strs.ALL_COMPONENTS_PAIR_PLOT]
+
+            # Add json report data for pca
+            pca_rd = {**pca_rd,
+             "components_eigenvector": relative_path(
+                 save_data_frame(pca_m.comp_df,
+                                 o_path,
+                                 'components_eigenvector')),
+             "target_all_components_plot": relative_path(acpp_tar),
+             "deidentified_all_components_plot": relative_path(acpp_deid),
+             "highlighted_plots": {f'{k[0]}-{k[1]}-{k[2]}':
+                                       [relative_path(v[0], 3), relative_path(v[1], 3)]
+                 for k, v in plot_paths[strs.HIGHLIGHTED].items()}
+            }
+            rel_pca_plot_paths = relative_path([acpp_tar, acpp_deid])
+        else:
+            plot_paths = []
+            rel_pca_plot_paths = []
 
         self.rd.add('pca', pca_rd)
 
         # create attachment objects for report UI data
-        rel_pca_plot_paths = relative_path([acpp_tar, acpp_deid])
+
 
         # pca paragraph attachment for report UI
         pca_para_a = Attachment(name=None,
@@ -128,26 +143,29 @@ class PCAReport:
                                 _data=pca_highlight_para,
                                 _type=AttachmentType.String)
         highlighted_attachments = []
-        for k, v in plot_paths[strs.HIGHLIGHTED].items():
-            name = k[1]
-            desc = k[2]
+        if not self.cfg[strs.ONLY_NUMERICAL_METRIC_RESULTS]:
+            for k, v in plot_paths[strs.HIGHLIGHTED].items():
+                name = k[1]
+                desc = k[2]
 
-            # highlighted attachment header
-            h_a_h = Attachment(name=None,
-                               _data=f'h4{name}: {desc}',
-                               _type=AttachmentType.String)
-            hcp_tar, hcp_deid = v
-            rel_pca_plot_paths = relative_path([hcp_tar, hcp_deid], level=3)
+                # highlighted attachment header
+                h_a_h = Attachment(name=None,
+                                   _data=f'h4{name}: {desc}',
+                                   _type=AttachmentType.String)
+                hcp_tar, hcp_deid = v
+                rel_pca_plot_paths = relative_path([hcp_tar, hcp_deid], level=3)
 
-            # highlighted attachment plots
-            h_a_p = Attachment(name=None,
-                               _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                                      for p in rel_pca_plot_paths],
-                               _type=AttachmentType.ImageLinksHorizontal)
-            highlighted_attachments.extend([h_a_h, h_a_p])
+                # highlighted attachment plots
+                h_a_p = Attachment(name=None,
+                                   _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                                          for p in rel_pca_plot_paths],
+                                   _type=AttachmentType.ImageLinksHorizontal)
+                highlighted_attachments.extend([h_a_h, h_a_p])
 
-        self.attachments.extend([pca_para_a, pca_para_a2, pca_tt_a, pca_plot_a, pca_highlight_head_a, pca_highlight_para_a]
-                                + highlighted_attachments)
+        self.attachments.extend([pca_para_a, pca_para_a2,
+                                 pca_tt_a, pca_plot_a,
+                                 pca_highlight_head_a,
+                                 pca_highlight_para_a]+ highlighted_attachments)
 
     def add_to_ui(self):
         if len(self.attachments):

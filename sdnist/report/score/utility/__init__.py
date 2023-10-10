@@ -98,7 +98,8 @@ def best_worst_performing(scores: pd.Series,
     return worst_scores, best_scores
 
 
-def worst_score_breakdown(worst_scores: List,
+def worst_score_breakdown(cfg: Dict[str, any],
+                          worst_scores: List,
                           dataset: Dataset,
                           ui_data: ReportUIData,
                           report_data: ReportData,
@@ -123,8 +124,9 @@ def worst_score_breakdown(worst_scores: List,
     if not out_dir.exists():
         os.mkdir(out_dir)
 
-    up = UnivariatePlots(s, t,
-                         ds, out_dir, ds.challenge, worst_univariates_to_display=3)
+    up = UnivariatePlots(cfg, s, t,
+                         ds, out_dir,
+                         worst_univariates_to_display=3)
     u_feature_data = up.save(level=3)
     k_marg_break_rd[f'worst_{len(wpf)}_puma_univariate'] = up.report_data(level=3)
     k_marg_break_rd[f'worst_{len(wpf)}_puma_k_marginal_scores'] = \
@@ -189,7 +191,7 @@ def worst_score_breakdown(worst_scores: List,
     pcd = PearsonCorrelationDifference(t, s,
                                        corr_features)
     pcd.compute()
-    pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, out_dir)
+    pcp = PearsonCorrelationPlot(cfg, pcd.pp_corr_diff, out_dir)
     pcp_saved_file_paths = pcp.save(path_level=3)
     k_marg_break_rd['correlation_difference'] = {
         "pearson_correlation_difference": pcp.report_data
@@ -197,8 +199,7 @@ def worst_score_breakdown(worst_scores: List,
 
     # rel_up_saved_file_paths = ["/".join(list(p.parts)[-3:])
     #                            for p in up_saved_file_paths]
-    rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-3:])
-                                for p in pcp_saved_file_paths]
+
     # attachment for worst feature names
     # a_wf = Attachment(name=f'{len(wpf)} Worst Performing ' + feature,
     #                   _data=", ".join(wpf),
@@ -224,6 +225,8 @@ def worst_score_breakdown(worst_scores: List,
                            + feature,
                            _data=pear_corr_worst_para,
                            _type=AttachmentType.String)
+    rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-3:])
+                                for p in pcp_saved_file_paths]
     a_pc = Attachment(name=None,
                       _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
                              for p in rel_pcp_saved_file_paths],
@@ -278,7 +281,8 @@ def kmarginal_subsamples(dataset: Dataset,
     return ssample_score, puma_scores
 
 
-def kmarginal_score_packet(k_marginal_score: int,
+def kmarginal_score_packet(cfg: dict[str, any],
+                           k_marginal_score: int,
                            feature_values: Dict[str, Dict],
                            dataset: Dataset,
                            ui_data: ReportUIData,
@@ -287,7 +291,7 @@ def kmarginal_score_packet(k_marginal_score: int,
                            subsample_group_scores: Optional[pd.DataFrame],
                            worst_breakdown_feature: str,
                            group_features: List[str],
-                           group_scores: Optional[pd.DataFrame] = None) \
+                           group_scores: Optional[Union[pd.DataFrame, pd.Series]] = None) \
         -> Tuple[UtilityScorePacket, UtilityScorePacket]:
 
     def min_index(data_list: List[float]):
@@ -395,7 +399,8 @@ def kmarginal_score_packet(k_marginal_score: int,
         w_b_n = default_w_b_n if len(worst_scores) > default_w_b_n else len(worst_scores)
         worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
 
-        worst_break_down, k_marg_break_rd = worst_score_breakdown(worst_scores,
+        worst_break_down, k_marg_break_rd = worst_score_breakdown(cfg,
+                                                                  worst_scores,
                                                                   dataset,
                                                                   ui_data,
                                                                   report_data,
@@ -468,7 +473,10 @@ def grid_plot_attachment(group_features: List[str],
     return gp_a
 
 
-def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportData,
+def utility_score(cfg: dict[str, any],
+                  dataset: Dataset,
+                  ui_data: ReportUIData,
+                  report_data: ReportData,
                   log: SimpleLogger) \
         -> Tuple[ReportUIData, ReportData]:
     ds = dataset
@@ -477,86 +485,92 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
 
     features = ds.features
     corr_features = ds.config[strs.CORRELATION_FEATURES]
-    corr_features = [f for f in ds.data_dict.keys() if f in corr_features]
+    corr_features = [f for f in ds.data_dict.keys()
+                     if f in corr_features]
     # Initiated k-marginal, correlation and propensity scorer
     # selected challenge type: census or taxi
-    if ds.challenge == strs.CENSUS:
-        log.msg('Univariates', level=3)
-        up = UnivariatePlots(ds.d_synthetic_data, ds.d_target_data,
-                             ds, r_ui_d.output_directory, ds.challenge)
-        u_feature_data = up.save()  # univariate features data
-        rd.add('Univariate', up.report_data())
 
-        u_as = []  # univariate attachments
+    log.msg('Univariates', level=3)
+    up = UnivariatePlots(cfg,
+                         ds.d_synthetic_data, ds.d_target_data,
+                         ds, r_ui_d.output_directory)
 
-        for k, v in u_feature_data.items():
-            u_path = v['path']
-            if len(str(u_path)) == 0:
-                continue
-            u_rel_path = "/".join(list(u_path.parts)[-2:])
-            name = k
+    u_feature_data = up.save()  # univariate features data
+    rd.add('Univariate', up.report_data())
+
+    u_as = []  # univariate attachments
+
+    for k, v in u_feature_data.items():
+        u_path = v['path']
+        if len(str(u_path)) == 0:
+            continue
+        u_rel_path = "/".join(list(u_path.parts)[-2:])
+        name = k
+        a = Attachment(name=None,
+                       _data=f'h4{name}',
+                       _type=AttachmentType.String)
+        u_as.append(a)
+
+        if "excluded" in v:
+            fv = v['excluded']['feature_value']
+            tc = v['excluded']['target_counts']
+            sc = v['excluded']['deidentified_counts']
+            f_name = name.split(':')[0]
+            if k.startswith('POVPIP'):
+                fv = '501 [Not in poverty: income above 5 x poverty line]'
+            elif fv == -1:
+                f_detail = '[N/A]'
+                if 'values' in ds.data_dict[f_name]:
+                    f_detail = ds.data_dict[f_name]['values']['N']
+                fv = f'N [{f_detail}]'
+            else:
+                f_detail = ''
+                if 'values' in ds.data_dict[f_name]:
+                    v_data = ds.data_dict[f_name]['values']
+                    if str(fv) in v_data:
+                        f_detail = ds.data_dict[f_name]['values'][str(fv)]
+                fv = f'{fv} [{f_detail}]'
+
             a = Attachment(name=None,
-                           _data=f'h4{name}',
+                           _data=f"Feature Values not shown in the chart:"
+                                 f"<br>Value: {fv}"
+                                 f"<br>Target Data Counts: {tc}"
+                                 f"<br>Deidentified Data Counts: {sc}",
                            _type=AttachmentType.String)
             u_as.append(a)
 
-            if "excluded" in v:
-                fv = v['excluded']['feature_value']
-                tc = v['excluded']['target_counts']
-                sc = v['excluded']['deidentified_counts']
-                f_name = name.split(':')[0]
-                if k.startswith('POVPIP'):
-                    fv = '501 [Not in poverty: income above 5 x poverty line]'
-                elif fv == -1:
-                    f_detail = '[N/A]'
-                    if 'values' in ds.data_dict[f_name]:
-                        f_detail = ds.data_dict[f_name]['values']['N']
-                    fv = f'N [{f_detail}]'
-                else:
-                    f_detail = ''
-                    if 'values' in ds.data_dict[f_name]:
-                        v_data = ds.data_dict[f_name]['values']
-                        if str(fv) in v_data:
-                            f_detail = ds.data_dict[f_name]['values'][str(fv)]
-                    fv = f'{fv} [{f_detail}]'
-
-                a = Attachment(name=None,
-                               _data=f"Feature Values not shown in the chart:"
-                                     f"<br>Value: {fv}"
-                                     f"<br>Target Data Counts: {tc}"
-                                     f"<br>Deidentified Data Counts: {sc}",
-                               _type=AttachmentType.String)
-                u_as.append(a)
-
-            a = Attachment(name=None,
-                           _data=[{strs.IMAGE_NAME: Path(u_rel_path).stem,
-                                  strs.PATH: u_rel_path}],
-                           _type=AttachmentType.ImageLinks)
-            u_as.append(a)
+        a = Attachment(name=None,
+                       _data=[{strs.IMAGE_NAME: Path(u_rel_path).stem,
+                              strs.PATH: u_rel_path}],
+                       _type=AttachmentType.ImageLinks)
+        u_as.append(a)
 
 
-        log.end_msg()
+    log.end_msg()
 
-        log.msg('Correlations', level=3)
-        cdp_saved_file_paths = []
-        pcp_saved_file_paths = []
-        if len(corr_features) > 1:
-            cdp = CorrelationDifferencePlot(ds.t_synthetic_data, ds.t_target_data, r_ui_d.output_directory,
-                                            corr_features)
-            cdp_saved_file_paths = cdp.save()
+    log.msg('Correlations', level=3)
+    cdp_saved_file_paths = []
+    pcp_saved_file_paths = []
+    if len(corr_features) > 1:
+        cdp = CorrelationDifferencePlot(cfg,
+                                        ds.t_synthetic_data,
+                                        ds.t_target_data,
+                                        r_ui_d.output_directory,
+                                        corr_features)
+        cdp_saved_file_paths = cdp.save()
 
-            pcd = PearsonCorrelationDifference(ds.t_target_data, ds.t_synthetic_data,
-                                               corr_features)
-            pcd.compute()
-            pcp = PearsonCorrelationPlot(pcd.pp_corr_diff, r_ui_d.output_directory)
-            pcp_saved_file_paths = pcp.save()
+        pcd = PearsonCorrelationDifference(ds.t_target_data,
+                                           ds.t_synthetic_data,
+                                           corr_features)
+        pcd.compute()
+        pcp = PearsonCorrelationPlot(cfg,
+                                     pcd.pp_corr_diff,
+                                     r_ui_d.output_directory)
+        pcp_saved_file_paths = pcp.save()
 
-            rd.add('Correlations', {"kendall correlation difference": cdp.report_data,
-                                    "pearson correlation difference": pcp.report_data})
-        log.end_msg()
-
-    else:
-        raise Exception(f'Unknown challenge type: {ds.challenge}')
+        rd.add('Correlations', {"kendall correlation difference": cdp.report_data,
+                                "pearson correlation difference": pcp.report_data})
+    log.end_msg()
 
     log.msg('K-Marginal', level=3)
     group_features = ds.config[strs.K_MARGINAL][strs.GROUP_FEATURES]
@@ -584,7 +598,8 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         group_scores = s.scores if hasattr(s, 'scores') and len(s.scores) else None
         # s_puma_score: subsample puma scores
         subsample_scores, s_puma_scores = kmarginal_subsamples(ds, KMarginal, group_features)
-        kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
+        kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(cfg,
+                                                              metric_score,
                                                               f_val_dict,
                                                               ds,
                                                               r_ui_d,
@@ -605,12 +620,14 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     metric_name = s.NAME
 
     metric_score = int(s.score) if s.score > 100 else round(s.score, 3)
-
-    p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
+    p_dist_plot = PropensityDistribution(s.prob_dist,
+                                         r_ui_d.output_directory)
     # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
-    #
+    if not cfg[strs.ONLY_NUMERICAL_METRIC_RESULTS]:
+        p_dist_paths = p_dist_plot.save()
+    else:
+        p_dist_paths = []
 
-    p_dist_paths = p_dist_plot.save()
     prop_rep_data = {**s.report_data, **p_dist_plot.report_data}
     rd.add('propensity mean square error', prop_rep_data)
     # pps_paths = pps.save('spmse',
@@ -672,7 +689,6 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         corr_metric_a.append(pc_para_a)
         corr_metric_a.append(pc_a)
 
-
     # Add metrics reports to UI
     if kmarg_sum_pkt:
         r_ui_d.add(kmarg_sum_pkt)
@@ -687,7 +703,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                   None,
                                   corr_metric_a))
     log.msg('Linear Regression', level=3)
-    lgr = LinearRegressionReport(ds, r_ui_d, rd)
+    lgr = LinearRegressionReport(cfg, ds, r_ui_d, rd)
     lgr.add_to_ui()
     log.end_msg()
 
@@ -695,7 +711,7 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
         r_ui_d.add(prop_pkt)
 
     log.msg('PCA', level=3)
-    pca_r = PCAReport(ds, r_ui_d, rd)
+    pca_r = PCAReport(cfg, ds, r_ui_d, rd)
     pca_r.add_to_ui()
     log.end_msg()
 

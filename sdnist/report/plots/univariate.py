@@ -14,32 +14,13 @@ from sdnist.utils import *
 plt.style.use('seaborn-deep')
 
 
-def l1(pk: List[int], qk: List[int]):
-    pk_max = max(pk)
-    qk_max = max(qk)
-
-    if pk_max == 0:
-        pk_n = [0 for p in pk]
-    else:
-        pk_n = [p/pk_max for p in pk]
-
-    if qk_max == 0:
-        qk_n = [0 for q in qk]
-    else:
-        qk_n = [q/qk_max for q in qk]
-
-    div = sum([abs(p-q) for p, q in zip(pk_n, qk_n)])
-
-    return div
-
-
 class UnivariatePlots:
     def __init__(self,
+                 cfg: Dict[str, any],
                  synthetic: pd.DataFrame,
                  target: pd.DataFrame,
                  dataset: Dataset,
                  output_directory: Path,
-                 challenge: str = CENSUS,
                  worst_univariates_to_display: Optional[int] = None):
         """
         Computes and creates univariate distribution plots of the worst
@@ -47,6 +28,8 @@ class UnivariatePlots:
 
         Parameters
         ----------
+            cfg : Dict[str, any]
+                program configuration dictionary
             synthetic : pd.Dataframe
                 synthetic dataset
             target : pd.Dataframe
@@ -55,11 +38,10 @@ class UnivariatePlots:
                 dataset object
             output_directory: pd.Dataframe
                 path of the directory to which plots will be saved
-            challenge: str
-                For which challenge type to compute univariates for, CENSUS or TAXI
-            n : pd.Dataframe
-                n worst performing univariates to save plots for
+            worst_univariates_to_display: pd.Dataframe
+                n worst performing univariates to show plots for.
         """
+        self.cfg = cfg
         self.syn = synthetic
         self.tar = target
 
@@ -68,17 +50,19 @@ class UnivariatePlots:
         self.o_dir = output_directory
         self.out_path = Path(self.o_dir, 'univariate')
         self.worst_univariates_to_display = worst_univariates_to_display
-        self.challenge = challenge
         self.feat_data = dict()
-        self._setup()
+        self.only_num_res = False  # report only numerical results
 
         self.div_data = None  # feature divergence data
         self.uni_counts = dict()  # univariate counts of target and synthetic data
+        self._setup()
 
     def _setup(self):
         if not self.o_dir.exists():
             raise Exception(f'Path {self.o_dir} does not exist. Cannot save plots')
         os.mkdir(self.out_path)
+        if ONLY_NUMERICAL_METRIC_RESULTS in self.cfg.keys():
+            self.only_num_res = self.cfg[ONLY_NUMERICAL_METRIC_RESULTS]
 
     def report_data(self, level=2):
         return {"divergence": relative_path(save_data_frame(self.div_data,
@@ -88,17 +72,11 @@ class UnivariatePlots:
                 "counts": self.uni_counts}
 
     def save(self, level=2) -> Dict:
-        if self.challenge == CENSUS:
-            ignore_features = ['YEAR']
-        elif self.challenge == TAXI:
-            ignore_features = ['pickup_community_area', 'shift', 'company_id']
-        else:
-            raise Exception(f'Invalid Challenge Name: {self.challenge}. '
-                            f'Unable to save univariate plots')
         # divergence dataframe
         div_df = divergence(self.syn,
                             self.tar,
-                            self.schema, ignore_features)
+                            self.schema,
+                            [])
         self.div_data = div_df
         # select 3 features with worst divergence
         # div_df = div_df.head(3)
@@ -165,38 +143,23 @@ class UnivariatePlots:
                 for j, data in enumerate(selected):
                     merged = data[0]
                     div = data[1]
-                    s = data[2]
+                    sector = data[2]
                     merged = merged.sort_values(by=f)
-                    x_axis = np.arange(merged.shape[0])
-                    plt.figure(figsize=(8, 3), dpi=100)
-                    plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
-                    plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
-                    plt.xlabel('Feature Values')
-                    plt.ylabel('Record Counts')
-                    plt.gca().set_xticks(x_axis, merged[f].values.tolist())
-                    plt.legend(loc='upper right')
-                    if merged.shape[0] > 30:
-                        plt.xticks(fontsize=6, rotation=90)
-                    else:
-                        plt.xticks(fontsize=8, rotation=45)
-                    plt.tight_layout()
+                    file_path = Path(o_path, f'indp_indp_cat_{sector}.jpg')
                     title = f'Industries in Industry Category ' \
-                            f'{dataset.data_dict["INDP_CAT"]["values"][str(s)]}'
-                    plt.title(title,
-                              fontdict={'fontsize': 12})
+                            f'{dataset.data_dict["INDP_CAT"]["values"][str(sector)]}'
 
-                    file_path = Path(o_path, f'indp_indp_cat_{s}.jpg')
-                    plt.savefig(file_path, bbox_inches='tight')
-
-                    plt.close()
-                    self.uni_counts[f][f"Industry Category {s}"] = {
+                    self.uni_counts[f][f"Industry Category {sector}"] = {
                         "divergence": div,
                         "counts": relative_path(save_data_frame(merged,
                                                 o_path,
-                                                f"Industry Category {s}"),
-                                                level=level),
-                        "plot": relative_path(file_path, level=level)
+                                                f"Industry Category {sector}"),
+                                                level=level)
                     }
+                    if not self.only_num_res:
+                        plot_indp_cat(merged, f, title, file_path, bar_width)
+                        self.uni_counts[f][f"Industry Category {sector}"][PLOT] = \
+                            relative_path(file_path, level=level)
                     # if j < 2:
                     saved_file_paths.append(file_path)
 
@@ -204,8 +167,7 @@ class UnivariatePlots:
                         "path": ''
                     }
             else:
-                plt.figure(figsize=(8, 3), dpi=100)
-                file_path = Path(o_path, f'{f}.jpg')
+
                 values = set(target[f].unique().tolist()).union(synthetic[f].unique().tolist())
                 values = sorted(values)
                 val_df = pd.DataFrame(values, columns=[f])
@@ -220,82 +182,116 @@ class UnivariatePlots:
                 c_sort_merged = merged.sort_values(by='count_target', ascending=False)
                 c_sort_merged = c_sort_merged.reset_index(drop=True)
 
-                c_vals = c_sort_merged['count_target'].head(2).values
-                c1, c2 = c_vals[0], c_vals[1]
-
+                try:
+                    c_vals = c_sort_merged['count_target'].head(2).values
+                    c1, c2 = c_vals[0], c_vals[1]
+                except IndexError as I:
+                    print(f'IndexError: {I}')
+                    print(f'c_vals: {c_vals}')
+                    print(f'c_sort_merged: {c_sort_merged}')
 
                 self.uni_counts[f] = {
                     "counts": relative_path(save_data_frame(c_sort_merged.copy(),
                                                             o_path,
                                                             f'{f}_counts'),
-                                            level=level),
-                    "plot": relative_path(file_path, level)
+                                            level=level)
                 }
-
-                if self.worst_univariates_to_display is None \
-                        or i < self.worst_univariates_to_display:
-                    self.feat_data[title] = dict()
-                    if c1 >= c2*3 or f in ['PINCP']:
-                        f_val = c_sort_merged.loc[0, f]
-                        f_tc = c_sort_merged.loc[0, 'count_target']
-                        f_sc = c_sort_merged.loc[0, 'count_deidentified']
-                        c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
-                        self.feat_data[title] = {
-                            "excluded": {
-                                "feature_value": f_val,
-                                "target_counts": int(f_tc),
-                                "deidentified_counts": int(f_sc)
+                if not self.only_num_res:
+                    if self.worst_univariates_to_display is None \
+                            or i < self.worst_univariates_to_display:
+                        self.feat_data[title] = dict()
+                        if c1 >= c2*3 or f in ['PINCP']:
+                            f_val = c_sort_merged.loc[0, f]
+                            f_tc = c_sort_merged.loc[0, 'count_target']
+                            f_sc = c_sort_merged.loc[0, 'count_deidentified']
+                            c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
+                            self.feat_data[title] = {
+                                "excluded": {
+                                    "feature_value": f_val,
+                                    "target_counts": int(f_tc),
+                                    "deidentified_counts": int(f_sc)
+                                }
                             }
-                        }
 
-                merged = c_sort_merged.sort_values(by=f)
+                    merged = c_sort_merged.sort_values(by=f)
 
-                x_axis = np.arange(merged.shape[0])
-                plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
-                plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
-                plt.xlabel('Feature Values')
-                plt.ylabel('Record Counts')
-                vals = merged[f].values.tolist()
+                    plt.figure(figsize=(8, 3), dpi=100)
+                    file_path = Path(o_path, f'{f}.jpg')
+                    x_axis = np.arange(merged.shape[0])
+                    plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
+                    plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
+                    plt.xlabel('Feature Values')
+                    plt.ylabel('Record Counts')
+                    vals = merged[f].values.tolist()
 
-                if f in ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']:
-                    updated_vals = []
-                    for v in vals:
-                        mv1 = o_tar[target[f].isin([v])][f].values.tolist()
-                        mv = mv1
-                        if len(mv) and v != -1:
-                            nv = min(mv)
-                            updated_vals.append(nv)
-                        else:
-                            updated_vals.append(v)
-                    vals = updated_vals
+                    if f in ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']:
+                        updated_vals = []
+                        for v in vals:
+                            mv1 = o_tar[target[f].isin([v])][f].values.tolist()
+                            mv = mv1
+                            if len(mv) and v != -1:
+                                nv = min(mv)
+                                updated_vals.append(nv)
+                            else:
+                                updated_vals.append(v)
+                        vals = updated_vals
 
-                vals = [str(v) for v in vals]
+                    vals = [str(v) for v in vals]
 
-                if "-1" in vals:
-                    idx = vals.index("-1")
-                    vals[idx] = "N"
+                    if "-1" in vals:
+                        idx = vals.index("-1")
+                        vals[idx] = "N"
 
-                if f == 'PUMA':
-                    f_val_dict = {i: v for i, v in enumerate(ds.schema[f]['values'])}
-                    vals = [f_val_dict[int(v)] if v != 'N' else 'N' for v in vals]
+                    if f == 'PUMA':
+                        f_val_dict = {i: v for i, v in enumerate(ds.schema[f]['values'])}
+                        vals = [f_val_dict[int(v)] if v != 'N' else 'N' for v in vals]
 
-                plt.gca().set_xticks(x_axis, vals)
-                plt.legend(loc='upper right')
-                plt.xticks(fontsize=8, rotation=45)
-                plt.tight_layout()
+                    plt.gca().set_xticks(x_axis, vals)
+                    plt.legend(loc='upper right')
+                    plt.xticks(fontsize=8, rotation=45)
+                    plt.tight_layout()
 
-                plt.title(title,
-                          fontdict={'fontsize': 12})
+                    plt.title(title,
+                              fontdict={'fontsize': 12})
 
-                plt.savefig(Path(o_path, f'{f}.jpg'), bbox_inches='tight')
-                plt.close()
+                    plt.savefig(Path(o_path, f'{f}.jpg'), bbox_inches='tight')
+                    plt.close()
+                    self.uni_counts[f][PLOT] = relative_path(file_path, level)
 
-                if self.worst_univariates_to_display is None \
-                        or i < self.worst_univariates_to_display:
-                    saved_file_paths.append(file_path)
-                    self.feat_data[title]['path'] = file_path
+                    if self.worst_univariates_to_display is None \
+                            or i < self.worst_univariates_to_display:
+                        saved_file_paths.append(file_path)
+                        self.feat_data[title]['path'] = file_path
 
         return saved_file_paths
+
+
+def plot_indp_cat(merged: pd.DataFrame,
+                  feature: str,
+                  plot_title: str,
+                  output_file: Path,
+                  bar_width):
+    x_axis = np.arange(merged.shape[0])
+    plt.figure(figsize=(8, 3), dpi=100)
+    plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
+    plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
+    plt.xlabel('Feature Values')
+    plt.ylabel('Record Counts')
+    plt.gca().set_xticks(x_axis,
+                         merged[feature].values.tolist())
+    plt.legend(loc='upper right')
+    if merged.shape[0] > 30:
+        plt.xticks(fontsize=6, rotation=90)
+    else:
+        plt.xticks(fontsize=8, rotation=45)
+    plt.tight_layout()
+
+    plt.title(plot_title,
+              fontdict={'fontsize': 12})
+
+    plt.savefig(output_file, bbox_inches='tight')
+
+    plt.close()
 
 
 def divergence(synthetic: pd.DataFrame,

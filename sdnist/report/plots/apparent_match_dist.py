@@ -1,15 +1,10 @@
-import os
-
-from typing import List
-from pathlib import Path
+from typing import List, Dict
 
 import matplotlib.pyplot as plt
-import pandas as pd
 
 from sdnist.metrics.apparent_match_dist import cellchange
 from sdnist.utils import *
-
-# plt.style.use('seaborn-deep')
+from sdnist.strs import *
 
 
 def plot_apparent_match_dist(match_percentages: pd.Series,
@@ -40,6 +35,7 @@ def plot_apparent_match_dist(match_percentages: pd.Series,
 
 class ApparentMatchDistributionPlot:
     def __init__(self,
+                 cfg: Dict[str, any],
                  synthetic: pd.DataFrame,
                  target: pd.DataFrame,
                  output_directory: Path,
@@ -51,6 +47,8 @@ class ApparentMatchDistributionPlot:
 
         Parameters
         ----------
+            cfg: Dict[str, any]
+                Program configuration
             synthetic : pd.Dataframe
                 synthetic dataset
             target : pd.Dataframe
@@ -62,6 +60,7 @@ class ApparentMatchDistributionPlot:
             exclude_features:
                 features to exclude from matching between dataset
         """
+        self.cfg = cfg
         self.syn = synthetic
         self.tar = target
         self.o_dir = output_directory
@@ -83,12 +82,15 @@ class ApparentMatchDistributionPlot:
                                           self.quasi_features,
                                           self.exclude_features)
         self.quasi_matched_df = mu
-
-        save_file_path = plot_apparent_match_dist(percents,
-                                                  self.o_path)
         mu['percent_match'] = percents
         self.report_data['unique_matched_percents'] = \
             relative_path(save_data_frame(mu, self.o_path, 'unique_matched_percents'))
-        self.report_data['plot'] = relative_path(save_file_path)
 
-        return [save_file_path]
+        plot_paths = []
+        if not self.cfg[ONLY_NUMERICAL_METRIC_RESULTS]:
+            save_file_path = plot_apparent_match_dist(percents,
+                                                      self.o_path)
+            self.report_data[PLOT] = relative_path(save_file_path)
+            plot_paths.append(save_file_path)
+
+        return plot_paths
