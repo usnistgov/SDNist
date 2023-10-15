@@ -28,6 +28,7 @@ from sdnist.report.report_data import \
 from sdnist.report.plots import \
     UnivariatePlots, CorrelationDifferencePlot, \
     GridPlot, PropensityDistribution, PearsonCorrelationPlot
+from sdnist.report.helpers import ProgressStatus, ProgressLabels
 
 import sdnist.strs as strs
 from sdnist.utils import *
@@ -473,7 +474,8 @@ def grid_plot_attachment(group_features: List[str],
     return gp_a
 
 
-def utility_score(cfg: dict[str, any],
+def utility_score(progress: ProgressStatus,
+                  cfg: dict[str, any],
                   dataset: Dataset,
                   ui_data: ReportUIData,
                   report_data: ReportData,
@@ -545,8 +547,8 @@ def utility_score(cfg: dict[str, any],
                        _type=AttachmentType.ImageLinks)
         u_as.append(a)
 
-
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.UNIVARIATES)
 
     log.msg('Correlations', level=3)
     cdp_saved_file_paths = []
@@ -571,6 +573,7 @@ def utility_score(cfg: dict[str, any],
         rd.add('Correlations', {"kendall correlation difference": cdp.report_data,
                                 "pearson correlation difference": pcp.report_data})
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.CORRELATIONS)
 
     log.msg('K-Marginal', level=3)
     group_features = ds.config[strs.K_MARGINAL][strs.GROUP_FEATURES]
@@ -610,6 +613,7 @@ def utility_score(cfg: dict[str, any],
                                                               group_features,
                                                               group_scores)
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.K_MARGINAL)
 
     log.msg('PropensityMSE', level=3)
     s = PropensityMSE(ds.t_target_data,
@@ -654,6 +658,7 @@ def utility_score(cfg: dict[str, any],
                                   [pd_para_a, pd_score_a, pd_a])
 
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.PROPENSITY_MSE)
 
     # rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
     #                            for p in up_saved_file_paths]
@@ -706,6 +711,7 @@ def utility_score(cfg: dict[str, any],
     lgr = LinearRegressionReport(cfg, ds, r_ui_d, rd)
     lgr.add_to_ui()
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.LINEAR_REGRESSION)
 
     if prop_pkt:
         r_ui_d.add(prop_pkt)
@@ -714,11 +720,13 @@ def utility_score(cfg: dict[str, any],
     pca_r = PCAReport(cfg, ds, r_ui_d, rd)
     pca_r.add_to_ui()
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.PCA)
 
     log.msg('Inconsistencies', level=3)
     icr = InconsistenciesReport(ds, r_ui_d, rd)
     icr.add_to_ui()
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.INCONSISTENCIES)
 
     if kmarg_det_pkt:
         r_ui_d.add(kmarg_det_pkt)

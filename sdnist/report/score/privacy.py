@@ -7,11 +7,15 @@ from sdnist.metrics.unique_exact_matches import unique_exact_matches
 from sdnist.report.report_data import \
     PrivacyScorePacket, Attachment, AttachmentType
 from sdnist.report.score.paragraphs import *
+from sdnist.report.helpers.progress_status \
+    import ProgressStatus, ProgressLabels
+
 from sdnist.strs import *
 from sdnist.utils import *
 
 
-def privacy_score(cfg: Dict[str, any],
+def privacy_score(progress: ProgressStatus,
+                  cfg: Dict[str, any],
                   dataset: Dataset,
                   ui_data: ReportUIData,
                   report_data,
@@ -66,6 +70,7 @@ def privacy_score(cfg: Dict[str, any],
     })
 
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.UNIQUE_EXACT_MATCHES)
 
     log.msg('Apparent Match Distribution', level=3)
     quasi_idf = []  # list of quasi-identifier features
@@ -142,5 +147,6 @@ def privacy_score(cfg: Dict[str, any],
                                    quasi_para_a,
                                    quasi_list_atch]))
     log.end_msg()
+    progress.update(str(rd.output_directory), ProgressLabels.APPARENT_MATCH_DISTRIBUTION)
 
     return r_ui_d, rd

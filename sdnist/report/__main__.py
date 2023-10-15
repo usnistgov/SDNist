@@ -3,7 +3,7 @@ import os
 import datetime
 import argparse
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Generator, Tuple
 
 from sdnist.report.common import REPORTS_DIR
 import sdnist.load
@@ -13,6 +13,9 @@ from sdnist.report import \
 from sdnist.report.score import \
     utility_score, privacy_score
 from sdnist.report.dataset import data_description
+from sdnist.report.helpers import \
+    ProgressStatus, ProgressLabels
+
 from sdnist.load import TestDatasetName
 
 from sdnist.strs import *
@@ -21,16 +24,18 @@ from sdnist.utils import *
 from sdnist.load import DEFAULT_DATASET
 
 
-def run(deid_filepath: Path,
+def run(progress: ProgressStatus,
+        deid_filepath: Path,
         output_directory: Path = REPORTS_DIR,
         dataset_name: TestDatasetName = TestDatasetName.NONE,
         data_root: Path = Path(DEFAULT_DATASET),
         labels_dict: Optional[Dict] = None,
         download: bool = False,
         show_report: bool = True,
-        only_numerical_metric_results: bool = False):
+        only_numerical_metric_results: bool = False) -> any:
     """
     Run the report generation pipeline.
+    progress: ProgressStatus object to track progress of the report generation
     deid_filepath: Path to the deidentified dataset (csv/parquet)
     output_directory: Path to the directory where the report data will be saved
     dataset_name: Name of the target dataset that was used to generate the deidentified dataset
@@ -49,6 +54,8 @@ def run(deid_filepath: Path,
     cfg = {
         ONLY_NUMERICAL_METRIC_RESULTS: only_numerical_metric_results,
     }
+    if progress:
+        progress.update(str(output_directory), ProgressLabels.STARTED)
 
     outfile = Path(output_directory, 'report.json')
     # Object to store UI data that is populated on a jinja template
@@ -71,11 +78,11 @@ def run(deid_filepath: Path,
 
         # Compute Utility and Privacy Scores
         log.msg('Computing Utility Scores', level=2)
-        ui_data, report_data = utility_score(cfg, dataset, ui_data, report_data, log)
+        ui_data, report_data = utility_score(progress, cfg, dataset, ui_data, report_data, log)
         log.end_msg()
 
         log.msg('Computing Privacy Scores', level=2)
-        ui_data, report_data = privacy_score(cfg, dataset, ui_data, report_data, log)
+        ui_data, report_data = privacy_score(progress, cfg, dataset, ui_data, report_data, log)
         log.end_msg()
 
         log.msg('Saving Report Data')
@@ -84,10 +91,13 @@ def run(deid_filepath: Path,
         report_data.data['created_on'] = ui_data['Created on']
         report_data.save()
         log.end_msg()
+        progress.update(str(output_directory), ProgressLabels.SAVING_REPORT_DATA)
     else:
         with open(outfile, 'r') as f:
             ui_data = json.load(f)
     log.end_msg()
+    progress.update(str(output_directory), ProgressLabels.CREATING_EVALUATION_REPORT)
+
     # Generate Report
     generate(ui_data, output_directory, show_report)
     log.msg(f'Reports available at path: {output_directory}', level=0, timed=False,
