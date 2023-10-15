@@ -1,3 +1,5 @@
+from typing import Optional, Callable
+
 import pygame_gui as pggui
 import pygame as pg
 
@@ -5,7 +7,9 @@ from pygame_gui.elements.ui_button import UIButton
 
 
 class UICallbackButton(UIButton):
-    def __init__(self, callback, can_toggle: bool = False,
+    def __init__(self,
+                 callback: Optional[Callable] = None,
+                 can_toggle: Optional[bool] = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.callback = callback
@@ -16,7 +20,8 @@ class UICallbackButton(UIButton):
         if event.type == pg.USEREVENT:
             if event.user_type == pggui.UI_BUTTON_PRESSED \
                     and event.ui_element == self:
-                self.callback()
+                if self.callback:
+                    self.callback()
                 if self.can_toggle:
                     if self.is_selected:
                         self.unselect()

@@ -12,7 +12,7 @@ from pygame_gui.elements.ui_selection_list import UISelectionList
 
 from sdnist.gui.elements.textline import CustomUITextEntryLine
 
-from sdnist.gui.elements.button import UICallbackButton
+from sdnist.gui.elements.buttons import UICallbackButton
 from sdnist.gui.elements.selection import CallbackSelectionList
 from sdnist.gui.elements import CustomUIPanel
 from sdnist.gui.panels import AbstractPanel
@@ -48,6 +48,7 @@ class MetadataFormField(AbstractPanel):
         self.input_rect = None
         self.inp_btn = None
         self.panel = None
+        self.label = None
         self.dropdown = None
         self.selected_val = None
         self.on_change = None
@@ -61,14 +62,14 @@ class MetadataFormField(AbstractPanel):
                              callback=partial(self.test_panel_callback),
                              relative_rect=self.rect,
                              container=self.container,
-                             starting_height=0,
+                             starting_height=2,
                              manager=self.manager,
                              anchors={'left': 'left',
                                       'top': 'top'})
         self.panel.on_hovered()
         lbl_w = self.rect.w * 0.3
         lbl_rect = pg.Rect((0, 0), (lbl_w, self.rect.h))
-        label = UILabel(relative_rect=lbl_rect,
+        self.label = UILabel(relative_rect=lbl_rect,
                         container=self.panel,
                         parent_element=self.panel,
                         text=self.label_name.capitalize(),
@@ -89,7 +90,7 @@ class MetadataFormField(AbstractPanel):
                                                  manager=self.manager,
                                                  anchors={'left': 'left',
                                                            'top': 'top'},
-                                                initial_text=self.label_value)
+                                                 initial_text=self.label_value)
         elif self.label_type in [LabelT.DROPDOWN, LabelT.MULTI_DROPDOWN]:
             # dropdown input width
             d_in_w = inp_w * 0.9
@@ -135,6 +136,17 @@ class MetadataFormField(AbstractPanel):
                                                            'top': 'top'},
                                                  initial_text=self.label_value)
 
+    def get_all_elements(self):
+        elems = [
+            self.panel,
+            self.label,
+            self.text_in,
+        ]
+
+        if self.inp_btn:
+            elems.append(self.inp_btn)
+        return elems
+
     def test_panel_callback(self):
         print(self.label_name, 'panel hovered')
 
@@ -165,7 +177,7 @@ class MetadataFormField(AbstractPanel):
             default_val = self.selected_val
         self.dropdown = CallbackSelectionList(
                                         callback=self.set_value,
-                                        starting_height=1,
+                                        starting_height=3,
                                         relative_rect=dr,
                                         container=self.container,
                                         parent_element=self.container,

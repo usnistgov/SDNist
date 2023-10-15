@@ -1,4 +1,7 @@
+import glob
 from typing import Optional
+from multiprocessing import Process, Manager
+from multiprocessing.managers import BaseManager
 
 import pygame as pg
 import pygame_gui as pggui
@@ -7,6 +10,7 @@ from pygame_gui.elements.ui_label import UILabel
 from pathlib import Path
 from multiprocessing import Pool
 
+from sdnist.gui.constants import REPORT_DIR_PREFIX
 from sdnist.gui.pages.page import AbstractPage
 from sdnist.gui.pages import Page
 from sdnist.gui.panels import \
@@ -34,8 +38,10 @@ from sdnist.load import DEFAULT_DATASET
 
 from sdnist.gui.config import load_cfg, save_cfg
 
+from sdnist.report.helpers import ProgressStatus
 
-progress = 0
+
+progress = None
 
 
 class Dashboard(AbstractPage):
@@ -81,6 +87,9 @@ class Dashboard(AbstractPage):
         self.settings = load_cfg()
         self.settings_window = None
 
+        self.progress = ProgressStatus()
+        self.last_progress = 0
+
     def create(self):
         header_rect = pg.Rect(0, 0, self.w // 2, self.header_height)
 
@@ -106,6 +115,24 @@ class Dashboard(AbstractPage):
 
     def draw(self, screen: pg.Surface):
         pass
+
+    def update(self):
+        if self.progress is None:
+            return
+        if self.progress.has_updates():
+            if self.statusbar.reports_progress is not None:
+                self.statusbar.reports_progress.update_progress(self.progress)
+        if self.progress.get_current_progress() \
+                != self.progress.get_last_progress():
+            old_reports_created = len(self.progress.get_completed_reports())
+            self.statusbar.update_progress(self.progress)
+            new_reports_created = len(self.progress.get_completed_reports())
+            if new_reports_created > old_reports_created:
+                self.filetree = FileTree(self.filetree_rect,
+                                         self.manager,
+                                         str(self.data))
+            self.progress.set_last_progress(
+                self.progress.get_current_progress())
 
     def handle_event(self, event: pg.event.Event):
         if self.load_data:
@@ -171,14 +198,19 @@ class Dashboard(AbstractPage):
                                      self.manager,
                                      str(self.data))
 
-    def update_progress(self, result):
-        global progress
-        progress += 1
+    def update_progress(self, report_name: str):
+        pass
+        # global progress
+        # if progress is None:
+        #     progress = ProgressStatus()
+        # if report_name not in progress.reports:
+        #     progress.add_report(report_name)
+        # progress.
 
         # FileTreeWindow
-        self.filetree = FileTree(self.filetree_rect,
-                                 self.manager,
-                                 str(self.data))
+        # self.filetree = FileTree(self.filetree_rect,
+        #                          self.manager,
+        #                          str(self.data))
 
     def report_callback(self):
         if self.selected_path is None:
@@ -187,13 +219,25 @@ class Dashboard(AbstractPage):
         csv_files = []
         s_path = Path(self.selected_path)
         if s_path.is_dir():
-            files = list(s_path.glob('**/*.csv'))
+            # exclude directories that start with SDNIST_DER_
+            print(s_path)
+            all_files = list(glob.iglob(str(s_path) + f'/**/*.csv',
+                                        recursive=True))
+
+            files = filter(lambda x: REPORT_DIR_PREFIX not in str(x),
+                                        all_files)
             csv_files = [str(f) for f in files]
         elif s_path.suffix == '.csv':
             csv_files = [str(s_path)]
+        print(csv_files)
+        BaseManager.register('ProgressStatus', ProgressStatus)
+        manager = BaseManager()
+        manager.start()
+        self.progress = manager.ProgressStatus()
 
         inputs = setup(csv_files)
         inputs = [(
+            self.progress,
             i[SYNTHETIC_FILEPATH],
             i[OUTPUT_DIRECTORY],
             i[DATASET_NAME],
@@ -205,18 +249,25 @@ class Dashboard(AbstractPage):
             )
             for i in inputs
         ]
-        # pool = Pool(5)
+
+        reports = []
+
+        for i in inputs:
+            str_path = str(i[2])
+            self.progress.add_report(str_path)
+            reports.append(str_path)
+
+        self.statusbar.add_progress(reports)
+        pool = Pool(5)
         # res = pool.starmap(run, inputs)
         # self.left_panel = SidePanel(0, self.header_height,
         #                             self.manager, str(self.data))
-        # for i in inputs:
-        #     self.report_pool.append(pool.apply_async(run, (*i,),
-        #                                              callback=self.update_progress))
-        for input in inputs:
-            print(input)
-            run(*input)
-            # self.left_panel = SidePanel(0, self.header_height,
-            #                             self.manager, str(self.data))
+        for i in inputs:
+            self.report_pool.append(pool.apply_async(run, (*i,),
+                                                     callback=self.update_progress))
+        # for input in inputs:
+        #     print(input)
+        #     run(*input)
 
     def index_callback(self):
         if self.selected_path is None:

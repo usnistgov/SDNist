@@ -1,3 +1,4 @@
+from typing import Callable, Optional
 import pygame_gui as pggui
 import pygame as pg
 
@@ -5,7 +6,8 @@ from pygame_gui.elements.ui_selection_list import UISelectionList
 
 
 class CallbackSelectionList(UISelectionList):
-    def __init__(self, callback, *args, **kwargs):
+    def __init__(self, callback: Optional[Callable] = None,
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.callback = callback
 
@@ -14,6 +16,9 @@ class CallbackSelectionList(UISelectionList):
         response = super().process_event(event)
 
         # If this event was a new selection, call our callback
+        if self.callback is None:
+            return response
+
         if event.type == pg.USEREVENT and event.ui_element == self:
             if event.user_type == pggui.UI_SELECTION_LIST_NEW_SELECTION \
                or event.user_type == pggui.UI_SELECTION_LIST_DROPPED_SELECTION:

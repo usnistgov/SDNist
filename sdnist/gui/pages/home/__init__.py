@@ -104,6 +104,9 @@ class Home(AbstractPage):
     def draw(self, screen: pg.Surface):
         pass
 
+    def update(self):
+        pass
+
     def handle_event(self, event: pg.event.Event):
         if self.current_panel:
             self.current_panel.handle_event(event)

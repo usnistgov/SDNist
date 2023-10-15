@@ -4,6 +4,7 @@ from functools import partial
 
 import pygame_gui as pggui
 import pygame as pg
+
 from pygame_gui.elements.ui_panel import UIPanel
 from pygame_gui.elements.ui_window import UIWindow
 from pygame_gui.elements.ui_button import UIButton
@@ -11,27 +12,9 @@ from pygame_gui.elements.ui_scrolling_container \
     import UIScrollingContainer
 from pygame_gui.core import ObjectID
 
+from sdnist.gui.elements import FileButton, DirectoryButton
 from sdnist.gui.constants import REPORT_DIR_PREFIX
 from sdnist.gui.windows.window import AbstractWindow
-
-
-# Custom button class
-class FileTreeButton(UIButton):
-    def __init__(self, callback, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.callback = callback
-
-    def process_event(self, event):
-        response = super().process_event(event)
-        if event.type == pg.USEREVENT:
-            if event.user_type == pggui.UI_BUTTON_PRESSED \
-                    and event.ui_element == self:
-                self.callback(self)
-                if self.is_selected:
-                    self.unselect()
-                else:
-                    self.select()
-        return response
 
 
 class FileTree(AbstractWindow):
@@ -84,13 +67,11 @@ class FileTree(AbstractWindow):
         self.files_ui = dict()
         self.buttons = dict()
 
-        def callback(path: str, btn_ref: FileTreeButton):
+        def callback(path: str, btn_ref: UIButton):
             if Path(path).exists():
                 if self.selected:
                     self.selected[1].unselect()
                 self.selected = (path, btn_ref)
-                if Path(path).is_dir():
-                    self.handle_dir_expand(path)
 
         def get_button_width(text: str):
             btn = UIButton(relative_rect=pg.Rect(0, 0, -1, 0),
@@ -102,7 +83,8 @@ class FileTree(AbstractWindow):
             btn = None
             return w
 
-        def draw_subtree(root: Path, level: int, start_y_idx: int):
+        def draw_subtree(root: Path, level: int,
+                         start_y_idx: int):
             # print(root)
             lvl_str = ' ' * level
             lvl_d = dict()
@@ -115,35 +97,40 @@ class FileTree(AbstractWindow):
             else:
                 self.dir_expansion[str(root)] = True
 
-            text = f'+ {root.name}' if not expansion else f'- {root.name}'
+            text = f'{root.name}'
 
             # root button
             btn_x, btn_y = 10 * level, i * 30
+            btn_h = 30
             # print(btn_x, btn_y, self.rect.h)
             btn_w = get_button_width(text)
+            btn_w += btn_h + DirectoryButton.PAD_X
             file_btn_rect = pg.Rect(btn_x,
                                     btn_y,
-                                    btn_w, 30)
+                                    btn_w, btn_h)
 
             # print(f'{"-"*(level + 1)}>{root.name} {(btn_x, btn_y)} '
             #       f'{(btn_w)}')
 
-            root_btn = FileTreeButton(relative_rect=file_btn_rect,
-                                      starting_height=3,
-                                      text=text,
-                                      callback=partial(callback, str(root)),
-                                      manager=self.manager,
-                                      container=self.scroll,
-                                      anchors={'left': 'left'},
-                                      object_id=ObjectID(class_id='@file_tree_button',
-                                                         object_id='#directory_button'))
+            root_btn = DirectoryButton(relative_rect=file_btn_rect,
+                                       starting_height=3,
+                                       text=text,
+                                       expanded=expansion,
+                                       selection_callback=partial(callback, str(root)),
+                                       expansion_callback=partial(self.handle_dir_expand, str(root)),
+                                       manager=self.manager,
+                                       container=self.scroll,
+                                       anchors={'left': 'left'},
+                                       object_id=ObjectID(class_id='@filetree_button',
+                                                          object_id='#filetree_directory_button'))
+
             self.buttons[str(root)] = root_btn
             if expansion:
                 for f in root.iterdir():
                     if f.is_file() and f.suffix in ['.csv', '.json']:
                         # lvl_d[k] = dict()
-                        json_file_btn_id = '#json_file_button'
-                        csv_file_btn_id = '#csv_file_button'
+                        json_file_btn_id = '#filetree_jsonfile_button'
+                        csv_file_btn_id = '#filetree_csvfile_button'
 
                         i += 1
                         text = f.name
@@ -154,21 +141,21 @@ class FileTree(AbstractWindow):
                                                 btn_w, 30)
                         file_type = f.suffix[1:]
                         btn_id = json_file_btn_id if file_type == 'json' else csv_file_btn_id
-                        obj_id = ObjectID(class_id='@file_tree_button',
+                        obj_id = ObjectID(class_id='@filetree_button',
                                           object_id=btn_id)
 
                         # print(f'{"-" * (level + 1)*2}-@>{f.name} {(btn_x, btn_y)}'
                         #       f'{(btn_w)}')
 
-                        file_btn = FileTreeButton(relative_rect=file_btn_rect,
-                                                  starting_height=3,
-                                                  text=text,
-                                                  callback=partial(callback, str(f)),
-                                                  manager=self.manager,
-                                                  container=self.scroll,
-                                                  anchors={'left': 'left'},
-                                                  object_id=obj_id)
-
+                        file_btn = FileButton(relative_rect=file_btn_rect,
+                                              starting_height=3,
+                                              text=text,
+                                              callback=None,
+                                              manager=self.manager,
+                                              container=self.scroll,
+                                              anchors={'left': 'left'},
+                                              object_id=obj_id)
+                        file_btn.callback = partial(callback, str(f), file_btn)
                         self.buttons[str(f)] = file_btn
                     elif f.is_dir() and not f.name.startswith(REPORT_DIR_PREFIX):
 
@@ -182,7 +169,8 @@ class FileTree(AbstractWindow):
         # final y is index of file button
         # final x is actual max width of file button
         surface_y = final_y * 30 + 30
-        max_btn_w = max([btn.relative_rect.width for btn in self.buttons.values()])
+        max_btn_w = max([btn.orig_rect.w
+                         for btn in self.buttons.values()])
         surface_x = max_btn_w + max_level * 30
         # print('MAX BTN W', max_btn_w, 'MAX LVL: ', max_level)
         self.scroll.set_scrollable_area_dimensions((surface_x,

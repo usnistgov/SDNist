@@ -13,7 +13,7 @@ from pygame_gui.elements.ui_text_entry_line import \
 
 from sdnist.gui.panels.panel import AbstractPanel
 from sdnist.gui.elements.textline import CustomUITextEntryLine
-from sdnist.gui.elements.button import UICallbackButton
+from sdnist.gui.elements.buttons import UICallbackButton
 
 from sdnist.gui.windows import DoneWindow
 

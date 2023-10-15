@@ -32,7 +32,7 @@ def sdnist_gui():
     displays = pygame.display.get_desktop_sizes()
     # If there are more than one display, use the second display
     if len(displays) > 1:
-        disp_idx = 1
+        disp_idx = 2
     else:
         disp_idx = 0
     screen_width = displays[disp_idx][0]
@@ -108,6 +108,7 @@ def sdnist_gui():
         #     current_page = next_page
         manager.update(time_delta)
         pages[current_page].draw(screen)
+        pages[current_page].update()
         screen.fill('#1c3a3c')
         manager.draw_ui(screen)
         pygame.display.update()

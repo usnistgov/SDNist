@@ -22,6 +22,11 @@ class AbstractPage(ABC):
         pass
 
     @abstractmethod
+    def update(self):
+        """Updates the page."""
+        pass
+
+    @abstractmethod
     def next_page(self):
         """Returns the next page to be displayed."""
         pass

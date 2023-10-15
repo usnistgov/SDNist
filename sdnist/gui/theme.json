@@ -1,8 +1,6 @@
 {
-     "defaults":
-     {
-         "colours":
-         {
+     "defaults": {
+         "colours": {
              "normal_bg":"#45494e",
              "hovered_bg":"#35393e",
              "disabled_bg":"#25292e",
@@ -25,8 +23,7 @@
              "unfilled_bar":"#CCCCCC"
          }
      },
-     "panel":
-     {
+     "panel": {
          "colours":
          {
              "dark_bg":"#21282D",
@@ -40,8 +37,7 @@
              "shadow_width": "0"
          }
      },
-    "text_box":
-     {
+    "text_box": {
          "colours":
          {
              "dark_bg":"#21282D",
@@ -62,8 +58,7 @@
              "text_vert_alignment": "center"
          }
      },
-     "text_box.vertical_scroll_bar":
-     {
+     "text_box.vertical_scroll_bar": {
          "colours":
          {
             "dark_bg": "#505068"
@@ -110,5 +105,30 @@
          {
              "text_horiz_alignment": "left"
          }
-     }
+     },
+      "@filetree_button": {
+       "misc":
+       {
+         "border_width": "0",
+         "shape": "rounded_rectangle",
+         "shape_corner_radius": "10"
+       }
+      },
+      "#directory_expand_button": {
+        "colours": {
+          "normal_bg": "#10101000"
+        }
+
+       },
+      "filetree_directory_button": {
+      },
+      "filetree_file_button": {
+
+      },
+      "filetree_jsonfile_button": {
+
+    },
+      "filetree_csvfile_button": {
+
+    }
  }

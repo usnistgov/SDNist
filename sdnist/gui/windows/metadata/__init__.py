@@ -8,6 +8,7 @@ from itertools import chain
 import pygame as pg
 import pygame_gui as pggui
 from pygame_gui.elements.ui_window import UIWindow
+from pygame_gui.elements.ui_scrolling_container import UIScrollingContainer
 from pygame_gui.elements.ui_button import UIButton
 from pygame_gui.elements.ui_label import UILabel
 from pygame_gui.elements.ui_text_entry_line import UITextEntryLine
@@ -175,34 +176,34 @@ class MetaDataForm(AbstractWindow):
                                draggable=False,
                                resizable=True)
 
-        test_btn_rect = pg.Rect((0, 0), (200, 30))
-        test_btn_rect.topright = (0, 0)
-        self.test_data_btn = UICallbackButton(relative_rect=test_btn_rect,
-                                              callback=partial_load_testdata,
-                                              text='Load Test Metadata',
-                                              container=self.window,
-                                              parent_element=self.window,
-                                              manager=self.manager,
-                                              anchors={'right': 'right',
-                                                       'top': 'top'})
         self.labels = dict()
 
         # label category 1
         pad_x = self.rect.w * 0.05
         pad_y = self.rect.h * 0.01
 
-        lbl_w = self.rect.w * 0.6
+        form_scroll_w = self.rect.w * 0.7
+        lbl_w = self.rect.w * 0.55
         lbl_h = self.rect.h * 0.033
 
         lbl_in_w = self.rect.w * 0.3
         lbl_in_h = self.rect.h * 0.05
         i = 0
+        self.form_scroll_rect = pg.Rect((0, 0),
+                                       (form_scroll_w, self.rect.h))
+        self.form_scroll = UIScrollingContainer(relative_rect=self.form_scroll_rect,
+                                                manager=self.manager,
+                                                container=self.window,
+                                                starting_height=1,
+                                                anchors={'left': 'left',
+                                                         'top': 'top'})
+        last_rect = pg.Rect(0, 0, 0, 0)
         for lbl_category, lbl_input in self.form_dfn.items():
             lc_rect = pg.Rect((pad_x, pad_y + i * (lbl_h + pad_y)),
                               (lbl_w, lbl_h))
             lc_label = UILabel(relative_rect=lc_rect,
-                               container=self.window,
-                               parent_element=self.window,
+                               container=self.form_scroll,
+                               parent_element=self.form_scroll,
                                text=lbl_category.capitalize(),
                                manager=self.manager,
                                anchors={'left': 'left',
@@ -213,7 +214,7 @@ class MetaDataForm(AbstractWindow):
                                (lbl_w, lbl_h))
                 ff = MetadataFormField(rect,
                                        self.manager,
-                                       self.window,
+                                       self.form_scroll,
                                        *lbl)
                 if lbl[2] == LabelT.LONG_STRING:
                     text_change = partial(self.on_textline_update, lbl_title)
@@ -234,8 +235,29 @@ class MetaDataForm(AbstractWindow):
                 if lbl_title not in self.form_elems:
                     self.form_elems[lbl_title] = ff
                     self.form_elem_id[ff] = lbl_title
+
+                last_rect = rect
         # set on selected change on target dataset
         self.form_elems[TARGET_DATASET].on_selected_val_change = self.update_feature_space
+
+        all_fields = [self.form_elems[lbl_title].get_all_elements()
+                      for lbl_title in self.form_elems.keys()]
+        # flatten all_fields
+        all_fields = list(chain(*all_fields))
+        all_fields = set(all_fields + [self.form_scroll])
+        # Update from scroll dimensions
+        # self.form_scroll.border_width = 4
+        # self.form_scroll.border_colour = pg.Color('white')
+        # self.form_scroll.rebuild()
+        self.form_scroll.set_scrollable_area_dimensions(
+            (form_scroll_w, last_rect.y + last_rect.h + 20)
+        )
+        print('SCROLL', (lbl_w, last_rect.y + last_rect.h))
+        if self.form_scroll.vert_scroll_bar:
+            self.form_scroll.vert_scroll_bar.set_focus_set(all_fields)
+
+        # if self.form_scroll.horiz_scroll_bar:
+        #     self.form_scroll.horiz_scroll_bar.set_focus_set(all_fields)
 
     def _update(self):
         self.window.set_display_title(
