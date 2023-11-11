@@ -18,7 +18,8 @@ from sdnist.gui.windows.window import AbstractWindow
 
 
 class FileTree(AbstractWindow):
-    def __init__(self, rect: pg.Rect,
+    def __init__(self,
+                 rect: pg.Rect,
                  manager: pggui.UIManager,
                  directory: str):
         super().__init__(rect, manager)
@@ -31,18 +32,8 @@ class FileTree(AbstractWindow):
         self._create()
 
     def _create(self):
-        self.window_rect = pg.Rect(0, self.rect.top,
-                                   int(self.w * 0.2),
-                                   self.h)
-
-        self.window = UIWindow(rect=self.window_rect,
-                               manager=self.manager,
-                               window_display_title="Files",
-                               draggable=False,
-                               resizable=True)
-
         self.scroll_rect = pg.Rect(0, 0,
-                                   int(self.w * 0.2),
+                                   self.w,
                                    self.h - 20)
 
         self.scroll = UIScrollingContainer(relative_rect=self.scroll_rect,
@@ -56,8 +47,6 @@ class FileTree(AbstractWindow):
         self._draw_files_tree()
 
     def destroy(self):
-        # self.window.kill()
-        # self.panel.kill()
         self.scroll.kill()
 
     def handle_event(self, event: pg.event.Event):

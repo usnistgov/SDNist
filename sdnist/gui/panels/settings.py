@@ -22,15 +22,15 @@ setting_options = [
 
 
 class SettingsPanel(AbstractPanel):
-    def __init__(self, rect, manager,
-                 data: dict,
-                 container=None,
+    def __init__(self,
                  done_button_visible=False,
-                 done_button_callback=None):
-        super().__init__(rect, manager, container=container)
+                 done_button_callback=None,
+                 *args,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.settings = {k: v
-                         for k, v in data.items()
+                         for k, v in self.data.items()
                          if k in setting_options}
 
         self.max_cpu = max(1, os.cpu_count()-3)
@@ -63,11 +63,9 @@ class SettingsPanel(AbstractPanel):
                                  'Settings',
                                  draggable=True,
                                  resizable=True)
+            super().destroy()
         else:
-            self.base = UIPanel(self.rect,
-                                starting_height=1,
-                                manager=self.manager,
-                                container=self.container)
+            self.base = self.panel
 
         start_x = int(self.rect.w * 0.05)
         start_y = int(self.rect.h * 0.08)
@@ -190,7 +188,6 @@ class SettingsPanel(AbstractPanel):
             done_btn_h = 50
             done_btn_x = int(self.rect.w * 0.5) - done_btn_w//2
             done_btn_y = self.rect.h - 100
-            print(done_btn_y)
             button_rect = pg.Rect((done_btn_x, done_btn_y),
                                   (done_btn_w, done_btn_h))
             self.done_button = UICallbackButton(
@@ -204,7 +201,8 @@ class SettingsPanel(AbstractPanel):
                                                  'left': 'left'})
 
     def destroy(self):
-        if self.base:
+        super().destroy()
+        if isinstance(self.base, UIWindow):
             self.base.kill()
             self.base = None
 

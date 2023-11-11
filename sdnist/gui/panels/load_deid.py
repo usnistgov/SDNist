@@ -21,16 +21,11 @@ from sdnist.gui.windows import DoneWindow
 
 
 class LoadDeidData(AbstractPanel):
-    def __init__(self, rect,
-                 manager,
-                 container=None,
-                 data=None,
+    def __init__(self,
                  done_button_visible=False,
-                 done_button_callback=None):
-        super().__init__(
-                         rect=rect, manager=manager,
-                         container=container,
-                         data=data)
+                 done_button_callback=None,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.gui_data_path = Path(Path.cwd(), 'gui_data')
         self.label = None
         self.path_text = None
@@ -56,12 +51,9 @@ class LoadDeidData(AbstractPanel):
                                  'Load De-identified Data Directory',
                                  draggable=True,
                                  resizable=True)
+            super().destroy()
         else:
-            self.base = UIPanel(self.rect,
-                                starting_height=1,
-                                manager=self.manager,
-                                container=self.container)
-
+            self.base = self.panel
 
         # create UILabel with text Select Directory Containing
         # De-identified Data csv files
@@ -111,7 +103,7 @@ class LoadDeidData(AbstractPanel):
             done_btn_h = 50
             done_btn_x = int(self.rect.w * 0.5) - done_btn_w//2
             done_btn_y = self.rect.h - 100
-            print(done_btn_y)
+
             button_rect = pg.Rect((done_btn_x, done_btn_y),
                                   (done_btn_w, done_btn_h))
             self.done_button = UICallbackButton(
@@ -125,7 +117,8 @@ class LoadDeidData(AbstractPanel):
                                                  'left': 'left'})
 
     def destroy(self):
-        if self.base:
+        super().destroy()
+        if isinstance(self.base, UIWindow):
             self.base.kill()
             self.base = None
         if self.label:
@@ -171,7 +164,6 @@ class LoadDeidData(AbstractPanel):
             else:
                 # TODO: FIX THIS. UIFileDialog does not show error message and close
                 # TODO: after emitting UI_FILE_DIALOG_PATH_PICKED event
-                print('NOT VALID PATH')
                 self.picked_path = None
                 self.file_dialog.error_message = "Please select a valid directory or file"
                 self.load_button.enable()

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import json
 import os
-import time
 import sys
+import time
 from colorama import Fore
 from pathlib import Path
 

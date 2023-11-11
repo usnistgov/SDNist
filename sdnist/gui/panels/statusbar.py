@@ -14,9 +14,8 @@ from sdnist.report.helpers import ProgressStatus
 
 
 class StatusBar(AbstractPanel):
-    def __init__(self, rect, manager):
-        super().__init__(rect, manager)
-        self.panel = None
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # height of any element in the
         # status bar
         self.elem_h = self.rect.h * 0.7
@@ -30,14 +29,11 @@ class StatusBar(AbstractPanel):
         self._create()
 
     def _create(self):
-        self.panel = UIPanel(self.rect,
-                             starting_height=0,
-                             manager=self.manager)
+        pass
 
     def destroy(self):
-        if self.panel is not None:
-            self.panel.kill()
-            self.panel = None
+        super().destroy()
+        self.destroy_progress()
 
     def handle_event(self, event: pg.event.Event):
         pass

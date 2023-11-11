@@ -49,10 +49,14 @@ class MetaDataForm(AbstractWindow):
                  manager: pggui.UIManager,
                  settings: dict,
                  file_path: str,
-                 copy_from_file: Optional[str] = None):
-        super().__init__(rect, manager)
+                 copy_from_file: Optional[str] = None,
+                 *args, **kwargs):
+        self.title = 'Deid File Metadata Form'
+        kwargs['window_display_title'] = self.title
+        kwargs['resizable'] = True
+        kwargs['draggable'] = False
+        super().__init__(rect, manager, *args, **kwargs)
         self.settings = settings
-        self.window = None
         self.test_data_btn = None
         self.labels = dict()
         self._file = file_path
@@ -165,16 +169,6 @@ class MetaDataForm(AbstractWindow):
         test_meta_path = Path(file_path, '..', '..', 'test_metadata.json')
         partial_load_testdata = partial(self.load_test_data,
                                         test_meta_path)
-        window_rect = pg.Rect((self.rect.x, self.rect.y),
-                              (self.rect.w,
-                               self.rect.h))
-        self.window = UIWindow(rect=window_rect,
-                               manager=self.manager,
-                               window_display_title=
-                               "Deid File Metadata Form: " +
-                               str(Path(*Path(self._file).parts[-4:])),
-                               draggable=False,
-                               resizable=True)
 
         self.labels = dict()
 
@@ -252,7 +246,6 @@ class MetaDataForm(AbstractWindow):
         self.form_scroll.set_scrollable_area_dimensions(
             (form_scroll_w, last_rect.y + last_rect.h + 20)
         )
-        print('SCROLL', (lbl_w, last_rect.y + last_rect.h))
         if self.form_scroll.vert_scroll_bar:
             self.form_scroll.vert_scroll_bar.set_focus_set(all_fields)
 

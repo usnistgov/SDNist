@@ -30,9 +30,7 @@ class DoneWindow:
         self._create()
 
     def _create(self):
-        print('MAIN CREATE')
         if self.container is None:
-            print('CONTAINER IS NONE')
             self.base = UIWindow(rect=self.rect,
                                  manager=self.manager,
                                  window_display_title=self.data,

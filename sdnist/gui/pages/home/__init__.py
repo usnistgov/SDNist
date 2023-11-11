@@ -14,13 +14,15 @@ from sdnist.gui.panels import \
     LoadDeidData
 from sdnist.gui.elements import UICallbackButton
 
-from sdnist.gui.config import cfg_path
+from sdnist.gui.config import \
+    load_cfg, save_cfg
 
 import sdnist.gui.strs as strs
 
 
 class Home(AbstractPage):
-    def __init__(self, manager: pggui.UIManager,
+    def __init__(self,
+                 manager: pggui.UIManager,
                  enable: bool = True):
         super().__init__(manager)
         self.enabled = enable
@@ -37,9 +39,7 @@ class Home(AbstractPage):
         self.choose_settings = None
         self.choose_deid_path = None
 
-        self.sdnist_cfg = dict()
-        with open(cfg_path, 'r') as f:
-            self.sdnist_cfg = json.load(f)
+        self.sdnist_cfg = load_cfg()
 
         self.picked_path = None
 
@@ -68,23 +68,25 @@ class Home(AbstractPage):
                                resizable=False)
 
         callback = None
-        if len(self.sdnist_cfg[strs.TEAM_NAME]) == 0:
+        if not (len(self.sdnist_cfg[strs.TEAM_UNIQUE_IDENTIFIER]) and
+                len(self.sdnist_cfg[strs.TEAM_NAME])):
             # Create choose a team name
             choose_team_rect = pg.Rect(0, 0,
                                        self.w_w, self.w_h * 0.8)
-            self.choose_team = ChooseTeamPanel(choose_team_rect,
-                                               self.manager,
+            self.choose_team = ChooseTeamPanel(sdnist_cfg=self.sdnist_cfg,
+                                               rect=choose_team_rect,
+                                               manager=self.manager,
                                                container=self.window)
 
             self.current_panel = self.choose_team
-            callback = self.save_team_name
+            callback = self.save_team_info
         else:
             # Create choose deid path
             choose_load_path_rect = pg.Rect(0, 0,
                                             self.w_w, self.w_h * 0.8)
-            self.choose_deid_path = LoadDeidData(choose_load_path_rect,
-                                                        self.manager,
-                                                        container=self.window)
+            self.choose_deid_path = LoadDeidData(rect=choose_load_path_rect,
+                                                 manager=self.manager,
+                                                 container=self.window)
             self.current_panel = self.choose_deid_path
             callback = self.save_deid_path
 
@@ -120,24 +122,21 @@ class Home(AbstractPage):
     def next_page_data(self):
         return self.picked_path
 
-    def save_team_name(self):
-        if self.choose_team is None:
+    def save_team_info(self):
+        if self.choose_team is None \
+                or not self.choose_team.can_save():
             return
-
-        team_name = self.choose_team.text_entry.get_text()
-
-        if len(team_name) == 0:
-            return
-
-        self.sdnist_cfg[strs.TEAM_NAME] = team_name
+        team_info = self.choose_team.get_team_info()
+        print(team_info)
+        self.sdnist_cfg = {**self.sdnist_cfg, **team_info}
         self.next_button.callback = self.save_settings
         self.choose_team.destroy()
 
         choose_settings_rect = pg.Rect(0, 0,
                                        self.w_w, self.w_h * 0.8)
-        self.choose_settings = SettingsPanel(choose_settings_rect,
-                                             self.manager,
-                                             data={strs.TEAM_NAME: team_name},
+        self.choose_settings = SettingsPanel(rect=choose_settings_rect,
+                                             manager=self.manager,
+                                             data={strs.TEAM_NAME: self.sdnist_cfg[strs.TEAM_NAME]},
                                              container=self.window)
         self.current_panel = self.choose_settings
 
@@ -149,12 +148,11 @@ class Home(AbstractPage):
 
         choose_load_path_rect = pg.Rect(0, 0,
                                         self.w_w, self.w_h * 0.8)
-        self.choose_deid_path = LoadDeidData(choose_load_path_rect,
-                                             self.manager,
+        self.choose_deid_path = LoadDeidData(rect=choose_load_path_rect,
+                                             manager=self.manager,
                                              container=self.window)
         self.current_panel = self.choose_deid_path
-        with open(cfg_path, 'w') as f:
-            json.dump(self.sdnist_cfg, f, indent=4)
+        save_cfg(self.sdnist_cfg)
 
     def save_deid_path(self):
         if self.choose_deid_path.picked_path:

@@ -1,5 +1,7 @@
 # sdnist GUI settings
+TEAM_UNIQUE_IDENTIFIER = 'team unique identifier'
 TEAM_NAME = 'team name'
+TEAM_CONTACT_EMAIL = 'team contact email'
 MAX_PROCESSES = 'max processes'
 NUMERICAL_METRIC_RESULTS = 'numerical metric results'
 

@@ -70,12 +70,13 @@ class MetadataFormField(AbstractPanel):
         lbl_w = self.rect.w * 0.3
         lbl_rect = pg.Rect((0, 0), (lbl_w, self.rect.h))
         self.label = UILabel(relative_rect=lbl_rect,
-                        container=self.panel,
-                        parent_element=self.panel,
-                        text=self.label_name.capitalize(),
-                        manager=self.manager,
-                        anchors={'left': 'left',
-                                 'top': 'top'})
+                             container=self.panel,
+                             parent_element=self.panel,
+                             text=self.label_name.capitalize(),
+                             manager=self.manager,
+                             anchors={'left': 'left',
+                                      'top': 'top'})
+
         # input width
         inp_w = self.rect.w * 0.7
         if self.label_type in [LabelT.STRING, LabelT.INT, LabelT.FLOAT]:
@@ -89,7 +90,7 @@ class MetadataFormField(AbstractPanel):
                                                  parent_element=self.panel,
                                                  manager=self.manager,
                                                  anchors={'left': 'left',
-                                                           'top': 'top'},
+                                                          'top': 'top'},
                                                  initial_text=self.label_value)
         elif self.label_type in [LabelT.DROPDOWN, LabelT.MULTI_DROPDOWN]:
             # dropdown input width
@@ -108,7 +109,7 @@ class MetadataFormField(AbstractPanel):
                                                  parent_element=self.panel,
                                                  manager=self.manager,
                                                  anchors={'left': 'left',
-                                                           'top': 'top'},
+                                                          'top': 'top'},
                                                  initial_text=self.label_value)
 
             inp_btn_rect = pg.Rect((self.input_rect .right, 0),
@@ -148,7 +149,7 @@ class MetadataFormField(AbstractPanel):
         return elems
 
     def test_panel_callback(self):
-        print(self.label_name, 'panel hovered')
+        pass
 
     def destroy(self):
         pass
@@ -189,7 +190,6 @@ class MetadataFormField(AbstractPanel):
                                         default_selection=default_val)
         if self.inp_btn:
             self.inp_btn.set_text('-')
-        print('created')
 
     def destroy_selection_list(self):
         if self.dropdown:
@@ -197,7 +197,6 @@ class MetadataFormField(AbstractPanel):
             self.dropdown = None
             if self.inp_btn:
                 self.inp_btn.set_text('+')
-            print('destroyed')
 
     def set_value(self, value: any):
         if self.multiselect:

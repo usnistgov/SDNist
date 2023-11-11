@@ -1,134 +1,252 @@
 {
-     "defaults": {
-         "colours": {
-             "normal_bg":"#45494e",
-             "hovered_bg":"#35393e",
-             "disabled_bg":"#25292e",
-             "selected_bg":"#193754",
-             "dark_bg":"#15191e",
-             "normal_text":"#c5cbd8",
-             "hovered_text":"#FFFFFF",
-             "selected_text":"#FFFFFF",
-             "disabled_text":"#6d736f",
-             "link_text": "#0000EE",
-             "link_hover": "#2020FF",
-             "link_selected": "#551A8B",
-             "text_shadow": "#777777",
-             "normal_border": "#DDDDDD",
-             "hovered_border": "#B0B0B0",
-             "disabled_border": "#808080",
-             "selected_border": "#8080B0",
-             "active_border": "#8080B0",
-             "filled_bar":"#f4251b",
-             "unfilled_bar":"#CCCCCC"
-         }
-     },
-     "panel": {
-         "colours":
-         {
-             "dark_bg":"#21282D",
-             "normal_border": "#999999"
-         },
-         "misc":
-         {
-             "shape": "rectangle",
-             "shape_corner_radius": "0",
-             "border_width": "0",
-             "shadow_width": "0"
-         }
-     },
-    "text_box": {
-         "colours":
-         {
-             "dark_bg":"#21282D",
-             "normal_border": "#999999",
-             "link_text": "#FF0000",
-             "link_hover": "#FFFF00",
-             "link_selected": "#FFFFFF"
-         },
-
-         "misc":
-         {
-             "border_width": "1",
-             "padding": "0,0",
-             "link_normal_underline": "0",
-             "link_hover_underline": "1",
-             "line_spacing": "1",
-             "text_horiz_alignment": "center",
-             "text_vert_alignment": "center"
-         }
-     },
-     "text_box.vertical_scroll_bar": {
-         "colours":
-         {
-            "dark_bg": "#505068"
-         }
-     },
-     "text_box.vertical_scroll_bar.#sliding_button":
-     {
-         "misc":
-         {
-            "border_width": "0",
-            "enabled": "0"
-         }
-     },
-    "window":
-     {
-        "colours":
-        {
+  "defaults": {
+       "colours": {
+           "normal_bg":"#45494e",
+           "hovered_bg":"#35393e",
+           "disabled_bg":"#25292e",
+           "selected_bg":"#193754",
+           "dark_bg":"#15191e",
+           "normal_text":"#c5cbd8",
+           "hovered_text":"#FFFFFF",
+           "selected_text":"#FFFFFF",
+           "disabled_text":"#6d736f",
+           "link_text": "#0000EE",
+           "link_hover": "#2020FF",
+           "link_selected": "#551A8B",
+           "text_shadow": "#777777",
+           "normal_border": "#DDDDDD",
+           "hovered_border": "#B0B0B0",
+           "disabled_border": "#808080",
+           "selected_border": "#8080B0",
+           "active_border": "#8080B0",
+           "filled_bar":"#f4251b",
+           "unfilled_bar":"#CCCCCC"
+       }
+   },
+  "panel": {
+       "colours":
+       {
            "dark_bg":"#21282D",
            "normal_border": "#999999"
-        },
-
-        "misc":
-        {
+       },
+       "misc":
+       {
            "shape": "rectangle",
            "shape_corner_radius": "0",
            "border_width": "0",
-           "shadow_width": "0",
-           "title_bar_height": "20",
-           "enable_close_button": "1"
-        }
-     },
-     "window.#title_bar":
-     {
-        "misc": {
-          "text_horiz_alignment": "center"
-        }
-     },
-      "label":
-     {
-         "colours":
-         {
-         },
-         "misc":
-         {
-             "text_horiz_alignment": "left"
-         }
-     },
-      "@filetree_button": {
+           "shadow_width": "0"
+       }
+   },
+  "text_box": {
+       "colours":
+       {
+           "dark_bg":"#21282D",
+           "normal_border": "#999999",
+           "link_text": "#FF0000",
+           "link_hover": "#FFFF00",
+           "link_selected": "#FFFFFF"
+       },
+
        "misc":
        {
-         "border_width": "0",
-         "shape": "rounded_rectangle",
-         "shape_corner_radius": "10"
+           "border_width": "1",
+           "padding": "0,0",
+           "link_normal_underline": "0",
+           "link_hover_underline": "1",
+           "line_spacing": "1",
+           "text_horiz_alignment": "center",
+           "text_vert_alignment": "center"
        }
+   },
+  "text_box.vertical_scroll_bar": {
+       "colours":
+       {
+          "dark_bg": "#505068"
+       }
+   },
+  "text_box.vertical_scroll_bar.#sliding_button": {
+       "misc":
+       {
+          "border_width": "0",
+          "enabled": "0"
+       }
+   },
+  "window": {
+      "colours":
+      {
+         "dark_bg":"#21282D",
+         "normal_border": "#999999"
       },
-      "#directory_expand_button": {
-        "colours": {
-          "normal_bg": "#10101000"
-        }
 
+      "misc":
+      {
+         "shape": "rectangle",
+         "shape_corner_radius": "0",
+         "border_width": "0",
+         "shadow_width": "0",
+         "title_bar_height": "20",
+         "enable_close_button": "1"
+      }
+   },
+  "window.#title_bar": {
+      "misc": {
+        "text_horiz_alignment": "center"
+      }
+   },
+  "@no_title_window": {
+       "misc": {
+         "enable_title_bar": "0"
+       }
+  },
+  "#metareport_filter_window": {
+  },
+  "label": {
+       "colours":
+       {
        },
-      "filetree_directory_button": {
-      },
-      "filetree_file_button": {
-
-      },
-      "filetree_jsonfile_button": {
-
-    },
-      "filetree_csvfile_button": {
-
+       "misc":
+       {
+           "text_horiz_alignment": "left"
+       }
+   },
+  "@header_label": {},
+  "#header_label": {
+    "colours": {
+      "normal_bg": "#000000"
     }
- }
+  },
+  "@option_label": {
+    "colours": {
+      "dark_bg": "#591d7800"
+    },
+    "misc": {
+      "text_horiz_alignment": "left"
+    }
+  },
+  "#choose_team_panel_label": {},
+  "@filetree_button": {
+   "misc":
+   {
+     "border_width": "0",
+     "shape": "rounded_rectangle",
+     "shape_corner_radius": "10"
+   }
+  },
+  "#directory_expand_button": {
+    "colours": {
+      "normal_bg": "#10101000"
+    }
+
+   },
+  "filetree_directory_button": {
+  },
+  "filetree_file_button": {
+
+  },
+  "filetree_jsonfile_button": {
+
+},
+  "filetree_csvfile_button": {
+
+},
+  "@feature_filter_panel": {
+    "colours": {
+      "dark_bg": "#273a8a00"
+    }
+  },
+  "#feature_filter_panel": {
+
+  },
+  "@chips_panel": {
+    "colours": {
+      "dark_bg": "#3e53a850"
+    }
+  },
+  "#chips_panel": {
+  },
+  "@filter_title_panel": {
+  },
+  "#inclusionfilter_title_panel": {
+    "colours": {
+      "dark_bg": "#233aba"
+    }
+  },
+  "#exclusionfilter_title_panel": {
+    "colours": {
+      "dark_bg": "#a13a3a"
+    }
+  },
+  "@chip_button": {
+    "misc": {
+      "border_width": "0",
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "18",
+      "text_horiz_alignment": "left",
+      "tool_tip_delay": "0.2"
+    },
+    "colours": {
+      "normal_bg": "#ad8bf0",
+      "normal_text": "#000000"
+    }
+  },
+  "#chip_button": {
+
+  },
+  "@icon_button": {
+    "misc": {
+      "border_width": "0",
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "15",
+      "text_horiz_alignment": "center",
+      "text_vert_alignment": "center",
+      "text_horiz_alignment_padding": "0",
+      "text_vert_alignment_padding": "0"
+    }
+  },
+  "#cancel_icon_button": {
+    "colours": {
+      "normal_bg": "#7a1616"
+    }
+  },
+  "#remove_filter_button": {
+    "colours": {
+      "normal_bg": "#7a1616"
+    },
+    "misc": {
+      "shape_corner_radius": "18"
+    }
+  },
+  "@header_panel": {
+       "colours":
+       {
+           "dark_bg":"#393D76",
+           "normal_border": "#999999"
+       },
+       "misc":
+       {
+           "shape": "rectangle",
+           "shape_corner_radius": "0",
+           "border_width": "0",
+           "shadow_width": "0"
+       }
+   },
+  "#dftable_header": {
+   },
+  "#metareport_filter_header": {
+  },
+  "@generate_button": {
+    "misc": {
+      "border_width": "1",
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "17",
+      "text_horiz_alignment": "center",
+      "tool_tip_delay": "0.2"
+    },
+    "colours": {
+      "normal_bg": "#6AA84F",
+      "normal_text": "#000000"
+    }
+  },
+  "#generate_metareport_button": {
+  }
+}

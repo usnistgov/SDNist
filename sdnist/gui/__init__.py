@@ -32,7 +32,7 @@ def sdnist_gui():
     displays = pygame.display.get_desktop_sizes()
     # If there are more than one display, use the second display
     if len(displays) > 1:
-        disp_idx = 2
+        disp_idx = 1
     else:
         disp_idx = 0
     screen_width = displays[disp_idx][0]
@@ -64,12 +64,12 @@ def sdnist_gui():
                                'gui_data', 'in_data'))
     # test_data_path = Path(Path(gui_pkg_path, '..', '..',
     #                            'gui_data', 'in_data'))
+    current_page = Page.DASHBOARD
+    home_enabled = True if current_page == Page.HOME else False
     pages = {
-        Page.HOME: Home(manager, enable=False),
+        Page.HOME: Home(manager, enable=home_enabled),
         Page.DASHBOARD: Dashboard(manager, str(test_data_path))
     }
-
-    current_page = Page.DASHBOARD
 
     if current_page == Page.DASHBOARD:
         pages[current_page].create()
@@ -88,7 +88,7 @@ def sdnist_gui():
                     manager = pygame_gui.UIManager(dim, str(theme_path))
                     manager.set_visual_debug_mode(True)
                     pages = {
-                        Page.HOME: Home(manager, enable=False),
+                        Page.HOME: Home(manager, enable=home_enabled),
                         Page.DASHBOARD: Dashboard(manager, str(test_data_path))
                     }
                     if current_page == Page.DASHBOARD:
@@ -97,19 +97,19 @@ def sdnist_gui():
             pages[current_page].handle_event(event)
             manager.process_events(event)
 
-        # next_page = pages[current_page].next_page()
-        # if next_page != current_page:
-        #     pages[current_page].destroy()
-        #     pages[next_page] = create_page(next_page,
-        #                                    manager,
-        #                                    pages[current_page].next_page_data())
-        #     if next_page == Page.DASHBOARD:
-        #         pages[next_page].create()
-        #     current_page = next_page
+        next_page = pages[current_page].next_page()
+        if next_page != current_page:
+            pages[current_page].destroy()
+            pages[next_page] = create_page(next_page,
+                                           manager,
+                                           pages[current_page].next_page_data())
+            if next_page == Page.DASHBOARD:
+                pages[next_page].create()
+            current_page = next_page
         manager.update(time_delta)
         pages[current_page].draw(screen)
         pages[current_page].update()
-        screen.fill('#1c3a3c')
+        screen.fill('#1d3278')
         manager.draw_ui(screen)
         pygame.display.update()
     pygame.quit()

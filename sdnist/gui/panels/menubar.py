@@ -19,9 +19,9 @@ menubar_btns = [
 
 
 class MenuBar(AbstractPanel):
-    def __init__(self, rect, manager, data=None):
-        super().__init__(rect, manager, data)
-        self.panel = None
+    def __init__(self, *args, **kwargs):
+        kwargs['starting_height'] = 0
+        super().__init__(*args, **kwargs)
         self.buttons = dict()
         self._create()
 
@@ -33,9 +33,6 @@ class MenuBar(AbstractPanel):
         btn.callback = callback
 
     def _create(self):
-        self.panel = UIPanel(self.rect,
-                             starting_height=0,
-                             manager=self.manager)
         def empty():
             return
 
@@ -43,7 +40,6 @@ class MenuBar(AbstractPanel):
         for i, btn_name in enumerate(menubar_btns):
             btn_rect = pg.Rect((0, 0), (120, 30))
             btn_rect.left = net_width
-            print('LEFT', btn_rect.left)
             btn = UICallbackButton(relative_rect=btn_rect,
                                    callback=empty,
                                    text=btn_name,
@@ -53,13 +49,12 @@ class MenuBar(AbstractPanel):
                                    anchors={'left': 'left',
                                             'centery': 'centery'})
             net_width += btn.relative_rect.width
-            print('NET WIDTH', net_width)
             self.buttons[btn_name] = btn
 
     def destroy(self):
-        if self.panel is not None:
-            self.panel.kill()
-            self.panel = None
+        super().destroy()
+        for btn in self.buttons.values():
+            btn.kill()
         self.buttons.clear()
 
     def handle_event(self, event: pg.event.Event):

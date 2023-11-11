@@ -5,14 +5,16 @@ from multiprocessing.managers import BaseManager
 
 import pygame as pg
 import pygame_gui as pggui
-from pygame_gui.elements.ui_panel import UIPanel
-from pygame_gui.elements.ui_label import UILabel
 from pathlib import Path
 from multiprocessing import Pool
 
 from sdnist.gui.constants import REPORT_DIR_PREFIX
+
 from sdnist.gui.pages.page import AbstractPage
 from sdnist.gui.pages import Page
+from sdnist.gui.pages.dashboard.stats_panel import \
+    StatsPanel
+
 from sdnist.gui.panels import \
     Header, ToolBar, MenuBar, StatusBar
 from sdnist.gui.panels.toolbar import \
@@ -25,20 +27,21 @@ from sdnist.gui.panels import \
 
 from sdnist.gui.windows.filetree import FileTree
 from sdnist.gui.windows.metadata import MetaDataForm
-from sdnist.gui.pages.dashboard.stats_panel import \
-    StatsPanel
+from sdnist.gui.windows import \
+    MetaReportFilter, MetaReportInfo
+
+from sdnist.gui.config import load_cfg, save_cfg
+from sdnist.gui.strs import *
 
 from sdnist.index import index
 from sdnist.archive import archive
 
 from sdnist.report.__main__ import setup, run
-from sdnist.strs import *
-from sdnist.gui.strs import *
-from sdnist.load import DEFAULT_DATASET
-
-from sdnist.gui.config import load_cfg, save_cfg
-
 from sdnist.report.helpers import ProgressStatus
+
+from sdnist.strs import *
+
+from sdnist.load import DEFAULT_DATASET
 
 
 progress = None
@@ -69,8 +72,9 @@ class Dashboard(AbstractPage):
         # total area height is for main area is whole height
         # minus the three headers: toolbar, menubar and statusbar
         self.m_area_h = self.h - self.header_height * 3
-        self.filetree_rect = pg.Rect(0, self.m_area_y,
-                                     self.w,
+        self.filetree_rect = pg.Rect(0,
+                                     self.m_area_y,
+                                     int(self.w * 0.2),
                                      self.m_area_h)
         self.filetree = None
 
@@ -79,6 +83,9 @@ class Dashboard(AbstractPage):
 
         # Create stats window
         self.stats = None
+
+        # Create meta report filter window
+        self.mreport_filter = None
 
         # Panel to select deid data directory
         self.load_data = None
@@ -93,7 +100,9 @@ class Dashboard(AbstractPage):
     def create(self):
         header_rect = pg.Rect(0, 0, self.w // 2, self.header_height)
 
-        self.header = Header(header_rect, self.manager)
+        self.header = Header(text='DASHBOARD',
+                             rect=header_rect,
+                             manager=self.manager)
 
         toolbar_rect = pg.Rect(self.w // 2, 0,
                                self.w // 2, self.header_height)
@@ -161,9 +170,9 @@ class Dashboard(AbstractPage):
 
         if path_type in ['json', 'csv']:
             self.metaform = MetaDataForm(
-                pg.Rect(self.filetree.window_rect.right,
-                        self.filetree.window_rect.top,
-                        self.w - self.filetree.window_rect.right,
+                pg.Rect(self.filetree.rect.right,
+                        self.filetree.rect.top,
+                        self.w - self.filetree.rect.right,
                         self.m_area_h),
                 self.manager,
                 settings=self.settings,
@@ -197,20 +206,6 @@ class Dashboard(AbstractPage):
             self.filetree = FileTree(self.filetree_rect,
                                      self.manager,
                                      str(self.data))
-
-    def update_progress(self, report_name: str):
-        pass
-        # global progress
-        # if progress is None:
-        #     progress = ProgressStatus()
-        # if report_name not in progress.reports:
-        #     progress.add_report(report_name)
-        # progress.
-
-        # FileTreeWindow
-        # self.filetree = FileTree(self.filetree_rect,
-        #                          self.manager,
-        #                          str(self.data))
 
     def report_callback(self):
         if self.selected_path is None:
@@ -263,8 +258,8 @@ class Dashboard(AbstractPage):
         # self.left_panel = SidePanel(0, self.header_height,
         #                             self.manager, str(self.data))
         for i in inputs:
-            self.report_pool.append(pool.apply_async(run, (*i,),
-                                                     callback=self.update_progress))
+            self.report_pool.append(pool.apply_async(run, (*i,)))
+
         # for input in inputs:
         #     print(input)
         #     run(*input)
@@ -292,13 +287,28 @@ class Dashboard(AbstractPage):
         if self.selected_path is None:
             return
 
+        if not self.selected_path.is_dir():
+            return
+
+        index_path = Path(self.selected_path, 'index.csv')
+        if not index_path.exists():
+            return
+
+        mr_filter_rect = pg.Rect(self.filetree.rect.right,
+                                 self.filetree.rect.top,
+                                 self.w - self.filetree.rect.right,
+                                 self.m_area_h)
+        self.mreport_filter = MetaReportFilter(index_path=str(index_path),
+                                               rect=mr_filter_rect,
+                                               manager=self.manager)
+
     def load_deid_callback(self):
         if self.load_data is None:
             load_data_rect = pg.Rect(0, 0,
                                      self.w // 2,
                                      self.h // 2)
-            self.load_data = LoadDeidData(load_data_rect,
-                                          self.manager,
+            self.load_data = LoadDeidData(rect=load_data_rect,
+                                          manager=self.manager,
                                           data=self.data,
                                           done_button_visible=True,
                                           done_button_callback=self.update_deid_data_path)
@@ -308,8 +318,8 @@ class Dashboard(AbstractPage):
             settings_rect = pg.Rect(0, 0,
                                     self.w // 2,
                                     self.h // 2)
-            self.settings_window = SettingsPanel(settings_rect,
-                                                 self.manager,
+            self.settings_window = SettingsPanel(rect=settings_rect,
+                                                 manager=self.manager,
                                                  data=self.settings,
                                                  done_button_visible=True,
                                                  done_button_callback=self.update_settings)

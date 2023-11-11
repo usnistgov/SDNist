@@ -21,24 +21,21 @@ toolbar_btns = [METADATA_BTN,
 
 
 class ToolBar(AbstractPanel):
-    def __init__(self, rect, manager):
-        super().__init__(rect, manager)
-        self.panel = None
-        self.btns = dict()
+    def __init__(self, *args, **kwargs):
+        kwargs['starting_height'] = 0
+        super().__init__(*args, **kwargs)
+        self.buttons = dict()
 
         self._create()
 
     def set_callback(self, btn_name: str,
                      callback: Callable):
-        if btn_name not in self.btns:
+        if btn_name not in self.buttons:
             raise ValueError(f'Invalid button name: {btn_name}')
-        btn = self.btns[btn_name]
+        btn = self.buttons[btn_name]
         btn.callback = callback
 
     def _create(self):
-        self.panel = UIPanel(self.rect,
-                             starting_height=0,
-                             manager=self.manager)
         def empty():
             return
 
@@ -56,13 +53,11 @@ class ToolBar(AbstractPanel):
                                    anchors={'right': 'right',
                                             'centery': 'centery'})
             net_width += btn.relative_rect.width
-            self.btns[btn_name] = btn
+            self.buttons[btn_name] = btn
 
     def destroy(self):
-        if self.panel is not None:
-            self.panel.kill()
-            self.panel = None
-        self.btns.clear()
+        super().destroy()
+        self.buttons.clear()
 
     def handle_event(self, event: pg.event.Event):
         pass

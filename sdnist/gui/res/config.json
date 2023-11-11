@@ -1,5 +1,7 @@
 {
-    "team name": "TEST-SDNIST",
-    "max processes": 6,
-    "numerical metric results": false
+    "team unique identifier": "4273c87d-78cc-4d67-aed8-06a4210c820d-1697810260590564",
+    "team name": "testteam",
+    "max processes": 7,
+    "numerical metric results": false,
+    "team contact email": ""
 }
