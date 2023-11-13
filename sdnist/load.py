@@ -16,8 +16,8 @@ import numpy as np
 
 import sdnist.strs as strs
 
-DEFAULT_DATASET = 'diverse_communities_data_excerpts'
 
+DEFAULT_DATASET = 'diverse_communities_data_excerpts'
 
 class TestDatasetName(Enum):
     NONE = 1

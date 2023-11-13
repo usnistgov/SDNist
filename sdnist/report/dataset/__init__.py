@@ -15,6 +15,7 @@ from sdnist.load import \
 from sdnist.report.dataset.transform import transform
 from sdnist.report.dataset.validate import validate
 from sdnist.report.dataset.binning import *
+from sdnist.report.dataset.target import TargetLoader
 
 import sdnist.strs as strs
 
@@ -41,6 +42,7 @@ st_code_to_str = {
     '40': 'OK',
     '51': 'VA'
 }
+
 
 def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
     """remove features from configuration that are not available in
@@ -91,24 +93,13 @@ class Dataset:
 
     def __post_init__(self):
         # load target dataset which is used to score synthetic dataset
-        self.target_data, params = load_dataset(
-            challenge=strs.CENSUS,
-            root=self.data_root,
-            download=self.download,
-            public=False,
-            test=self.test,
-            format_="csv"
-        )
-        self.target_data_path = build_name(
-            challenge=strs.CENSUS,
-            root=self.data_root,
-            public=False,
-            test=self.test
-        )
+        target_loader = TargetLoader(self.data_root, self.download)
+        self.target_data, self.target_data_path, self.schema = \
+            target_loader.load_dataset(self.test)
+
         # raw target data
         self.raw_target_data = self.target_data.copy()
 
-        self.schema = params[strs.SCHEMA]
         configs_path = self.target_data_path.parent.parent
         # add config packaged with data and also the config package with sdnist.report package
         config_1 = u.read_json(Path(configs_path, 'config.json'))
