@@ -1,4 +1,4 @@
-from meta_report.common import \
+from metareport.common import \
     json, Dict, List, Path, pd, Optional
 import hashlib
 
@@ -48,12 +48,17 @@ privacy_map = {
     "ipf_NonDP": NON_DP,
     "privbayes": DP,
     "bayesian_network": NON_DP,
+    "Anonos Data Embassy SDK": NON_DP,
+    "YData Fabric Synthesizers": NON_DP,
+    "aim": DP,
+    "smote": NON_DP
 }
 
 QUERY_MATCHING = 'query matching'
 STAT_MODEL = 'stat model'
 NEURAL_NET = 'neural net'
 HISTOGRAM = 'histogram'
+GEOMETRIC = 'geometric'
 
 
 algorithm_type_map = {
@@ -86,6 +91,10 @@ algorithm_type_map = {
     "ipf_NonDP": QUERY_MATCHING,
     "privbayes": STAT_MODEL,
     "bayesian_network": STAT_MODEL,
+    "Anonos Data Embassy SDK": NEURAL_NET,
+    "YData Fabric Synthesizers": NEURAL_NET,
+    "aim": STAT_MODEL,
+    "smote": GEOMETRIC
 }
 
 team_map = {
@@ -142,6 +151,10 @@ privacy_label_detail_map = {
     "ipf_NonDP": '',
     "privbayes": '',
     "bayesian_network": '',
+    "Anonos Data Embassy SDK": '',
+    "YData Fabric Synthesizers": "",
+    "aim": "",
+    "smote": ""
 }
 
 
@@ -173,8 +186,8 @@ def add_privacy(paths: List[Path]):
     dp_df = pd.read_csv('detail_privacy_labels.csv')
 
     # check nan in dp_df and replace with string 'CRC'
-    dp_df = dp_df.fillna('CRC')
-
+    dp_df['team'] = dp_df['team'].fillna('CRC')
+    dp_df['Research Papers'] = dp_df['Research Papers'].fillna('')
     all_features = data_dict.keys()
 
     path_dataframes = []
@@ -250,7 +263,9 @@ def add_privacy(paths: List[Path]):
                 data['labels'].pop("pram features")
 
             if "submission timestamp" not in data['labels'].keys():
-                data['labels']['submission timestamp'] = '5/20/2023 00:00:00'
+                data['labels']['submission timestamp'] = '9/5/2023 00:00:00'
+            elif data['labels']['submission timestamp'] == '8/7/2023 00:00:00':
+                data['labels']['submission timestamp'] = '9/5/2023 00:00:00'
 
             if "team" not in data['labels'].keys():
                 data['labels']['team'] = 'CRC'
@@ -259,26 +274,30 @@ def add_privacy(paths: List[Path]):
             algo = data['labels']['algorithm name']
             lib = data['labels']['library name']
 
-            if "privacy label detail" not in data['labels'].keys():
-                m1 = dp_df['team'] == team
-                m2 = dp_df['algorithm name'] == algo
-                m3 = dp_df['library name'] == lib
+            if "privacy label detail" in data['labels'].keys() and \
+                    data['labels']['privacy label detail'] == 'CRC':
+                data['labels']['privacy label detail'] = ''
 
-                m = m1 & m2 & m3
-                sub_dp_df = dp_df[m]
-                if sub_dp_df.shape[0] == 1:
-                    data['labels']['privacy label detail'] = sub_dp_df['privacy properties'].values[0]
+            if "research papers" in data['labels'].keys() and \
+                    data['labels']['research papers'] == 'CRC':
+                data['labels']['research papers'] = ''
 
-            # if "research papers" not in data['labels'].keys():
+            # privacy label details and research papers
             m1 = dp_df['team'] == team
             m2 = dp_df['algorithm name'] == algo
             m3 = dp_df['library name'] == lib
 
             m = m1 & m2 & m3
             sub_dp_df = dp_df[m]
-            print('Trying to add research paper')
+
+            if sub_dp_df.shape[0] == 0:
+                m = m2 & m3
+                sub_dp_df = dp_df[m]
+
             if sub_dp_df.shape[0] == 1:
-                print('Added research paper')
+                data['labels']['privacy label detail'] = sub_dp_df['privacy properties'].values[0]
+
+            if sub_dp_df.shape[0] == 1:
                 data['labels']['research papers'] = sub_dp_df['Research Papers'].values[0]
 
             with open(file, 'w') as f:
@@ -286,7 +305,7 @@ def add_privacy(paths: List[Path]):
         print('Processed path: {}'.format(path))
 
 
-paths = [Path("crc_acceleration_bundle_1.0",
+paths = [Path("crc_acceleration_bundle_1.1",
               "crc_data_and_metric_bundle_1.1",
               "deid_data")]
 # out_dir = Path('')
