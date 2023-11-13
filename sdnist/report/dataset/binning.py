@@ -67,7 +67,9 @@ def add_bin_for_NA(data, reference_data, features):
     return d
 
 
-def bin_density(data: pd.DataFrame, data_dict: Dict, update: bool = True) -> pd.DataFrame:
+def bin_density(data: pd.DataFrame,
+                data_dict: Dict,
+                update: bool = True) -> pd.DataFrame:
     """
     data: Data containing density feature
     data_dict: Dictionary containing values range for density feature
@@ -115,7 +117,8 @@ def get_density_bins_description(data: pd.DataFrame,
                                  data_dict: Dict,
                                  mappings: Dict) -> Dict:
     bin_desc = dict()
-    # If puma is not available in the features, return empty description dictionary
+    # If puma is not available in the features,
+    # return empty description dictionary
     if 'PUMA' not in data:
         return bin_desc
 

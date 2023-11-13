@@ -183,16 +183,18 @@ def setup(reports_dir: Path,
     if not this_m_report_dir.exists():
         this_m_report_dir.mkdir(parents=True)
 
-    return {"reports_path":
-                selected_reports_path,
-            "metareport_out_dir":
-                this_m_report_dir,
-            "data_dict":
-                data_dict,
-            "density_bins_description":
-                density_bins_description,
-            "report_title":
-                metareport_title}
+    return {
+        "reports_path":
+            selected_reports_path,
+        "metareport_out_dir":
+            this_m_report_dir,
+        "data_dict":
+            data_dict,
+        "density_bins_description":
+            density_bins_description,
+        "report_title":
+            metareport_title
+    }
 
 if __name__ == "__main__":
     input_cnf = setup()

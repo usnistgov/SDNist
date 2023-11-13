@@ -8,7 +8,8 @@ DATA_ROOT_PATH = Path(cwd, 'diverse_communities_data_excerpts')
 DER_FULL = 'Data Evaluation Report'
 REPORT_DIR_PREFIX = 'SDNIST_DER'
 ARCHIVE_DIR_PREFIX = 'SDNIST_ARCHIVE'
-METAREPORT_DIR_PREFIX = 'SDNIST_METAREPORT'
+MDER_FULL = 'Meta Data Evaluation Report'
+METAREPORT_DIR_PREFIX = 'SDNIST_MDER'
 
 MA2019 = 'ma2019'
 TX2019 = 'tx2019'

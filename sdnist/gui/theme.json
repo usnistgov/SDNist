@@ -135,8 +135,11 @@
   "#directory_expand_button": {
     "colours": {
       "normal_bg": "#10101000"
+    },
+    "misc": {
+      "text_horiz_alignment": "left",
+      "text_horiz_alignment_padding": "0"
     }
-
    },
   "filetree_directory_button": {
   },

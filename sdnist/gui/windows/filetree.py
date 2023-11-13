@@ -12,8 +12,14 @@ from pygame_gui.elements.ui_scrolling_container \
     import UIScrollingContainer
 from pygame_gui.core import ObjectID
 
-from sdnist.gui.elements import FileButton, DirectoryButton
-from sdnist.gui.constants import REPORT_DIR_PREFIX
+from sdnist.gui.elements import (
+    FileButton,
+    DirectoryButton
+)
+from sdnist.gui.constants import (
+    REPORT_DIR_PREFIX,
+    METAREPORT_DIR_PREFIX
+)
 from sdnist.gui.windows.window import AbstractWindow
 
 
@@ -25,7 +31,7 @@ class FileTree(AbstractWindow):
         super().__init__(rect, manager)
         self.directory = Path(directory)
         self.w, self.h = rect.w, rect.h
-        self.font = pg.font.Font(None, 24)  # Use default font, size 24
+        self.font = pg.font.Font(None, 24)
         self.dir_expansion = dict()
         self.buttons = dict()
         self.selected = None
@@ -36,14 +42,18 @@ class FileTree(AbstractWindow):
                                    self.w,
                                    self.h - 20)
 
-        self.scroll = UIScrollingContainer(relative_rect=self.scroll_rect,
-                                           starting_height=2,
-                                           manager=self.manager,
-                                           container=self.window,
-                                           anchors={'left': 'left',
-                                                    'right': 'right',
-                                                    'top': 'top',
-                                                    'bottom': 'bottom'})
+        self.scroll = UIScrollingContainer(
+            relative_rect=self.scroll_rect,
+            starting_height=2,
+            manager=self.manager,
+            container=self.window,
+            anchors={
+                'left': 'left',
+                'right': 'right',
+                'top': 'top',
+                'bottom': 'bottom'
+            }
+        )
         self._draw_files_tree()
 
     def destroy(self):
@@ -83,6 +93,10 @@ class FileTree(AbstractWindow):
             expansion = True
             if str(root) in self.dir_expansion:
                 expansion = self.dir_expansion[str(root)]
+            elif REPORT_DIR_PREFIX in str(root) or \
+                METAREPORT_DIR_PREFIX in str(root):
+                expansion = False
+                self.dir_expansion[str(root)] = expansion
             else:
                 self.dir_expansion[str(root)] = True
 
@@ -101,17 +115,21 @@ class FileTree(AbstractWindow):
             # print(f'{"-"*(level + 1)}>{root.name} {(btn_x, btn_y)} '
             #       f'{(btn_w)}')
 
-            root_btn = DirectoryButton(relative_rect=file_btn_rect,
-                                       starting_height=3,
-                                       text=text,
-                                       expanded=expansion,
-                                       selection_callback=partial(callback, str(root)),
-                                       expansion_callback=partial(self.handle_dir_expand, str(root)),
-                                       manager=self.manager,
-                                       container=self.scroll,
-                                       anchors={'left': 'left'},
-                                       object_id=ObjectID(class_id='@filetree_button',
-                                                          object_id='#filetree_directory_button'))
+            root_btn = DirectoryButton(
+                relative_rect=file_btn_rect,
+                starting_height=3,
+                text=text,
+                expanded=expansion,
+                selection_callback=partial(callback, str(root)),
+                expansion_callback=partial(self.handle_dir_expand, str(root)),
+                manager=self.manager,
+                container=self.scroll,
+                anchors={'left': 'left'},
+                object_id=ObjectID(
+                    class_id='@filetree_button',
+                    object_id='#filetree_directory_button'
+                )
+            )
 
             self.buttons[str(root)] = root_btn
             if expansion:
@@ -136,24 +154,27 @@ class FileTree(AbstractWindow):
                         # print(f'{"-" * (level + 1)*2}-@>{f.name} {(btn_x, btn_y)}'
                         #       f'{(btn_w)}')
 
-                        file_btn = FileButton(relative_rect=file_btn_rect,
-                                              starting_height=3,
-                                              text=text,
-                                              callback=None,
-                                              manager=self.manager,
-                                              container=self.scroll,
-                                              anchors={'left': 'left'},
-                                              object_id=obj_id)
+                        file_btn = FileButton(
+                            relative_rect=file_btn_rect,
+                            starting_height=3,
+                            text=text,
+                            callback=None,
+                            manager=self.manager,
+                            container=self.scroll,
+                            anchors={'left': 'left'},
+                            object_id=obj_id
+                        )
                         file_btn.callback = partial(callback, str(f), file_btn)
                         self.buttons[str(f)] = file_btn
-                    elif f.is_dir() and not f.name.startswith(REPORT_DIR_PREFIX):
-
+                    elif f.is_dir():
                         lvl_d, last_i, child_level = draw_subtree(f, level + 1, i + 1)
                         i = last_i
                 # i += 1
             return lvl_d, i, child_level
 
-        self.files_ui, final_y, max_level = draw_subtree(self.directory, 0, 0)
+        self.files_ui, final_y, max_level = draw_subtree(
+            self.directory, 0, 0
+        )
 
         # final y is index of file button
         # final x is actual max width of file button
@@ -180,6 +201,6 @@ class FileTree(AbstractWindow):
             else:
                 self.dir_expansion[dir_path] = True
 
-            for bname, b in self.buttons.items():
+            for btn_name, b in self.buttons.items():
                 b.kill()
             self._draw_files_tree()
