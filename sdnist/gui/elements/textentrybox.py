@@ -2,6 +2,7 @@ from typing import Optional, Callable
 import pygame_gui as pggui
 import pygame as pg
 
+from pygame_gui.core import ObjectID
 from pygame_gui.elements.ui_text_entry_box import UITextEntryBox
 
 
@@ -10,6 +11,10 @@ class CustomTextEntryBox(UITextEntryBox):
                  text_changed_callback: Optional[Callable] = None,
                  editable: bool = True,
                  *args, **kwargs):
+        # kwargs['object_id'] = ObjectID(
+        #     class_id="@custom_text_entry_box",
+        #     object_id="#custom_text_entry_box"
+        # )
         super().__init__(*args, **kwargs)
         self.text_changed_callback = text_changed_callback
         self.editable = editable
@@ -33,5 +38,6 @@ class CustomTextEntryBox(UITextEntryBox):
         elif event.type in [pg.MOUSEBUTTONDOWN,
                             pg.MOUSEMOTION, pg.MOUSEBUTTONUP]:
             processed = super().process_event(event)
+
         return processed
 

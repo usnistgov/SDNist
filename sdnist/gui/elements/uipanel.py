@@ -19,14 +19,23 @@ class CustomUIPanel(UIPanel):
             self.last_mouse_pos = event.pos
             if self.rect.collidepoint(event.pos):
                 self.hovered = True
-                self.callback(hovered=True)
-                self.border_width = 1
-                self.border_colour = pg.Color('white')
-                self.rebuild()
+                self.callback(self.hovered)
             else:
                 self.hovered = False
-                self.callback(hovered=False)
-                self.border_width = 0
-                self.rebuild()
+                self.callback(self.hovered)
 
         return processed
+
+    def set_hovered(self, valid: bool):
+        if not valid:
+            color = pg.Color('#781f1f')
+        else:
+            color = pg.Color('#206327')
+        self.hovered = True
+        self.background_colour = color
+        self.rebuild()
+
+    def unset_hovered(self):
+        self.hovered = False
+        self.background_colour = pg.Color('#2b3136')
+        self.rebuild()

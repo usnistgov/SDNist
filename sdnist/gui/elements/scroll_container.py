@@ -26,14 +26,12 @@ class CustomScrollingContainer(UIScrollingContainer):
     def scroll_slider_max_h(self):
         if self.vert_scroll_bar:
             return self.vert_scroll_bar.rect.h \
-                   - 2 * self.vert_scroll_bar.top_button.rect.h \
                    - self.vert_scroll_bar.sliding_button.rect.h - 6
         return 1
 
     def scroll_slider_max_w(self):
         if self.horiz_scroll_bar:
             return self.horiz_scroll_bar.rect.w \
-                   - 2 * self.horiz_scroll_bar.left_button.rect.w \
                    - self.horiz_scroll_bar.sliding_button.rect.w - 6
         return 1
 
@@ -45,8 +43,7 @@ class CustomScrollingContainer(UIScrollingContainer):
             self.horiz_scroll_pos = self.horiz_scroll_bar.sliding_button.relative_rect.x
         if self.vert_scroll_bar and self.vert_scroll_bar.has_moved_recently:
             exec_callback = True
-            self.vert_scroll_pos = self.vert_scroll_bar.sliding_button.relative_rect.y \
-                - self.vert_scroll_bar.top_button.rect.h
+            self.vert_scroll_pos = self.vert_scroll_bar.sliding_button.relative_rect.y
 
         if exec_callback and self.scroll_callback:
             self.scroll_callback(self.vert_scroll_pos, self.horiz_scroll_pos)
