@@ -9,7 +9,7 @@ DER_FULL = 'Data Evaluation Report'
 REPORT_DIR_PREFIX = 'SDNIST_DER'
 ARCHIVE_DIR_PREFIX = 'SDNIST_ARCHIVE'
 MDER_FULL = 'Meta Data Evaluation Report'
-METAREPORT_DIR_PREFIX = 'SDNIST_MDER'
+METAREPORT_DIR_PREFIX = 'SDNIST_MER'
 
 MA2019 = 'ma2019'
 TX2019 = 'tx2019'
@@ -43,3 +43,7 @@ detailed_industry_focused = ["PUMA", "SEX", "MSP", "HISP", "RAC1P",
 small_categorical = ["SEX", "RAC1P", "OWN_RENT",
                      "PINCP_DECILE", "PUMA"]
 tiny_categorical = ["RAC1P", 'PUMA']
+
+
+# UI CONSTANTS
+window_header_h = 25

@@ -15,6 +15,8 @@ from sdnist.gui.pages import Page
 from sdnist.gui.pages.home import Home
 from sdnist.gui.pages.dashboard import Dashboard
 
+from sdnist.gui.colors import main_theme_color
+
 
 def create_page(page: Page, manager: pygame_gui.UIManager, data: any = None):
     if page == Page.HOME:
@@ -30,11 +32,13 @@ def sdnist_gui():
     # Get all the displays available on the system
     # First is the main display and the rest are secondary displays
     displays = pygame.display.get_desktop_sizes()
+
     # If there are more than one display, use the second display
     if len(displays) > 1:
-        disp_idx = 1
+        disp_idx = 2
     else:
         disp_idx = 0
+
     screen_width = displays[disp_idx][0]
     screen_height = displays[disp_idx][1]
     width = screen_width
@@ -46,13 +50,13 @@ def sdnist_gui():
 
     pygame.display.set_caption("SDNIST-" + __version__)
 
-    # surface = pygame.display.set_mode(dim)
     screen = pygame.display.set_mode(dim, pygame.RESIZABLE,
                                      display=disp_idx)
+    # pygame.display.toggle_fullscreen()
+    # pygame.display.set_mode(dim)
     screen.fill('white')
 
     manager = pygame_gui.UIManager(dim, str(theme_path))
-    manager.set_visual_debug_mode(True)
     # Create a button
 
     clock = pygame.time.Clock()
@@ -60,7 +64,7 @@ def sdnist_gui():
 
     # test_data_path = Path(Path(gui_pkg_path, '..', '..',
     #                            'gui_data', 'in_data', 'data1', 'anonos_sdk_Anonos'))
-    test_data_path = Path(Path(gui_pkg_path, '..', '..',
+    test_data_path = Path(Path(Path.cwd(),
                                'gui_data', 'in_data'))
     # test_data_path = Path(Path(gui_pkg_path, '..', '..',
     #                            'gui_data', 'in_data'))
@@ -86,7 +90,6 @@ def sdnist_gui():
                     dim = (width, height)
                     screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
                     manager = pygame_gui.UIManager(dim, str(theme_path))
-                    manager.set_visual_debug_mode(True)
                     pages = {
                         Page.HOME: Home(manager, enable=home_enabled),
                         Page.DASHBOARD: Dashboard(manager, str(test_data_path))
@@ -109,7 +112,7 @@ def sdnist_gui():
         manager.update(time_delta)
         pages[current_page].draw(screen)
         pages[current_page].update()
-        screen.fill('#1d3278')
+        screen.fill(main_theme_color)
         manager.draw_ui(screen)
         pygame.display.update()
     pygame.quit()
