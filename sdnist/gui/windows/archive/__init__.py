@@ -1,36 +1,30 @@
 from typing import Callable
 import pygame as pg
 import pygame_gui as pggui
-from pathlib import Path
-import webbrowser
 
 from sdnist.gui.windows.window import AbstractWindow
-
-from sdnist.gui.panels.simple.banner import BannerPanel
-from sdnist.gui.panels.simple.infoline import InfoLinePanel
-from sdnist.gui.panels.headers import CallbackHeader
 from sdnist.gui.panels.headers import WindowHeader
-import sdnist.gui.utils as u
+
 from sdnist.gui.constants import window_header_h
 
-class MetaReportInfo(AbstractWindow):
+class ArchiveInfo(AbstractWindow):
     def __init__(self,
                  delete_callback: Callable,
-                 report_path: str,
+                 archive_directory: str,
                  rect: pg.Rect,
                  manager: pggui.UIManager,
                  *args,
                  **kwargs):
 
-        self.title = 'SDNIST Meta Evaluation Report'
+        self.title = 'SDNIST Evaluation Archive'
         kwargs['window_display_title'] = self.title
         kwargs['resizable'] = True
         kwargs['draggable'] = False
         super().__init__(rect, manager, *args, **kwargs)
 
         self.delete_callback = delete_callback
-        self.report_path = report_path
         self.header_h = window_header_h
+        self.archive_directory = archive_directory
 
         self.header = None
         self._create()
@@ -49,30 +43,10 @@ class MetaReportInfo(AbstractWindow):
             container=self.window
         )
 
-        open_report_rect = pg.Rect(
-            0, self.header_h,
-            self.rect.w, option_h
-        )
-
-        self.open_rect = CallbackHeader(
-            callback=self.open_report,
-            rect=open_report_rect,
-            manager=self.manager,
-            container=self.window,
-            text='Open Meta-Report',
-        )
-
-
     def handle_event(self, event: pg.event.Event):
         pass
 
-    def open_report(self):
-        html_path = Path(self.report_path, 'report.html')
-        out_path = f'file://{html_path}'
-        webbrowser.open(out_path, new=True)
-
     def delete_path(self):
-        self.delete_callback(self.report_path)
-
+        self.delete_callback(self.archive_directory)
 
 

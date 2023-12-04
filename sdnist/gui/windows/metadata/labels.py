@@ -25,6 +25,7 @@ SUBMISSION_TIMESTAMP = 'submission timestamp'
 QUASI_IDENTIFIERS_SUBSET = 'quasi identifiers subset'
 TARGET_DATASET = 'target dataset'
 TEAM = 'team'
+TEAM_ID = 'team id'
 VARIANT_LABEL = 'variant label'
 VARIANT_LABEL_DETAIL = 'variant label detail'
 

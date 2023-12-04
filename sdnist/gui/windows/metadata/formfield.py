@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import Optional, Callable
 import pygame_gui as pggui
 import pygame as pg
 from functools import partial
 
+from pygame_gui.core import ObjectID
 from pygame_gui.elements.ui_window import UIWindow
 from pygame_gui.elements.ui_button import UIButton
 from pygame_gui.elements.ui_label import UILabel
@@ -24,6 +25,8 @@ class MetadataFormField(AbstractPanel):
                  rect: pg.Rect,
                  manager: pggui.UIManager,
                  container: any,
+                 hovered_callback: Callable,
+                 validation_callback: Callable,
                  label_name: str,
                  label_value: Optional[str],
                  label_type: LabelT,
@@ -38,6 +41,8 @@ class MetadataFormField(AbstractPanel):
         self.label_type = label_type
         self.is_editable = is_editable
         self.is_required = is_required
+        self.hovered_callback = hovered_callback
+        self.validation_callback = validation_callback
         self.options = options
         self.is_dropdown = True if self.label_type in \
                                    [LabelT.DROPDOWN, LabelT.MULTI_DROPDOWN] \
@@ -45,9 +50,12 @@ class MetadataFormField(AbstractPanel):
         self.multiselect = True if self.label_type == LabelT.MULTI_DROPDOWN \
             else False
 
+        self.pad_x = 10
+        self.rect_w = self.rect.w - self.pad_x * 2
         self.input_rect = None
         self.inp_btn = None
         self.panel = None
+        self.validation_label = None
         self.label = None
         self.dropdown = None
         self.selected_val = None
@@ -59,16 +67,36 @@ class MetadataFormField(AbstractPanel):
     def _create(self):
         # create panel
         self.panel = CustomUIPanel(
-                             callback=partial(self.test_panel_callback),
+                             callback=self.on_hovered_callback,
                              relative_rect=self.rect,
                              container=self.container,
-                             starting_height=2,
+                             starting_height=1,
                              manager=self.manager,
                              anchors={'left': 'left',
-                                      'top': 'top'})
+                                      'top': 'top'},
+                             object_id=ObjectID(
+                                 class_id="@form_field_panel",
+                                 object_id="#form_field_panel"
+                             ))
         self.panel.on_hovered()
-        lbl_w = self.rect.w * 0.3
-        lbl_rect = pg.Rect((0, 0), (lbl_w, self.rect.h))
+
+        v_lbl_w = self.rect_w * 0.005
+        lbl_w = self.rect_w * 0.345
+        inp_w = self.rect_w * 0.65
+
+        v_lbl_rect = pg.Rect((0, 0),
+                             (v_lbl_w, self.rect.h))
+        self.validation_label = UILabel(relative_rect=v_lbl_rect,
+                        container=self.panel,
+                        parent_element=self.panel,
+                        text='',
+                        manager=self.manager,
+                        anchors={'left': 'left',
+                                 'top': 'top'})
+        self.validation()
+
+        lbl_rect = pg.Rect((self.pad_x + v_lbl_rect.right, 0),
+                           (lbl_w, self.rect.h))
         self.label = UILabel(relative_rect=lbl_rect,
                              container=self.panel,
                              parent_element=self.panel,
@@ -78,12 +106,12 @@ class MetadataFormField(AbstractPanel):
                                       'top': 'top'})
 
         # input width
-        inp_w = self.rect.w * 0.7
         if self.label_type in [LabelT.STRING, LabelT.INT, LabelT.FLOAT]:
-            self.input_rect = pg.Rect((lbl_rect.right, 0), (inp_w, self.rect.h))
+            self.input_rect = pg.Rect((lbl_rect.right, 0),
+                                      (inp_w, self.rect.h))
 
             self.text_in = CustomUITextEntryLine(on_click=None,
-                                                 on_change=self.on_change,
+                                                 on_change=self.on_text_change,
                                                  editable=self.is_editable,
                                                  relative_rect=self.input_rect ,
                                                  container=self.panel,
@@ -102,7 +130,7 @@ class MetadataFormField(AbstractPanel):
 
             self.input_rect  = pg.Rect((lbl_rect.right, 0), (d_in_w, self.rect.h))
             self.text_in = CustomUITextEntryLine(on_click=None,
-                                                 on_change=self.on_change,
+                                                 on_change=self.on_text_change,
                                                  editable=self.is_editable,
                                                  relative_rect=self.input_rect,
                                                  container=self.panel,
@@ -128,7 +156,7 @@ class MetadataFormField(AbstractPanel):
             self.input_rect = pg.Rect((lbl_rect.right, 0), (inp_w, self.rect.h))
 
             self.text_in = CustomUITextEntryLine(on_click=None,
-                                                 on_change=self.on_change,
+                                                 on_change=self.on_text_change,
                                                  relative_rect=self.input_rect ,
                                                  container=self.panel,
                                                  parent_element=self.panel,
@@ -148,14 +176,37 @@ class MetadataFormField(AbstractPanel):
             elems.append(self.inp_btn)
         return elems
 
-    def test_panel_callback(self):
-        pass
+    def on_hovered_callback(self, hovered: bool):
+        self.hovered_callback(hovered)
 
     def destroy(self):
         pass
 
     def handle_event(self, event: pg.event.Event):
         pass
+
+    def on_text_change(self):
+        if self.on_change:
+            self.on_change()
+
+        self.validation()
+
+    def validation(self):
+        if not self.validation_callback:
+            return
+
+        if not self.text_in:
+            val = self.label_value
+        else:
+            val = self.text_in.get_text()
+        is_valid = self.validation_callback(self.label_name,
+                                            val)
+        if is_valid:
+            self.validation_label.bg_colour = pg.Color('#2f8f3d')
+            self.validation_label.rebuild()
+        else:
+            self.validation_label.bg_colour = pg.Color('#9c353c')
+            self.validation_label.rebuild()
 
     def create_selection_list(self):
         ir = self.input_rect
@@ -178,7 +229,7 @@ class MetadataFormField(AbstractPanel):
             default_val = self.selected_val
         self.dropdown = CallbackSelectionList(
                                         callback=self.set_value,
-                                        starting_height=3,
+                                        starting_height=2,
                                         relative_rect=dr,
                                         container=self.container,
                                         parent_element=self.container,

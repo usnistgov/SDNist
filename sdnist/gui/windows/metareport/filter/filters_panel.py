@@ -110,7 +110,7 @@ class FiltersPanel(AbstractPanel):
         super().destroy()
         self.destroy_filterset_buttons()
         if self.header:
-            self.header.kill()
+            self.header.destroy()
             self.header = None
         for scroll in self.filter_set_scrolls.values():
             scroll.destroy()
