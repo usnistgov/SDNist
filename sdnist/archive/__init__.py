@@ -15,7 +15,6 @@ def archive(data_root: str):
     and SDNIST Data Evaluation Reports (DERs) for each deid csv file.
     data_root: path to the root directory of the deid datasets
     """
-    print('CREATING ARCHIVE')
     data_root = Path(data_root)
 
     # Check if index file exists. If not
@@ -34,13 +33,13 @@ def archive(data_root: str):
     # -- national
     # ---- national csv, labels and reports
     time_now = datetime.datetime.now().strftime('%m-%d-%YT%H.%M.%S')
-    archive_dir = Path(data_root,
+    archive_dir = Path(data_root, 'archives',
                        f'{ARCHIVE_DIR_PREFIX}'
                        f'_{data_root.name}'
                        f'_{time_now}')
 
     if not archive_dir.exists():
-        archive_dir.mkdir()
+        archive_dir.mkdir(parents=True, exist_ok=True)
 
     ma_archive_dir = Path(archive_dir, 'ma')
     tx_archive_dir = Path(archive_dir, 'tx')
@@ -92,9 +91,6 @@ def archive(data_root: str):
 
         target_archive_path = target_dict[target_dataset]
 
-        print('file: ', csv_file)
-        print('target: ', target_archive_path)
-
         # copy csv file to target archive path
         shutil.copy(csv_file, target_archive_path)
         # copy labels file to target archive path
@@ -104,8 +100,6 @@ def archive(data_root: str):
 
     # copy index file to archive dir
     shutil.copy(index_path, archive_dir)
-    print(f'Created Archive: {archive_dir}')
-
 
 
 
