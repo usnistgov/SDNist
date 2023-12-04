@@ -3,6 +3,11 @@ import pandas as pd
 import json
 
 from sdnist.index.feature_space import feature_space_size
+from sdnist.gui.constants import (
+    REPORT_DIR_PREFIX,
+    METAREPORT_DIR_PREFIX,
+    ARCHIVE_DIR_PREFIX
+)
 import sdnist.strs as strs
 
 
@@ -88,7 +93,9 @@ def index(data_root: str):
 
     # remove all files that SDNIST_DER in their path
     metadata_files = [f for f in json_files
-                      if 'SDNIST_DER' not in str(f)]
+                      if ( REPORT_DIR_PREFIX not in str(f) and
+                           ARCHIVE_DIR_PREFIX not in str(f) and
+                           METAREPORT_DIR_PREFIX not in str(f) )]
     for metadata_file in metadata_files:
         with open(metadata_file, 'r') as f:
             metadata = json.load(f)
@@ -99,8 +106,9 @@ def index(data_root: str):
         metadata[LABELS_PATH] = str(metadata_file)
 
         # get report path
+        reports_path = Path(metadata_file.parent, 'reports')
         report_dirs = [p
-                       for p in metadata_file.parent.iterdir()
+                       for p in reports_path.iterdir()
                        if 'SDNIST_DER' in str(p)]
         report_dir = [d for d in report_dirs
                       if metadata_file.stem in str(d)]
