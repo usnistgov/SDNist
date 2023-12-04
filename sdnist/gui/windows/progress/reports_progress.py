@@ -2,6 +2,9 @@ from typing import List
 from itertools import chain
 import pygame as pg
 import pygame_gui as pggui
+
+from sdnist.gui.windows.window import AbstractWindow
+
 from pygame_gui.elements.ui_panel import UIPanel
 from pygame_gui.elements.ui_progress_bar import UIProgressBar
 from pygame_gui.elements.ui_label import UILabel
@@ -15,9 +18,11 @@ from sdnist.report.helpers import \
     ProgressStatus, ProgressLabels
 
 
-class ReportsProgressPanel(AbstractPanel):
-    def __init__(self, reports_list: List[str], *args, **kwargs):
-        kwargs['starting_height'] = 1
+class ReportsProgressPanel(AbstractWindow):
+    def __init__(self,
+                 reports_list: List[str],
+                 *args, **kwargs):
+        # kwargs['starting_height'] = 50
         super().__init__(*args, **kwargs)
         self.reports_list = reports_list
 
@@ -33,12 +38,13 @@ class ReportsProgressPanel(AbstractPanel):
         self._create()
 
     def _create(self):
+        elem_w = int(self.rect.w - 20)
         scroll_rect = pg.Rect((0, 0),
                               (self.rect.w, self.rect.h))
         self.scroll = UIScrollingContainer(relative_rect=scroll_rect,
                                            manager=self.manager,
-                                           starting_height=2,
-                                           container=self.panel,
+                                           starting_height=50,
+                                           container=self.window,
                                            anchors={'left': 'left',
                                                     'top': 'top'})
 
@@ -50,7 +56,7 @@ class ReportsProgressPanel(AbstractPanel):
 
         file_panel_h = text_height + progress_height \
             + msg_height + 4 * pad_y
-        panel_w = self.rect.w - 2 * pad_x
+        panel_w = elem_w - 2 * pad_x
         lbl_w = panel_w - 2 * pad_x
         net_height = 0
         for i, rep_f in enumerate(self.reports_list):
@@ -106,21 +112,20 @@ class ReportsProgressPanel(AbstractPanel):
 
         all_elems = set(chain(*self.prog_elems.values()))
         self.scroll.set_scrollable_area_dimensions(
-            (scroll_rect.w, net_height)
+            (elem_w, net_height)
         )
         if self.scroll.vert_scroll_bar:
             self.scroll.vert_scroll_bar.set_focus_set(all_elems)
 
     def destroy(self):
+        super().destroy()
         if self.scroll is not None:
-            self.panel.kill()
             self.scroll.kill()
-            self.panel = None
             self.scroll = None
             self.prog_elems = dict()
 
     def handle_event(self, event: pg.event.Event):
-        pass
+        super().handle_event(event)
 
     def update_progress(self, progress: ProgressStatus):
         updates = progress.get_updates()
