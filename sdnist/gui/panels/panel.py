@@ -28,6 +28,7 @@ class AbstractPanel(ABC):
             *args, **kwargs
         )
 
+
     @abstractmethod
     def _create(self):
         pass
@@ -36,6 +37,9 @@ class AbstractPanel(ABC):
         if self.panel:
             self.panel.kill()
             self.panel = None
+
+    def rebuild(self):
+        self.panel.rebuild()
 
     @abstractmethod
     def handle_event(self, event: pg.event.Event):

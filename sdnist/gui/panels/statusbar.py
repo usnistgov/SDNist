@@ -6,7 +6,7 @@ from pygame_gui.elements.ui_progress_bar import UIProgressBar
 from pygame_gui.elements.ui_label import UILabel
 
 from sdnist.gui.panels.panel import AbstractPanel
-from sdnist.gui.panels.reports_progress import \
+from sdnist.gui.windows.progress.reports_progress import \
     ReportsProgressPanel
 from sdnist.gui.elements import UICallbackButton
 
@@ -29,25 +29,10 @@ class StatusBar(AbstractPanel):
         self._create()
 
     def _create(self):
-        pass
-
-    def destroy(self):
-        super().destroy()
-        self.destroy_progress()
-
-    def handle_event(self, event: pg.event.Event):
-        pass
-
-    def add_progress(self, report_names: List):
-        # destroy previous progress bar if any
-        self.destroy_progress()
-        self.report_names = report_names
-        # create new progress bar
-        net_width = 0
         expand_btn_w = 50
         expand_btn_rect = pg.Rect((0, 0),
                                  (expand_btn_w, self.elem_h))
-        expand_btn_rect.right = -1 * net_width
+        expand_btn_rect.right = -1 * 0
         self.expand_prog_btn = UICallbackButton(
             callback=self.toggle_view_reports_progress,
             relative_rect=expand_btn_rect,
@@ -59,10 +44,24 @@ class StatusBar(AbstractPanel):
             anchors={'right': 'right',
                      'centery': 'centery'})
 
+    def destroy(self):
+        super().destroy()
+        self.destroy_progress()
+
+    def handle_event(self, event: pg.event.Event):
+        self.reports_progress.handle_event(event)
+
+    def add_progress(self, report_names: List):
+        # destroy previous progress bar if any
+        self.destroy_progress()
+        self.report_names = report_names
+        # create new progress bar
+
         progress_rect = pg.Rect(0, 0,
                                 self.rect.w * 0.2,
                                 self.elem_h)
-        net_width += expand_btn_rect.w
+        print(self.expand_prog_btn)
+        net_width = self.expand_prog_btn.rect.w
         progress_rect.right = -1 * net_width
         self.progress_bar = UIProgressBar(relative_rect=progress_rect,
                                           manager=self.manager,
@@ -91,11 +90,12 @@ class StatusBar(AbstractPanel):
         rep_prog_rect = pg.Rect(rep_prog_x, rep_prog_y,
                                 rep_prog_w, rep_prog_h)
         self.reports_progress = ReportsProgressPanel(
+            on_top=True,
             rect=rep_prog_rect,
             manager=self.manager,
             reports_list=self.report_names
         )
-        self.reports_progress.panel.hide()
+        self.reports_progress.window.hide()
 
     def destroy_progress(self):
         if self.progress_bar is not None:
@@ -104,9 +104,6 @@ class StatusBar(AbstractPanel):
         if self.progress_text is not None:
             self.progress_text.kill()
             self.progress_text = None
-        if self.expand_prog_btn is not None:
-            self.expand_prog_btn.kill()
-            self.expand_prog_btn = None
         if self.reports_progress is not None:
             self.reports_progress.destroy()
             self.reports_progress = None
@@ -121,9 +118,9 @@ class StatusBar(AbstractPanel):
             self.progress_text.set_text(text)
 
     def toggle_view_reports_progress(self):
-        if self.reports_progress.panel.visible:
-            self.reports_progress.panel.hide()
+        if self.reports_progress.window.visible:
+            self.reports_progress.window.hide()
             self.expand_prog_btn.set_text('+')
         else:
-            self.reports_progress.panel.show()
+            self.reports_progress.window.show()
             self.expand_prog_btn.set_text('-')

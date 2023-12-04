@@ -178,7 +178,7 @@ class DFTable(AbstractPanel):
 
             self.feature_buttons[f] = btn
             focus_set.add(btn)
-        last_f_btn = self.feature_buttons[self.enabled_features[-1]]
+        # last_f_btn = self.feature_buttons[self.enabled_features[-1]]
 
         # Add Feature Values
         for i, (_, row) in enumerate(self.view_data.iterrows()):
@@ -214,7 +214,8 @@ class DFTable(AbstractPanel):
         pass
 
     def destroy(self):
-        pass
+        self.panel.kill()
+        self.panel = None
 
     def handle_event(self, event: pg.event.Event):
         pass

@@ -26,10 +26,6 @@ class LongTextPanel(AbstractPanel):
         self._create()
 
     def _create(self):
-        self.panel = UIPanel(relative_rect=self.rect,
-                             manager=self.manager,
-                             container=self.container,
-                             starting_height=10)
         title_height = 30
         self.title_rect = pg.Rect((0, 0),
                                   (self.rect.w, title_height))

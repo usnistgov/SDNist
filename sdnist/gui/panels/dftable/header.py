@@ -4,7 +4,7 @@ import pygame as pg
 from pygame_gui.core.object_id import ObjectID
 from pygame_gui.elements.ui_window import UIWindow
 
-from sdnist.gui.panels.header import Header
+from sdnist.gui.panels.headers import Header
 from sdnist.gui.elements import LabelDropDown
 
 
