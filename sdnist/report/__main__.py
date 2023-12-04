@@ -48,7 +48,7 @@ def run(progress: ProgressStatus,
         html report.
     """
     if not output_directory.exists():
-        os.mkdir(output_directory)
+        output_directory.mkdir(parents=True, exist_ok=True)
 
     # program configurations
     cfg = {
@@ -187,7 +187,7 @@ def setup(deid_files: Optional[List[Path]] = None):
             report_file_name = 'SDNIST_DER_' + Path(deid_file).stem
             TARGET_DATA = bundled_datasets[labels['target dataset']]
             target = bundled_datasets[labels['target dataset']].name
-            this_report_dir = Path(Path(deid_file).parent, f'{report_file_name}_{target}_{time_now}')
+            this_report_dir = Path(Path(deid_file).parent, 'reports', f'{report_file_name}_{target}_{time_now}')
 
             input_cnfs.append({
                 DATASET_NAME: TARGET_DATA,
