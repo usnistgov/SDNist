@@ -37,6 +37,7 @@ TARGET_DATASET = 'target dataset'
 TEAM = 'team'
 VARIANT_LABEL = 'variant label'
 VARIANT_LABEL_DETAIL = 'variant label detail'
+ONLY_NUMERICAL_RESULTS = 'only numerical results'
 
 column_order = [
     LIBRARY_NAME,
@@ -60,6 +61,7 @@ column_order = [
     SUBMISSION_NUMBER,
     SUBMISSION_TIMESTAMP,
     QUASI_IDENTIFIERS_SUBSET,
+    ONLY_NUMERICAL_RESULTS,
     DEID_DATA_ID
 ]
 
@@ -93,9 +95,9 @@ def index(data_root: str):
 
     # remove all files that SDNIST_DER in their path
     metadata_files = [f for f in json_files
-                      if ( REPORT_DIR_PREFIX not in str(f) and
+                      if (REPORT_DIR_PREFIX not in str(f) and
                            ARCHIVE_DIR_PREFIX not in str(f) and
-                           METAREPORT_DIR_PREFIX not in str(f) )]
+                           METAREPORT_DIR_PREFIX not in str(f))]
     for metadata_file in metadata_files:
         with open(metadata_file, 'r') as f:
             metadata = json.load(f)
@@ -110,10 +112,16 @@ def index(data_root: str):
         report_dirs = [p
                        for p in reports_path.iterdir()
                        if 'SDNIST_DER' in str(p)]
-        report_dir = [d for d in report_dirs
-                      if metadata_file.stem in str(d)]
-        metadata[REPORT_PATH] = str(report_dir[0])
 
+        report_dirs = [d for d in report_dirs
+                      if metadata_file.stem in str(d)]
+        report_dirs = [str(r) for r in report_dirs]
+        report_dirs = sorted(report_dirs, reverse=True)
+
+        metadata[REPORT_PATH] = str(report_dirs[0])
+        report_json_path = Path(report_dirs[0], 'report.json')
+        with open(report_json_path, 'r') as f:
+            report_json = json.load(f)
         target_df = None
         if metadata[TARGET_DATASET] == 'ma2019':
             target_df = ma_df
@@ -125,8 +133,9 @@ def index(data_root: str):
         features = metadata[FEATURES_LIST].split(', ')
         sub_target_df = target_df[features]
 
-        metadata[FEATURE_SPACE_SIZE] = feature_space_size(sub_target_df,
-                                                          data_dict)
+        metadata[FEATURE_SPACE_SIZE] = metadata[FEATURE_SPACE_SIZE]
+        metadata[ONLY_NUMERICAL_RESULTS] = \
+            report_json[strs.CONTAINS_ONLY_NUMERICAL_RESULTS]
         index_rows.append(pd.DataFrame(metadata, index=[0]))
         # get the target dataset
     index_df = pd.concat(index_rows, ignore_index=True)
