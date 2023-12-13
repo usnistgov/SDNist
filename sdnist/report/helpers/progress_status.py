@@ -31,6 +31,7 @@ class ProgressStatus:
         self.max_progress = 0
         self.last_progress = 0
         self.current_progress = 0
+        self.completed = False
         self.completed_reports: List[str] = []
         self.progress_label = ''
         self.updates = Queue()
@@ -62,8 +63,17 @@ class ProgressStatus:
 
     def add_report(self, report_name: str):
         with self.lock:
+            self.completed = False
             self.reports[report_name] = (0, None)
             self.max_progress = self.single_report_max_progress * len(self.reports)
+
+    def is_busy(self):
+        return self.current_progress < self.max_progress
+
+    def is_completed(self):
+        res = self.completed
+        self.completed = False
+        return res
 
     def has_updates(self):
         with self.lock:
@@ -92,4 +102,8 @@ class ProgressStatus:
             self.updates.put((report_name, label, progress_percent))
             if label == ProgressLabels.CREATING_EVALUATION_REPORT:
                 self.completed_reports.append(report_name)
+            if (self.current_progress > 0
+                    and self.current_progress == self.max_progress):
+                self.completed = True
+
 
