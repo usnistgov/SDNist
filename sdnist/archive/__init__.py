@@ -6,17 +6,16 @@ import shutil
 
 from sdnist.index import index, TARGET_DATASET
 from sdnist.gui.constants import \
-    REPORT_DIR_PREFIX, ARCHIVE_DIR_PREFIX
+    REPORT_DIR_PREFIX, ARCHIVE_DIR_PREFIX, METAREPORT_DIR_PREFIX
 
 
-def archive(data_root: str):
+def archive(data_root: str) -> Path:
     """
     Creates an SDNIST archive of deid csv files, their labels/metadata
     and SDNIST Data Evaluation Reports (DERs) for each deid csv file.
     data_root: path to the root directory of the deid datasets
     """
     data_root = Path(data_root)
-
     # Check if index file exists. If not
     # then create an index file
     index_path = Path(data_root, 'index.csv')
@@ -59,14 +58,19 @@ def archive(data_root: str):
     a_csv_files = data_root.glob('**/*.csv')
 
     for csv_file in a_csv_files:
-        if ARCHIVE_DIR_PREFIX in str(csv_file):
+        if ARCHIVE_DIR_PREFIX in str(csv_file) or \
+            REPORT_DIR_PREFIX in str(csv_file) or \
+            METAREPORT_DIR_PREFIX in str(csv_file) or \
+            csv_file.name == 'index.csv':
             continue
         # labels path
         lbl_path = Path(str(csv_file).replace('.csv', '.json'))
-
         # report directory
+        csv_parent = csv_file.parent
+
+        reports_path = Path(csv_parent, 'reports')
         rep_path = [d
-                    for d in csv_file.parent.iterdir()
+                    for d in reports_path.iterdir()
                     if REPORT_DIR_PREFIX in str(d) and
                     csv_file.stem in str(d)]
 
@@ -100,6 +104,8 @@ def archive(data_root: str):
 
     # copy index file to archive dir
     shutil.copy(index_path, archive_dir)
+
+    return archive_dir
 
 
 
