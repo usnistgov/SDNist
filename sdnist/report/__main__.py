@@ -89,6 +89,7 @@ def run(progress: ProgressStatus,
         ui_data.save()
         ui_data = ui_data.data
         report_data.data['created_on'] = ui_data['Created on']
+        report_data.data[CONTAINS_ONLY_NUMERICAL_RESULTS] = only_numerical_metric_results
         report_data.save()
         log.end_msg()
         progress.update(str(output_directory), ProgressLabels.SAVING_REPORT_DATA)
