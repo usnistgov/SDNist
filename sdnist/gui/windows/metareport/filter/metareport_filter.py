@@ -1,3 +1,4 @@
+from typing import Callable
 import pandas as pd
 from pathlib import Path
 import pygame as pg
@@ -24,6 +25,7 @@ from sdnist.metareport.__main__ import run, setup
 
 class MetaReportFilter(AbstractWindow):
     def __init__(self,
+                 metareport_created_callback: Callable,
                  index_path: str,
                  *args, **kwargs):
         self.title = 'Metareport Filters'
@@ -42,16 +44,19 @@ class MetaReportFilter(AbstractWindow):
         #                    self.orig_rect.h * 0.6 - self.title_h)
         # kwargs['rect'] = new_rect
         super().__init__(*args, **kwargs)
+        self.metareport_created_callback = metareport_created_callback
         self.index_path = Path(index_path)
-        self.index = pd.read_csv(self.index_path, index_col=0)
+        self.index = pd.read_csv(self.index_path)
+        if 'Unnamed: 0' in self.index.columns.to_list():
+            self.index.index = self.index['Unnamed: 0'].values
+            self.index = self.index.drop(columns=['Unnamed: 0'])
         self.inc_panel = None
         self.exc_panel = None
 
-        self.filter_data = FilterData(data=self.index)
+        self.filter_data = FilterData(data=self.index, path=self.index_path)
         self.idx_tbl = None
 
         self.default_enabled_features = [
-            INDEX,
             TEAM,
             LIBRARY_NAME,
             ALGORITHM_NAME,
@@ -104,10 +109,7 @@ class MetaReportFilter(AbstractWindow):
         self.idx_tbl = DFTable(rect=idx_rect,
                                manager=self.manager,
                                container=self.window,
-                               file_path=self.index_path,
-                               data=self.index,
-                               filter_data=self.filter_data,
-                               enabled_features=self.default_enabled_features)
+                               filter_data=self.filter_data)
         self.inc_panel.on_update_callback = self.idx_tbl.update_data
         self.exc_panel.on_update_callback = self.idx_tbl.update_data
 
@@ -131,6 +133,8 @@ class MetaReportFilter(AbstractWindow):
             .apply(lambda x: Path(x)).tolist()
         input_cnf = setup(reports_dir, reports_path)
         run(**input_cnf)
+        out_dir = input_cnf['metareport_out_dir']
+        self.metareport_created_callback(out_dir)
 
 
 

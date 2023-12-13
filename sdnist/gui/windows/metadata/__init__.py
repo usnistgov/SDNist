@@ -173,6 +173,9 @@ class MetaDataForm(AbstractWindow):
         self.label_validation = dict()
         self._create()
 
+        if not self.labels_data or 'labels' not in self.labels_data:
+            self.save_data()
+
     @property
     def file(self) -> str:
         return self._file

@@ -6,7 +6,6 @@ from pygame_gui.elements.ui_label import UILabel
 from pygame_gui.core.object_id import ObjectID
 
 from sdnist.gui.panels.panel import AbstractPanel
-from sdnist.gui.panels import SettingsPanel
 from sdnist.gui.elements import UICallbackButton
 
 from sdnist.gui.strs import *
@@ -64,8 +63,6 @@ class MenuBar(AbstractPanel):
         for i, btn_name in enumerate(menubar_rigth_btns[::-1]):
             btn = self.create_right_button(btn_name, net_width)
             net_width += btn.rect.w
-            if btn_name == SETTINGS:
-                btn.callback = self.create_settings_window
             if btn_name == NUMERICAL_RESULT:
                 btn.callback = self.toggle_numerical_result
             self.buttons[btn_name] = btn
@@ -124,39 +121,16 @@ class MenuBar(AbstractPanel):
         if self.settings_window:
             self.settings_window.handle_event(event)
 
-    def create_settings_window(self):
-        if self.settings_window is None:
-            settings_rect = pg.Rect(0, 0,
-                                    self.w // 1.5,
-                                    self.h // 1.5)
-            self.settings_window = SettingsPanel(rect=settings_rect,
-                                                 manager=self.manager,
-                                                 done_button_visible=True,
-                                                 done_button_callback=self.settings_window_update)
-
-    def settings_window_update(self):
-        if self.settings_window:
-            self.settings.update(self.settings_window.get_settings())
-        self.save_settings(True)
-        self.update_numerical_results()
-
-    def save_settings(self, destroy_window=True):
-        if self.settings_window and destroy_window:
-            self.settings_window.destroy()
-            self.settings_window = None
-        save_cfg(self.settings)
-
-
     def toggle_numerical_result(self):
         self.settings[NUMERICAL_METRIC_RESULTS] = \
             not self.settings[NUMERICAL_METRIC_RESULTS]
-        btn = self.buttons[NUMERICAL_RESULT]
-        last_callback = btn.callback
-        btn.kill()
-        self.save_settings()
+
+        save_cfg(self.settings)
         self.update_numerical_results()
 
     def update_numerical_results(self):
+        btn = self.buttons[NUMERICAL_RESULT]
+        btn.kill()
         self.numerical_results = self.settings[NUMERICAL_METRIC_RESULTS]
         btn = self.create_right_button(NUMERICAL_RESULT, 0)
         btn.callback = self.toggle_numerical_result
@@ -164,3 +138,7 @@ class MenuBar(AbstractPanel):
 
         if self.numerical_result_callback:
             self.numerical_result_callback()
+
+    def update_settings(self):
+        self.settings = load_cfg()
+        self.update_numerical_results()

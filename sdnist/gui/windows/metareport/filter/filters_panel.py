@@ -36,13 +36,18 @@ class FiltersPanel(AbstractPanel):
                  header_text: str = "Filters",
                  on_update_callback: Optional[Callable] = None,
                  *args, **kwargs):
+        if 'object_id' not in kwargs:
+            kwargs['object_id'] = ObjectID(
+                class_id='@filter_panel',
+                object_id=f'#filter_panel'
+            )
         super().__init__(*args, **kwargs)
         self.filter_data = filter_data
 
         self.filter_type = filter_type
         self.header_text = header_text
         self.on_update_callback = on_update_callback
-        self.pad_x = 0
+        self.pad_x = 10
         self.pad_y = 0
         self.title_w = self.rect.w
         self.title_h = 40
@@ -51,7 +56,7 @@ class FiltersPanel(AbstractPanel):
         self.add_btn_h = 30  # add filter button height
         self.scroll_h = self.rect.h - \
             self.header_h - 3 * self.pad_y
-        self.header_w = 150 - 2 * self.pad_x
+        self.header_w = 150
         self.scroll_w = self.rect.w - 2 * self.pad_x
         self.add_btn_w = 100
         # filter set
@@ -76,7 +81,9 @@ class FiltersPanel(AbstractPanel):
     def _create(self):
         title_rect = pg.Rect((0, 0),
                             (self.title_w, self.title_h))
-        obj_name = f'{self.filter_type.name.lower()}_title_panel'
+        obj_id = ''.join(self.filter_type.value.split(' ')).lower()
+        obj_name = f'{obj_id}_title_panel'
+        print(f'obj_name: {obj_name}')
         self.title_panel = UIPanel(
             relative_rect=title_rect,
             manager=self.manager,
@@ -86,7 +93,7 @@ class FiltersPanel(AbstractPanel):
                      'left': 'left'},
             object_id=ObjectID(
                 class_id=f'@filter_title_panel',
-                object_id=f'#{obj_name}'
+                object_id=f'#{obj_id}_tools_panel'
             )
         )
 
@@ -167,6 +174,11 @@ class FiltersPanel(AbstractPanel):
                 container=self.title_panel,
                 anchors={'centery': 'centery',
                          'left': 'left'},
+                object_id=ObjectID(
+                    class_id=f'@filterset_button',
+                    object_id=f'#filterset_button'
+                ),
+                tool_tip_text=f'{self.filter_type.value} Set: {i}'
             )
 
             # create container for the filterset. This container
@@ -210,7 +222,7 @@ class FiltersPanel(AbstractPanel):
         # create buttons to add filterset and filters
         fset_btn_x = self.filter_sets_elems[-1].relative_rect.x + \
             self.filter_sets_elems[-1].relative_rect.w
-        add_fset_btn_rect = pg.Rect((fset_btn_x, 0),
+        add_fset_btn_rect = pg.Rect((fset_btn_x + self.pad_x, 0),
                                     (-1, self.add_btn_h))
         self.add_fset_btn = UICallbackButton(
             callback=self.create_filterset_btns,
@@ -220,12 +232,16 @@ class FiltersPanel(AbstractPanel):
             container=self.title_panel,
             anchors={'centery': 'centery',
                      'left': 'left'},
+            object_id=ObjectID(
+                class_id=f'@filterset_button',
+                object_id=f'#add_filterset_button'
+            )
         )
 
         add_btn_x = add_fset_btn_rect.x + \
             self.add_fset_btn.relative_rect.w
 
-        add_btn_rect = pg.Rect((add_btn_x, 0),
+        add_btn_rect = pg.Rect((add_btn_x + self.pad_x, 0),
                                (-1, self.add_btn_h))
         add_feature_filter = partial(self.add_feature_filter)
         self.add_filter_btn = UICallbackButton(
@@ -236,6 +252,10 @@ class FiltersPanel(AbstractPanel):
             container=self.title_panel,
             anchors={'centery': 'centery',
                      'left': 'left'},
+            object_id=ObjectID(
+                class_id=f'@filterset_button',
+                object_id=f'#add_filter_button'
+            )
         )
 
     def select_feature_set(self, filter_set_name: str):
@@ -263,3 +283,4 @@ class FiltersPanel(AbstractPanel):
         self.filter_data.update(filter_set_name, filter_id, filter_data)
         if self.on_update_callback:
             self.on_update_callback()
+

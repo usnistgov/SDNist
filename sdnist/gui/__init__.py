@@ -17,7 +17,6 @@ from sdnist.gui.pages.dashboard import Dashboard
 
 from sdnist.gui.colors import main_theme_color
 
-
 def create_page(page: Page, manager: pygame_gui.UIManager, data: any = None):
     if page == Page.HOME:
         return Home(manager)
@@ -65,7 +64,8 @@ def sdnist_gui():
     # test_data_path = Path(Path(gui_pkg_path, '..', '..',
     #                            'gui_data', 'in_data', 'data1', 'anonos_sdk_Anonos'))
     test_data_path = Path(Path(Path.cwd(),
-                               'gui_data', 'in_data'))
+                               'gui_data', 'in_data',
+                               'data2'))
     # test_data_path = Path(Path(gui_pkg_path, '..', '..',
     #                            'gui_data', 'in_data'))
     current_page = Page.DASHBOARD

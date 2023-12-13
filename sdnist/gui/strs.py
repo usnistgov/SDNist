@@ -44,3 +44,4 @@ PART_2 = 'part_2',
 BACK_COLOR = 'back_color',
 TEXT_COLOR = 'text_color'
 
+

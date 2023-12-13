@@ -3,6 +3,7 @@ import pygame as pg
 from functools import partial
 
 import pygame_gui as pggui
+from pygame_gui.core import ObjectID
 from pygame_gui.elements.ui_panel import UIPanel
 from pygame_gui.elements.ui_label import UILabel
 
@@ -50,11 +51,14 @@ class ButtonsGroupPanel(AbstractPanel):
                                    parent_element=self.panel,
                                    manager=self.manager,
                                    anchors={'left': 'left',
-                                            'centery': 'centery'})
+                                            'centery': 'centery'},
+                                   object_id=ObjectID(
+                                        class_id="@toolbar_button",
+                                        object_id="#button_group_button"
+                                   ))
             net_width += btn.relative_rect.width
             self.buttons[btn_name] = btn
         self.btn_grp = ButtonGroup(list(self.buttons.values()))
-        self.on_select_button(INFORMATION)
 
     def destroy(self):
         super().destroy()

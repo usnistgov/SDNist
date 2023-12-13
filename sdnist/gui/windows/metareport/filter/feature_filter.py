@@ -97,15 +97,15 @@ class FeatureFilter(AbstractPanel):
                                 (self.feature_dropdown_w,
                                  self.feature_dropdown_h))
         if self.selected_feature is None:
-            self.selected_feature = self.index.columns.tolist()[0]
-
+            self.selected_feature = self.index.columns.tolist()[1]
+        options = self.index.columns.tolist()[1:]
         self.feature_dropdown = LabelDropDown(
             on_change_callback=self.on_feature_change,
             rect=dropdown_rect,
             manager=self.manager,
             container=self.panel,
             parent_window=self.parent_window,
-            options_list=self.index.columns.tolist(),
+            options_list=options,
             starting_option=self.selected_feature
         )
 

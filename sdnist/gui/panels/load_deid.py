@@ -18,9 +18,7 @@ from sdnist.gui.panels.headers.header import Header
 from sdnist.gui.panels.panel import AbstractPanel
 from sdnist.gui.elements.textline import CustomUITextEntryLine
 from sdnist.gui.elements.buttons import UICallbackButton
-from sdnist.gui.windows import PlainWindow
-
-from sdnist.gui.windows import DoneWindow
+from sdnist.gui.panels.plain_window import PlainWindow
 
 from sdnist.gui.colors import (
     main_theme_color, back_color)
@@ -58,6 +56,7 @@ class LoadDeidData(AbstractPanel):
                                self.h // 2 - self.rect.h // 2,
                                self.rect.w, self.rect.h)
             window_rect = pg.Rect(win_rect)
+
             self.plain_window = PlainWindow(rect=window_rect,
                                     manager=self.manager,
                                     window_display_title=
@@ -184,12 +183,6 @@ class LoadDeidData(AbstractPanel):
             self.load_button = None
 
     def handle_event(self, event: pg.event.Event):
-        if self.file_dialog:
-            if not self.manager.ui_window_stack.is_window_at_top(self.file_dialog):
-                self.manager.ui_window_stack.move_window_to_front(self.file_dialog)
-        elif not self.manager.ui_window_stack.is_window_at_top(self.base):
-            self.manager.ui_window_stack.move_window_to_front(self.base)
-
         if event.type == pg.USEREVENT:
 
             if event.user_type == pggui.UI_WINDOW_CLOSE:
@@ -214,10 +207,6 @@ class LoadDeidData(AbstractPanel):
                                                     allowed_suffixes={".csv", ".json"},
                                                     )
                     self.load_button.disable()
-                if self.file_dialog:
-                    if event.ui_element == self.file_dialog.cancel_button:
-                        self.manager.ui_window_stack.move_window_to_front(self.base)
-
             elif event.user_type == pggui.UI_WINDOW_CLOSE:
                 # When file dialog is closed or cancelled
                 if isinstance(event.ui_element, UIFileDialog):

@@ -30,8 +30,6 @@ from sdnist.gui.panels.toolbar import (
 # from sdnist.gui.panels.toolbar import \
 #     METADATA_BTN, REPORT_BTN, INDEX_BTN, \
 #     ARCHIVE_BTN, METAREPORT_BTN
-from sdnist.gui.panels.menubar import \
-    LOAD_DATA, SETTINGS, TARGET_DATA, NUMERICAL_RESULT
 from sdnist.gui.panels import \
     LoadDeidData, SettingsPanel
 from sdnist.gui.panels.simple import \
@@ -43,8 +41,8 @@ from sdnist.gui.windows import \
     MetaReportFilter, MetaReportInfo
 from sdnist.gui.windows import DeidCSV
 from sdnist.gui.windows import DirectoryInfo
-from sdnist.gui.windows.handler import (
-    WindowHandler, METADATA_FORM)
+from sdnist.gui.handlers.window import (
+    WindowHandler, METADATA_FORM, METAREPORT_FILTER)
 
 from sdnist.gui.config import load_cfg, save_cfg
 from sdnist.gui.strs import *
@@ -78,10 +76,7 @@ class Dashboard(AbstractPage):
         self.default_header_height = 30
         self.header_height = max(self.header_height,
                                  self.default_header_height)
-        self.header = None
         self.toolbar = None
-        self.menubar = None
-        self.statusbar = None
         self.path_header = None
 
         self.m_area_x = 0
@@ -138,29 +133,15 @@ class Dashboard(AbstractPage):
         self.win_handler = WindowHandler(
             manager=self.manager,
             root_directory=str(self.data),
+            progress=self.progress,
             top=self.m_area_y,
             left=self.filetree_rect,
             right=self.window_rect
         )
 
-        header_w = 190
-        header_rect = pg.Rect(0, 0, header_w, self.header_height)
-
-        self.header = Header(
-            starting_height=2,
-            text='SDNIST',
-            rect=header_rect,
-            manager=self.manager,
-            object_id=ObjectID(
-                class_id='@header_panel',
-                object_id='#main_header_panel'),
-            text_object_id=ObjectID(
-                class_id="@header_label",
-                object_id="#main_header_label")
-        )
-        menubar_rect = pg.Rect(0, 0,
-                               self.w, self.header_height)
-        self.menubar = MenuBar(menubar_rect, self.manager, starting_height=1)
+        self.win_handler.create_header_logo()
+        self.win_handler.create_menubar()
+        self.win_handler.create_statusbar()
 
         path_header_rect = pg.Rect(
             0, self.header_height, int(self.w * 0.55), self.header_height
@@ -181,16 +162,7 @@ class Dashboard(AbstractPage):
                                self.w * 0.45, self.header_height)
         self.toolbar = ToolBar(toolbar_rect, self.manager)
 
-        statusbar_rect = pg.Rect(0, self.h - self.header_height,
-                                 self.w, self.header_height)
-        self.statusbar = StatusBar(statusbar_rect, self.manager)
 
-        # SET CALLBACKS
-        menubar_cb ={
-            LOAD_DATA: self.load_deid_callback,
-            TARGET_DATA: self.target_data_callback,
-        }
-        self.menubar.set_callbacks(menubar_cb)
 
     def draw(self, screen: pg.Surface):
         pass
@@ -198,35 +170,32 @@ class Dashboard(AbstractPage):
     def update(self):
         if self.progress is None:
             return
+        sb = self.win_handler.statusbar
         if self.progress.has_updates():
-            if self.statusbar.reports_progress is not None:
-                self.statusbar.reports_progress.update_progress(self.progress)
+            if sb.reports_progress is not None:
+                sb.reports_progress.update_progress(self.progress)
         if self.progress.get_current_progress() \
                 != self.progress.get_last_progress():
-            self.statusbar.update_progress(self.progress)
+            sb.update_progress(self.progress)
             new_reports_created = len(self.progress.get_completed_reports())
             if new_reports_created > self.completed_reports:
                 self.completed_reports = new_reports_created
                 self.win_handler.update_filetree()
             self.progress.set_last_progress(
                 self.progress.get_current_progress())
+        if self.progress.is_completed():
+            self.update_toolbar()
 
     def handle_event(self, event: pg.event.Event):
         if self.load_data:
             self.load_data.handle_event(event)
-
-        if self.statusbar.reports_progress is not None:
-            self.statusbar.handle_event(event)
-
-        if self.menubar:
-            self.menubar.handle_event(event)
 
         self.win_handler.handle(event)
         prev_selected = self.selected_path
         self.selected_path = self.win_handler.selected_path
 
         selected_path_type, selected_path_status = \
-            self.win_handler.filetree.compute_selected_file_type()
+            self.win_handler.filetree.compute_selected_file_type(self.progress)
 
         if prev_selected != self.selected_path:
             self.toolbar.update_buttons(selected_path_type, selected_path_status)
@@ -264,15 +233,40 @@ class Dashboard(AbstractPage):
         if self.selected_path is None:
             print('No path selected')
             return
-        if self.selected_path.suffix != '.csv':
-            print('Selected path is not a csv file')
+        is_not_valid = (
+            (self.selected_path.is_file()
+             and self.selected_path.suffix != '.csv')
+            or not self.selected_path.is_dir())
+        if is_not_valid:
+            # print('Selected path is not a csv file or a directory')
             return
-        # metaform path
-        mf_path = Path(self.selected_path.parent,
-                          self.selected_path.stem + '.json')
+
+        if self.selected_path.is_dir():
+            # exclude directories that start with SDNIST_DER_
+            all_files = list(glob.iglob(str(self.selected_path) + f'/**/*.csv',
+                                        recursive=True))
+
+            files = filter(lambda x: (
+                REPORT_DIR_PREFIX not in str(x) and
+                ARCHIVE_DIR_PREFIX not in str(x)), all_files)
+
+            csv_files = [str(f) for f in files]
+            # get path to first json file with same name csv that doesn't exist
+            metadata_no_exist = None
+            for csv_file in csv_files:
+                mf_path = Path(csv_file).with_suffix('.json')
+                if not mf_path.exists():
+                    metadata_no_exist = mf_path
+                    break
+            mf_path = metadata_no_exist
+        else:
+            # metaform path
+            mf_path = Path(self.selected_path.parent,
+                              self.selected_path.stem + '.json')
         if not mf_path.exists():
             with open(mf_path, 'w') as f:
                 json.dump({}, f)
+        self.selected_path = mf_path.with_suffix('.csv')
         self.open_metadata_callback()
 
     def save_metadata_callback(self):
@@ -309,6 +303,15 @@ class Dashboard(AbstractPage):
             return
         self.win_handler.select_path(mf_path)
 
+    def update_toolbar(self):
+        selected_path_type, selected_path_status = \
+        self.win_handler.filetree.compute_selected_file_type(self.progress)
+
+        if self.win_handler.current_window == METAREPORT_FILTER:
+            selected_path_status[METAREPORT_FILTER] = True
+        self.toolbar.update_buttons(selected_path_type, selected_path_status)
+        self.toolbar.update_callbacks(self.get_toolbar_callbacks())
+
     def report_callback(self):
         if self.selected_path is None:
             return
@@ -327,11 +330,14 @@ class Dashboard(AbstractPage):
             csv_files = [str(f) for f in files]
         elif s_path.suffix == '.csv':
             csv_files = [str(s_path)]
+        elif s_path.suffix == '.json':
+            csv_files = [str(s_path.with_suffix('.csv'))]
+
         BaseManager.register('ProgressStatus', ProgressStatus)
         manager = BaseManager()
         manager.start()
         self.progress = manager.ProgressStatus()
-
+        settings = load_cfg()
         inputs = setup(csv_files)
         inputs = [(
             self.progress,
@@ -342,7 +348,7 @@ class Dashboard(AbstractPage):
             i[LABELS_DICT],
             False,
             False,
-            self.settings[NUMERICAL_METRIC_RESULTS]
+            settings[NUMERICAL_METRIC_RESULTS]
             )
             for i in inputs
         ]
@@ -353,19 +359,16 @@ class Dashboard(AbstractPage):
             str_path = str(i[2])
             self.progress.add_report(str_path)
             reports.append(str_path)
-
-        self.statusbar.add_progress(reports)
+        if len(inputs):
+            self.update_toolbar()
+        self.win_handler.statusbar.add_progress(reports)
         pool_size = len(inputs) if len(inputs) < 5 else 5
+
         pool = Pool(pool_size)
-        # res = pool.starmap(run, inputs)
-        # self.left_panel = SidePanel(0, self.header_height,
-        #                             self.manager, str(self.data))
+
         for i in inputs:
             self.report_pool.append(pool.apply_async(run, (*i,)))
 
-        # for input in inputs:
-        #     print(input)
-        #     run(*input)
 
     def index_callback(self):
         if self.selected_path is None:
@@ -373,40 +376,23 @@ class Dashboard(AbstractPage):
         idx_df = index(str(self.selected_path))
         out_path = Path(self.selected_path, 'index.csv')
         idx_df.to_csv(out_path)
-        self.win_handler.update_filetree()
+        self.win_handler.select_path(out_path)
+        # self.win_handler.update_filetree()
 
     def archive_callback(self):
         if self.selected_path is None:
             return
-        archive(str(self.selected_path))
-        self.win_handler.update_filetree()
+
+        dir_path = Path(self.selected_path)
+        if Path(self.selected_path).is_file():
+            dir_path = Path(self.selected_path).parent
+
+        archive_path = archive(str(dir_path))
+        self.win_handler.select_path(archive_path)
 
     def metareport_callback(self):
         self.win_handler.create_metareport_filter()
-
-    def load_deid_callback(self):
-        if self.load_data is None:
-            load_data_rect = pg.Rect(0, 0,
-                                     self.w // 1.5,
-                                     self.h // 2)
-            self.load_data = LoadDeidData(rect=load_data_rect,
-                                          manager=self.manager,
-                                          data=self.data,
-                                          done_button_visible=True,
-                                          done_button_callback=self.update_deid_data_path)
-
-    def target_data_callback(self):
-        self.win_handler.create_target_data()
-
-    def update_deid_data_path(self, save_path=True, new_path: str=None):
-        if save_path:
-            if new_path and Path(new_path).exists():
-                self.data = Path(new_path)
-            self.win_handler.create_filetree(str(self.data))
-        if self.load_data:
-            self.load_data.destroy()
-            self.load_data = None
-
+        self.update_toolbar()
 
     def update_path_header(self, selected_path: Path,
                            selected_path_type: PathType):

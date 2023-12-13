@@ -4,6 +4,7 @@ from pathlib import Path
 from functools import partial
 from itertools import chain
 
+import pandas as pd
 import pygame_gui as pggui
 import pygame as pg
 
@@ -14,21 +15,20 @@ from pygame_gui.elements.ui_scrolling_container \
     import UIScrollingContainer
 from pygame_gui.core import ObjectID
 
+from sdnist.gui.windows.filetree.filehelp import (
+    get_path_types, count_path_types
+)
+
 from sdnist.gui.elements import (
     FileButton,
     DirectoryButton,
     FlagButton
 )
-from sdnist.gui.constants import (
-    REPORT_DIR_PREFIX,
-    METAREPORT_DIR_PREFIX,
-    ARCHIVE_DIR_PREFIX
-)
+
 from sdnist.gui.windows.window import (
     AbstractWindow
 )
-from sdnist.gui.windows.filetree.filehelp import (
-    count_path_types)
+
 from sdnist.gui.panels.headers import (
     WindowHeader
 )
@@ -37,6 +37,8 @@ from sdnist.gui.colors import path_type_colors
 from sdnist.gui.helper import PathType
 from sdnist.gui.strs import *
 from sdnist.gui.constants import window_header_h
+
+from sdnist.report.helpers import ProgressStatus
 
 class FileTree(AbstractWindow):
     def __init__(self,
@@ -112,7 +114,7 @@ class FileTree(AbstractWindow):
         self.selected = (self.selected[0], btn)
         btn.select()
 
-    def _draw_files_tree(self):
+    def _draw_files_tree(self, is_expansion=False):
         self.files_ui = dict()
         self.buttons = dict()
         test = True
@@ -142,7 +144,7 @@ class FileTree(AbstractWindow):
             i = start_y_idx
 
             expansion = True
-            path_type = self.compute_filetype(root)[0]
+            path_type = get_path_types(root)[0]
             if str(root) in self.dir_expansion:
                 expansion = self.dir_expansion[str(root)]
             elif path_type in [PathType.REPORTS,
@@ -155,6 +157,13 @@ class FileTree(AbstractWindow):
                 self.dir_expansion[str(root)] = expansion
             else:
                 self.dir_expansion[str(root)] = True
+
+            if not is_expansion and self.selected:
+                selected_path = str(self.selected[0])
+                if (str(root) in selected_path
+                        and str(root) != selected_path):
+                    expansion = True
+                    self.dir_expansion[str(root)] = expansion
 
             text = f'{root.name}'
 
@@ -191,7 +200,7 @@ class FileTree(AbstractWindow):
             )
 
             def get_file_sort_codes(f: Path):
-                path_type = self.compute_filetype(f)[0]
+                path_type = get_path_types(f)[0]
                 if path_type in [PathType.REPORTS, PathType.METAREPORTS, PathType.ARCHIVES]:
                     return [path_type, 0]
                 elif path_type in [PathType.DEID_DATA_DIR]:
@@ -205,6 +214,7 @@ class FileTree(AbstractWindow):
                 return [path_type, 0]
 
             self.buttons[str(root.absolute())] = root_btn
+
             if expansion:
                 f_list: List[List] = [[f] + get_file_sort_codes(f)
                           for f in root.iterdir()]
@@ -220,11 +230,7 @@ class FileTree(AbstractWindow):
                         file_btn_rect = pg.Rect(f_btn_x,
                                                 f_btn_y,
                                                 btn_w, 30)
-                        file_type = f.suffix[1:]
 
-
-                        # print(f'{"-" * (level + 1)*2}-@>{f.name} {(btn_x, btn_y)}'
-                        #       f'{(btn_w)}')
                         file_btn = FlagButton(
                             file_path=f,
                             callback=None,
@@ -238,6 +244,7 @@ class FileTree(AbstractWindow):
                         )
                         file_btn.callback = partial(callback, str(f), file_btn)
                         self.buttons[str(f.absolute())] = file_btn
+
                     elif f.is_dir():
                         lvl_d, last_i, child_level = draw_subtree(f, level + 1, i + 1)
                         i = last_i
@@ -247,6 +254,13 @@ class FileTree(AbstractWindow):
         self.files_ui, final_y, max_level = draw_subtree(
             self.directory, 0, 0
         )
+
+        if is_expansion and self.selected:
+            sel_path = str(self.selected[0])
+            if sel_path in self.buttons:
+                btn = self.buttons[str(self.selected[0])]
+                btn.select()
+                self.selected = (sel_path, btn)
 
         # final y is index of file button
         # final x is actual max width of file button
@@ -282,56 +296,18 @@ class FileTree(AbstractWindow):
 
             for btn_name, b in self.buttons.items():
                 b.kill()
-            self._draw_files_tree()
+            self._draw_files_tree(is_expansion=True)
 
 
-    def compute_selected_file_type(self) -> \
+    def compute_selected_file_type(self, progress: ProgressStatus) -> \
         Optional[Tuple[PathType, Dict]]:
         if not self.selected:
             return None
 
         path = Path(self.selected[0])
-        path_type, path_status = self.compute_filetype(path)
+        path_type, path_status = get_path_types(path, progress)
         self.selected_path_type = path_type
+        self.selected_path_status = path_status
 
-        return self.selected_path_type, path_status
-
-    @staticmethod
-    def compute_filetype(path: Path) -> \
-        Optional[Tuple[PathType, Dict]]:
-
-        path_status = dict()
-        path_type = None
-        if path.is_file():
-            if path.suffix == '.csv' and 'index' not in path.name:
-                path_type = PathType.CSV
-                metadata_path = Path(str(path).replace('.csv', '.json'))
-                path_status[METADATA] = metadata_path.exists()
-            elif path.suffix == '.json':
-                path_type = PathType.JSON
-            elif path.suffix == '.csv' and 'index' in path.name:
-                path_type = PathType.INDEX
-        elif path.is_dir():
-            if REPORT_DIR_PREFIX in str(path):
-                path_type = PathType.REPORT
-            elif METAREPORT_DIR_PREFIX in str(path):
-                path_type = PathType.METAREPORT
-            elif ARCHIVE_DIR_PREFIX in str(path):
-                path_type = PathType.ARCHIVE
-            elif METAREPORTS.lower() in str(path):
-                path_type = PathType.METAREPORTS
-            elif REPORTS.lower() in str(path):
-                path_type = PathType.REPORTS
-            elif ARCHIVES in str(path):
-                path_type = PathType.ARCHIVES
-            else:
-                path_type = PathType.DEID_DATA_DIR
-                path_type_counts = count_path_types(path)
-                counts = path_type_counts
-                index_path = Path(path, 'index.csv')
-                path_status[INDEX_FILES] = index_path.exists()
-                path_status[DEID_CSV_FILES] = counts[DEID_CSV_FILES] > 0
-                path_status[REPORTS] = counts[REPORTS] > 0
-
-        return path_type, path_status
+        return self.selected_path_type, self.selected_path_status
 

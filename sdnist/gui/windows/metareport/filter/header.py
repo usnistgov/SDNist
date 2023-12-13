@@ -38,7 +38,7 @@ class MetaReportFilterHeader(Header):
         super()._create()
 
         gen_btn_rect = pg.Rect((0, 0),
-                               (200, self.rect.h * 0.95))
+                               (230, self.rect.h * 0.95))
         gen_btn_rect.x = -1 * gen_btn_rect.w
         self.generate_metadata = UICallbackButton(
             callback=self.generate_metadata_callback,
@@ -51,7 +51,7 @@ class MetaReportFilterHeader(Header):
                 'right': 'right'
             },
             object_id=ObjectID(
-                class_id='@generate_button',
+                class_id='@toolbar_button',
                 object_id='#generate_metareport_button'
             )
         )

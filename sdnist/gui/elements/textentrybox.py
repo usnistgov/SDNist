@@ -11,10 +11,11 @@ class CustomTextEntryBox(UITextEntryBox):
                  text_changed_callback: Optional[Callable] = None,
                  editable: bool = True,
                  *args, **kwargs):
-        # kwargs['object_id'] = ObjectID(
-        #     class_id="@custom_text_entry_box",
-        #     object_id="#custom_text_entry_box"
-        # )
+        if 'object_id' not in kwargs:
+            kwargs['object_id'] = ObjectID(
+                class_id="@custom_text_entry_box",
+                object_id="#custom_text_entry_box"
+            )
         super().__init__(*args, **kwargs)
         self.text_changed_callback = text_changed_callback
         self.editable = editable

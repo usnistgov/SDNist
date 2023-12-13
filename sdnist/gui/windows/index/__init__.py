@@ -41,7 +41,7 @@ class IndexInfo(AbstractWindow):
         self.header_h = window_header_h
         self.data = pd.read_csv(self.index_path)
         self.features = self.data.columns.to_list()
-        self.filter_data = FilterData(data=self.data)
+        self.filter_data = FilterData(data=self.data, path=Path(self.index_path))
         self.header_rect = pg.Rect(0, 0, self.rect.w, self.header_h)
         self.options_panel_rect = pg.Rect(
             0, self.header_h, self.rect.width, 30
@@ -81,6 +81,7 @@ class IndexInfo(AbstractWindow):
             object_id=ObjectID(class_id='@header_panel',
                                object_id='#button_group_panel')
         )
+        self.options.on_select_button(INFORMATION)
 
     def on_select_btn_grp(self, btn_name: str):
         if btn_name == INFORMATION:
@@ -101,10 +102,7 @@ class IndexInfo(AbstractWindow):
             self.data_panel = DFTable(
                 rect=self.view_panel_rect,
                 manager=self.manager,
-                file_path=Path(self.index_path),
-                data=self.data,
                 filter_data=self.filter_data,
-                enabled_features=self.features,
                 container=self.window
             )
 

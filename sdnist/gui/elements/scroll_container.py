@@ -1,4 +1,6 @@
 from typing import Callable, Optional, Tuple, Union
+
+import pygame
 from pygame.event import Event
 from pygame.math import Vector2
 
@@ -15,6 +17,8 @@ class CustomScrollingContainer(UIScrollingContainer):
         self.max_w = self.scrolling_right
         self.vert_scroll_pos = 0
         self.horiz_scroll_pos = 0
+        self.vert_height = 0
+
 
     def set_scrollable_area_dimensions(self, dimensions: Union[Vector2,
                                                                Tuple[int, int],

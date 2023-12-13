@@ -1,6 +1,4 @@
 from sdnist.gui.windows.window import AbstractWindow
-from sdnist.gui.windows.window import PlainWindow
-from sdnist.gui.windows.handler import WindowHandler
 
 from sdnist.gui.windows.filetree import FileTree
 from sdnist.gui.windows.done import DoneWindow

@@ -36,7 +36,7 @@ class ArchiveInfo(AbstractWindow):
             title=self.title,
             enable_delete_button=True,
             delete_callback=self.delete_path,
-            delete_button_text='Delete MetaReport',
+            delete_button_text='Delete Archive',
             delete_button_width=160,
             rect=header_rect,
             manager=self.manager,

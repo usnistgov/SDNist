@@ -15,7 +15,7 @@ from sdnist.gui.panels.headers.header import Header
 from sdnist.gui.panels.panel import AbstractPanel
 from sdnist.gui.elements import \
     UICallbackButton, CustomUITextEntryLine
-from sdnist.gui.windows import PlainWindow
+from sdnist.gui.panels.plain_window import PlainWindow
 import sdnist.gui.strs as strs
 
 from sdnist.gui.config import load_cfg, save_cfg
@@ -76,7 +76,12 @@ class SettingsPanel(AbstractPanel):
         if self.numerical_metric_results:
             self.settings[strs.NUMERICAL_METRIC_RESULTS] = \
                 self.numerical_metric_results.text == 'ON'
-        return self.settings
+        all_settings = load_cfg()
+        all_settings.update(self.settings)
+        return all_settings
+
+    def save_settings(self):
+        save_cfg(self.get_settings())
 
     def _create(self):
         if self.container is None:

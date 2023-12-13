@@ -69,8 +69,7 @@ class TargetData:
         else:
             return None, None, None
 
-    @staticmethod
-    def deduce_target_data(deid_data_path: str) -> \
+    def deduce_target_data(self, deid_data_path: str) -> \
             Optional[str]:
         """
         From a given deid_data_path (csv or json) what target dataset
@@ -89,4 +88,25 @@ class TargetData:
             for i in v['ends_with']:
                 if deid_data_path.endswith(i):
                     return k
+
+        ma = 'ma2019'
+        tx = 'tx2019'
+        na = 'national2019'
+        PUMA = 'PUMA'
+        d_df = pd.read_csv(deid_data_path)
+        if 'PUMA' not in d_df.columns:
+            return None
+
+
+        d_pumas = d_df[PUMA].unique().tolist()
+        check_pumas = {
+            ma: self.get(ma)[0][PUMA].unique().tolist(),
+            tx: self.get(tx)[0][PUMA].unique().tolist(),
+            na: self.get(na)[0][PUMA].unique().tolist()
+        }
+
+        for k, cp in check_pumas.items():
+            if len(set(cp).intersection(set(d_pumas))):
+                return k
+
         return None

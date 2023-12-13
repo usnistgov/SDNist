@@ -1,8 +1,9 @@
 from typing import Dict
 from enum import Enum
 import pandas as pd
+from pathlib import Path
 
-from sdnist.gui.windows.metadata.labels import *
+# from sdnist.gui.windows.metadata.labels import *
 
 class FilterSetType(Enum):
     Inclusion_Filter = "Inclusion Filter"
@@ -10,18 +11,34 @@ class FilterSetType(Enum):
 
 
 FSetType = FilterSetType
-
+INDEX = 'Index'
 
 class FilterData:
-    def __init__(self, data: pd.DataFrame):
+    def __init__(self,
+                 data: pd.DataFrame,
+                 path: Path):
         self.data = data
-        self.data[INDEX] = self.data.index.to_list()
+        self.path = path
+
         self.data = self.data.fillna('nan')
         self.data = self.data.astype(str)
+        self.data = self.process_data()
+
         self.filter_data = {
             FSetType.Inclusion_Filter: dict(),
             FSetType.Exclusion_Filter: dict()
         }
+
+    def process_data(self):
+        cols = [INDEX] + self.data.columns.to_list()
+        if 'Unnamed: 0' in self.data.columns.to_list():
+            self.data[INDEX] = self.data['Unnamed: 0'].values
+            self.data = self.data.drop(columns=['Unnamed: 0'])
+            cols.remove('Unnamed: 0')
+        if INDEX not in self.data.columns.to_list():
+            self.data[INDEX] = self.data.index.tolist()
+        self.data = self.data[cols]
+        return self.data
 
     def update(self, filter_set_name: str, filter_id: str, filter_data: dict):
         filter_type = self.filter_type(filter_set_name)
@@ -75,21 +92,21 @@ class FilterData:
                     if len(vals):
                         dc = dc[dc[f].isin(vals)]
                         filter_applied_count += 1
-                dc = dc[~dc[INDEX].isin(res_df[INDEX])]
+                dc = dc[~dc.index.isin(res_df.index)]
                 res_df = pd.concat([res_df, dc])
 
             if filter_applied_count == 0 \
                     and filter_type == FSetType.Inclusion_Filter:
-                return self.data[INDEX].tolist()
+                return self.data.index.tolist()
             if res_df.shape[0] == 0:
                 return []
-            return res_df[INDEX].tolist()
+            return res_df.index.tolist()
 
         inc_indexes = select_indexes(FSetType.Inclusion_Filter)
         exc_indexes = select_indexes(FSetType.Exclusion_Filter)
         f_indexes = list(set(inc_indexes) - set(exc_indexes))
         f_indexes = sorted(f_indexes)
-        res_df = self.data[self.data[INDEX].isin(f_indexes)]
+        res_df = self.data[self.data.index.isin(f_indexes)]
         res_df = res_df.sort_index()
         return res_df
 
