@@ -81,7 +81,7 @@ def debug(text):
 
 def generate(report_data: Dict[str, any],
              output_directory_path: Path,
-             test_mode: bool = False):
+             open_in_browser: bool = False):
     out_dir = output_directory_path
     data = report_data
     FILE_DIR = Path(__file__).parent
@@ -103,7 +103,7 @@ def generate(report_data: Dict[str, any],
     with open(out_path_temp, 'w') as f:
         f.write(out_temp)
 
-    if not test_mode:
+    if open_in_browser:
         webbrowser.open(f"file://{out_path_main}", new=True)
     html_to_pdf(out_path_temp, out_pdf_path)
 
