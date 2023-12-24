@@ -282,7 +282,7 @@ def kmarginal_subsamples(dataset: Dataset,
     return ssample_score, puma_scores
 
 
-def kmarginal_score_packet(cfg: dict[str, any],
+def kmarginal_score_packet(cfg: Dict[str, any],
                            k_marginal_score: int,
                            feature_values: Dict[str, Dict],
                            dataset: Dataset,
@@ -475,7 +475,7 @@ def grid_plot_attachment(group_features: List[str],
 
 
 def utility_score(progress: ProgressStatus,
-                  cfg: dict[str, any],
+                  cfg: Dict[str, any],
                   dataset: Dataset,
                   ui_data: ReportUIData,
                   report_data: ReportData,

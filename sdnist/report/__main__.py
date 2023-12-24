@@ -97,10 +97,10 @@ def run(progress: ProgressStatus,
         with open(outfile, 'r') as f:
             ui_data = json.load(f)
     log.end_msg()
-    progress.update(str(output_directory), ProgressLabels.CREATING_EVALUATION_REPORT)
 
     # Generate Report
     generate(ui_data, output_directory, show_report)
+    progress.update(str(output_directory), ProgressLabels.CREATING_EVALUATION_REPORT)
     log.msg(f'Reports available at path: {output_directory}', level=0, timed=False,
             msg_type='important')
 
