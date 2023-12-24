@@ -34,10 +34,12 @@ class FeatureFilter(AbstractPanel):
         self.feature_filters = feature_filters
         self.parent_window = parent_window
         self.delete_filter_callback = delete_filter_callback
-        self.pad_x = 0
+        self.pad_x = 3
         self.pad_y = 0
-
-        self.available_w = self.rect.w - 2 * self.pad_x
+        self.c_panel_x = -20
+        self.c_panel_w = 60
+        self.available_w = (self.rect.w - 2 * self.pad_x -
+                            (self.c_panel_x + self.c_panel_w))
         self.available_h = self.rect.h - 2 * self.pad_y
 
         self.c_btn_w = self.available_h
@@ -45,7 +47,7 @@ class FeatureFilter(AbstractPanel):
         self.feature_dropdown_h = self.available_h
         self.feature_dropdown_w = self.available_w * 0.3
         self.feature_values_h = self.available_h
-        self.feature_values_w = self.available_w * 0.6
+        self.feature_values_w = self.available_w * 0.7
 
         self.cancel_button = None
         self.feature_dropdown = None
@@ -78,22 +80,39 @@ class FeatureFilter(AbstractPanel):
         return {self.selected_feature: self.selected_feature_values}
 
     def _create(self):
-        c_btn_x = self.pad_x
-        c_btn_rect = pg.Rect((c_btn_x, 0),
-                             (self.c_btn_h, self.c_btn_h))
+
+        c_panel_h = self.c_btn_h * 0.8
+        c_panel_y = (self.c_btn_h - c_panel_h) // 2
+        cancel_panel_rect = pg.Rect((self.c_panel_x, c_panel_y),
+                             (self.c_panel_w, c_panel_h))
+
+        self.cancel_panel = UIPanel(
+            relative_rect=cancel_panel_rect,
+            manager=self.manager,
+            container=self.panel,
+            anchors={'left': 'left',
+                     'top': 'top'},
+            object_id=ObjectID(class_id='@main_header_panel',
+                               object_id='#remove_filter_panel')
+        )
+
+        c_btn_x = self.c_panel_w - c_panel_h
+        c_btn_y = 0
+        c_btn_rect = pg.Rect((c_btn_x, c_btn_y),
+                             (c_panel_h, c_panel_h))
         self.cancel_button = UICallbackButton(
             callback=self.delete_filter_callback,
             relative_rect=c_btn_rect,
-            text='X',
+            text='',
             manager=self.manager,
-            container=self.panel,
+            container=self.cancel_panel,
             anchors={'left': 'left',
                      'top': 'top'},
             object_id=ObjectID(class_id='@icon_button',
                                object_id='#remove_filter_button')
         )
 
-        dropdown_rect = pg.Rect((self.c_btn_w, 0),
+        dropdown_rect = pg.Rect((cancel_panel_rect.right + self.pad_x, 0),
                                 (self.feature_dropdown_w,
                                  self.feature_dropdown_h))
         if self.selected_feature is None:
@@ -111,7 +130,7 @@ class FeatureFilter(AbstractPanel):
 
         values = self.index[self.selected_feature] \
             .unique().tolist()
-        fv_x = self.c_btn_w + self.feature_dropdown_w
+        fv_x = dropdown_rect.right + self.pad_x
         values_rect = pg.Rect((fv_x, 0),
                               (self.feature_values_w,
                                self.feature_values_h))

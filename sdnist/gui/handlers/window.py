@@ -1,4 +1,5 @@
-from typing import Optional, Dict, Tuple
+import asyncio
+from typing import Optional, Dict, List
 from pathlib import Path
 import shutil
 import pygame as pg
@@ -30,14 +31,13 @@ from sdnist.gui.windows.targetdata import (
     TargetDataWindow)
 from sdnist.gui.windows.archive import (
     ArchiveInfo)
-from sdnist.gui.windows.filetree.filehelp import (
-    count_path_types)
 
 from sdnist.gui.panels.headers import Header
 from sdnist.gui.panels.menubar import MenuBar
 from sdnist.gui.panels.menubar import \
     LOAD_DATA, SETTINGS, TARGET_DATA, NUMERICAL_RESULT
 from sdnist.gui.panels.statusbar import StatusBar
+from sdnist.gui.panels.toolbar import ToolBar
 from sdnist.gui.panels.settings import SettingsPanel
 from sdnist.gui.panels.load_deid import \
     LoadDeidData
@@ -45,7 +45,17 @@ from sdnist.gui.windows.progress import ReportsProgressPanel
 from sdnist.gui.config import load_cfg, save_cfg
 from sdnist.gui.constants import DATA_ROOT_PATH
 from sdnist.report.dataset import TargetLoader
-from sdnist.report.helpers import ProgressStatus
+from sdnist.report.helpers.progress_status import (
+    ProgressStatus, ProgressType)
+from sdnist.gui.handlers.process import ProcessHandler
+from sdnist.gui.windows.filetree.filehelp import count_path_types
+
+from sdnist.metareport.__main__ import (
+    run as metareport_run,
+    setup as metareport_setup
+)
+
+from sdnist.gui.strs import *
 
 # List Windows Controlled by the Window Handler
 FILETREE = 'filetree'
@@ -56,21 +66,22 @@ DEID_CSV = 'deid_csv'
 REPORT_INFO = 'report_info'
 METAREPORT_INFO = 'metareport_info'
 DIRECTORY_INFO = 'directory_info'
-METAREPORT_FILTER = 'metareport_filter'
+METAREPORT_FILTER = METAREPORT_FILTER
 INDEX_INFO = 'index_info'
+CSV = 'csv'
 
 class WindowHandler:
     def __init__(self,
                  manager: UIManager,
                  root_directory: str,
-                 progress: ProgressStatus,
                  top: int = 0,
                  left: Optional[pg.Rect] = None,
                  right: Optional[pg.Rect] = None,):
         self.manager = manager
         self.w, self.h = manager.window_resolution
         # root directory is needed for drawing filetree
-        self.progress = progress
+        progress = ProgressStatus(ProgressType.REPORTS)
+        self.process_handle = ProcessHandler(progress)
         self.root_directory = root_directory
         self.top = top
         self.left_rect = left
@@ -100,6 +111,7 @@ class WindowHandler:
 
         self.header_height = int(self.h * 0.05)
         self.logo_header = None
+        self.toolbar = None
         self.menubar = None
         self.statusbar = None
         self.messages = None
@@ -120,6 +132,7 @@ class WindowHandler:
             self.filetree.destroy()
             self.filetree = None
         self.filetree = FileTree(
+            target_loader=self.target_loader,
             rect=self.left_rect,
             manager=self.manager,
             directory=directory
@@ -169,20 +182,30 @@ class WindowHandler:
         # selected in the filetree
         self.selected_path = Path(self.filetree.selected[0])
 
-        path_type, _ = self.filetree.compute_selected_file_type(self.progress)
+        path_type, _ = self.filetree.compute_selected_file_type(
+            self.process_handle.progress
+        )
         self.destroy_current_window()
 
-        if path_type == PathType.CSV:
+        if path_type == PathType.DEID_CSV:
             deid_csv = DeidCSV(
+                csv_path=str(self.selected_path),
                 rect=self.right_rect,
-                manager=self.manager,
-                csv_path=str(self.selected_path)
+                manager=self.manager
             )
             self.windows[DEID_CSV] = deid_csv
             self.current_window = DEID_CSV
-        elif path_type == PathType.JSON:
+        elif path_type == PathType.CSV:
+            deid_csv = DeidCSV(
+                csv_path=str(self.selected_path),
+                title='CSV File',
+                rect=self.right_rect,
+                manager=self.manager
+            )
+            self.windows[CSV] = deid_csv
+            self.current_window = CSV
+        elif path_type == PathType.DEID_JSON:
             self.create_metadata_form()
-
         elif path_type == PathType.REPORT:
             report = ReportInfo(
                 delete_callback=self.delete_directory_callback,
@@ -234,8 +257,10 @@ class WindowHandler:
             return
 
         self.destroy_current_window()
+        counts = self.filetree.ft_handler.get_counts(self.selected_path)
         dir_window = DirectoryInfo(
             directory_path=str(self.selected_path),
+            counts=counts,
             rect=self.right_rect,
             manager=self.manager,
         )
@@ -257,7 +282,7 @@ class WindowHandler:
             return
 
         mreport_filter = MetaReportFilter(
-            metareport_created_callback=self.on_metareport_created,
+            create_metareport_callback=self.on_create_metareport,
             index_path=str(index_path),
             rect=self.right_rect,
             manager=self.manager
@@ -265,6 +290,23 @@ class WindowHandler:
 
         self.current_window = METAREPORT_FILTER
         self.windows[METAREPORT_FILTER] = mreport_filter
+
+    def on_create_metareport(self,
+                             reports_dir: Path,
+                             reports_path: List[str]):
+
+        input_cnf = metareport_setup(reports_dir, reports_path)
+        meta_out_dir = input_cnf['metareport_out_dir']
+
+        self.process_handle.metareport(input_cnf)
+        self.statusbar.add_progress([meta_out_dir],
+                                    ProgressType.METAREPORT)
+        self.update_toolbar()
+        m_win = self.windows[METAREPORT_FILTER]
+        if m_win:
+            m_win.header.generate_metareport_btn.disable()
+        # out_dir = input_cnf['metareport_out_dir']
+        # self.select_path(out_dir)
 
     def create_target_data(self):
         if self.selected_path is None:
@@ -307,6 +349,7 @@ class WindowHandler:
         return self.windows.get(window_name, None) is not None
 
     def delete_directory_callback(self, path: Path):
+        path = Path(path)
         shutil.rmtree(path)
         self.destroy_current_window()
 
@@ -314,26 +357,26 @@ class WindowHandler:
         if not new_path.exists():
             new_path = new_path.parent
         self.filetree.selected = (str(new_path), None)
-
+        self.filetree.ft_handler.update_count(path)
         self.update_filetree()
+        if self.current_window == DIRECTORY_INFO:
+            self.create_deid_dir_info()
 
     def delete_index_callback(self, path: Path):
         path = Path(path)
         if path.exists() and path.suffix == '.csv':
             try:
                 path.unlink()
-
                 new_path = Path(self.selected_path)
                 if not new_path.exists():
                     new_path = new_path.parent
                 self.filetree.selected = (str(new_path), None)
-
+                self.filetree.ft_handler.update_count(path)
                 self.update_filetree()
+                if self.current_window == DIRECTORY_INFO:
+                    self.create_deid_dir_info()
             except OSError as e:
                 print(f"Error: {e.strerror}")
-
-    def on_metareport_created(self, path: Path):
-        self.select_path(path)
 
     def select_path(self, new_path: Path):
         if not new_path.exists():
@@ -366,6 +409,25 @@ class WindowHandler:
                 class_id="@header_label",
                 object_id="#main_header_label")
         )
+
+    def create_toolbar(self, path_header_rect: pg.Rect,
+                       toolbar_callbacks: Dict[str, callable]):
+        toolbar_rect = pg.Rect(path_header_rect.w,
+                               path_header_rect.y,
+                               self.w * 0.45, path_header_rect.h)
+        self.toolbar = ToolBar(toolbar_callbacks,
+                               toolbar_rect,
+                               self.manager)
+
+    def update_toolbar(self):
+        selected_path_type, selected_path_status = \
+        self.filetree.compute_selected_file_type(
+            self.process_handle.progress
+        )
+
+        if self.current_window == METAREPORT_FILTER:
+            selected_path_status[METAREPORT_FILTER] = True
+        self.toolbar.update_buttons(selected_path_type, selected_path_status)
 
     def create_menubar(self):
         menubar_rect = pg.Rect(0, 0,

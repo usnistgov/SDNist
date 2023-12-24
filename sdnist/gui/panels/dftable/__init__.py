@@ -168,11 +168,7 @@ class DFTable(AbstractPanel):
 
         new_cols = [INDEX] + new_cols
         self.view_data = self.view_data[new_cols]
-        import time
-        start = time.time()
         self._create_cells()
-        end = time.time()
-        print('TIME TO CREATE CELLS: ', end - start)
 
     def _create_cells(self):
         # print('CREATING CELLS')

@@ -26,7 +26,7 @@ class ChipsDropDown:
                  parent_window: UIWindow,
                  options_list: list,
                  starting_options: List[str],
-                 max_text_len: int = 30,
+                 max_text_len: int = 20,
                  *args, **kwargs):
         self.on_selected_callback = on_selected_callback
         self.rect = rect
@@ -42,6 +42,7 @@ class ChipsDropDown:
         self.chip_max_w = 200
         self.chip_min_w = 80
 
+        self.pad_x = 3
         self.chips_panel = None
         self.more_items_label = None
         self.expand_btn = None
@@ -69,8 +70,9 @@ class ChipsDropDown:
         self.close_dropdown()
 
     def _create(self):
+        cp_w = self.rect.w - self.expand_btn_w - self.pad_x
         cp_rect = pg.Rect((self.rect.x, self.rect.y),
-                          (self.rect.w - self.expand_btn_w, self.rect.h))
+                          (cp_w, self.rect.h))
         self.chips_panel = UIPanel(
             relative_rect=cp_rect,
             starting_height=0,
@@ -84,7 +86,7 @@ class ChipsDropDown:
 
         self.update_chips()
 
-        exp_btn_x = self.rect.x + self.chips_panel.rect.w
+        exp_btn_x = cp_rect.right + self.pad_x
         exp_btn_y = self.chips_panel.rect.y + 100
         exp_btn_rect = pg.Rect((exp_btn_x, 0),
                                (self.expand_btn_w, self.rect.h))
@@ -92,9 +94,12 @@ class ChipsDropDown:
         self.expand_btn = UICallbackButton(
             callback=self.toggle_dropdown,
             relative_rect=exp_btn_rect,
-            text='[+]',
+            text='+',
             manager=self.manager,
-            container=self.container
+            container=self.container,
+            object_id=ObjectID(
+                class_id='@toolbar_button',
+                object_id='#expand_button')
         )
 
     def destroy(self):
@@ -116,14 +121,14 @@ class ChipsDropDown:
         if self.dd:
             self.dd.kill()
             self.dd = None
-            self.expand_btn.set_text('[+]')
+            self.expand_btn.set_text('+')
             self.dd_visible = False
 
     def show_dropdown(self):
         if self.dd:
             self.dd.show()
             self.dd_visible = True
-            self.expand_btn.set_text('[-]')
+            self.expand_btn.set_text('-')
 
     def create_dropdown(self):
         dd_x = self.container.rect.x - self.parent_window.rect.x \
@@ -131,10 +136,12 @@ class ChipsDropDown:
         dd_y = self.container.rect.y - self.parent_window.rect.y \
             + self.rect.h
 
+        options_h = len(self.options_list) * 25
+        dd_h = min(options_h, 200)
         dd_rect = pg.Rect((dd_x,
                            dd_y),
                           (self.rect.w,
-                           200))
+                           dd_h))
 
         self.dd = CallbackSelectionList(
             callback=self.update_selected_value,

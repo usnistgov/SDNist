@@ -18,6 +18,7 @@ TINY_CATEGORICAL = 'tiny-categorical'
 
 # Others
 LABELS = 'labels'
+METAREPORT_FILTER = 'metareport_filter'
 
 # Button Labels
 INFORMATION = 'Information'

@@ -73,7 +73,7 @@ class CallbackHeader(AbstractPanel):
             }
             self.button_rect = pg.Rect(
                 (self.title_rect.w + 10, 0),
-                (120, self.rect.h * 0.95)
+                (-1, self.rect.h * 0.95)
             )
 
         self.callback_button = UICallbackButton(

@@ -1,8 +1,10 @@
 from enum import Enum
 
 class PathType(Enum):
-    CSV = 'csv'  # is a deid csv file
-    JSON = 'json'  # is json metadata file
+    DEID_CSV = 'deid_csv'  # is a deid csv file
+    CSV = 'csv' # is a normal non deid csv file
+    JSON = 'json'  # is json  file
+    DEID_JSON = 'deid_json'  # is a deid json metadata file
     REPORT = 'report'  # is a sdnist report directory
     METAREPORT = 'metareport'  # is a sdnist metareport directory
     ARCHIVE = 'archive'  # is a sdnist deid data archive directory

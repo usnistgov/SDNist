@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List, Callable, Tuple
 from itertools import chain
 from functools import partial
 import pygame as pg
@@ -173,9 +173,8 @@ class ReportsProgressPanel(AbstractWindow):
         self.create_messages()
         self.progress_callback(path)
 
-    def update_progress(self, progress: ProgressStatus):
-        updates = progress.get_updates()
-        for rep_f, prog_lbl, prog_percent in updates:
+    def update_progress(self, progress_updates: Tuple):
+        for rep_f, prog_lbl, extra_lbl, prog_percent in progress_updates:
             rep_f = Path(rep_f)
             if rep_f not in self.prog_elems.keys():
                 continue
@@ -186,7 +185,11 @@ class ReportsProgressPanel(AbstractWindow):
                 msg_panel.progress_bar.set_current_progress(prog_percent)
             prefix = 'Finished' if prog_lbl != ProgressLabels.STARTED \
                 else ''
-            msg = f'{prefix} {prog_lbl.name}'
+            lbl_str = prog_lbl.name.replace('_', ' ')
+            msg = f'{prefix} {lbl_str}'
+
+            if extra_lbl:
+                msg += f': {extra_lbl}'
 
             new_msg = (rep_f, msg, prog_percent)
             self.messages[msg_idx] = new_msg

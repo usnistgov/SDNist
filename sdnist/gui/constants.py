@@ -1,6 +1,6 @@
 from pathlib import Path
 # Target Data Root
-cwd = Path(__file__).parent.parent.parent
+cwd = Path.cwd()
 
 DATA_ROOT_PATH = Path(cwd, 'diverse_communities_data_excerpts')
 

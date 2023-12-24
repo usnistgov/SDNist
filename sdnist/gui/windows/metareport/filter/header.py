@@ -11,10 +11,10 @@ from sdnist.gui.elements import UICallbackButton
 class MetaReportFilterHeader(Header):
     def __init__(self,
                  parent_window: UIWindow,
-                 generate_metadata_callback: Optional[Callable] = None,
+                 generate_metareport_callback: Optional[Callable] = None,
                  *args, **kwargs):
         self.parent_window = parent_window
-        self.generate_metadata_callback = generate_metadata_callback
+        self.generate_metareport_callback = generate_metareport_callback
 
         text_anchors = kwargs.get('text_anchors', None)
         kwargs['object_id'] = \
@@ -25,14 +25,13 @@ class MetaReportFilterHeader(Header):
                 'centery': 'centery',
                 'left': 'left'
             }
+        self.generate_metareport_btn = None
         super().__init__(*args, **kwargs)
 
         # all features dropdown
         self.all_feat_dd = None
 
-        # button the generated metadata by passing
-        # in the metadata filters
-        self.gen_metadata_btn = None
+
 
     def _create(self):
         super()._create()
@@ -40,8 +39,8 @@ class MetaReportFilterHeader(Header):
         gen_btn_rect = pg.Rect((0, 0),
                                (230, self.rect.h * 0.95))
         gen_btn_rect.x = -1 * gen_btn_rect.w
-        self.generate_metadata = UICallbackButton(
-            callback=self.generate_metadata_callback,
+        self.generate_metareport_btn = UICallbackButton(
+            callback=self.generate_metareport_callback,
             text='GENERATE METAREPORT',
             relative_rect=gen_btn_rect,
             manager=self.manager,

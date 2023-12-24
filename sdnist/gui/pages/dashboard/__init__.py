@@ -1,15 +1,11 @@
 import glob
 import json
 from typing import Optional
-from multiprocessing import Process, Manager
-from multiprocessing.managers import BaseManager
+import asyncio
 
 import pygame as pg
 import pygame_gui as pggui
 from pathlib import Path
-from multiprocessing import Pool
-
-from pygame_gui.core import ObjectID
 
 from sdnist.gui.constants import (
     REPORT_DIR_PREFIX, ARCHIVE_DIR_PREFIX)
@@ -19,39 +15,31 @@ from sdnist.gui.pages import Page
 from sdnist.gui.pages.dashboard.stats_panel import \
     StatsPanel
 
-from sdnist.gui.panels import \
-    Header, ToolBar, MenuBar, StatusBar
 from sdnist.gui.panels.toolbar import (
     OPEN_METADATA_BTN, CREATE_METADATA_BTN,
     SAVE_METADATA_BTN, CREATE_REPORT_BTN,
     CREATE_INDEX_BTN, CREATE_ARCHIVE_BTN,
     CREATE_METAREPORT_BTN, CREATE_REPORTS_BTN
 )
-# from sdnist.gui.panels.toolbar import \
-#     METADATA_BTN, REPORT_BTN, INDEX_BTN, \
-#     ARCHIVE_BTN, METAREPORT_BTN
-from sdnist.gui.panels import \
-    LoadDeidData, SettingsPanel
+
 from sdnist.gui.panels.simple import \
     PartInfoLinePanel
 
 from sdnist.gui.windows.filetree import PathType
-from sdnist.gui.windows.metadata import MetaDataForm
-from sdnist.gui.windows import \
-    MetaReportFilter, MetaReportInfo
-from sdnist.gui.windows import DeidCSV
-from sdnist.gui.windows import DirectoryInfo
-from sdnist.gui.handlers.window import (
-    WindowHandler, METADATA_FORM, METAREPORT_FILTER)
 
-from sdnist.gui.config import load_cfg, save_cfg
+from sdnist.gui.handlers.window import (
+    WindowHandler,
+    METADATA_FORM, METAREPORT_FILTER, DIRECTORY_INFO)
+
+from sdnist.gui.config import load_cfg
 from sdnist.gui.strs import *
 
-from sdnist.index import index
-from sdnist.archive import archive
+from sdnist.archive import (
+    create_archive_dir_path)
 
 from sdnist.report.__main__ import setup, run
-from sdnist.report.helpers import ProgressStatus
+from sdnist.report.helpers.progress_status import (
+    ProgressStatus, ProgressType, ProgressLabels)
 
 from sdnist.gui.colors import path_type_colors
 from sdnist.strs import *
@@ -61,7 +49,6 @@ import sdnist.gui.utils as u
 
 
 progress = None
-
 
 class Dashboard(AbstractPage):
     def __init__(self,
@@ -76,7 +63,6 @@ class Dashboard(AbstractPage):
         self.default_header_height = 30
         self.header_height = max(self.header_height,
                                  self.default_header_height)
-        self.toolbar = None
         self.path_header = None
 
         self.m_area_x = 0
@@ -122,18 +108,18 @@ class Dashboard(AbstractPage):
         # Panel to select deid data directory
         self.load_data = None
         self.selected_path: Optional[Path] = None
-        self.report_pool = []
         self.settings = load_cfg()
 
-        self.progress = ProgressStatus()
-        self.completed_reports = 0
+        self.completed_items = 0
         self.last_progress = 0
+        self.frames = 0
+        self.start_frame = False
+
 
     def create(self):
         self.win_handler = WindowHandler(
             manager=self.manager,
             root_directory=str(self.data),
-            progress=self.progress,
             top=self.m_area_y,
             left=self.filetree_rect,
             right=self.window_rect
@@ -158,33 +144,72 @@ class Dashboard(AbstractPage):
             manager=self.manager
         )
 
-        toolbar_rect = pg.Rect(path_header_rect.w, self.header_height,
-                               self.w * 0.45, self.header_height)
-        self.toolbar = ToolBar(toolbar_rect, self.manager)
-
-
+        self.win_handler.create_toolbar(path_header_rect,
+                                        self.get_toolbar_callbacks())
 
     def draw(self, screen: pg.Surface):
         pass
 
     def update(self):
-        if self.progress is None:
+        if self.start_frame:
+            self.frames += 1
+        if self.frames > 200:
+            self.win_handler.statusbar.destroy_progress()
+            self.frames = 0
+            self.start_frame = False
+
+        prog = self.win_handler.process_handle.progress
+        if prog is None or not prog.is_busy():
             return
         sb = self.win_handler.statusbar
-        if self.progress.has_updates():
+        is_completed = prog.is_completed()
+        item_path = None
+        if prog.has_updates():
+            updates = prog.get_updates()
             if sb.reports_progress is not None:
-                sb.reports_progress.update_progress(self.progress)
-        if self.progress.get_current_progress() \
-                != self.progress.get_last_progress():
-            sb.update_progress(self.progress)
-            new_reports_created = len(self.progress.get_completed_reports())
-            if new_reports_created > self.completed_reports:
-                self.completed_reports = new_reports_created
+                sb.reports_progress.update_progress(updates)
+            item_path, label, _, percent = updates[-1]
+            is_report_created = any([True
+                                     if lbl == ProgressLabels.CREATING_EVALUATION_REPORT
+                                     else False
+                                     for _, lbl, _, _ in updates])
+            if is_report_created:
                 self.win_handler.update_filetree()
-            self.progress.set_last_progress(
-                self.progress.get_current_progress())
-        if self.progress.is_completed():
-            self.update_toolbar()
+                item_path = item_path if item_path else ''
+                item_path = Path(item_path)
+                self.win_handler.filetree.ft_handler.update_count(item_path)
+                act_win = self.win_handler.current_window
+                if act_win == DIRECTORY_INFO:
+                    self.win_handler.create_deid_dir_info()
+        if prog.get_current_progress() \
+                != prog.get_last_progress():
+            sb.update_progress(prog)
+            prog.set_last_progress(
+                prog.get_current_progress())
+        if is_completed:
+            item_path = item_path if item_path else ''
+            item_path = Path(item_path)
+            self.win_handler.filetree.ft_handler.update_count(item_path)
+            self.win_handler.update_toolbar()
+            self.win_handler.update_filetree()
+            act_win = self.win_handler.current_window
+            if act_win == METAREPORT_FILTER:
+                win = self.win_handler.windows[METAREPORT_FILTER]
+                win.header.generate_metareport_btn.enable()
+            elif act_win == DIRECTORY_INFO:
+                self.win_handler.create_deid_dir_info()
+            self.start_frame = True
+
+            # Schedule the delayed function call; this doesn't block
+
+
+    def delayed_function_call(self):
+        print('destroying')
+        self.win_handler.statusbar.destroy_progress()
+        # if self.loop:
+        #     self.loop.stop()  # Stops the loop
+        #     self.loop.close()  # Closes the loop
+        #     self.loop = None
 
     def handle_event(self, event: pg.event.Event):
         if self.load_data:
@@ -195,19 +220,21 @@ class Dashboard(AbstractPage):
         self.selected_path = self.win_handler.selected_path
 
         selected_path_type, selected_path_status = \
-            self.win_handler.filetree.compute_selected_file_type(self.progress)
+            self.win_handler.filetree.compute_selected_file_type(
+                self.win_handler.process_handle.progress
+            )
 
         if prev_selected != self.selected_path:
-            self.toolbar.update_buttons(selected_path_type, selected_path_status)
-            self.toolbar.update_callbacks(self.get_toolbar_callbacks())
+            self.win_handler.toolbar.update_buttons(selected_path_type, selected_path_status)
+            self.win_handler.toolbar.update_callbacks()
             self.update_path_header(self.selected_path, selected_path_type)
 
-        if self.toolbar and SAVE_METADATA_BTN in self.toolbar.buttons:
+        if SAVE_METADATA_BTN in self.win_handler.toolbar.buttons:
             if not self.is_metadata_valid():
-                self.toolbar.buttons[SAVE_METADATA_BTN].disable()
-                self.toolbar.buttons[CREATE_REPORT_BTN].disable()
+                self.win_handler.toolbar.buttons[SAVE_METADATA_BTN].disable()
+                self.win_handler.toolbar.buttons[CREATE_REPORT_BTN].disable()
             else:
-                self.toolbar.buttons[SAVE_METADATA_BTN].enable()
+                self.win_handler.toolbar.buttons[SAVE_METADATA_BTN].enable()
 
 
     def get_toolbar_callbacks(self):
@@ -233,12 +260,11 @@ class Dashboard(AbstractPage):
         if self.selected_path is None:
             print('No path selected')
             return
-        is_not_valid = (
-            (self.selected_path.is_file()
-             and self.selected_path.suffix != '.csv')
-            or not self.selected_path.is_dir())
-        if is_not_valid:
-            # print('Selected path is not a csv file or a directory')
+        is_valid = (self.selected_path.is_file()
+            and self.selected_path.suffix == '.csv')
+
+        if not is_valid:
+            print('Selected path is not a csv file or a directory')
             return
 
         if self.selected_path.is_dir():
@@ -274,9 +300,8 @@ class Dashboard(AbstractPage):
             return False
         metaform = self.win_handler.windows[METADATA_FORM]
         metaform.save_data()
-        if (self.toolbar and
-                CREATE_REPORT_BTN in self.toolbar.buttons):
-            self.toolbar.buttons[CREATE_REPORT_BTN].enable()
+        if CREATE_REPORT_BTN in self.win_handler.toolbar.buttons:
+            self.win_handler.toolbar.buttons[CREATE_REPORT_BTN].enable()
 
         # File Tree Window
         self.win_handler.update_filetree()
@@ -303,15 +328,6 @@ class Dashboard(AbstractPage):
             return
         self.win_handler.select_path(mf_path)
 
-    def update_toolbar(self):
-        selected_path_type, selected_path_status = \
-        self.win_handler.filetree.compute_selected_file_type(self.progress)
-
-        if self.win_handler.current_window == METAREPORT_FILTER:
-            selected_path_status[METAREPORT_FILTER] = True
-        self.toolbar.update_buttons(selected_path_type, selected_path_status)
-        self.toolbar.update_callbacks(self.get_toolbar_callbacks())
-
     def report_callback(self):
         if self.selected_path is None:
             return
@@ -333,14 +349,9 @@ class Dashboard(AbstractPage):
         elif s_path.suffix == '.json':
             csv_files = [str(s_path.with_suffix('.csv'))]
 
-        BaseManager.register('ProgressStatus', ProgressStatus)
-        manager = BaseManager()
-        manager.start()
-        self.progress = manager.ProgressStatus()
         settings = load_cfg()
         inputs = setup(csv_files)
         inputs = [(
-            self.progress,
             i[SYNTHETIC_FILEPATH],
             i[OUTPUT_DIRECTORY],
             i[DATASET_NAME],
@@ -354,29 +365,28 @@ class Dashboard(AbstractPage):
         ]
 
         reports = []
-        self.completed_reports = 0
+
+        self.completed_items = 0
         for i in inputs:
-            str_path = str(i[2])
-            self.progress.add_report(str_path)
+            str_path = str(i[1])
             reports.append(str_path)
-        if len(inputs):
-            self.update_toolbar()
-        self.win_handler.statusbar.add_progress(reports)
-        pool_size = len(inputs) if len(inputs) < 5 else 5
 
-        pool = Pool(pool_size)
 
-        for i in inputs:
-            self.report_pool.append(pool.apply_async(run, (*i,)))
-
+        self.win_handler.statusbar.add_progress(reports,
+                                                ProgressType.REPORTS)
+        self.win_handler.process_handle.reports(inputs)
+        self.win_handler.update_toolbar()
 
     def index_callback(self):
         if self.selected_path is None:
             return
-        idx_df = index(str(self.selected_path))
+
         out_path = Path(self.selected_path, 'index.csv')
-        idx_df.to_csv(out_path)
-        self.win_handler.select_path(out_path)
+        self.win_handler.statusbar.add_progress([str(out_path)],
+                                                ProgressType.INDEX)
+        self.win_handler.process_handle.index(str(self.selected_path))
+        self.win_handler.update_toolbar()
+        # self.win_handler.select_path(out_path)
         # self.win_handler.update_filetree()
 
     def archive_callback(self):
@@ -386,13 +396,16 @@ class Dashboard(AbstractPage):
         dir_path = Path(self.selected_path)
         if Path(self.selected_path).is_file():
             dir_path = Path(self.selected_path).parent
-
-        archive_path = archive(str(dir_path))
-        self.win_handler.select_path(archive_path)
+        archive_path = create_archive_dir_path(dir_path)
+        self.win_handler.statusbar.add_progress([str(archive_path)],
+                                                ProgressType.ARCHIVE)
+        self.win_handler.process_handle.archive(dir_path, archive_path)
+        self.win_handler.update_toolbar()
+        # self.win_handler.select_path(archive_path)
 
     def metareport_callback(self):
         self.win_handler.create_metareport_filter()
-        self.update_toolbar()
+        self.win_handler.update_toolbar()
 
     def update_path_header(self, selected_path: Path,
                            selected_path_type: PathType):
@@ -419,12 +432,12 @@ class Dashboard(AbstractPage):
         if full_width:
             self.path_header.rect.w = self.w
             self.path_header.rebuild()
-            self.toolbar.panel.relative_rect.w = 0
-            self.toolbar.panel.rebuild()
+            self.win_handler.toolbar.panel.relative_rect.w = 0
+            self.win_handler.toolbar.panel.rebuild()
         else:
             self.path_header.rect.w = int(self.w * 0.55)
             self.path_header.rebuild()
-            self.toolbar.panel.relative_rect.w = int(self.w * 0.45)
-            self.toolbar.panel.rebuild()
+            self.win_handler.toolbar.panel.relative_rect.w = int(self.w * 0.45)
+            self.win_handler.toolbar.panel.rebuild()
 
 

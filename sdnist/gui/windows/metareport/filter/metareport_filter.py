@@ -25,7 +25,7 @@ from sdnist.metareport.__main__ import run, setup
 
 class MetaReportFilter(AbstractWindow):
     def __init__(self,
-                 metareport_created_callback: Callable,
+                 create_metareport_callback: Callable,
                  index_path: str,
                  *args, **kwargs):
         self.title = 'Metareport Filters'
@@ -44,12 +44,13 @@ class MetaReportFilter(AbstractWindow):
         #                    self.orig_rect.h * 0.6 - self.title_h)
         # kwargs['rect'] = new_rect
         super().__init__(*args, **kwargs)
-        self.metareport_created_callback = metareport_created_callback
+        self.create_metareport_callback = create_metareport_callback
         self.index_path = Path(index_path)
         self.index = pd.read_csv(self.index_path)
         if 'Unnamed: 0' in self.index.columns.to_list():
             self.index.index = self.index['Unnamed: 0'].values
             self.index = self.index.drop(columns=['Unnamed: 0'])
+        self.header = None
         self.inc_panel = None
         self.exc_panel = None
 
@@ -73,7 +74,7 @@ class MetaReportFilter(AbstractWindow):
         header_rect = pg.Rect(0, 0,
                               self.rect.w, self.header_h)
         self.header = MetaReportFilterHeader(
-            generate_metadata_callback=self.generate_metareport,
+            generate_metareport_callback=self.generate_metareport,
             text='Metareport Filters',
             rect=header_rect,
             manager=self.manager,
@@ -131,10 +132,9 @@ class MetaReportFilter(AbstractWindow):
         filtered_df = self.idx_tbl.get_filtered_dataframe()
         reports_path = filtered_df[REPORT_PATH] \
             .apply(lambda x: Path(x)).tolist()
-        input_cnf = setup(reports_dir, reports_path)
-        run(**input_cnf)
-        out_dir = input_cnf['metareport_out_dir']
-        self.metareport_created_callback(out_dir)
+
+        self.create_metareport_callback(reports_dir=reports_dir,
+                                        reports_path=reports_path)
 
 
 

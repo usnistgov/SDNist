@@ -22,21 +22,21 @@ from sdnist.gui.constants import window_header_h
 class DeidCSV(AbstractWindow):
     def __init__(self,
                  csv_path: str,
-                 rect: pg.Rect,
-                 manager: pggui.UIManager,
+                 title: str = 'Deid CSV File',
                  *args,
                  **kwargs):
 
-        self.title = 'Deid CSV File'
+        self.title = title
         kwargs['window_display_title'] = self.title
         kwargs['resizable'] = True
         kwargs['draggable'] = False
-        super().__init__(rect, manager, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.csv_path = csv_path
         self.header_h = window_header_h
         self.data = pd.read_csv(self.csv_path)
         self.features = self.data.columns.to_list()
+
         self.filter_data = FilterData(data=self.data,
                                       path=Path(self.csv_path))
         self.options_panel_rect = pg.Rect(

@@ -17,7 +17,7 @@ archive_clr = "#e6774c"
 main_theme_color = "#2f3d94"
 # PATH TYPE COLORS
 path_type_colors = {
-    PathType.CSV: {
+    PathType.DEID_CSV: {
         NAME: "DEID CSV",
         PART_1: {
             BACK_COLOR: "#117d64",
@@ -28,7 +28,29 @@ path_type_colors = {
             TEXT_COLOR: white_color
         }
     },
+    PathType.CSV: {
+        NAME: "CSV",
+        PART_1: {
+            BACK_COLOR: "#434349",
+            TEXT_COLOR: white_color
+        },
+        PART_2: {
+            BACK_COLOR: part_2_back_color,
+            TEXT_COLOR: white_color
+        }
+    },
     PathType.JSON: {
+        NAME: "JSON",
+        PART_1: {
+            BACK_COLOR: "#434349",
+            TEXT_COLOR: white_color
+        },
+        PART_2: {
+            BACK_COLOR: part_2_back_color,
+            TEXT_COLOR: white_color
+        }
+    },
+    PathType.DEID_JSON: {
         NAME: "METADATA JSON",
         PART_1: {
             BACK_COLOR: "#7a4fc4",

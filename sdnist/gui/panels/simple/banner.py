@@ -35,7 +35,7 @@ class BannerPanel(AbstractPanel):
         self._create()
 
     def _create(self):
-        head_w = int(self.rect.w * 0.15)
+        head_w = int(self.rect.w * 0.2)
         head_rect = pg.Rect((0, 0),
                             (head_w, self.rect.h))
         head_lbl = f'{self.head_text}'
@@ -50,7 +50,7 @@ class BannerPanel(AbstractPanel):
                                  )
         self.head_elem.scroll_bar_width = 0
         self.head_elem.rebuild()
-        tail_w = int(self.rect.w * 0.85)
+        tail_w = int(self.rect.w * 0.8)
         tail_rect = pg.Rect((head_w, 0),
                             (tail_w, self.rect.h))
         tail_lbl = f'{self.tail_text}'

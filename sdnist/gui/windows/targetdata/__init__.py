@@ -17,10 +17,13 @@ from sdnist.gui.windows.targetdata.targetinfo import (
 from sdnist.gui.panels.dftable import DFTable
 from sdnist.gui.panels.simple.banner import BannerPanel
 from sdnist.gui.windows.csv.deidinfo import DeidInfoPanel
+from sdnist.gui.panels.headers import WindowHeader
 
 from sdnist.gui.panels.dftable.filterdata import FilterData
 from sdnist.gui.strs import *
 import sdnist.gui.utils as u
+from sdnist.gui.constants import window_header_h
+
 
 class TargetDataWindow(AbstractWindow):
     def __init__(self,
@@ -37,15 +40,19 @@ class TargetDataWindow(AbstractWindow):
         super().__init__(rect, manager, *args, **kwargs)
 
         self.target = target
+        self.header_h = window_header_h
+        self.header_rect = pg.Rect(0, 0,
+                                   self.rect.w, self.header_h)
 
         self.options_panel_rect = pg.Rect(
-            0, 0, self.rect.width, 30
-        )
-        self.banner_rect = pg.Rect(
-            0, self.options_panel_rect.h,
+            0, self.header_rect.bottom,
             self.rect.width, 30
         )
-        view_panel_y = self.options_panel_rect.height + self.banner_rect.height
+        self.banner_rect = pg.Rect(
+            0, self.options_panel_rect.bottom,
+            self.rect.width, 30
+        )
+        view_panel_y = self.banner_rect.bottom
         view_panel_h = self.rect.height - view_panel_y
         self.view_panel_rect = pg.Rect(
             0, view_panel_y,
@@ -61,6 +68,13 @@ class TargetDataWindow(AbstractWindow):
         self._create()
 
     def _create(self):
+        self.header = WindowHeader(
+            title=self.title,
+            rect=self.header_rect,
+            manager=self.manager,
+            container=self.window,
+        )
+
         self.options = ButtonsGroupPanel(
             on_select_callback=self.on_select_btn_grp,
             rect=self.options_panel_rect,
@@ -69,6 +83,7 @@ class TargetDataWindow(AbstractWindow):
             object_id=ObjectID(class_id='@header_panel',
                                object_id='#button_group_panel')
         )
+        self.options.on_select_button(INFORMATION)
         short_path = u.short_path(Path(self.target.root))
         self.path_banner = BannerPanel(
             rect=self.banner_rect,
@@ -103,10 +118,7 @@ class TargetDataWindow(AbstractWindow):
                     rect=self.view_panel_rect,
                     manager=self.manager,
                     container=self.window,
-                    file_path=self.selected_target_path,
-                    data=data,
-                    filter_data=FilterData(data=data),
-                    enabled_features=data.columns.to_list(),
+                    filter_data=FilterData(data=data, path=self.selected_target_path)
                 )
 
     def on_select_target_data(self, target_path: Path):

@@ -57,7 +57,7 @@ class FiltersPanel(AbstractPanel):
         self.scroll_h = self.rect.h - \
             self.header_h - 3 * self.pad_y
         self.header_w = 150
-        self.scroll_w = self.rect.w - 2 * self.pad_x
+        self.scroll_w = self.rect.w
         self.add_btn_w = 100
         # filter set
         self.fset_btn_w = 50
@@ -83,7 +83,7 @@ class FiltersPanel(AbstractPanel):
                             (self.title_w, self.title_h))
         obj_id = ''.join(self.filter_type.value.split(' ')).lower()
         obj_name = f'{obj_id}_title_panel'
-        print(f'obj_name: {obj_name}')
+
         self.title_panel = UIPanel(
             relative_rect=title_rect,
             manager=self.manager,

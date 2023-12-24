@@ -4,6 +4,8 @@ import pygame as pg
 from functools import partial
 
 from pygame_gui.core import ObjectID
+from pygame_gui.core.colour_parser import parse_colour_or_gradient_string
+from pygame_gui.core.colour_gradient import ColourGradient
 from pygame_gui.elements.ui_window import UIWindow
 from pygame_gui.elements.ui_button import UIButton
 from pygame_gui.elements.ui_label import UILabel
@@ -151,7 +153,12 @@ class MetadataFormField(AbstractPanel):
                                manager=self.manager,
                                text='+',
                                anchors={'left': 'left',
-                                        'top': 'top'})
+                                        'top': 'top'},
+                               object_id=ObjectID(
+                                   class_id='@icon_button',
+                                   object_id='#formfield_expand_button')
+            )
+
         elif self.label_type in [LabelT.LONG_STRING]:
             self.input_rect = pg.Rect((lbl_rect.right, 0), (inp_w, self.rect.h))
 
@@ -178,6 +185,13 @@ class MetadataFormField(AbstractPanel):
 
     def on_hovered_callback(self, hovered: bool):
         self.hovered_callback(hovered)
+        if self.inp_btn:
+            if hovered:
+                c = parse_colour_or_gradient_string("#286adf, #4a6adf, #6155df, 0")
+                self.inp_btn.colours['normal_bg'] = c
+            else:
+                self.inp_btn.colours['normal_bg'] = pg.Color('#286adf00')
+            self.inp_btn.rebuild()
 
     def destroy(self):
         pass
@@ -210,10 +224,9 @@ class MetadataFormField(AbstractPanel):
 
     def create_selection_list(self):
         ir = self.input_rect
-        dr_h = len(self.options) * self.rect.h
 
-        dr_h = dr_h if dr_h < self.container.rect.h * 0.3 \
-            else self.container.rect.h * 0.3
+        dr_h = len(self.options) * 25
+        dr_h = min(dr_h, 200)
         if self.rect.y > self.container.rect.h * 0.6:
             dr = pg.Rect((ir.x + self.rect.x,
                           self.rect.y - dr_h),

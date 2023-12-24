@@ -3,6 +3,7 @@ from typing import Optional, Callable
 import pygame as pg
 import pygame_gui as pggui
 
+from pygame_gui.core import ObjectID
 from pygame_gui.core import UIElement
 from pygame_gui.elements.ui_window import UIWindow
 from pygame_gui.elements.ui_label import UILabel
@@ -47,7 +48,10 @@ class LabelDropDown:
             relative_rect=lbl_btn_rect,
             text=self.starting_option,
             manager=self.manager,
-            container=self.container
+            container=self.container,
+            object_id=ObjectID(
+                class_id='@toolbar_button',
+                object_id='#metareport_filter_dropdown_button')
         )
         lbl_w = 20
         lbl_x = lbl_btn_rect.x + lbl_btn_rect.w - lbl_w
@@ -62,7 +66,10 @@ class LabelDropDown:
             manager=self.manager,
             container=self.container,
             anchors={'left': 'left',
-                     'top': 'top'}
+                     'top': 'top'},
+            object_id=ObjectID(
+                class_id='@option_label',
+                object_id='#metareport_filter_expand_label')
         )
         self.lbl.text_horiz_alignment = 'center'
 
@@ -87,7 +94,7 @@ class LabelDropDown:
         dd_x = self.container.rect.x - self.parent_window.rect.x \
             + self.rect.x
         dd_y = self.container.rect.y - self.parent_window.rect.y \
-            + self.rect.h // 2
+            + self.rect.h
 
         dd_rect = pg.Rect((dd_x,
                            dd_y),

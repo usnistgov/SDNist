@@ -49,7 +49,8 @@ class FilterSet:
             relative_rect=scroll_rect,
             manager=self.manager,
             container=self.container,
-            starting_height=1
+            starting_height=1,
+
         )
         filters = self.filter_data.get_filters(self.filterset_name)
         for uid, f_filter_d in filters.items():
@@ -79,8 +80,8 @@ class FilterSet:
         if filter_data is None:
             filter_data = dict()
 
-        ff_w = self.scroll.rect.w - 100
-        ff_x = (self.scroll.rect.w - ff_w) // 2
+        ff_w = self.rect.w - 20
+        ff_x = 0
         ff_y = (len(self.feature_filters)) * 40
 
         ff_rect = pg.Rect((ff_x, ff_y),
@@ -109,7 +110,7 @@ class FilterSet:
         self.feature_filters[filter_id] = ff
 
         self.scroll.set_scrollable_area_dimensions((
-            self.rect.w - 100, ff.rect.y + ff.rect.h
+            self.rect.w - 20, ff.rect.y + ff.rect.h
         ))
 
         f_filters = self.feature_filters.values()
@@ -136,13 +137,13 @@ class FilterSet:
 
         f_filters = list(self.feature_filters.values())
         if len(f_filters) == 0:
-            scroll_h = self.rect.h
+            scroll_h = self.rect.h - 20
         else:
             l_ff = f_filters[-1]
             scroll_h = l_ff.rect.y + l_ff.rect.h
 
         self.scroll.set_scrollable_area_dimensions((
-            self.rect.w - 100, scroll_h
+            self.rect.w - 20, scroll_h
         ))
 
         focus_set = list(chain(*[ff.get_elements() for ff in f_filters]))

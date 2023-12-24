@@ -3,15 +3,13 @@ import pygame as pg
 import pygame_gui as pggui
 
 from pygame_gui.core import ObjectID
-from pygame_gui.elements.ui_panel import UIPanel
-from pygame_gui.elements.ui_label import UILabel
+from pygame_gui.elements.ui_button import UIButton
 
 from sdnist.gui.windows.filetree.filehelp import IS_BUSY
 from sdnist.gui.panels.panel import AbstractPanel
 from sdnist.gui.elements import UICallbackButton
 
 from sdnist.gui.helper import PathType
-from sdnist.gui.handlers.window import METAREPORT_FILTER
 
 from sdnist.gui.strs import *
 
@@ -26,11 +24,13 @@ CREATE_METAREPORT_BTN = 'Create Metareport'
 
 
 class ToolBar(AbstractPanel):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, callbacks: Dict[str, Callable],
+                 *args, **kwargs):
         kwargs['starting_height'] = 0
         kwargs['object_id'] = ObjectID(class_id='@toolbar_panel',
                                        object_id='#toolbar_panel')
         super().__init__(*args, **kwargs)
+        self.callbacks = callbacks
         self.button_names = []
         self.button_enabled = []
         self.buttons = dict()
@@ -64,11 +64,21 @@ class ToolBar(AbstractPanel):
     def create_buttons(self):
         def empty():
             return
+        def get_button_width(text: str):
+            btn = UIButton(relative_rect=pg.Rect(0, 0, -1, 0),
+                            text=text,
+                            manager=self.manager,
+                            visible=False)
+            w = btn.relative_rect.w + 15
+            btn.kill()
+            btn = None
+            return w
         net_width = 0
 
         for btn_name in self.button_names[::-1]:
             btn_enabled = self.button_enabled[self.button_names.index(btn_name)]
-            btn_rect = pg.Rect((0, 0), (170, self.rect.h * 0.95))
+            btn_w = get_button_width(btn_name)
+            btn_rect = pg.Rect((0, 0), (btn_w, self.rect.h * 0.95))
             btn_rect.right = -1 * net_width
             btn = UICallbackButton(relative_rect=btn_rect,
                                    callback=empty,
@@ -98,7 +108,7 @@ class ToolBar(AbstractPanel):
         is_metareport_filter_open = path_status.get(METAREPORT_FILTER, False)
         has_non_num_reports = path_status.get(NUMERICAL_METRIC_RESULTS, False)
 
-        if path_type == PathType.CSV:
+        if path_type == PathType.DEID_CSV:
             if METADATA in path_status:
                 if path_status[METADATA]:
                     self.button_names.append(OPEN_METADATA_BTN)
@@ -109,13 +119,13 @@ class ToolBar(AbstractPanel):
                 self.button_names.append(CREATE_REPORT_BTN)
                 self.button_enabled.append(True)
             else:
-                self.button_names = [CREATE_METADATA_BTN,
-                                     CREATE_REPORT_BTN]
-                self.button_enabled = [True, True]
-        elif path_type == PathType.JSON:
+                self.button_names = [CREATE_METADATA_BTN]
+                self.button_enabled = [True]
+        elif path_type == PathType.DEID_JSON:
             self.button_names = [CREATE_REPORT_BTN, SAVE_METADATA_BTN]
             self.button_enabled = [True, True]
         elif path_type == PathType.DEID_DATA_DIR:
+
             create_index = False
             create_report = False
             deid_count = path_status.get(DEID_CSV_FILES, 0)
@@ -163,15 +173,17 @@ class ToolBar(AbstractPanel):
                 self.button_enabled.append(True)
 
         if IS_BUSY in path_status:
-            if CREATE_REPORT_BTN in self.button_names:
-                idx = self.button_names.index(CREATE_REPORT_BTN)
-                self.button_enabled[idx] = not path_status[IS_BUSY]
-            if CREATE_REPORTS_BTN in self.button_names:
-                idx = self.button_names.index(CREATE_REPORTS_BTN)
-                self.button_enabled[idx] = not path_status[IS_BUSY]
+            btn_names = [CREATE_REPORT_BTN, CREATE_REPORTS_BTN,
+                            CREATE_INDEX_BTN, CREATE_ARCHIVE_BTN,
+                            CREATE_METAREPORT_BTN]
+            for b_name in btn_names:
+                if b_name in self.button_names:
+                    idx = self.button_names.index(b_name)
+                    self.button_enabled[idx] = False
         self.create_buttons()
+        self.update_callbacks()
 
-    def update_callbacks(self, callbacks: Dict[str, Callable]):
+    def update_callbacks(self):
         for bn in self.button_names:
-            cb = callbacks[bn]
+            cb = self.callbacks[bn]
             self.buttons[bn].callback = cb

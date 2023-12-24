@@ -80,14 +80,15 @@ class ChipButton(UIButton):
         # self.mask_panel.border_width = 0
         # self.mask_panel.shadow_width = 0
         # self.mask_panel.rebuild()
-
+        c_btn_x = (self.relative_rect.x + self.relative_rect.w
+                   - c_btn_w - 3)
         c_btn_rect = pg.Rect(c_btn_x, 0,
                              c_btn_w, c_btn_w)
         self.cancel_button = UICallbackButton(
             callback=self.cancel_callback,
             starting_height=self.starting_height + 1,
             relative_rect=c_btn_rect,
-            text='x',
+            text='X',
             manager=self.manager,
             container=self.container,
             anchors={'left': 'left',

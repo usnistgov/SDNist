@@ -1,26 +1,25 @@
+import shutil
 from typing import Optional, Tuple, Dict, List
 from enum import Enum
 from pathlib import Path
 from functools import partial
 from itertools import chain
+import os
 
 import pandas as pd
 import pygame_gui as pggui
 import pygame as pg
 
-from pygame_gui.elements.ui_panel import UIPanel
-from pygame_gui.elements.ui_window import UIWindow
 from pygame_gui.elements.ui_button import UIButton
 from pygame_gui.elements.ui_scrolling_container \
     import UIScrollingContainer
 from pygame_gui.core import ObjectID
 
 from sdnist.gui.windows.filetree.filehelp import (
-    get_path_types, count_path_types
+    get_path_types
 )
 
 from sdnist.gui.elements import (
-    FileButton,
     DirectoryButton,
     FlagButton
 )
@@ -38,16 +37,24 @@ from sdnist.gui.helper import PathType
 from sdnist.gui.strs import *
 from sdnist.gui.constants import window_header_h
 
+from sdnist.gui.handlers.files import FilesTreeHandler
 from sdnist.report.helpers import ProgressStatus
+from sdnist.report.dataset.target import TargetLoader
 
 class FileTree(AbstractWindow):
     def __init__(self,
+                 target_loader: TargetLoader,
                  rect: pg.Rect,
                  manager: pggui.UIManager,
                  directory: str,
                  selected_path: Optional[Path] = None):
         super().__init__(rect, manager)
+        self.target_loader = target_loader
         self.directory = Path(directory)
+        self.ft_handler = FilesTreeHandler(
+            root=self.directory,
+            target_loader=self.target_loader
+        )
         self.w, self.h = rect.w, rect.h
         self.header_h = window_header_h
         self.font = pg.font.Font(None, 24)
@@ -119,6 +126,10 @@ class FileTree(AbstractWindow):
         self.buttons = dict()
         test = True
 
+        def is_directory_empty(directory_path):
+            with os.scandir(directory_path) as scan:
+                return next(scan, None) is None
+
         def callback(path: str, btn_ref: UIButton):
             if Path(path).exists():
                 if self.selected:
@@ -135,7 +146,8 @@ class FileTree(AbstractWindow):
             btn = None
             return w
 
-        def draw_subtree(root: Path, level: int,
+        def draw_subtree(root: Path,
+                         level: int,
                          start_y_idx: int):
             # print(root)
             lvl_str = ' ' * level
@@ -143,8 +155,15 @@ class FileTree(AbstractWindow):
             child_level = level
             i = start_y_idx
 
+            if is_directory_empty(root):
+                if self.selected and str(root) == self.selected[0]:
+                    self.selected = (str(root.parent), None)
+                shutil.rmtree(root)
+                return lvl_d, i - 1, child_level - 1
+
             expansion = True
-            path_type = get_path_types(root)[0]
+            path_type = get_path_types(root,
+                                       file_handler=self.ft_handler)[0]
             if str(root) in self.dir_expansion:
                 expansion = self.dir_expansion[str(root)]
             elif path_type in [PathType.REPORTS,
@@ -200,17 +219,22 @@ class FileTree(AbstractWindow):
             )
 
             def get_file_sort_codes(f: Path):
-                path_type = get_path_types(f)[0]
+                path_type = get_path_types(path=f,
+                                           file_handler=self.ft_handler)[0]
                 if path_type in [PathType.REPORTS, PathType.METAREPORTS, PathType.ARCHIVES]:
                     return [path_type, 0]
                 elif path_type in [PathType.DEID_DATA_DIR]:
                     return [path_type, 1]
-                elif path_type in [PathType.CSV]:
+                elif path_type in [PathType.DEID_CSV]:
                     return [path_type, 2]
-                elif path_type in [PathType.JSON]:
+                elif path_type in [PathType.DEID_JSON]:
                     return [path_type, 3]
                 elif path_type in [PathType.INDEX]:
                     return [path_type, 4]
+                elif path_type in [PathType.CSV]:
+                    return [path_type, 5]
+                elif path_type in [PathType.JSON]:
+                    return [path_type, 6]
                 return [path_type, 0]
 
             self.buttons[str(root.absolute())] = root_btn
@@ -221,6 +245,11 @@ class FileTree(AbstractWindow):
                 f_list.sort(key=lambda x: x[2])
                 for f, path_type, _ in f_list:
                     if f.is_file() and f.suffix in ['.csv', '.json']:
+                        is_csv = f.suffix == '.csv'
+                        is_deid_csv = path_type == PathType.DEID_CSV
+                        is_index = 'index' in f.name
+                        is_deid_json = path_type == PathType.DEID_JSON
+
                         path_color = path_type_colors[path_type][PART_1][BACK_COLOR]
                         i += 1
                         text = f.name
@@ -243,6 +272,12 @@ class FileTree(AbstractWindow):
                             anchors={'left': 'left'}
                         )
                         file_btn.callback = partial(callback, str(f), file_btn)
+                        if not is_csv and not is_deid_json:
+                            file_btn.disable()
+                        if is_csv and not is_index and not is_deid_csv:
+                            # file_btn.back_btn.colours['normal_bg'] = pg.Color("#24272b")
+                            # file_btn.front_btn.colours['normal_bg'] = pg.Color('red')
+                            file_btn.rebuild()
                         self.buttons[str(f.absolute())] = file_btn
 
                     elif f.is_dir():
@@ -305,7 +340,8 @@ class FileTree(AbstractWindow):
             return None
 
         path = Path(self.selected[0])
-        path_type, path_status = get_path_types(path, progress)
+        path_type, path_status = get_path_types(path, progress,
+                                                self.ft_handler)
         self.selected_path_type = path_type
         self.selected_path_status = path_status
 

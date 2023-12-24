@@ -51,6 +51,24 @@ class FlagButton:
         if self.front_btn:
             self.front_btn.select()
 
+    def disable(self):
+        if self.back_btn:
+            self.back_btn.disable()
+        if self.front_btn:
+            self.front_btn.disable()
+
+    def enable(self):
+        if self.back_btn:
+            self.back_btn.enable()
+        if self.front_btn:
+            self.front_btn.enable()
+
+    def rebuild(self):
+        if self.back_btn:
+            self.back_btn.rebuild()
+        if self.front_btn:
+            self.front_btn.rebuild()
+
     def _create(self):
         del self.kwargs['text']
         file_suffix = self.file_path.suffix

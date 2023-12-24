@@ -13,7 +13,8 @@ from sdnist.gui.windows.progress.reports_progress import \
     ReportsProgressPanel
 from sdnist.gui.elements import MessageButton
 
-from sdnist.report.helpers import ProgressStatus
+from sdnist.report.helpers.progress_status import (
+    ProgressStatus, ProgressType)
 
 
 class StatusBar(AbstractPanel):
@@ -63,16 +64,17 @@ class StatusBar(AbstractPanel):
     def destroy(self):
         super().destroy()
         self.destroy_progress()
+        self.destroy_report_progress()
 
     def handle_event(self, event: pg.event.Event):
         self.reports_progress.handle_event(event)
 
-    def add_progress(self, report_names: List):
-        # destroy previous progress bar if any
+    def add_progress(self, report_names: List, progress_type: ProgressType):
+        self.destroy_progress()
+
         self.reports_progress.update_messages(report_names)
         self.report_names = report_names
         self.message_btn.update_messages(len(report_names))
-        # create new progress bar
 
         progress_rect = pg.Rect(0, 0,
                                 self.rect.w * 0.2,
@@ -92,7 +94,7 @@ class StatusBar(AbstractPanel):
                             self.elem_h)
         net_width += progress_rect.w
         text_rect.right = -1 * net_width
-        text = f'Reports Done: 0/{len(self.report_names)}'
+        text = f'{progress_type.name} Done: 0/{len(self.report_names)}'
         self.progress_text = UILabel(relative_rect=text_rect,
                                      text=text,
                                      manager=self.manager,
@@ -126,6 +128,8 @@ class StatusBar(AbstractPanel):
         if self.progress_text is not None:
             self.progress_text.kill()
             self.progress_text = None
+
+    def destroy_report_progress(self):
         if self.reports_progress is not None:
             self.reports_progress.destroy()
             self.reports_progress = None
@@ -134,8 +138,9 @@ class StatusBar(AbstractPanel):
         if self.progress_bar is not None:
             percent = progress.get_progress_percent()
             self.progress_bar.set_current_progress(percent)
+        progress_type = progress.get_progress_type().name
         if self.progress_text is not None:
-            text = f'Reports Done: {len(progress.get_completed_reports())}' \
+            text = f'{progress_type} Done: {len(progress.get_completed_items())}' \
                           f'/{len(self.report_names)}'
             self.progress_text.set_text(text)
 

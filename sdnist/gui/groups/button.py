@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Optional, List
 from pygame_gui.elements.ui_button import UIButton
 
 
 class ButtonGroup:
-    def __init__(self, buttons: Optional[list[UIButton]] = None):
+    def __init__(self, buttons: Optional[List[UIButton]] = None):
         buttons = [] if buttons is None else buttons
         self.buttons = {b.text: b for b in buttons}
         self.selected = None
