@@ -21,10 +21,8 @@ class BaseComparison(object):
                               features: str,
                               target_dataset_name: str) -> Tuple[int, List[str]]:
         target_df = self.target_datasets[target_dataset_name]
-        print(features)
         features = features[2:-2]
         features = features.split('\', \'')
-        print(features)
         target_df = target_df[features]
         size = 1
 

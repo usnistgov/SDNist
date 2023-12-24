@@ -6,17 +6,48 @@ from html.parser import HTMLParser
 import codecs
 import webbrowser
 
-from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import QMarginsF, QSizeF
-from PyQt5.QtGui import QPageSize, QPageLayout, QTextDocument
-from PyQt5.QtPrintSupport import QPrinter
-from PyQt5.QtWidgets import QApplication
+qt_available = False
+try:
+    # Try importing PyQt5
+    from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
+    from PyQt5.QtCore import QMarginsF, QSizeF
+    from PyQt5.QtGui import QPageSize, QPageLayout, QTextDocument
+    qt_available = True
+except ImportError:
+    # If an ImportError occurs, PyQt5 is not installed
+    pass
+
 from jinja2 import Environment, FileSystemLoader
 
-app = QtWidgets.QApplication(sys.argv)
+if qt_available:
+    app = QtWidgets.QApplication(sys.argv)
 
-page = QtWebEngineWidgets.QWebEnginePage()
+    page = QtWebEngineWidgets.QWebEnginePage()
 
+
+    def html_to_pdf(html: Path, pdf: Path):
+        s_html = str(html)
+        s_pdf = str(pdf)
+
+        def handle_print_finished(filename, status):
+            print("finished", filename)
+            app.quit()
+
+        def handle_load_finished(status):
+            if status:
+
+                q_layout = QPageLayout(QPageSize(QPageSize.A4),
+                                       QPageLayout.Orientation.Portrait,
+                                       QMarginsF(10, 40, 10, 40))
+                page.printToPdf(s_pdf, pageLayout=q_layout)
+            else:
+                print("Failed")
+                app.quit()
+
+        page.pdfPrintingFinished.connect(handle_print_finished)
+        page.loadFinished.connect(handle_load_finished)
+        page.load(QtCore.QUrl.fromLocalFile(s_html))
+        app.exec_()
 
 # def html_to_pdf_2(html: Path, pdf: Path):
 #     a = QApplication([])
@@ -50,29 +81,7 @@ page = QtWebEngineWidgets.QWebEnginePage()
 
 # function taken from:
 # https://stackoverflow.com/questions/63382399/how-to-convert-a-local-html-file-to-pdf-using-pyqt5
-def html_to_pdf(html: Path, pdf: Path):
-    s_html = str(html)
-    s_pdf = str(pdf)
 
-    def handle_print_finished(filename, status):
-        print("finished", filename)
-        app.quit()
-
-    def handle_load_finished(status):
-        if status:
-
-            q_layout = QPageLayout(QPageSize(QPageSize.A4),
-                                   QPageLayout.Orientation.Portrait,
-                                   QMarginsF(10, 40, 10, 40))
-            page.printToPdf(s_pdf, pageLayout=q_layout)
-        else:
-            print("Failed")
-            app.quit()
-
-    page.pdfPrintingFinished.connect(handle_print_finished)
-    page.loadFinished.connect(handle_load_finished)
-    page.load(QtCore.QUrl.fromLocalFile(s_html))
-    app.exec_()
 
 
 def debug(text):
@@ -105,7 +114,9 @@ def generate(report_data: Dict[str, any],
 
     if open_in_browser:
         webbrowser.open(f"file://{out_path_main}", new=True)
-    html_to_pdf(out_path_temp, out_pdf_path)
+
+    if qt_available:
+        html_to_pdf(out_path_temp, out_pdf_path)
 
     if out_path_temp.exists():
         out_path_temp.unlink()

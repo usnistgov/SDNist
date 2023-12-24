@@ -64,7 +64,7 @@ class CorrelationComparison(BaseComparison):
                             unq_v_label[f'{lbl_str}'] = ''
             v_label = ' | '.join(unq_v_label.keys())
             # v_label = labels[VARIANT]
-            print('In Corr: ', report_path.parts[-2:], v_label, target_dataset)
+
             if target_dataset not in self.r_corr:
                 self.r_corr[target_dataset] = dict()
 
@@ -104,7 +104,7 @@ class CorrelationComparison(BaseComparison):
 
         fig_width = cell_size * n_features * n_cols
         fig_height = cell_size * n_features * n_rows
-        print(fig_width, fig_height, n_features, n_cols, n_rows, plot_save_path)
+
         fig, ax = plt.subplots(n_rows, n_cols + 1, figsize=(fig_width, fig_height))
         # correlations_data = sorted(correlations_data, key=lambda x: x[0])
         v_max = 0.15

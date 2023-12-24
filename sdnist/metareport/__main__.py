@@ -27,6 +27,10 @@ from sdnist.load import DEFAULT_DATASET
 import sdnist.strs as strs
 import sdnist.utils as u
 
+from sdnist.report.helpers.progress_status import (
+    ProgressStatus, ProgressLabels
+)
+
 
 def update_reports_data(reports_data: Dict[str, Tuple]):
     for r_name in reports_data.keys():
@@ -47,11 +51,16 @@ def add_data_description(reports_data: Dict[str, Tuple], m_ui_data: ReportUIData
                                        desc_pck)
 
 
-def run(reports_path: List[Path],
+def run(progress: ProgressStatus,
+        reports_path: List[Path],
         metareport_out_dir: Path,
         data_dict: Dict,
         density_bins_description: Dict,
         report_title: str = ""):
+    if progress:
+        progress.update(str(metareport_out_dir),
+                        ProgressLabels.STARTED)
+
     # meta report ui data
     m_ui_data = ReportUIData(output_directory=metareport_out_dir)
     m_ui_data.add_key_val('title', report_title)
@@ -98,7 +107,6 @@ def run(reports_path: List[Path],
     report_copies_path = Path(metareport_out_dir, 'detailed_data_reports')
     if not report_copies_path.exists():
         report_copies_path.mkdir(parents=True)
-    print()
 
     for report_path in reports_path:
         state = report_path.parts[-2]
@@ -109,6 +117,9 @@ def run(reports_path: List[Path],
     # update reports data
     reports_data = update_reports_data(reports_data)
 
+    if progress:
+        progress.update(str(metareport_out_dir),
+                        ProgressLabels.COPYING_REPORTS)
     # retain only filters that are in filter keys
     # filters = {k: v for k, v in filters.items() if k in filter_keys}
     filters = dict()
@@ -120,16 +131,25 @@ def run(reports_path: List[Path],
     args: List[any] = [reports_data, metareport_out_dir, label_keys,
                        filters, data_dict, target_datasets]
     # correlation comparison
+
     corr = CorrelationComparison(*args)
     corr.ui_data(m_ui_data)
+    if progress:
+        progress.update(str(metareport_out_dir),
+                        ProgressLabels.CORRELATIONS)
+
     # unique exact matches comparison
     uem = UniqueExactMatchesComparison(*args)
     uem.ui_data(m_ui_data)
-
+    if progress:
+        progress.update(str(metareport_out_dir),
+                        ProgressLabels.UNIQUE_EXACT_MATCHES)
     # pca msp_n highlights
     pca_h = PCAHighlightComparison(*args)
     pca_h.ui_data(m_ui_data)
-
+    if progress:
+        progress.update(str(metareport_out_dir),
+                        ProgressLabels.PCA)
     # Linear regression white men
     lr_wm = LinearRegressionComparison('white_men', *args)
     lr_wm.ui_data(m_ui_data)
@@ -137,7 +157,9 @@ def run(reports_path: List[Path],
     # Linear regression black women
     lr_bw = LinearRegressionComparison('black_women', *args)
     lr_bw.ui_data(m_ui_data)
-
+    if progress:
+        progress.update(str(metareport_out_dir),
+                        ProgressLabels.LINEAR_REGRESSION)
     # add observation
     # add_observation(m_ui_data, config_name)
     #
@@ -147,7 +169,8 @@ def run(reports_path: List[Path],
     m_ui_data.save()
 
     generate(m_ui_data.data, metareport_out_dir, False)
-
+    progress.update(str(metareport_out_dir),
+                    ProgressLabels.CREATING_METAREPORT)
 
 def setup(reports_dir: Path,
           selected_reports_path: List[str],
