@@ -20,8 +20,17 @@ class TargetLoader:
         self.dataset_path = None
         self.schema = None
 
+        self.check_exist()
         self.data_dict = self.load_data_dict()
         self.mappings = self.load_data_mappings()
+        self.features = list(self.data_dict.keys())
+
+
+    def check_exist(self):
+        d, dp, sch = self.get_dataset(TestDatasetName.ma2019)
+        del d
+        del dp
+        del sch
 
     def load_dataset(self, dataset_name: TestDatasetName):
         self.dataset, self.dataset_path, self.schema = \
@@ -72,6 +81,17 @@ class TargetLoader:
             dfs.append(df)
 
         return pd.concat(dfs)
+
+    def is_deid_csv(self, df: pd.DataFrame) -> bool:
+        """
+        Checks if a dataframe is deidentified csv
+        file created from the target data
+        """
+        cols = set(df.columns.to_list())
+        if len(cols.intersection(set(self.features))):
+            return True
+        return False
+
 
 
 
