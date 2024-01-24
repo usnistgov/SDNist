@@ -26,10 +26,13 @@ def unique_exact_matches(target_data: pd.DataFrame, deidentified_data: pd.DataFr
     # number of unique target records that exactly match in deidentified data
     t_rec_matched = merged.shape[0]
 
-    # percent of unique target records that exactly match in deidentified data
-    perc_t_rec_matched = t_rec_matched/t_unique_records * 100
+    if t_unique_records > 0:
+        # percent of unique target records that exactly match in deidentified data
+        perc_t_rec_matched = t_rec_matched/t_unique_records * 100
 
-    perc_t_rec_matched = round(perc_t_rec_matched, 2)
+        perc_t_rec_matched = round(perc_t_rec_matched, 2)
+    else:
+        perc_t_rec_matched = 0
 
     return t_rec_matched, perc_t_rec_matched, t_unique_records, perc_t_unique_records
 

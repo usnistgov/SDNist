@@ -32,6 +32,7 @@ def percentile_rank_synthetic(synthetic: pd.DataFrame,
         if f not in to.columns.tolist():
             continue
         nna_mask = s[~s[f].isin(['N'])].index  # not na mask
+
         st = pd.DataFrame(pd.to_numeric(s.loc[nna_mask, f]).astype(int), columns=[f])
         final_st = st.copy()
         max_b = 0
@@ -50,7 +51,7 @@ def percentile_rank_synthetic(synthetic: pd.DataFrame,
             else:
                 min_b = max_b
                 final_st.loc[(st[f] > min_b), f] = b
-        s.loc[nna_mask, f] = final_st
+        s.loc[nna_mask, f] = final_st[f]
     return s
 
 
