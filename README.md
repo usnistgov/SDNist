@@ -1,4 +1,4 @@
-# SDNist v2.3: Deidentified Data Report Tool
+# SDNist v2.4: Deidentified Data Report Tool
 
 ## [SDNist is the offical software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
 
@@ -37,7 +37,7 @@ Setting Up the SDNIST Report Tool
 
 ### Brief Setup Instructions
 
-SDNist requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend installing v2.3 in a virtual environment. v2.3 can be installed via [Release 2.3](https://github.com/usnistgov/SDNist/releases/tag/v2.3.0) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
+SDNist requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend installing v2.4 in a virtual environment. v2.4 can be installed via [Release 2.4](https://github.com/usnistgov/SDNist/releases/tag/v2.4) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
 
 The NIST Diverse Community Exceprt data will download on the fly.
 
