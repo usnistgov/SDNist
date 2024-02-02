@@ -66,7 +66,7 @@ def feature_space_size(target_df: pd.DataFrame, data_dict: Dict):
                      'DEAR']:
             size = size * len(data_dict[col]['values'])
         elif col in ['PUMA', 'DENSITY']:
-            size = size * len(target_df['PUMA'].unique())
+            size = size * len(target_df[col].unique())
         elif col in ['NOC', 'NPF', 'INDP']:
             size = size * len(target_df[col].unique())
 

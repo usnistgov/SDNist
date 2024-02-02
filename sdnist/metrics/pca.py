@@ -44,7 +44,7 @@ class PCAMetric:
         self.comp_df = None
 
     def compute_pca(self):
-        cc = 5
+        cc = 5 if self.tar.shape[1] > 5 else self.tar.shape[1]
         t_pca = PCA(n_components=cc)
 
         tdf_v = self.tar.values
@@ -185,10 +185,12 @@ def plot_all_components_pairs(title: str,
             plt.close(fig)
 
     fig, ax = plt.subplots(cc, cc, figsize=(6, 6))
-
     for i, pc_i in enumerate(d.columns):
         for j, pc_j in enumerate(d.columns):
-            ax_t = ax[i, j]
+            if cc == 1:
+                ax_t = ax
+            else:
+                ax_t = ax[i, j]
             if pc_i == pc_j:
                 ax_t.text(0.5, 0.5, pc_i,
                           ha='center', va='center', color='black', fontsize=30)

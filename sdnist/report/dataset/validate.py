@@ -26,9 +26,9 @@ def validate(synth_data: pd.DataFrame,
             "nan_records": len(nan_df),
             "nan_features": nan_features
         }
-        sd = sd.dropna()
-        console_out(f'Found {len(nan_df)} records with NaN values. '
-                    f'Removed records with NaN values.')
+        # sd = sd.dropna()
+        # console_out(f'Found {len(nan_df)} records with NaN values. '
+        #             f'Removed records with NaN values.')
 
     for f in features:
         # check feature has out of bound value
@@ -43,7 +43,8 @@ def validate(synth_data: pd.DataFrame,
             fd.loc[mask, f] = pd.to_numeric(fd.loc[mask, f], errors="coerce")
             nans = fd[fd.isna().any(axis=1)]
             if len(nans):
-                vob_vals = list(set(synth_data.loc[nans.index, f].values.tolist()))
+                vob_vals = list(set([str(v)
+                                     for v in synth_data.loc[nans.index, f].values.tolist()]))
                 vob_features.append((f, vob_vals))
                 console_out(f'Value out of bound for feature {f}, '
                       f'out of bound values: {vob_vals}. '
@@ -62,7 +63,8 @@ def validate(synth_data: pd.DataFrame,
             f_unique = sd['PUMA'].unique().tolist()
             v_intersect = set(f_unique).intersection(set(f_vals))
             if len(v_intersect) < len(f_unique):
-                vob_vals = list(set(f_unique).difference(v_intersect))
+                vob_vals = list(set([str(v) for v in
+                                     list(set(f_unique).difference(v_intersect))]))
                 vob_features.append((f, vob_vals))
                 console_out(f'Value out of bound for feature {f}, '
                             f'out of bound values: {vob_vals}. Dropping feature from evaluation.')
@@ -73,7 +75,8 @@ def validate(synth_data: pd.DataFrame,
             nans = fd[fd.isna().any(axis=1)]
             vob_vals = []
             if len(nans):
-                vob_vals.extend(list(set(synth_data.loc[nans.index, f].values.tolist())))
+                vob_vals.extend(list(set([str(v)
+                                          for v in synth_data.loc[nans.index, f].values.tolist()])))
                 fd = fd.dropna()
 
             mask = fd[fd[f] != 'N'].index if has_N else fd.index
@@ -87,7 +90,8 @@ def validate(synth_data: pd.DataFrame,
                 real_vals = [int(v) for v in real_vals]
                 v_intersect = set(f_unique).intersection(set(real_vals))
                 if len(v_intersect) < len(f_unique):
-                    vob_vals.extend(list(set(f_unique).difference(v_intersect)))
+                    vob_vals.extend(set([str(v)
+                                         for v in list(set(f_unique).difference(v_intersect))]))
 
             if len(vob_vals):
                 vob_features.append((f, vob_vals))
@@ -102,11 +106,10 @@ def validate(synth_data: pd.DataFrame,
 
         if len(vob_features):
             last_vob_f, vob_vals = vob_features[-1]
-
             if last_vob_f == f:
                 sd = sd.loc[:, sd.columns != f]
                 if has_nan:
-                    vob_features = (last_vob_f, ['nan'] + vob_vals)
+                    vob_features[-1] = (last_vob_f, ['nan'] + list(set(vob_vals)))
 
     validation_log['values_out_of_bound'] = dict(vob_features)
     return sd, validation_log

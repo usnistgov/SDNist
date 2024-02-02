@@ -58,10 +58,13 @@ class KMarginal:
         self.features = self.td.columns.tolist()
         marg_cols = list(set(self.features).difference(['PUMA', 'INDP']))
         marg_cols = sorted(marg_cols)
-        self.marginals = [(f1, f2)
-                           for i, f1 in enumerate(marg_cols)
-                           for j, f2 in enumerate(marg_cols)
-                           if i < j]
+        if len(marg_cols) == 1:
+            self.marginals = [(marg_cols[0], marg_cols[0])]
+        else:
+            self.marginals = [(f1, f2)
+                               for i, f1 in enumerate(marg_cols)
+                               for j, f2 in enumerate(marg_cols)
+                               if i < j]
 
     def marginal_pairs(self):
         for _ in self.marginals:
