@@ -1,0 +1,2629 @@
+{
+    "Created on": "June 19, 2023 20:56:14",
+    "version": "2.3.0",
+    "data_description": {
+        "target": [
+            {
+                "data": [
+                    {
+                        "Property": "Filename",
+                        "Value": "national2019"
+                    },
+                    {
+                        "Property": "Records",
+                        "Value": 27253
+                    },
+                    {
+                        "Property": "Features",
+                        "Value": 24
+                    }
+                ],
+                "validations": []
+            }
+        ],
+        "synthetic": [
+            {
+                "data": [
+                    {
+                        "Property": "Filename",
+                        "Value": "mst_e10_demographic_focused_na2019"
+                    },
+                    {
+                        "Property": "Records",
+                        "Value": 27253
+                    },
+                    {
+                        "Property": "Features",
+                        "Value": 10
+                    }
+                ],
+                "labels": [
+                    {
+                        "Label Name": "Algorithm Name",
+                        "Label Value": "mst"
+                    },
+                    {
+                        "Label Name": "Target Dataset",
+                        "Label Value": "national2019"
+                    },
+                    {
+                        "Label Name": "Epsilon",
+                        "Label Value": "10"
+                    },
+                    {
+                        "Label Name": "Variant Label",
+                        "Label Value": "preprocessor-epsilon: 3"
+                    },
+                    {
+                        "Label Name": "Algorithm Type",
+                        "Label Value": "stat model"
+                    },
+                    {
+                        "Label Name": "Library Name",
+                        "Label Value": "smartnoise-synth"
+                    },
+                    {
+                        "Label Name": "Feature Set Name",
+                        "Label Value": "demographic-focused"
+                    },
+                    {
+                        "Label Name": "Privacy Category",
+                        "Label Value": "dp"
+                    },
+                    {
+                        "Label Name": "Deid Data Id",
+                        "Label Value": "506a9dc57d04140f26510caaa6e3aec47e0407b0"
+                    },
+                    {
+                        "Label Name": "Features List",
+                        "Label Value": "AGEP, SEX, MSP, RAC1P, HOUSING_TYPE, OWN_RENT, EDU, PINCP_DECILE, DVET, DEYE"
+                    },
+                    {
+                        "Label Name": "Privacy Label Detail",
+                        "Label Value": "Differentially private synthetic data.  From McKenna et al. \u201cWinning the NIST Contest: A scalable and general approach to differentially private synthetic data\u201d"
+                    },
+                    {
+                        "Label Name": "Submission Timestamp",
+                        "Label Value": "5/20/2023 00:00:00"
+                    },
+                    {
+                        "Label Name": "Team",
+                        "Label Value": "CRC"
+                    },
+                    {
+                        "Label Name": "Research Papers",
+                        "Label Value": "https://doi.org/10.48550/arXiv.2108.04978"
+                    }
+                ],
+                "validations": []
+            }
+        ],
+        "Evaluated Data Features": [
+            {
+                "Feature Name": "AGEP",
+                "Feature Description": "Person's age",
+                "Feature Type": "int64",
+                "Feature Has 'N' (N/A) values?": false
+            },
+            {
+                "Feature Name": "SEX",
+                "Feature Description": "Person's gender",
+                "Feature Type": "int64",
+                "Feature Has 'N' (N/A) values?": false
+            },
+            {
+                "Feature Name": "MSP",
+                "Feature Description": "Marital Status",
+                "Feature Type": "object of type string",
+                "Feature Has 'N' (N/A) values?": true
+            },
+            {
+                "Feature Name": "RAC1P",
+                "Feature Description": "Person's Race",
+                "Feature Type": "int64",
+                "Feature Has 'N' (N/A) values?": false
+            },
+            {
+                "Feature Name": "HOUSING_TYPE",
+                "Feature Description": "Housing unit or group quarters",
+                "Feature Type": "int64",
+                "Feature Has 'N' (N/A) values?": false
+            },
+            {
+                "Feature Name": "OWN_RENT",
+                "Feature Description": "Housing unit rented or owned",
+                "Feature Type": "int64",
+                "Feature Has 'N' (N/A) values?": false
+            },
+            {
+                "Feature Name": "EDU",
+                "Feature Description": "Educational attainment",
+                "Feature Type": "object of type string",
+                "Feature Has 'N' (N/A) values?": true
+            },
+            {
+                "Feature Name": "PINCP_DECILE",
+                "Feature Description": "Person's total income rank (with respect to their state) discretized into 10% bins.",
+                "Feature Type": "object of type string",
+                "Feature Has 'N' (N/A) values?": true
+            },
+            {
+                "Feature Name": "DVET",
+                "Feature Description": "Veteran service connected disability rating (percentage)",
+                "Feature Type": "object of type string",
+                "Feature Has 'N' (N/A) values?": true
+            },
+            {
+                "Feature Name": "DEYE",
+                "Feature Description": "Vision difficulty",
+                "Feature Type": "int32",
+                "Feature Has 'N' (N/A) values?": false
+            }
+        ]
+    },
+    "utility": [
+        {
+            "metric_name": "K-Marginal Synopsys",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "The k-marginal metric checks how far the shape of the deidentified data distribution has shifted away from the target data distribution.  It does this using many 3-dimensional snapshots of the data, averaging the density differences across all snapshots.  It was developed by Sergey Pogodin as an efficient scoring mechanism for the NIST Temporal Data Challenges, and can be applied to measure the distance between any two data distributions.  A score of 0 means two distributions have zero overlap, while a score of 1000 means the two distributions match identically.  More information can be found <a href='https://aaai-ppai22.github.io/files/7.pdf'>here</a>.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Highlight-K-Marginal Score: 969",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Sampling Error Comparison",
+                        "data": "Here we provide a sampling error baseline: Taking a random subsample of the data also shifts the distribution by introducing sampling error.  How does the shift from deidentifying data compare to the shift that would occur from subsampling the target data?",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "K-Marginal score of the deidentified data closely resembles K-Marginal score of a 10% sub-sample of the target data.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "Sub-Sample Size": "1%",
+                                "Sub-Sample K-Marginal Score": 893,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "76"
+                            },
+                            {
+                                "Sub-Sample Size": "5%",
+                                "Sub-Sample K-Marginal Score": 953,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "16"
+                            },
+                            {
+                                "Sub-Sample Size": "10%",
+                                "Sub-Sample K-Marginal Score": 969,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "0",
+                                "min_idx": true
+                            },
+                            {
+                                "Sub-Sample Size": "20%",
+                                "Sub-Sample K-Marginal Score": 979,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "10"
+                            },
+                            {
+                                "Sub-Sample Size": "30%",
+                                "Sub-Sample K-Marginal Score": 985,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "16"
+                            },
+                            {
+                                "Sub-Sample Size": "40%",
+                                "Sub-Sample K-Marginal Score": 986,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "17"
+                            },
+                            {
+                                "Sub-Sample Size": "50%",
+                                "Sub-Sample K-Marginal Score": 989,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "20"
+                            },
+                            {
+                                "Sub-Sample Size": "60%",
+                                "Sub-Sample K-Marginal Score": 990,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "21"
+                            },
+                            {
+                                "Sub-Sample Size": "70%",
+                                "Sub-Sample K-Marginal Score": 993,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "24"
+                            },
+                            {
+                                "Sub-Sample Size": "80%",
+                                "Sub-Sample K-Marginal Score": 994,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "25"
+                            },
+                            {
+                                "Sub-Sample Size": "90%",
+                                "Sub-Sample K-Marginal Score": 996,
+                                "Deidentified Data K-marginal score": 969,
+                                "Absolute Diff. From Deidentified Data K-marginal Score": "27"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        },
+        {
+            "metric_name": "Univariate Distributions",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "Here we provide single feature distribution comparisons ordered to show worst performing features first (based on the L1 norm of density differences). Especially high-count values in the target data are not displayed on the charts but are provided below each distribution figure",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4AGEP: Person's age",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "AGEP",
+                                "path": "univariate/AGEP.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4EDU: Educational attainment",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "EDU",
+                                "path": "univariate/EDU.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4PINCP_DECILE: Person's total income rank (with respect to their state) discretized into 10% bins.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "PINCP_DECILE",
+                                "path": "univariate/PINCP_DECILE.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4MSP: Marital Status",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "MSP",
+                                "path": "univariate/MSP.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4DVET: Veteran service connected disability rating (percentage)",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Feature Values not shown in the chart:<br>Value: N [N/A (No service-connected disability/never served in military]<br>Target Data Counts: 26906<br>Deidentified Data Counts: 26901",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "DVET",
+                                "path": "univariate/DVET.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4RAC1P: Person's Race",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "RAC1P",
+                                "path": "univariate/RAC1P.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4SEX: Person's gender",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "SEX",
+                                "path": "univariate/SEX.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4DEYE: Vision difficulty",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Feature Values not shown in the chart:<br>Value: 2 [No]<br>Target Data Counts: 26544<br>Deidentified Data Counts: 26553",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "DEYE",
+                                "path": "univariate/DEYE.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4HOUSING_TYPE: Housing unit or group quarters",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Feature Values not shown in the chart:<br>Value: 1 [Housing Unit]<br>Target Data Counts: 25435<br>Deidentified Data Counts: 25428",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "HOUSING_TYPE",
+                                "path": "univariate/HOUSING_TYPE.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4OWN_RENT: Housing unit rented or owned",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "OWN_RENT",
+                                "path": "univariate/OWN_RENT.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        },
+        {
+            "metric_name": "Correlations",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "A key goal of deidentified data is to preserve the feature correlations from the target data, so that analyses performed on the deidentified data provide meaningful insight about the target population.  Which correlations are the deidentified data preserving, and which are being altered during deidentification?",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Kendall Tau Correlation Coefficient Difference",
+                        "data": "This chart shows pairwise correlations using a somewhat different <a href='https://en.wikipedia.org/wiki/Kendall_rank_correlation_coefficient'>definition of correlation</a>. To what extent do the two different correlation metrics agree or disagree with each other about the quality of the deidentified data?",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "corr_diff",
+                                "path": "correlation_difference/corr_diff.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Pearson Correlation Coefficient Difference",
+                        "data": "The <a href='https://en.wikipedia.org/wiki/Pearson_correlation_coefficient'>Pearson Correlation</a> difference was a popular utility metric during the <a href='https://pages.nist.gov/HLG-MOS_Synthetic_Data_Test_Drive/index.html'>HLG-MOS Synthetic Data Test Drive</a>. Note that darker highlighting indicates pairs of features whose correlations were not well preserved by the deidentified data.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "pearson_corr_diff",
+                                "path": "pearson_correlation/pearson_corr_diff.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        },
+        {
+            "metric_name": "Linear Regression",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "Linear regression is a fundamental data analysis technique that condenses a multi-dimensional data distribution  down to a one dimensional (line) representation. It works by finding the line that sits in the 'middle' of the data, in some sense-- <a href='https://en.wikipedia.org/wiki/Linear_regression#Formulation'>it minimizes the total distance between the points of the data and the line.</a> There are more advanced forms of regression, but here we're focusing on the simplest case-- we fit a simple straight line to the data, getting the slope and y-intercept value of that line.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "For this metric we're just looking at data from adults (AGEP > 15) and we're only considering the distribution of the data across two features:<ul><li>EDU: The highest education level this individual has attained, ranging from 1 (elementary school) to 12 (PhD). See Appendix of this report for the full list of code values.</li><li>PINCP_DECILE: The individual's income rank relative to other incomes from their state, discretized into ten equal-width range bins. This helps us account for differences in cost of living across the country. If an individual makes a moderate income but lives in a lower income area, they may have a high value for PINCP_DECILE indicating that they have a high income for their state. </li></ul>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "The basic idea is that higher values of EDU should lead to higher values of PINCP_DECILE, and this is broadly true. However, it is known that the relationship between EDU and PINCP_DECILE is different for different demographic subgroups. The heatmaps in the left column below show the density distribution of the true data for each subgroup, normalized by education category (so the density values in each column sum to 1; note that when a cell in the heatmap contains too few people (< 20 ), it is left blank; its not expected that the deidentified data will match the original distribution precisely). The regression line is drawn in red over the heatmap, so you can see the relationship between the target data distribution and its linear regression analysis. In the right column for each subgroup we show how the deidentified data's regression line compares to the target data's regression line, along with a heatmap of the density differences between the two distributions. Redder areas are where the deidentified data has created too many people, bluer areas are where it's created too few people.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "We've broken this metric down into demographic subgroups so we can see not only how well the privacy techniques preserve the overall relationship between these features, but also whether they preserve how that overall relationship is built up from the different relationships that hold at each major demographic subgroup. It's important that deidentification techniques preserve these distinct subgroup patterns for analysis.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Total Population",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "23006 records, 100.0% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.63 slope, -0.1 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "23004 records, 100.0% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.63 slope, -0.09 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/total_population/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "White Men",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "6463 records, 28.09% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.68 slope, 0.39 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "6357 records, 27.63% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.7 slope, -0.26 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/white_men/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "White Women",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "6505 records, 28.28% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.66 slope, -0.6 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "6671 records, 29.0% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.59 slope, -0.03 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/white_women/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Black Men",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "2720 records, 11.82% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.52 slope, 0.45 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "2860 records, 12.43% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.61 slope, 0.21 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/black_men/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Black Women",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "3366 records, 14.63% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.51 slope, 0.3 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "3204 records, 13.93% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.51 slope, 0.37 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/black_women/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Asian Men",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "914 records, 3.97% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.7 slope, -0.68 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "900 records, 3.91% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.67 slope, -0.05 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/asian_men/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Asian Women",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "982 records, 4.27% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.55 slope, -0.19 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "966 records, 4.2% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.57 slope, 0.24 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/asian_women/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "American Indian, Alaskan Native and Native Hawaiians (AIANNH) Men",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "376 records, 1.63% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.42 slope, 1.18 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "331 records, 1.44% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.65 slope, -0.01 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/aiannh_men/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "American Indian, Alaskan Native and Native Hawaiians (AIANNH) Women",
+                        "data": {
+                            "para": [
+                                [
+                                    "heading",
+                                    "Target Data"
+                                ],
+                                [
+                                    "text",
+                                    "395 records, 1.72% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.54 slope, -0.19 intercept"
+                                ],
+                                [
+                                    "heading",
+                                    "Deidentified Data"
+                                ],
+                                [
+                                    "text",
+                                    "442 records, 1.92% of adult (>15) data"
+                                ],
+                                [
+                                    "text",
+                                    "Regression: 0.48 slope, 0.59 intercept"
+                                ]
+                            ],
+                            "image": [
+                                {
+                                    "image_name": "density_plot",
+                                    "path": "linear_regression/aiannh_women/density_plot.svg"
+                                }
+                            ]
+                        },
+                        "type": "para_and_image",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        },
+        {
+            "metric_name": "Propensity Mean Square Error",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "Can a decision tree classifier tell the difference between the target data and the deidentified data? If a classifier is trained to distinguish between the two data sets and it performs poorly on the task, then the deidentified data must not be easy to distinguish from the target data. If the green line matches the blue line, then the deidentified data is high quality. Propensity based metrics have been developed by <a href='https://pennstate.pure.elsevier.com/en/publications/general-and-specific-utility-measures-for-synthetic-data'>Joshua Snoke and Gillian Raab</a> and <a href='https://www.researchgate.net/publication/323867757_STatistical_Election_to_Partition_Sequentially_STEPS_and_Its_Application_in_Differentially_Private_Release_and_Analysis_of_Youth_Voter_Registration_Data'>Claire Bowen</a>, all of whom have participated on the NIST Synthetic Data Challenges SME panels.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Highlight-Score: 0.007",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Propensities Distribution",
+                        "data": [
+                            {
+                                "image_name": "propensity_distribution",
+                                "path": "propensity/propensity_distribution.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        },
+        {
+            "metric_name": "PCA",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "This is another approach for visualizing where the distribution of the deidentified data has shifted away from the target data. In this approach, we begin by using <a href='https://en.wikipedia.org/wiki/Principal_component_analysis'>Principle Component Analysis</a> to find a way of representing the target data in a lower dimensional space (in 5 dimensions rather than the full 22 dimensions of the original feature space). Descriptions of these new five dimensions (components) are given in the components table; the components will change depending on which target data set you're using. Five dimensions are better than 22, but we actually want to get down to two dimensions so we can plot the data on simple (x,y) axes the plots below show the data across each possible pair combination of our five components. You can compare how the shapes change between the target data and the deidentified data, and consider what that might mean in light of the component definitions. This is a relatively new visualization metric that was introduced by the <a href='https://pages.nist.gov/HLG-MOS_Synthetic_Data_Test_Drive/submissions.html#ipums_international'>IPUMS International team</a> during the HLG-MOS Synthetic Data Test Drive.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "All of the plots below (for both the target data and the deidentified data) use the principle component axes taken from the target data (listed in the table). Effectively, we're looking at the data from the exact same angles in both sets of plots so we can easily compare the target data and the deidentified data with respect to those angles.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Contribution of Features in Each Principal Component",
+                        "data": {
+                            "table": [
+                                {
+                                    "Principal Component": "PC-0",
+                                    "Features Contribution: feature-name (contribution ratio)": "EDU (-0.57),PINCP_DECILE (-0.57),AGEP (-0.5),MSP (-0.23),RAC1P (0.16)"
+                                },
+                                {
+                                    "Principal Component": "PC-1",
+                                    "Features Contribution: feature-name (contribution ratio)": "HOUSING_TYPE (0.71),OWN_RENT (-0.64),MSP (0.23),PINCP_DECILE (-0.12),RAC1P (-0.09)"
+                                },
+                                {
+                                    "Principal Component": "PC-2",
+                                    "Features Contribution: feature-name (contribution ratio)": "DVET (0.62),SEX (-0.51),MSP (-0.39),DEYE (-0.28),RAC1P (-0.25)"
+                                },
+                                {
+                                    "Principal Component": "PC-3",
+                                    "Features Contribution: feature-name (contribution ratio)": "MSP (0.55),RAC1P (0.55),SEX (-0.35),DEYE (-0.34),OWN_RENT (0.28)"
+                                },
+                                {
+                                    "Principal Component": "PC-4",
+                                    "Features Contribution: feature-name (contribution ratio)": "DEYE (-0.8),SEX (0.52),AGEP (0.24),PINCP_DECILE (-0.16),EDU (-0.1)"
+                                }
+                            ],
+                            "size": 80,
+                            "column_widths": {
+                                "0": 20,
+                                "1": 80
+                            }
+                        },
+                        "type": "wide_table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "target",
+                                "path": "pca/target.png"
+                            },
+                            {
+                                "image_name": "deidentified",
+                                "path": "pca/deidentified.png"
+                            }
+                        ],
+                        "type": "image_links_horizontal",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h3PCA Queries",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "The queries below explore the PCA metric results in more detail by zooming in on a single component-pair panel and highlighting all individuals that satisfy a given constraint (such as MSP='N', individuals who are unmarried because they are children). If the deidentified data preserves the structure and feature correlations of the target data, the highlighted areas should have similar shape. ",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4MSP_N: Children (AGEP < 15)",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "MSP_N",
+                                "path": "pca/target_highlighted_MSP/MSP_N.png"
+                            },
+                            {
+                                "image_name": "MSP_N",
+                                "path": "pca/deidentified_highlighted_MSP/MSP_N.png"
+                            }
+                        ],
+                        "type": "image_links_horizontal",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        },
+        {
+            "metric_name": "Inconsistencies",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "In real world tabular data, it's common for record features to have some deterministic, publicly known dependencies on each other: knowing someone's AGEP= 3 necessarily tells you something about their marital status, income and educational attainment. Different deidentification methods may be better or worse at automatically preserving these relationships. When they fail (ex: producing toddlers with PhDs) we say those records contain \"inconsistencies\". Our consistency check metric below is not exhaustive, we don't catch everything the way a production-grade system should, but this will give you a sense of how consistency is preserved for age, work and household features. Note that different deidentification approaches may do better or worse with different types of inconsistencies.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Summary",
+                        "data": {
+                            "table": [
+                                {
+                                    "Inconsistency Group": "Age",
+                                    "Number of Records Inconsistent": 1030,
+                                    "Percent Records Inconsistent": "3.8%"
+                                },
+                                {
+                                    "Inconsistency Group": "Work",
+                                    "Number of Records Inconsistent": 0,
+                                    "Percent Records Inconsistent": "0.0%"
+                                },
+                                {
+                                    "Inconsistency Group": "Housing",
+                                    "Number of Records Inconsistent": 7,
+                                    "Percent Records Inconsistent": "0.0%"
+                                }
+                            ],
+                            "size": 60
+                        },
+                        "type": "wide_table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Age-Based Inconsistencies",
+                        "data": "These inconsistencies deal with the AGE feature; records with age-based inconsistencies might have children who are married, or infants with high school diplomas",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4child_DVET: Children (< 15) can't be disabled military veterans",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-54 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 5,
+                                    "DEYE": 2,
+                                    "DVET": 6,
+                                    "EDU": "N",
+                                    "HOUSING_TYPE": 1,
+                                    "MSP": "N",
+                                    "OWN_RENT": 1,
+                                    "PINCP_DECILE": "N",
+                                    "RAC1P": 1,
+                                    "SEX": 2
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "AGEP",
+                                    "DVET"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": null,
+                        "data": "h4child_MSP: Children (< 15) can't be married",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-104 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 14,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": 3,
+                                    "HOUSING_TYPE": 2,
+                                    "MSP": 2,
+                                    "OWN_RENT": 0,
+                                    "PINCP_DECILE": "N",
+                                    "RAC1P": 1,
+                                    "SEX": 2
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "AGEP",
+                                    "MSP"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": null,
+                        "data": "h4child_PINCP_DECILE: Children (< 15) don't have personal incomes",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-134 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 5,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": 10,
+                                    "HOUSING_TYPE": 1,
+                                    "MSP": "N",
+                                    "OWN_RENT": 1,
+                                    "PINCP_DECILE": 9,
+                                    "RAC1P": 1,
+                                    "SEX": 2
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "AGEP",
+                                    "PINCP_DECILE"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": null,
+                        "data": "h4child_phd: Children (< 15) don't have PhDs",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-6 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 7,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": 12,
+                                    "HOUSING_TYPE": 1,
+                                    "MSP": "N",
+                                    "OWN_RENT": 1,
+                                    "PINCP_DECILE": 9,
+                                    "RAC1P": 1,
+                                    "SEX": 2
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "AGEP",
+                                    "EDU"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": null,
+                        "data": "h4adult_N: Adults ( > 14) must specify values (other than N) for all adult features",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-172 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 54,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": 3,
+                                    "HOUSING_TYPE": 1,
+                                    "MSP": 1,
+                                    "OWN_RENT": 1,
+                                    "PINCP_DECILE": "N",
+                                    "RAC1P": 8,
+                                    "SEX": 1
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "AGEP",
+                                    "MSP",
+                                    "PINCP",
+                                    "PINCP_DECILE",
+                                    "EDU",
+                                    "DPHY",
+                                    "DREM"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": null,
+                        "data": "h4toddler_diploma: Toddlers (< 5) don't have high school diplomas",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-41 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 3,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": 9,
+                                    "HOUSING_TYPE": 1,
+                                    "MSP": "N",
+                                    "OWN_RENT": 1,
+                                    "PINCP_DECILE": 0,
+                                    "RAC1P": 1,
+                                    "SEX": 1
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "AGEP",
+                                    "EDU"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": null,
+                        "data": "h4infant_EDU: Infants (< 3) aren't in school",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-613 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 1,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": 2,
+                                    "HOUSING_TYPE": 1,
+                                    "MSP": "N",
+                                    "OWN_RENT": 2,
+                                    "PINCP_DECILE": "N",
+                                    "RAC1P": 9,
+                                    "SEX": 2
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "AGEP",
+                                    "EDU"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": "Work-Based Inconsistencies",
+                        "data": "These inconsistencies deal with the work and finance features; records with work-based inconsistencies might have high incomes while being in poverty, or have conflicts between their industry code and industry category.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Housing-Based Inconsistencies",
+                        "data": "These inconsistencies deal with housing and family features; records with household-based inconsistencies might have more children in the house than the total household size, or be residents of group quarters (such as prison inmates) who are listed as owning their residences.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "h4gq_own_jail: Inmates don't own jails, patients don't own hospitals: Group quarters residents aren't owners",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-4 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 1,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": "N",
+                                    "HOUSING_TYPE": 3,
+                                    "MSP": "N",
+                                    "OWN_RENT": 2,
+                                    "PINCP_DECILE": "N",
+                                    "RAC1P": 9,
+                                    "SEX": 2
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "HOUSING_TYPE",
+                                    "OWN_RENT"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": null,
+                        "data": "h4gq_own_dorm: Students don't own dorms, soldiers don't own barracks: Group quarters residents aren't owners",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-2 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 2,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": "N",
+                                    "HOUSING_TYPE": 3,
+                                    "MSP": "N",
+                                    "OWN_RENT": 1,
+                                    "PINCP_DECILE": "N",
+                                    "RAC1P": 1,
+                                    "SEX": 1
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "HOUSING_TYPE",
+                                    "OWN_RENT"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    },
+                    {
+                        "name": null,
+                        "data": "h4house_OWN_RENT: Individuals who live in houses must specify if they rent or own",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "--no-brake--",
+                        "data": "Highlight-1 violations",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Example Record:",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": {
+                            "table": [
+                                {
+                                    "AGEP": 27,
+                                    "DEYE": 2,
+                                    "DVET": "N",
+                                    "EDU": 9,
+                                    "HOUSING_TYPE": 1,
+                                    "MSP": 6,
+                                    "OWN_RENT": 0,
+                                    "PINCP_DECILE": 8,
+                                    "RAC1P": 2,
+                                    "SEX": 2
+                                }
+                            ],
+                            "highlight": {
+                                "columns": [
+                                    "HOUSING_TYPE",
+                                    "OWN_RENT"
+                                ]
+                            },
+                            "size": 98
+                        },
+                        "type": "wide_table",
+                        "dotted_break": true
+                    }
+                ]
+            }
+        }
+    ],
+    "privacy": [
+        {
+            "metric_name": "Unique Exact Matches",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "Unique Exact Match (UEM) is a simple privacy metric that counts the percentage of singleton records in the target that are also present in the deidentified data; these uniquely identifiable individuals leaked through the deidentification process.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Below we also include an estimate of the feature space size. The feature space is the set of all possible record values given the selected target data and feature subset. For instance, if we had two features, Hat [cap, bonnet] and Color [green, blue, purple], our feature space would consist of 2 x 3 = 6 possible combinations (e.g. 'green cap', 'blue bonnet').  Note that feature spaces are based on the feature set, not on what records actually exist in the data. Purple bonnet is a possible combination in this feature space, but it's likely no one in the hypothetical data owns a purple bonnet (and the count of that record value would be 0).",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "As we add features to the feature set, we increase the size of the feature space, but we don't change the actual number of records in the data-- it's the same people, but now they're spread out more thinly across a wider set of possible record values. Large feature spaces will disperse populations very sparsely (most possible record values will have count 0 or 1) and as a result the data will contain very many uniquely identifiable records. Intuitively, once you know enough pieces of information about someone, everyone becomes very distinct from everyone else. This can pose a challenge for privacy. ",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "The Target Data Properties below provides an estimate of the feature space size (100 is used for continuous feature), along with the portion of the records in the ground truth target data that are unique (ie, they are the only person with that record value, they have a count of 1). The Deidentified Data Properties reports the percentage of those uniquely identifiable individuals that are still present in the deidentified data. Because they are unique, real records, they are potentially vulnerable to reidentification.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Target Data Properties",
+                        "data": "Feature space size (possible combinations): -Highlight-2.270e+08-Highlight-<br>Number of unique records in Target Data: -Highlight-14918 (54.74%-Highlight-)",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Deidentified Data Properties",
+                        "data": "Number of unique Target Data records exactly matched in Deid. Data: -Highlight-2027 (13.59%)-Highlight-",
+                        "type": "string",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        },
+        {
+            "metric_name": "Apparent Match Distribution",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": null,
+                        "data": "Deidentified data should reproduce the distribution of the target population using deidentified individuals; this protects the privacy of the real individuals in the target data. Can we be sure that the deidentified data does not include real people? The apparent match metric first considers which deidentified individuals look like they might be real people (they are unique matches on quasi-identifier features) and then considers whether the deidentified records actually represent real individuals. ",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Quasi-Identifiers",
+                        "data": "These features are used to determine if a deidentified record looks like it might be a real person in the target data.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "MSP, EDU, SEX, OWN_RENT, RAC1P",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Records Matched on Quasi-Identifiers",
+                        "data": "Based only on the quasi-identifier features, how much of the target data has apparent unique matches in the deidentified data? and then the percent should be a percent of target data",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "Number of Target Data records exactly matched in Deid. Data on Quasi-Identifiers: -Highlight-87 (0.32%)-Highlight-",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "Percentage Similarity of the Matched Records",
+                        "data": "Considering the set of apparent matches, to what extent are they real matches? This distribution shows edit similarity between apparently matched pairs on how many of the 22 features does the deidentified record have the same value as the real record. If the distribution is centered near 100% that means these deidentified records largely mimic target records and are potentially leaking information about real individuals. If the distribution is centered below 50% that means the deidentified records are very different from the target records, and the apparent matches are not real matches.",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "image_name": "apparent_match_distribution",
+                                "path": "apparent_match_distribution/apparent_match_distribution.jpg"
+                            }
+                        ],
+                        "type": "image_links",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        }
+    ],
+    "comparisons": [],
+    "motivation": [],
+    "observations": [],
+    "Appendix": [
+        {
+            "metric_name": "Data Dictionary",
+            "attachments": {
+                "-1": [
+                    {
+                        "name": "PUMA: Public use microdata area code",
+                        "data": [
+                            {
+                                "PUMA Code": "25-00503",
+                                "Code Description": "MA: Middlesex County--Waltham City, Lexington, Burlington, Bedford & Lincoln Towns"
+                            },
+                            {
+                                "PUMA Code": "25-00703",
+                                "Code Description": "MA: Essex County (East)--Salem, Beverly, Gloucester & Newburyport Cities"
+                            },
+                            {
+                                "PUMA Code": "25-01000",
+                                "Code Description": "MA: Peabody City, Danvers, Reading, North Reading & Lynnfield Towns"
+                            },
+                            {
+                                "PUMA Code": "25-01300",
+                                "Code Description": "MA: Billerica, Andover, Tewksbury & Wilmington Towns"
+                            },
+                            {
+                                "PUMA Code": "25-02800",
+                                "Code Description": "MA: Woburn, Melrose Cities, Saugus, Wakefield & Stoneham Towns"
+                            },
+                            {
+                                "PUMA Code": "48-02510",
+                                "Code Description": "TX: Tarrant County (North)--North Richland Hills (North) & Keller Cities"
+                            },
+                            {
+                                "PUMA Code": "48-02102",
+                                "Code Description": "TX: Johnson County"
+                            },
+                            {
+                                "PUMA Code": "48-02101",
+                                "Code Description": "TX: Ellis County"
+                            },
+                            {
+                                "PUMA Code": "48-02515",
+                                "Code Description": "TX: Tarrant County (West)--Fort Worth City (West)"
+                            },
+                            {
+                                "PUMA Code": "48-02507",
+                                "Code Description": "TX: Tarrant County (East)--Arlington City (West)--South of I-30 & East of Loop I-820"
+                            },
+                            {
+                                "PUMA Code": "48-02516",
+                                "Code Description": "TX: Tarrant County (Southwest)--Fort Worth (Southwest) & Benbrook Cities"
+                            },
+                            {
+                                "PUMA Code": "01-01301",
+                                "Code Description": "AL: Birmingham City (West)"
+                            },
+                            {
+                                "PUMA Code": "06-07502",
+                                "Code Description": "CA: San Francisco County (North & East)--North Beach & Chinatown"
+                            },
+                            {
+                                "PUMA Code": "06-08507",
+                                "Code Description": "CA: Santa Clara County (Southwest)--Cupertino, Saratoga Cities & Los Gatos Town"
+                            },
+                            {
+                                "PUMA Code": "08-00803",
+                                "Code Description": "CO: Boulder County (Central)--Boulder City"
+                            },
+                            {
+                                "PUMA Code": "13-04600",
+                                "Code Description": "GA: Atlanta Regional Commission--Fulton County (Central)--Atlanta City (Central)"
+                            },
+                            {
+                                "PUMA Code": "17-03529",
+                                "Code Description": "IL: Chicago City (South)--South Shore, Hyde Park, Woodlawn, Grand Boulevard & Douglas"
+                            },
+                            {
+                                "PUMA Code": "17-03531",
+                                "Code Description": "IL: Chicago City (South)--Auburn Gresham, Roseland, Chatham, Avalon Park & Burnside"
+                            },
+                            {
+                                "PUMA Code": "19-01700",
+                                "Code Description": "IA: Des Moines City"
+                            },
+                            {
+                                "PUMA Code": "24-01004",
+                                "Code Description": "MD: Montgomery County (South)--Bethesda, Potomac & North Bethesda"
+                            },
+                            {
+                                "PUMA Code": "26-02702",
+                                "Code Description": "MI: Washtenaw County (East Central)--Ann Arbor City Area"
+                            },
+                            {
+                                "PUMA Code": "28-01100",
+                                "Code Description": "MS: Central Region--Jackson City (East & Central)"
+                            },
+                            {
+                                "PUMA Code": "29-01901",
+                                "Code Description": "MO: St. Louis City (North)"
+                            },
+                            {
+                                "PUMA Code": "30-00600",
+                                "Code Description": "MT: East Montana (Outside Billings City)"
+                            },
+                            {
+                                "PUMA Code": "32-00405",
+                                "Code Description": "NV: Las Vegas City (Southeast)"
+                            },
+                            {
+                                "PUMA Code": "36-03710",
+                                "Code Description": "NY: NYC-Bronx Community District 1 & 2--Hunts Point, Longwood & Melrose"
+                            },
+                            {
+                                "PUMA Code": "36-04010",
+                                "Code Description": "NY: NYC-Brooklyn Community District 17--East Flatbush, Farragut & Rugby"
+                            },
+                            {
+                                "PUMA Code": "38-00100",
+                                "Code Description": "ND: West North Dakota--Minot City"
+                            },
+                            {
+                                "PUMA Code": "40-00200",
+                                "Code Description": "OK: Cherokee, Sequoyah & Adair Counties"
+                            },
+                            {
+                                "PUMA Code": "51-01301",
+                                "Code Description": "VA: Arlington County (North)"
+                            },
+                            {
+                                "PUMA Code": "51-51255",
+                                "Code Description": "VA: Alexandria City"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "AGEP: Person's age",
+                        "data": [
+                            {
+                                "AGEP Code": "min",
+                                "Code Description": 0
+                            },
+                            {
+                                "AGEP Code": "max",
+                                "Code Description": 99
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "SEX: Person's gender",
+                        "data": [
+                            {
+                                "SEX Code": "1",
+                                "Code Description": "Male"
+                            },
+                            {
+                                "SEX Code": "2",
+                                "Code Description": "Female"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "MSP: Marital Status",
+                        "data": [
+                            {
+                                "MSP Code": "N",
+                                "Code Description": "N/A (age less than 15 years)"
+                            },
+                            {
+                                "MSP Code": "1",
+                                "Code Description": "Now married, spouse present"
+                            },
+                            {
+                                "MSP Code": "2",
+                                "Code Description": "Now Married, spouse absent"
+                            },
+                            {
+                                "MSP Code": "3",
+                                "Code Description": "Widowed"
+                            },
+                            {
+                                "MSP Code": "4",
+                                "Code Description": "Divorced"
+                            },
+                            {
+                                "MSP Code": "5",
+                                "Code Description": "Separated"
+                            },
+                            {
+                                "MSP Code": "6",
+                                "Code Description": "Never married"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "HISP: Hispanic origin",
+                        "data": [
+                            {
+                                "HISP Code": "0",
+                                "Code Description": "Not Spanish/Hispanic/Latino"
+                            },
+                            {
+                                "HISP Code": "1",
+                                "Code Description": "Mexican"
+                            },
+                            {
+                                "HISP Code": "2",
+                                "Code Description": "Puerto Rican"
+                            },
+                            {
+                                "HISP Code": "3",
+                                "Code Description": "Cuban"
+                            },
+                            {
+                                "HISP Code": "4",
+                                "Code Description": "All other Spanish/Hispanic/Latino"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "RAC1P: Person's Race",
+                        "data": [
+                            {
+                                "RAC1P Code": "1",
+                                "Code Description": "White alone"
+                            },
+                            {
+                                "RAC1P Code": "2",
+                                "Code Description": "Black or African American alone"
+                            },
+                            {
+                                "RAC1P Code": "3",
+                                "Code Description": "American Indian alone"
+                            },
+                            {
+                                "RAC1P Code": "4",
+                                "Code Description": "Alaska Native alone"
+                            },
+                            {
+                                "RAC1P Code": "5",
+                                "Code Description": "American Indian and Alaska Native tribes specified; or American Indian or Alaska Native, not specified and no other races"
+                            },
+                            {
+                                "RAC1P Code": "6",
+                                "Code Description": "Asian alone"
+                            },
+                            {
+                                "RAC1P Code": "7",
+                                "Code Description": "Native Hawaiian and Other Pacific Islander alone"
+                            },
+                            {
+                                "RAC1P Code": "8",
+                                "Code Description": "Some Other Race alone"
+                            },
+                            {
+                                "RAC1P Code": "9",
+                                "Code Description": "Two or More Races"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "NOC: Number of own children in household (unweighted)",
+                        "data": [
+                            {
+                                "NOC Code": "N",
+                                "Code Description": "N/A (GQ/vacant)"
+                            },
+                            {
+                                "NOC Code": "0",
+                                "Code Description": "No own children"
+                            },
+                            {
+                                "NOC Code": "min",
+                                "Code Description": 1
+                            },
+                            {
+                                "NOC Code": "max",
+                                "Code Description": 19
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "NPF: Number of persons in family (unweighted)",
+                        "data": [
+                            {
+                                "NPF Code": "N",
+                                "Code Description": "N/A (GQ/vacant/non-family household"
+                            },
+                            {
+                                "NPF Code": "min",
+                                "Code Description": 2
+                            },
+                            {
+                                "NPF Code": "max",
+                                "Code Description": 20
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "HOUSING_TYPE: Housing unit or group quarters",
+                        "data": [
+                            {
+                                "HOUSING_TYPE Code": "1",
+                                "Code Description": "Housing Unit"
+                            },
+                            {
+                                "HOUSING_TYPE Code": "2",
+                                "Code Description": "Institutional Group Quarters"
+                            },
+                            {
+                                "HOUSING_TYPE Code": "3",
+                                "Code Description": "Non-institutional Group Quarters"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "OWN_RENT: Housing unit rented or owned",
+                        "data": [
+                            {
+                                "OWN_RENT Code": "0",
+                                "Code Description": "Group quarters"
+                            },
+                            {
+                                "OWN_RENT Code": "1",
+                                "Code Description": "Own housing unit"
+                            },
+                            {
+                                "OWN_RENT Code": "2",
+                                "Code Description": "Rent housing unit"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "DENSITY: Population density among residents of each PUMA",
+                        "data": [
+                            {
+                                "DENSITY Code": "min",
+                                "Code Description": 16.3
+                            },
+                            {
+                                "DENSITY Code": "max",
+                                "Code Description": 52864.7
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "<b>Density Bin: 0 | Bin Range: (0, 150]</b>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PUMA": "30-00600",
+                                "DENSITY": 16.3,
+                                "PUMA NAME": "East Montana (Outside Billings City)"
+                            },
+                            {
+                                "PUMA": "38-00100",
+                                "DENSITY": 73.0,
+                                "PUMA NAME": "West North Dakota--Minot City"
+                            },
+                            {
+                                "PUMA": "40-00200",
+                                "DENSITY": 90.7,
+                                "PUMA NAME": "Cherokee, Sequoyah & Adair Counties"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "<b>Density Bin: 7 | Bin Range: (2646.76, 4065.16]</b>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PUMA": "01-01301",
+                                "DENSITY": 2731.2,
+                                "PUMA NAME": "Birmingham City (West)"
+                            },
+                            {
+                                "PUMA": "06-08507",
+                                "DENSITY": 3305.1,
+                                "PUMA NAME": "Santa Clara County (Southwest)--Cupertino, Saratoga Cities & Los Gatos Town"
+                            },
+                            {
+                                "PUMA": "08-00803",
+                                "DENSITY": 3393.2,
+                                "PUMA NAME": "Boulder County (Central)--Boulder City"
+                            },
+                            {
+                                "PUMA": "13-04600",
+                                "DENSITY": 3670.4,
+                                "PUMA NAME": "Atlanta Regional Commission--Fulton County (Central)--Atlanta City (Central)"
+                            },
+                            {
+                                "PUMA": "19-01700",
+                                "DENSITY": 3572.3,
+                                "PUMA NAME": "Des Moines City"
+                            },
+                            {
+                                "PUMA": "28-01100",
+                                "DENSITY": 2674.3,
+                                "PUMA NAME": "Central Region--Jackson City (East & Central)"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "<b>Density Bin: 8 | Bin Range: (4065.16, 6243.68]</b>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PUMA": "24-01004",
+                                "DENSITY": 4187.9,
+                                "PUMA NAME": "Montgomery County (South)--Bethesda, Potomac & North Bethesda"
+                            },
+                            {
+                                "PUMA": "26-02702",
+                                "DENSITY": 4817.2,
+                                "PUMA NAME": "Washtenaw County (East Central)--Ann Arbor City Area"
+                            },
+                            {
+                                "PUMA": "29-01901",
+                                "DENSITY": 5434.8,
+                                "PUMA NAME": "St. Louis City (North)"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "<b>Density Bin: 9 | Bin Range: (6243.68, 9589.66]</b>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PUMA": "32-00405",
+                                "DENSITY": 7990.5,
+                                "PUMA NAME": "Las Vegas City (Southeast)"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "<b>Density Bin: 10 | Bin Range: (9589.66, 14728.75]</b>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PUMA": "17-03531",
+                                "DENSITY": 11171.6,
+                                "PUMA NAME": "Chicago City (South)--Auburn Gresham, Roseland, Chatham, Avalon Park & Burnside"
+                            },
+                            {
+                                "PUMA": "51-01301",
+                                "DENSITY": 11162.8,
+                                "PUMA NAME": "Arlington County (North)"
+                            },
+                            {
+                                "PUMA": "51-51255",
+                                "DENSITY": 11224.3,
+                                "PUMA NAME": "Alexandria City"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "<b>Density Bin: 11 | Bin Range: (14728.75, 22621.88]</b>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PUMA": "17-03529",
+                                "DENSITY": 15097.5,
+                                "PUMA NAME": "Chicago City (South)--South Shore, Hyde Park, Woodlawn, Grand Boulevard & Douglas"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "<b>Density Bin: 12 | Bin Range: (22621.88, 34744.92]</b>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PUMA": "06-07502",
+                                "DENSITY": 33632.6,
+                                "PUMA NAME": "San Francisco County (North & East)--North Beach & Chinatown"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "<b>Density Bin: 13 | Bin Range: (34744.92, 53364.7]</b>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PUMA": "36-03710",
+                                "DENSITY": 52864.7,
+                                "PUMA NAME": "NYC-Bronx Community District 1 & 2--Hunts Point, Longwood & Melrose"
+                            },
+                            {
+                                "PUMA": "36-04010",
+                                "DENSITY": 50441.6,
+                                "PUMA NAME": "NYC-Brooklyn Community District 17--East Flatbush, Farragut & Rugby"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "INDP: Industry codes",
+                        "data": "<a href=https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2019.pdf>See codes in ACS data dictionary.</a> Find codes by searching the string: INDP, in the ACS data dictionary",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": "There are a total of 271 possible codes for INDP, 269 of these codes appear in the Diverse Community Data Excerpts (233 in MA, 264 in Texas and National)",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "INDP_CAT: Industry categories",
+                        "data": [
+                            {
+                                "INDP_CAT Code": "N",
+                                "Code Description": "N/A (less than 16 years old, or last worked more than 5 years ago, or never worked)"
+                            },
+                            {
+                                "INDP_CAT Code": "0",
+                                "Code Description": "AGR: Agriculture, Forestry, Fishing and Hunting"
+                            },
+                            {
+                                "INDP_CAT Code": "1",
+                                "Code Description": "EXT: Mining, Quarrying, and Oil and Gas Extraction"
+                            },
+                            {
+                                "INDP_CAT Code": "2",
+                                "Code Description": "UTL: Utilities"
+                            },
+                            {
+                                "INDP_CAT Code": "3",
+                                "Code Description": "CON: Construction"
+                            },
+                            {
+                                "INDP_CAT Code": "4",
+                                "Code Description": "MFG: Manufacturing"
+                            },
+                            {
+                                "INDP_CAT Code": "5",
+                                "Code Description": "WHL: Wholesale Trade"
+                            },
+                            {
+                                "INDP_CAT Code": "6",
+                                "Code Description": "RET: Retail Trade"
+                            },
+                            {
+                                "INDP_CAT Code": "7",
+                                "Code Description": "TRN: Transportation and Warehousing"
+                            },
+                            {
+                                "INDP_CAT Code": "8",
+                                "Code Description": "INF: Information"
+                            },
+                            {
+                                "INDP_CAT Code": "9",
+                                "Code Description": "FIN: Finance, Insurance, Real Estate"
+                            },
+                            {
+                                "INDP_CAT Code": "10",
+                                "Code Description": "PRF: Professional, Scientific and Technical Services"
+                            },
+                            {
+                                "INDP_CAT Code": "11",
+                                "Code Description": "EDU: Educational Services"
+                            },
+                            {
+                                "INDP_CAT Code": "12",
+                                "Code Description": "MED: Health Care"
+                            },
+                            {
+                                "INDP_CAT Code": "13",
+                                "Code Description": "SCA: Social Assistance"
+                            },
+                            {
+                                "INDP_CAT Code": "14",
+                                "Code Description": "ENT: Arts, Entertainment, Accommodation, Food Services and Recreation"
+                            },
+                            {
+                                "INDP_CAT Code": "15",
+                                "Code Description": "SRV: Other Services"
+                            },
+                            {
+                                "INDP_CAT Code": "16",
+                                "Code Description": "ADM: Government, Public Administration"
+                            },
+                            {
+                                "INDP_CAT Code": "17",
+                                "Code Description": "MIL: Military"
+                            },
+                            {
+                                "INDP_CAT Code": "18",
+                                "Code Description": "UNEMPLOYED"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "EDU: Educational attainment",
+                        "data": [
+                            {
+                                "EDU Code": "N",
+                                "Code Description": "N/A (less than 3 years old)"
+                            },
+                            {
+                                "EDU Code": "1",
+                                "Code Description": "No schooling completed"
+                            },
+                            {
+                                "EDU Code": "2",
+                                "Code Description": "Nursery school, Preschool, or Kindergarten"
+                            },
+                            {
+                                "EDU Code": "3",
+                                "Code Description": "Grade 1 to grade 8"
+                            },
+                            {
+                                "EDU Code": "4",
+                                "Code Description": "Grade 9 to grade 12, no diploma"
+                            },
+                            {
+                                "EDU Code": "5",
+                                "Code Description": "High School diploma"
+                            },
+                            {
+                                "EDU Code": "6",
+                                "Code Description": "GED"
+                            },
+                            {
+                                "EDU Code": "7",
+                                "Code Description": "Some College, no degree"
+                            },
+                            {
+                                "EDU Code": "8",
+                                "Code Description": "Associate degree"
+                            },
+                            {
+                                "EDU Code": "9",
+                                "Code Description": "Bachelors degree"
+                            },
+                            {
+                                "EDU Code": "10",
+                                "Code Description": "Masters degree"
+                            },
+                            {
+                                "EDU Code": "11",
+                                "Code Description": "Professional degree"
+                            },
+                            {
+                                "EDU Code": "12",
+                                "Code Description": "Doctorate degree"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "PINCP: Person's total income in dollars",
+                        "data": [
+                            {
+                                "PINCP Code": "N",
+                                "Code Description": "N/A (less than 15 years old)"
+                            },
+                            {
+                                "PINCP Code": "min",
+                                "Code Description": -9000
+                            },
+                            {
+                                "PINCP Code": "max",
+                                "Code Description": 1341000
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "PINCP_DECILE: Person's total income rank (with respect to their state) discretized into 10% bins.",
+                        "data": [
+                            {
+                                "PINCP_DECILE Code": "N",
+                                "Code Description": "N/A (less than 15 years old"
+                            },
+                            {
+                                "PINCP_DECILE Code": "9",
+                                "Code Description": "90th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "8",
+                                "Code Description": "80th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "7",
+                                "Code Description": "70th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "6",
+                                "Code Description": "60th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "5",
+                                "Code Description": "50th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "4",
+                                "Code Description": "40th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "3",
+                                "Code Description": "30th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "2",
+                                "Code Description": "20th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "1",
+                                "Code Description": "10th percentile"
+                            },
+                            {
+                                "PINCP_DECILE Code": "0",
+                                "Code Description": "0th percentile"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "POVPIP: Income-to-poverty ratio (ex: 250 = 2.5 x poverty line)",
+                        "data": [
+                            {
+                                "POVPIP Code": "N",
+                                "Code Description": "N/A"
+                            },
+                            {
+                                "POVPIP Code": "min",
+                                "Code Description": 0
+                            },
+                            {
+                                "POVPIP Code": "max",
+                                "Code Description": 500
+                            },
+                            {
+                                "POVPIP Code": "501",
+                                "Code Description": "income above 5 x poverty line"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "DVET: Veteran service connected disability rating (percentage)",
+                        "data": [
+                            {
+                                "DVET Code": "N",
+                                "Code Description": "N/A (No service-connected disability/never served in military"
+                            },
+                            {
+                                "DVET Code": "1",
+                                "Code Description": "0 percent"
+                            },
+                            {
+                                "DVET Code": "2",
+                                "Code Description": "10 or 20 percent"
+                            },
+                            {
+                                "DVET Code": "3",
+                                "Code Description": "30 or 40 percent"
+                            },
+                            {
+                                "DVET Code": "4",
+                                "Code Description": "50 or 60 percent"
+                            },
+                            {
+                                "DVET Code": "5",
+                                "Code Description": "70, 80, 90 or 100 percent"
+                            },
+                            {
+                                "DVET Code": "6",
+                                "Code Description": "Not reported"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "DREM: Cognitive difficulty",
+                        "data": [
+                            {
+                                "DREM Code": "N",
+                                "Code Description": "N/A (Less than 5 years old)"
+                            },
+                            {
+                                "DREM Code": "1",
+                                "Code Description": "Yes"
+                            },
+                            {
+                                "DREM Code": "2",
+                                "Code Description": "No"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "DPHY: Ambulatory (walking) difficulty",
+                        "data": [
+                            {
+                                "DPHY Code": "N",
+                                "Code Description": "N/A (Less than 5 years old)"
+                            },
+                            {
+                                "DPHY Code": "1",
+                                "Code Description": "Yes"
+                            },
+                            {
+                                "DPHY Code": "2",
+                                "Code Description": "No"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "DEYE: Vision difficulty",
+                        "data": [
+                            {
+                                "DEYE Code": "1",
+                                "Code Description": "Yes"
+                            },
+                            {
+                                "DEYE Code": "2",
+                                "Code Description": "No"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "DEAR: Hearing difficulty",
+                        "data": [
+                            {
+                                "DEAR Code": "1",
+                                "Code Description": "Yes"
+                            },
+                            {
+                                "DEAR Code": "2",
+                                "Code Description": "No"
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "WGTP: Housing unit sampling weight",
+                        "data": "<a href=https://www.census.gov/content/dam/Census/library/publications/2010/acs/Chapter_11_RevisedDec2010.pdf>See description of weights.</a>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "WGTP Code": "0",
+                                "Code Description": "Group quarters place holder record"
+                            },
+                            {
+                                "WGTP Code": "min",
+                                "Code Description": 1
+                            },
+                            {
+                                "WGTP Code": "max",
+                                "Code Description": 9999
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": "PWGTP: Person's sampling weight",
+                        "data": "<a href=https://www.census.gov/content/dam/Census/library/publications/2010/acs/Chapter_11_RevisedDec2010.pdf>See description of weights.</a>",
+                        "type": "string",
+                        "dotted_break": false
+                    },
+                    {
+                        "name": null,
+                        "data": [
+                            {
+                                "PWGTP Code": "min",
+                                "Code Description": 1
+                            },
+                            {
+                                "PWGTP Code": "max",
+                                "Code Description": 9999
+                            }
+                        ],
+                        "type": "table",
+                        "dotted_break": false
+                    }
+                ]
+            }
+        }
+    ]
+}
