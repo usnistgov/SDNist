@@ -27,7 +27,7 @@ setup(
               "sdnist.report.dataset"],
     # data_files=[('', ['sdnist/report2.jinja2'])],
     install_requires=[
-        "jinja2==3.1.2",
+        "jinja2==3.1.3",
         "loguru==0.7.0",
         "matplotlib==3.7.1",
         "numpy==1.24.2",
