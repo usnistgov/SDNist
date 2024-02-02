@@ -32,7 +32,7 @@ setup(
         "matplotlib==3.7.1",
         "numpy==1.24.2",
         "pandas==2.0.0",
-        "pyarrow==11.0.0",
+        "pyarrow==14.0.1",
         "requests==2.31.0",
         "scikit-learn==1.2.2",
         "scipy==1.10.1",
