@@ -33,7 +33,7 @@ setup(
         "numpy==1.24.2",
         "pandas==2.0.0",
         "pyarrow==14.0.1",
-        "requests==2.31.0",
+        "requests==2.32.0",
         "scikit-learn==1.2.2",
         "scipy==1.10.1",
         "tqdm==4.65.0",
