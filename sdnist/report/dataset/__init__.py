@@ -1,6 +1,6 @@
 import math
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -75,7 +75,7 @@ def feature_space_size(target_df: pd.DataFrame, data_dict: Dict):
 
 @dataclass
 class Dataset:
-    synthetic_filepath: Path
+    synthetic_filepath: Any
     log: u.SimpleLogger
     test: TestDatasetName = TestDatasetName.NONE
     data_root: Path = Path(DEFAULT_DATASET)
@@ -128,7 +128,9 @@ class Dataset:
 
         # load synthetic dataset
         dtypes = {feature: desc["dtype"] for feature, desc in self.schema.items()}
-        if str(self.synthetic_filepath).endswith('.csv'):
+        if not isinstance(self.synthetic_filepath, Path):
+            self.synthetic_data = self.synthetic_filepath
+        elif str(self.synthetic_filepath).endswith('.csv'):
             self.synthetic_data = pd.read_csv(self.synthetic_filepath)
         elif str(self.synthetic_filepath).endswith('.parquet'):
             self.synthetic_data = pd.read_parquet(self.synthetic_filepath)

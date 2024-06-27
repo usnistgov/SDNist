@@ -120,7 +120,7 @@ def setup():
         # if labels is a path to a json file then load it as dictionary
         if str(labels).endswith('.json'):
             with open(labels, 'r') as fp:
-                labels = json.load(fp)
+                labels = json.load(fp)['labels']
         # if labels is a string then add label as a value to key named label
         # in a dictionary
         else:
