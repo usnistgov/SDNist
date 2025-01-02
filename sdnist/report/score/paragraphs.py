@@ -114,3 +114,13 @@ unique_exact_match_para_4 = "The Target Data Properties below provides an estima
                             "present in the deidentified data. " \
                             "Because they are unique, real records, they are " \
                             "potentially vulnerable to reidentification."
+
+# Explainer paragraphs for DiSCO Metric
+disco_explainer_a = "The Disclosive in Synthetic Correct Original (DiSCO) metric is a privacy metric that " \
+                    "measures attribute disclosure risk in a syntehtic dataset. It aims to quantify the proportion" \
+                    " of records in the target dataset that have sensitive features which can be correctly inferred " \
+                    " from certain identifying features present in the synthetic dataset."
+
+disco_explainer_b = "To calculate DiSCO, we first identify a set of quasi-identifiers. These are variables that, " \
+                    "when combined, can be used to identify attributes (Target Features) of records in the target " \
+                    "dataset. "

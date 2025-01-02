@@ -6,19 +6,19 @@ Reference: https://arxiv.org/abs/2406.16826
 
 import argparse
 import itertools
-import cProfile
-import pstats
+import matplotlib
+import matplotlib.pyplot as plt
 import time
 
-from functools import cache
 from pprint import pprint
 from typing import Dict, List, Tuple
 
+import numpy as np
 import pandas as pd
-
 
 # CONSTANTS
 DATASET_SIZE_THRESHOLD = 10000
+
 
 def compute_quasi_identifiers(df: pd.DataFrame, q_identifiers: List[str]) -> pd.Series:
     """
@@ -30,12 +30,17 @@ def compute_quasi_identifiers(df: pd.DataFrame, q_identifiers: List[str]) -> pd.
     return df[q_identifiers].apply(lambda row: '-'.join(row.values.astype(str)), axis=1)
 
 
+def quasi_identifier_column_name(q_identifiers: List[str]) -> str:
+    return '|'.join(q_identifiers)
+
+
 class KDiscoEvaluator:
     """
     DiSCO Metric
     """
 
-    def __init__(self, gt_df: pd.DataFrame, syn_df: pd.DataFrame, stable_identifiers: List[str], k: int = 2) -> None:
+    def __init__(self, gt_df: pd.DataFrame, syn_df: pd.DataFrame, stable_identifiers: List[str] = None, k: int = 2) \
+            -> None:
         """
         Initializes the DiSCO metric.
         """
@@ -48,10 +53,12 @@ class KDiscoEvaluator:
         self.gt_columns = gt_df.columns.tolist()
         self.syn_columns = syn_df.columns.tolist()
 
-        # Initialize the results dictionary
-        self.metric_results: Dict[str, Dict[Tuple[str, ...], float]] = {}
+        # Initialize the results dictionaries
+        self.disco_metric_results: Dict[str, Dict[Tuple[str, ...], float]] = {}
+        self.dio_metric_results: Dict[str, Dict[Tuple[str, ...], float]] = {}
+        self.disco_minus_dio_metric_results: Dict[str, Dict[Tuple[str, ...], float]] = {}
 
-    def compute_disco(self, quasi_identifiers: List[str], target: str) -> float:
+    def compute_disco_OLD(self, quasi_identifiers: List[str], target: str) -> float:
         """
         Computes the DiSCO metric.
         :param target: The target column.
@@ -60,7 +67,8 @@ class KDiscoEvaluator:
         """
         # Compute the quasi-identifiers for the synthetic and ground truth dataframes
         # gt_qid = compute_quasi_identifiers(self.gt_df, quasi_identifiers)
-        qid_colname = '-'.join(sorted(quasi_identifiers))
+        # qid_colname = f"qid-{'-'.join(sorted(quasi_identifiers))}"
+        qid_colname = quasi_identifier_column_name(sorted(quasi_identifiers))
 
         # Check if the quasi-identifier column already exists in syn_df
         if qid_colname not in self.syn_df.columns:
@@ -72,14 +80,12 @@ class KDiscoEvaluator:
             # Compute the quasi-identifiers and add them as a new column
             self.gt_df[qid_colname] = compute_quasi_identifiers(self.gt_df, quasi_identifiers)
 
-        # syn_qid_series = self.syn_df[qid_colname]
         syn_qid_values = set(self.syn_df[qid_colname].values)  # Convert to set to remove duplicates
 
         # Calculate DiSCO (Disclosive in Synthetic Correct Original)
         disco_count = 0
         for i, gt_record in self.gt_df.iterrows():
             # Get quasi-identifiers in ground truth
-            # qid = '-'.join(gt_record[quasi_identifiers].astype(str).values)
             qid = gt_record[qid_colname]
             if qid in syn_qid_values:
                 # Get quasi-identifiers in synthetic
@@ -91,14 +97,15 @@ class KDiscoEvaluator:
                         disco_count += 1
         return disco_count / self.gt_df.shape[0] if self.gt_df.shape[0] > 0 else 0
 
-    def compute_disco_optimized(self, quasi_identifiers: List[str], target: str) -> float:
+    def compute_disco(self, quasi_identifiers: List[str], target: str) -> float:
         """
         Computes the DiSCO metric.
         :param target: The target column.
         :param quasi_identifiers: The quasi-identifiers.
         :returns: The calculated DiSCO score for the target column.
         """
-        qid_colname = '-'.join(sorted(quasi_identifiers))
+        # qid_colname = f"qid-{'-'.join(sorted(quasi_identifiers))}"
+        qid_colname = quasi_identifier_column_name(sorted(quasi_identifiers))
 
         if qid_colname not in self.syn_df.columns:
             self.syn_df[qid_colname] = compute_quasi_identifiers(self.syn_df, quasi_identifiers)
@@ -106,28 +113,73 @@ class KDiscoEvaluator:
         if qid_colname not in self.gt_df.columns:
             self.gt_df[qid_colname] = compute_quasi_identifiers(self.gt_df, quasi_identifiers)
 
-        # Group by qid and target, then count unique targets
-        syn_grouped = self.syn_df.groupby([qid_colname, target]).size().reset_index(name='count')
+        # Group by quasi-identifier, then count unique targets
+        # syn_grouped = self.syn_df.groupby(qid_colname).size().reset_index(name='count')
+        syn_unique = self.syn_df.groupby(qid_colname)[target].transform('nunique') == 1
 
         # Filter for groups where count is unique (all targets are the same within the qid group)
-        syn_unique_targets = syn_grouped.groupby(qid_colname)['count'].nunique() == 1
-        syn_unique_targets_qid = syn_unique_targets[syn_unique_targets].index
+        # syn_unique_targets = syn_grouped[syn_grouped['count'] == 1]
 
-        # Merge to get the corresponding target values for these unique qids
-        syn_valid_targets = syn_grouped[syn_grouped[qid_colname].isin(syn_unique_targets_qid)][[qid_colname, target]]
+        # Calculate which records within the synthetic data have unique target values for a given quasi-identifier.
+        # disclosive_in_synthetic = self.syn_df[self.syn_df[qid_colname].isin(syn_unique_targets[qid_colname])]
+        disclosive_in_synthetic = self.syn_df[syn_unique]
 
         # Merge with ground truth to find matches
-        merged_df = pd.merge(self.gt_df[[qid_colname, target]], syn_valid_targets, on=[qid_colname, target], how='inner')
+        # NOTE: When I do this merge, I am getting the records in the ground truth data that are disclosive in the synthetic data.
+        merged_df = pd.merge(self.gt_df[[qid_colname, target]], disclosive_in_synthetic, on=[qid_colname, target],
+                             how='inner')
 
-        disco_count = len(merged_df)
+        disco_count = merged_df.shape[0]
         return disco_count / self.gt_df.shape[0] if self.gt_df.shape[0] > 0 else 0
+
+    def compute_dio(self, quasi_identifiers: List[str], target: str) -> float:
+        """
+        Computes the DiO metric.
+        :param quasi_identifiers: The quasi-identifiers to use for the calculation.
+        :param target: The target column to use for the calculation.
+        :returns: The calculated DiO score for the selected dataframes.
+        """
+        # qid_colname = f"qid-{'-'.join(sorted(quasi_identifiers))}"
+        qid_colname = quasi_identifier_column_name(sorted(quasi_identifiers))
+
+        if qid_colname not in self.syn_df.columns:
+            self.syn_df[qid_colname] = compute_quasi_identifiers(self.syn_df, quasi_identifiers)
+
+        if qid_colname not in self.gt_df.columns:
+            self.gt_df[qid_colname] = compute_quasi_identifiers(self.gt_df, quasi_identifiers)
+
+        # Base case: no data
+        if self.gt_df.shape[0] == 0:
+            return 0
+
+        # group by qid and count unique values within each group
+        # unique_groups = self.gt_df.groupby(qid_colname)[target].nunique().reset_index()
+
+        # filter groups where target only has one value
+        # disclosive_groups = unique_groups[unique_groups[target] == 1]
+        disclosive_groups = self.gt_df.groupby(qid_colname)[target].transform('nunique') == 1
+        # disclosive_groups_2 = self.gt_df.groupby(qid_colname)[target].size().reset_index(name='count')
+
+        # merge back to original data to identify disclosive records
+        #disclosive_records = pd.merge(self.gt_df[[qid_colname, target]], disclosive_groups, on=qid_colname, how='inner')
+
+        # disclosive_records = self.gt_df[self.gt_df[qid_colname].isin(disclosive_groups[qid_colname])]
+        # disclosive_count = self.gt_df[self.gt_df[qid_colname].isin(disclosive_groups[qid_colname])].shape[0]
+
+        disclosive_records = self.gt_df[disclosive_groups]
+        merged_df = pd.merge(self.gt_df[[qid_colname, target]], disclosive_records, on=[qid_colname, target],
+                             how='inner')
+
+        # disclosive_count = disclosive_records.shape[0]
+        disclosive_count = merged_df.shape[0]
+
+        return disclosive_count / self.gt_df.shape[0]
 
     def compute_k_disco(self) -> None:
         """
         Computes the k-DiSCO metric.
         :returns: The calculated k-DiSCO score for the selected dataframes.
         """
-        # with cProfile.Profile() as pr:
         # Check that the columns in the synthetic and ground truth dataframes are the same
         all_cols = set(self.gt_df.columns)
         syn_cols = set(self.syn_df.columns)
@@ -152,163 +204,165 @@ class KDiscoEvaluator:
         # Check that the potential targets are not empty
         if not potential_targets:
             raise ValueError(f"No potential targets found")
-
-        discos_computed = 0
-        total_combos_calculated = 0
 
         # --- Precompute QID columns ---
         for target_col in potential_targets:
             other_cols = list(potential_targets - {target_col} - set(stable_ids))
             for qid_combo in itertools.combinations(list(other_cols), self.k):
                 qids = tuple(sorted(stable_ids + list(qid_combo)))
-                qid_str = '-'.join(qids)
-                if f'qid_{qid_str}' not in self.gt_df.columns:
-                    self.gt_df[f'qid_{qid_str}'] = compute_quasi_identifiers(self.gt_df, list(qids))
-                if f'qid_{qid_str}' not in self.syn_df.columns:
-                    self.syn_df[f'qid_{qid_str}'] = compute_quasi_identifiers(self.syn_df, list(qids))
+                # qid_str = f"qid-{'-'.join(sorted(list(qids)))}"
+                qid_str = quasi_identifier_column_name(sorted(list(qids)))
+                if qid_str not in self.gt_df.columns:
+                    self.gt_df[qid_str] = compute_quasi_identifiers(self.gt_df, list(qids))
+                if qid_str not in self.syn_df.columns:
+                    self.syn_df[qid_str] = compute_quasi_identifiers(self.syn_df, list(qids))
 
-        # --- Compute DiSCO scores ---
+        total_combinations = len([col for col in self.gt_df.columns if col.startswith('qid')])
+        total_computed = 0
+
+        # --- Compute DiSCO, DiO scores ---
         for target_col in potential_targets:
-            self.metric_results[target_col] = {}
+            # Initialize
+            self.disco_metric_results[target_col] = {}
+            self.dio_metric_results[target_col] = {}
+            self.disco_minus_dio_metric_results[target_col] = {}
             other_cols = list(potential_targets - {target_col} - set(stable_ids))
             qid_combinations = itertools.combinations(list(other_cols), self.k)
-            total_combinations = sum(
-                1 for _ in itertools.combinations(list(other_cols) + list(stable_ids), self.k + len(stable_ids)))
 
-            print(f"Computing disco scores for target: {target_col}")
+            if __name__ == '__main__':
+                print(f"Computing disco scores for target: {target_col}")
             for i, qid_combo in enumerate(qid_combinations):
                 qids = list(stable_ids) + list(qid_combo)
-                print(f"\t{qids}: ({i + 1} / {total_combinations})")
+                if __name__ == '__main__':
+                    print(f"\t{qids}: ({total_computed} / {total_combinations})")
+                    total_computed += 1
                 compute_start_time = time.time()
-                if self.gt_df.shape[0] > DATASET_SIZE_THRESHOLD:
-                    risk_metric = self.compute_disco_optimized(quasi_identifiers=qids, target=target_col)
-                else:
-                    risk_metric = self.compute_disco(quasi_identifiers=qids, target=target_col)
-                print(f"\t\tTook {time.time() - compute_start_time} seconds")
-                self.metric_results[target_col][tuple(qids)] = risk_metric
-        # for target_col in potential_targets:
-        #     self.metric_results[target_col] = {}
-        #     other_cols = list(potential_targets - {target_col} - set(stable_ids))
-        #
-        #     # Generate all combinations of quasi-identifiers
-        #     qid_combinations = itertools.combinations(list(other_cols), self.k)
-        #
-        #     # Compute total number combinations
-        #     total_combinations = sum(
-        #         1 for _ in itertools.combinations(list(other_cols) + list(stable_ids), self.k + len(
-        #             stable_ids)))
-        #
-        #     # Compute the disco for each combination and save them to results.
-        #     print(f"Computing disco scores for target: {target_col}")
-        #     for i, qid_combo in enumerate(qid_combinations):
-        #         discos_computed += 1
-        #         qids = list(stable_ids) + list(qid_combo)  # Set the quasi-identifiers for this combination
-        #         print(f"\t{qids}: ({i + 1} / {total_combinations})")
-        #         risk_metric = self.compute_disco(quasi_identifiers=qids, target=target_col)
-        #         self.metric_results[target_col][tuple(qids)] = risk_metric
+                disco_risk_metric = self.compute_disco(quasi_identifiers=qids, target=target_col)
+                dio_risk_metric = self.compute_dio(quasi_identifiers=qids, target=target_col)
 
-        # stats = pstats.Stats(pr)
-        # stats.sort_stats('cumtime').print_stats("disco")
-
-    def compute_k_disco_optimize(self) -> None:
-        """
-        Computes the k-DiSCO metric.
-        :returns: The calculated k-DiSCO score for the selected dataframes.
-        """
-        # Check that the columns in the synthetic and ground truth dataframes are the same
-        all_cols = set(self.gt_df.columns)
-        syn_cols = set(self.syn_df.columns)
-
-        # Set to save all the combinations of quasi-identifiers we use since they'll be cached.
-        all_qid_combos = set()
-
-
-        stable_ids = [] if self.stable_identifiers is None else self.stable_identifiers  # Initialize stable ids if not provided
-
-        # Check that the columns of the ground truth are at least in the synthetic data
-        if not all(x in syn_cols for x in all_cols):
-            raise ValueError(f"Ground truth columns {list(all_cols)} not found in synthetic data")
-
-        # Check that our stable identifiers are in the ground truth and synthetic columns
-        if not set(stable_ids).issubset(all_cols):
-            raise ValueError(f"Stable identifiers {stable_ids} not found in ground truth or synthetic data")
-
-        # Compute the potential targets
-        potential_targets = all_cols - set(stable_ids)
-
-        # --- Pre-compute and Store qid ---
-        all_qids_combinations = set()
-        for target_col in potential_targets:
-            other_cols = list(potential_targets - {target_col} - set(stable_ids))
-            for qid_combo in itertools.combinations(list(other_cols), self.k):
-                qids = tuple(sorted(stable_ids + list(qid_combo)))  # Sort for consistent order
-                all_qids_combinations.add(qids)
-
-        # Add qid columns to the original DataFrames
-        for qids in all_qids_combinations:
-            qid_str = '-'.join(qids)
-            self.gt_df[f'qid_{qid_str}'] = compute_quasi_identifiers(self.gt_df, list(qids))
-            self.syn_df[f'qid_{qid_str}'] = compute_quasi_identifiers(self.syn_df, list(qids))
-
-        # Check that our stable identifiers are not in the potential targets
-        if not set(stable_ids).isdisjoint(potential_targets):
-            raise ValueError(f"Stable identifiers {stable_ids} overlap with potential targets {potential_targets}")
-
-        # Check that the potential targets are not empty
-        if not potential_targets:
-            raise ValueError(f"No potential targets found")
-
-        total_combos_calculated = 0
-
-        for target_col in potential_targets:
-            self.metric_results[target_col] = {}
-            other_cols = sorted(list(potential_targets - {target_col} - set(stable_ids)))
-
-            # Generate all combinations of quasi-identifiers
-            qid_combinations = [combo for combo in itertools.combinations(list(other_cols), self.k)]
-            all_qid_combos.add(qid_combinations)
-            total_combinations = len(qid_combinations)  # total number combinations
-            total_combos_calculated += total_combinations
-
-            # Compute the disco for each combination and save them to results.
-            print(f"Computing disco scores for target: {target_col}")
-            for i, qid_combo in enumerate(qid_combinations):
-                qids = list(stable_ids) + list(qid_combo)  # Set the quasi-identifiers for this combination
-                print(f"\t{qids}: ({i + 1} / {total_combinations})")
-                risk_metric = self.compute_disco(quasi_identifiers=qids, target=target_col)
-                self.metric_results[target_col][tuple(qids)] = risk_metric
+                if __name__ == '__main__':
+                    print(f"\t\tTook {time.time() - compute_start_time} seconds")
+                self.disco_metric_results[target_col][tuple(sorted(qids))] = disco_risk_metric
+                self.dio_metric_results[target_col][tuple(sorted(qids))] = dio_risk_metric
+                self.disco_minus_dio_metric_results[target_col][tuple(sorted(qids))] = disco_risk_metric - dio_risk_metric
 
     def average_disco(self) -> float:
         """
         Computes the average disco score for all disco metrics run on the data.
         :return: The average disco score.
         """
-        if len(self.metric_results) == 0:
+        if len(self.disco_metric_results) == 0:
             raise ValueError("No disco metrics have been run.")
 
-        print(f"Sum of disco metrics: {sum(disco_val for qid_combo_results in self.metric_results.values()
-                   for disco_val in qid_combo_results.values())}")
-        print(f"Total number of disco metrics: {sum(len(target) for _, target in self.metric_results.items())}")
+        print(
+            f"Sum of disco metrics: {sum(disco_val for qid_combo_results in self.disco_metric_results.values() for disco_val in qid_combo_results.values())}")
+        print(f"Total number of disco metrics: {sum(len(target) for _, target in self.disco_metric_results.items())}")
 
         # Sum the disco scores for each target column and divide by number of results
-        return sum(disco_val for qid_combo_results in self.metric_results.values()
-                   for disco_val in qid_combo_results.values()) / len(self.metric_results)
+        return sum(disco_val for qid_combo_results in self.disco_metric_results.values()
+                   for disco_val in qid_combo_results.values()) / sum(
+            len(target) for _, target in self.disco_metric_results.items())
 
-    @property
-    def metric_results(self):
+    def average_dio(self) -> float:
         """
-        Returns the metric results.
+        Calculates the average DIO score for the metric results.
+        :return: The average DIO score.
         """
-        return self._metric_results
+        if len(self.dio_metric_results) == 0:
+            raise ValueError("No disco metrics have been run.")
+        print(
+            f"Sum of dio metrics: {sum(dio_val for qid_combo_results in self.dio_metric_results.values() for dio_val in qid_combo_results.values())}")
+        print(f"Total number of disco metrics: {sum(len(target) for _, target in self.dio_metric_results.items())}")
 
-    @metric_results.setter
-    def metric_results(self, value):
-        """
-        Sets the metric results.
-        """
-        self._metric_results = value
+        # Sum the disco scores for each target column and divide by number of results
+        return sum(dio_val for qid_combo_results in self.dio_metric_results.values()
+                   for dio_val in qid_combo_results.values()) / sum(
+            len(target) for _, target in self.dio_metric_results.items())
 
+    def compute_disco_minus_dio(self):
+        """
+        Computes the DiSCO minus DIO score.
+        :return: The DiSCO minus DIO score.
+        """
+        if not self.disco_metric_results:
+            raise ValueError("No DiSCO results have been computed.")
 
+        disco_minus_dio_results = {}
+
+        for target, qid_combo_results in self.disco_metric_results.items():
+            disco_minus_dio_results[target] = {}
+            for qid_combo, disco_val in qid_combo_results.items():
+                disco_minus_dio_results[target][qid_combo] = disco_val - self.dio_metric_results[target][qid_combo]
+        return disco_minus_dio_results
+
+    def compute_disco_dio_qid_avg(self) -> Dict[str, Dict[str, float]]:
+        """
+        Computes the average DiSCO minus DIO score for each target.
+        :return: A dictionary mapping each target to its average DiSCO minus DIO score.
+        """
+        disco_minus_dio_results = self.compute_disco_minus_dio()
+        qid_avg_results: Dict[str, Dict[str, float]] = {col: {} for col in disco_minus_dio_results.keys()}
+
+        # Compute the average DiSCO minus DIO score for each single quasi-identifier
+        for qid in qid_avg_results.keys():
+            for target, qid_combo_results in disco_minus_dio_results.items():
+                if target == qid:
+                    continue
+                qid_scores = [score for Q, score in qid_combo_results.items() if qid in Q]
+                qid_avg_results[qid][target] = sum(qid_scores) / len(qid_scores)
+        return qid_avg_results
+
+    def plot_disco_results(self, output_path: str) -> None:
+        """
+        Plots the DiSCO results as a bar plot.
+        :param output_path: The path to save the plot to.
+        :param plot_height: The height of the plot.
+        :param plot_width: The width of the plot.
+        :return:
+        """
+        data = [{'Target': target, 'QID Combination': str(qid), 'DiSCO Score': score}
+                for target, qid_scores in self.disco_metric_results.items() for qid, score in qid_scores.items()]
+        df = pd.DataFrame(data)
+
+        avg_disco_per_target = df.groupby("Target")["DiSCO Score"].mean().sort_values(ascending=False)
+
+        plt.figure(figsize=(12, 5), dpi=100)
+        plt.bar(x=avg_disco_per_target.index, height=avg_disco_per_target.values, color='orange')
+        plt.ylim(top=1)
+        plt.title('Average DiSCO Scores for Each Target')
+        plt.ylabel('Average DiSCO Score')
+        plt.xlabel('Target')
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.savefig(output_path)
+        plt.close()
+
+    def plot_disco_minus_dio_heatmap(self, output_path: str) -> None:
+        """
+        Creates a 2D heatmap plot of the DiSCO - DiO results for each combination of quasi-identifiers.
+        :param output_path: The path to save the heatmap to.
+        """
+        # Get average of each qid's DiSCO - DiO score per target
+        disco_dio_qid_avg = self.compute_disco_dio_qid_avg()
+        heatmap_data = pd.DataFrame.from_dict(disco_dio_qid_avg).sort_index(axis=0).sort_index(axis=1)
+        heatmap_data.fillna(0, inplace=True)
+
+        # Plot heatmap
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue", "orange"])
+        plt.figure(figsize=(8, 8), dpi=100)
+        heatmap = plt.imshow(heatmap_data.T, cmap=cmap, interpolation='nearest', vmin=-1, vmax=1)
+        plt.xlabel("Target Feature")
+        plt.xticks(range(heatmap_data.shape[1]), heatmap_data.columns)
+        plt.ylabel("Quasi-Identifier Feature")
+        plt.yticks(range(heatmap_data.shape[0]), heatmap_data.index)
+        plt.colorbar(heatmap)
+        plt.hlines(y=np.arange(0, heatmap_data.shape[1]) + 0.5, xmin=np.full(heatmap_data.shape[1], 0) - 0.5,
+                   xmax=np.full(heatmap_data.shape[1], heatmap_data.shape[0]) - 0.5, lw=0.3, color="black")
+        plt.title('Average Quasi-Identifier DiSCO - DiO Score per Target Feature')
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.savefig(output_path)
+        plt.close()
 
 
 if __name__ == "__main__":
@@ -328,6 +382,9 @@ if __name__ == "__main__":
         "-sqi", "--stable-quasi-identifiers", type=str, required=False, nargs='+',
         help="List of Stable Quasi-identifiers"
     )
+    parser.add_argument(
+        "-pn", "--plot-name", type=str, required=False, default='test', help="Name of the graph plot"
+    )
     args = parser.parse_args()
 
     start_time = time.time()
@@ -345,18 +402,23 @@ if __name__ == "__main__":
     # Compute DiSCO
     disco.compute_k_disco()
 
-    # Compute DiSCO
-    # avg_DiSCO, DiSCO_scores = compute_k_disco(gt, syn, args.k, stables)
-
     # Print results
     print("-" * 20)
     print(f"Average DiSCO Score: {disco.average_disco()}")
-    pprint(disco.metric_results, indent=4)
+    print("---- DiSCO Results ----")
+    pprint(disco.disco_metric_results, indent=4)
+    print("---- DiO Results ----")
+    pprint(disco.dio_metric_results, indent=4)
+    print("---- DiSCO - DiO Results ----")
+    pprint(disco.disco_minus_dio_metric_results, indent=4)
+
+    disco.plot_disco_minus_dio_heatmap(f"{args.plot_name}-heatmap.png")
+    disco.plot_disco_results(f"{args.plot_name}.png")
+
+    for target, qid_scores in disco.disco_metric_results.items():
+        for qid, disco_score in qid_scores.items():
+            dio_score = disco.dio_metric_results[target][qid]
+            if dio_score != disco_score:
+                print(f"DIFFERENCE: {target}-[{qid}]: {disco_score}, {dio_score}")
 
     print(f"Total Time: {time.time() - start_time}")
-
-    # print(f"Average DiSCO Score: {avg_DiSCO}")
-    # for target, per_qid_score in DiSCO_scores.items():
-    #     print(f"Feature: {target}")
-    #     for qid, score in per_qid_score.items():
-    #         print(f"\t{qid}: {score}")
