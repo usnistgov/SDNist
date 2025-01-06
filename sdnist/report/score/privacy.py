@@ -144,7 +144,7 @@ def privacy_score(dataset: Dataset, ui_data: ReportUIData, report_data, log: Sim
     # DiSCO Score Attachment
     log.msg('DiSCO Score', level=3)
     stable_quasi_identifiers = ["RAC1P", "SEX"]
-    disco_evaluator = KDiscoEvaluator(gt_df=dataset.d_target_data.copy(), syn_df=dataset.d_target_data.copy(),
+    disco_evaluator = KDiscoEvaluator(gt_df=dataset.d_target_data.copy(), syn_df=dataset.d_synthetic_data.copy(),
                                       stable_identifiers=stable_quasi_identifiers, k=2)
     log.msg(f"Target Data: {dataset.target_data.shape}, Target Data (T)ransform: {dataset.t_target_data.shape}, Target Data Binne(D): {dataset.d_target_data.shape}")
     disco_evaluator.compute_k_disco()
