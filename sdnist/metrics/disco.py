@@ -66,8 +66,6 @@ class KDiscoEvaluator:
         :returns: The calculated DiSCO score for the target column.
         """
         # Compute the quasi-identifiers for the synthetic and ground truth dataframes
-        # gt_qid = compute_quasi_identifiers(self.gt_df, quasi_identifiers)
-        # qid_colname = f"qid-{'-'.join(sorted(quasi_identifiers))}"
         qid_colname = quasi_identifier_column_name(sorted(quasi_identifiers))
 
         # Check if the quasi-identifier column already exists in syn_df
@@ -112,21 +110,11 @@ class KDiscoEvaluator:
         if qid_colname not in self.gt_df.columns:
             self.gt_df[qid_colname] = compute_quasi_identifiers(self.gt_df, quasi_identifiers)
 
-        # unique_target_colname = f"UTARGET@{target}~{qid_colname}"
-
         # Group by quasi-identifier, then find the number of unique targets within those groups in the synthetic data.
         syn_unique = self.syn_df.groupby(qid_colname)[target].transform('nunique') == 1
-        # self.syn_df[unique_target_colname] = self.syn_df.groupby(qid_colname)[target].transform('nunique')
-        # syn_unique_qids = (self.syn_df[[qid_colname, target]]
-        #                    .groupby(qid_colname)
-        #                    .filter(lambda x: (x.nunique() == 1).all()))
-
-        # Find records where their Quasi-Identifier combination has only one unique target value
-        # syn_disclosive_records = self.syn_df[self.syn_df[unique_target_colname] == 1]
 
         # Filter synthetic data to keep only potentially disclosive records.
         disclosive_in_synthetic = self.syn_df[syn_unique]
-        # disclosive_in_synthetic = self.syn_df[self.syn_df[qid_colname] in syn_disclosive_groups[qid_colname]]
 
         # Get a mapping of quasi-identifiers to values for our disclosive(unique) combinations
         dis_mapping = disclosive_in_synthetic.groupby(qid_colname)[target].unique().to_dict()
@@ -134,23 +122,13 @@ class KDiscoEvaluator:
         # Filter the ground truth data on disclosive quasi-identifiers found in the synthetic data.
         potential_disclosive_in_gt = self.gt_df[self.gt_df[qid_colname].isin(disclosive_in_synthetic[qid_colname])]
 
+        # If the ground truth target value matches our disclosive synthetic data,
+        # this record should be counted as Disclosive.
         gt_target_match = potential_disclosive_in_gt.apply(
             lambda x: x[target] == dis_mapping[x[qid_colname]][0], axis=1
         )
         disco_count = gt_target_match[gt_target_match == True].count() if gt_target_match.shape[0] > 0 else 0
 
-        # Merge with ground truth data on their quasi-identifier-target combination to find DiSCO matches.
-        # merged_df = pd.merge(self.gt_df[[qid_colname, target]], disclosive_in_synthetic, on=[qid_colname, target],
-        #                      how='inner')
-        # merged_df = pd.merge(self.gt_df[[qid_colname, target]], syn_disclosive_records, on=[qid_colname, target],
-        #                      how='inner')
-        # merged_df = pd.merge(self.gt_df[[qid_colname, target]], syn_unique_qids, on=[qid_colname, target],
-        #                      how='inner')
-
-        # disco_records = self.gt_df.filter(lambda x: (x[qid_colname] == syn_unique_qids).any())
-
-        # disco_count = merged_df.shape[0]
-        # self.syn_df.drop(columns=unique_target_colname)
         return disco_count / self.gt_df.shape[0] if self.gt_df.shape[0] > 0 else 0
 
     def compute_dio(self, quasi_identifiers: List[str], target: str) -> float:
@@ -172,24 +150,13 @@ class KDiscoEvaluator:
         if self.gt_df.shape[0] == 0:
             return 0
 
-        # unique_target_colname = f"UTARGET@{target}~{qid_colname}"
-
         # filter groups where target only has one value (groups that are potentially disclosive)
         disclosive_groups = self.gt_df.groupby(qid_colname)[target].transform('nunique') == 1
-        # self.gt_df[unique_target_colname] = self.gt_df.groupby(qid_colname)[target].transform('nunique')
 
         # filter records on potentially disclosive groups
         disclosive_records = self.gt_df[disclosive_groups]
-        # disclosive_records = self.gt_df[self.gt_df[unique_target_colname] == 1]
 
-        # NOTE: This is just giving me the `disclosive_records` again.
-        # merge back to original data to identify disclosive records
-        # merged_df = pd.merge(self.gt_df[[qid_colname, target]], disclosive_records, on=[qid_colname, target], how='inner')
-
-        # disclosive_count = merged_df.shape[0]
-        disclosive_count = disclosive_records.shape[0]
-
-        return disclosive_count / self.gt_df.shape[0]
+        return disclosive_records.shape[0] / self.gt_df.shape[0]
 
     def compute_k_disco(self) -> None:
         """
@@ -295,28 +262,11 @@ class KDiscoEvaluator:
                    for dio_val in qid_combo_results.values()) / sum(
             len(target) for _, target in self.dio_metric_results.items())
 
-    def compute_disco_minus_dio(self):
-        """
-        Computes the DiSCO minus DIO score.
-        :return: The DiSCO minus DIO score.
-        """
-        if not self.disco_metric_results:
-            raise ValueError("No DiSCO results have been computed.")
-
-        disco_minus_dio_results = {}
-
-        for target, qid_combo_results in self.disco_metric_results.items():
-            disco_minus_dio_results[target] = {}
-            for qid_combo, disco_val in qid_combo_results.items():
-                disco_minus_dio_results[target][qid_combo] = disco_val - self.dio_metric_results[target][qid_combo]
-        return disco_minus_dio_results
-
     def compute_disco_dio_qid_avg(self) -> Dict[str, Dict[str, float]]:
         """
         Computes the average DiSCO minus DIO score for each target.
         :return: A dictionary mapping each target to its average DiSCO minus DIO score.
         """
-        # disco_minus_dio_results = self.compute_disco_minus_dio()
         qid_avg_results: Dict[str, Dict[str, float]] = {col: {} for col in self.disco_minus_dio_metric_results.keys()}
 
         # Compute the average DiSCO minus DIO score for each single quasi-identifier
@@ -367,7 +317,6 @@ class KDiscoEvaluator:
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue", "orange"])
         plt.figure(figsize=(8, 8), dpi=100)
         heatmap = plt.imshow(heatmap_data.T, cmap=cmap, interpolation='nearest', vmin=-1, vmax=1)
-        # heatmap = plt.imshow(heatmap_data.T, cmap=cmap, interpolation='nearest')
         plt.xlabel("Target Feature")
         plt.xticks(range(heatmap_data.shape[1]), heatmap_data.columns)
         plt.ylabel("Quasi-Identifier Feature")
@@ -431,12 +380,5 @@ if __name__ == "__main__":
 
     disco.plot_disco_minus_dio_heatmap(f"{args.plot_name}-heatmap.png")
     disco.plot_disco_results(f"{args.plot_name}.png")
-
-    # Print differences in plots
-    # for target, qid_scores in disco.disco_metric_results.items():
-    #     for qid, disco_score in qid_scores.items():
-    #         dio_score = disco.dio_metric_results[target][qid]
-    #         if dio_score != disco_score:
-    #             print(f"DIFFERENCE: {target}-[{qid}]: {disco_score}, {dio_score}")
 
     print(f"Total Time: {time.time() - start_time}")
