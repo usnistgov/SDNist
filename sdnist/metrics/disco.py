@@ -78,6 +78,12 @@ class KDiscoEvaluator:
         # Store output filenames
         self.disco_plot_filename = None
         self.heatmap_plot_filename = None
+        self.disco_result_outfile = None
+        self.disco_heatmap_result_outfile = None
+
+        # Matplotlib Font Settings
+        font = {'size': 16}
+        plt.rc('font', **font)
 
         if create_dir and not os.path.exists(output_directory):
             os.makedirs(output_directory)
@@ -266,13 +272,6 @@ class KDiscoEvaluator:
         if len(self.disco_metric_results) == 0:
             raise ValueError("No disco metrics have been run.")
 
-        print(
-            f"Sum of disco metrics: {sum(disco_val for qid_combo_results in self.disco_metric_results.values() for disco_val in qid_combo_results.values())}"
-        )
-        print(
-            f"Total number of disco metrics: {sum(len(target) for _, target in self.disco_metric_results.items())}"
-        )
-
         # Sum the disco scores for each target column and divide by number of results
         return sum(
             disco_val
@@ -321,6 +320,8 @@ class KDiscoEvaluator:
             for qid, score in qid_scores.items()
         ]
         df = pd.DataFrame(data)
+        self.disco_result_outfile  = os.path.join(self.output_directory, f"{name}-result.csv")
+        df.to_csv(self.disco_result_outfile)
 
         self.disco_plot_filename = output_path
 
@@ -333,6 +334,13 @@ class KDiscoEvaluator:
             x=avg_disco_per_target.index,
             height=avg_disco_per_target.values,
             color="orange",
+        )
+        plt.hlines(
+            y=np.arange(0.2, 0.9, 0.2),
+            xmin=-0.5,
+            xmax=avg_disco_per_target.shape[0] - 0.5,
+            lw=0.3,
+            color="black",
         )
         plt.ylim(top=1)
         plt.title(f"{name} - Average DiSCO Scores for Each Target")
@@ -351,6 +359,7 @@ class KDiscoEvaluator:
         # Output
         output_path = os.path.join(self.output_directory, f"{name}-heatmap.png")
         self.heatmap_plot_filename = output_path
+        self.disco_heatmap_result_outfile = os.path.join(self.output_directory, f"{name}-heatmap-data.csv")
 
         # Get average of each qid's DiSCO - DiO score per target
         disco_dio_qid_avg = self.compute_disco_dio_qid_avg()
@@ -360,12 +369,13 @@ class KDiscoEvaluator:
             .sort_index(axis=1)
         )
         heatmap_data.fillna(0, inplace=True)
+        heatmap_data.to_csv(self.disco_heatmap_result_outfile)
 
         # Plot heatmap
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
             "", ["blue", "orange"]
         )
-        plt.figure(figsize=(10, 8), dpi=100)
+        plt.figure(figsize=(12, 8), dpi=100)
         heatmap = plt.imshow(
             heatmap_data.T,
             cmap=cmap,

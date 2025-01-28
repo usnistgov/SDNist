@@ -200,6 +200,8 @@ def privacy_score(
     disco_evaluator.plot_disco_minus_dio_heatmap("disco_heatmap")
     disco_result_plot_outfile = disco_evaluator.disco_plot_filename
     disco_heatmap_plot_outfile = disco_evaluator.heatmap_plot_filename
+    disco_result_csv_outfile = disco_evaluator.disco_result_outfile
+    disco_heatmap_csv_outfile = disco_evaluator.disco_heatmap_result_outfile
     disco_para_a = Attachment(
         name=None, _data=disco_explainer_a, _type=AttachmentType.String
     )
@@ -232,6 +234,8 @@ def privacy_score(
             "k": disco_evaluator.k,
             "disco_heatmap_png": disco_heatmap_plot_outfile,
             "disco_bar_plot_png": disco_result_plot_outfile,
+            "disco_result_data": disco_result_csv_outfile,
+            "disco_heatmap_result_data": disco_heatmap_csv_outfile
         },
     )
     log.end_msg()
