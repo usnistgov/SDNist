@@ -36,7 +36,7 @@ setup(
         "requests==2.31.0",
         "scikit-learn==1.2.2",
         "scipy==1.10.1",
-        "tqdm==4.65.0",
+        "tqdm==4.66.3",
         "colorama==0.4.6"
     ],
     classifiers=['Development Status :: 5 - Production/Stable',
