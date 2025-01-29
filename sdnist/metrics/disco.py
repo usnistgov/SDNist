@@ -10,7 +10,7 @@ import os.path
 import time
 from pathlib import Path
 from pprint import pprint
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -46,7 +46,7 @@ class KDiscoEvaluator:
         syn_df: pd.DataFrame,
         stable_identifiers: List[str] = None,
         k: int = 2,
-        output_directory: str | Path = "./output",
+        output_directory: Union[str, Path] = "./output",
         create_dir: bool = True,
     ) -> None:
         """
@@ -209,10 +209,9 @@ class KDiscoEvaluator:
 
         # --- Precompute QID columns ---
         for target_col in potential_targets:
-            other_cols = list(potential_targets - {target_col} - set(stable_ids))
+            other_cols = list(potential_targets - {target_col})
             for qid_combo in itertools.combinations(list(other_cols), self.k):
                 qids = tuple(sorted(stable_ids + list(qid_combo)))
-                # qid_str = f"qid-{'-'.join(sorted(list(qids)))}"
                 qid_str = quasi_identifier_column_name(sorted(list(qids)))
                 if qid_str not in self.gt_df.columns:
                     self.gt_df[qid_str] = compute_quasi_identifiers(
@@ -234,7 +233,7 @@ class KDiscoEvaluator:
             self.disco_metric_results[target_col] = {}
             self.dio_metric_results[target_col] = {}
             self.disco_minus_dio_metric_results[target_col] = {}
-            other_cols = list(potential_targets - {target_col} - set(stable_ids))
+            other_cols = list(potential_targets - {target_col})
             qid_combinations = itertools.combinations(list(other_cols), self.k)
 
             if __name__ == "__main__":
@@ -321,7 +320,7 @@ class KDiscoEvaluator:
         ]
         df = pd.DataFrame(data)
         self.disco_result_outfile  = os.path.join(self.output_directory, f"{name}-result.csv")
-        df.to_csv(self.disco_result_outfile)
+        df.round(4).to_csv(self.disco_result_outfile)
 
         self.disco_plot_filename = output_path
 
@@ -329,7 +328,7 @@ class KDiscoEvaluator:
             df.groupby("Target")["DiSCO Score"].mean().sort_values(ascending=False)
         )
 
-        plt.figure(figsize=(12, 5), dpi=100)
+        plt.figure(figsize=(10, 5), dpi=100)
         plt.bar(
             x=avg_disco_per_target.index,
             height=avg_disco_per_target.values,
@@ -343,10 +342,12 @@ class KDiscoEvaluator:
             color="black",
         )
         plt.ylim(top=1)
-        plt.title(f"{name} - Average DiSCO Scores for Each Target")
-        plt.ylabel("Average DiSCO Score")
-        plt.xlabel("Target")
-        plt.xticks(rotation=45, ha="right")
+        plt.title(f"Average DiSCO Scores for Each Target",
+                  fontsize=12)
+        plt.ylabel("Average DiSCO Score", fontsize=10)
+        plt.xlabel("Target", fontsize=10)
+        plt.xticks(rotation=45, ha="right", fontsize=10)
+        plt.yticks(fontsize=10)
         plt.tight_layout()
         plt.savefig(output_path)
         plt.close()
@@ -369,13 +370,13 @@ class KDiscoEvaluator:
             .sort_index(axis=1)
         )
         heatmap_data.fillna(0, inplace=True)
-        heatmap_data.to_csv(self.disco_heatmap_result_outfile)
+        heatmap_data.round(4).to_csv(self.disco_heatmap_result_outfile)
 
         # Plot heatmap
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
             "", ["blue", "orange"]
         )
-        plt.figure(figsize=(12, 8), dpi=100)
+        plt.figure(figsize=(8, 8), dpi=100)
         heatmap = plt.imshow(
             heatmap_data.T,
             cmap=cmap,
@@ -383,11 +384,11 @@ class KDiscoEvaluator:
             vmin=-plot_bounds,
             vmax=plot_bounds,
         )
-        plt.xlabel("Target Feature")
-        plt.xticks(range(heatmap_data.shape[1]), heatmap_data.columns)
-        plt.ylabel("Quasi-Identifier Feature")
-        plt.yticks(range(heatmap_data.shape[0]), heatmap_data.index)
-        plt.colorbar(heatmap)
+        plt.xlabel("Target Feature", fontsize=10)
+        plt.xticks(range(heatmap_data.shape[1]), heatmap_data.columns, fontsize=10)
+        plt.ylabel("Quasi-Identifier Feature", fontsize=10)
+        plt.yticks(range(heatmap_data.shape[0]), heatmap_data.index, fontsize=10)
+        plt.colorbar(heatmap, fraction=0.046, pad=0.04)
         plt.hlines(
             y=np.arange(0, heatmap_data.shape[1]) + 0.5,
             xmin=np.full(heatmap_data.shape[1], 0) - 0.5,
@@ -396,7 +397,8 @@ class KDiscoEvaluator:
             color="black",
         )
         plt.title(
-            f"{name} - Average Quasi-Identifier DiSCO - DiO Score per Target Feature"
+            f"Average Quasi-Identifier DiSCO - DiO Score \n per Target Feature",
+            fontsize=12
         )
         plt.xticks(rotation=45, ha="right")
         plt.tight_layout()
