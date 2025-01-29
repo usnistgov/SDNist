@@ -37,9 +37,9 @@ Setting Up the SDNIST Report Tool
 
 ### Brief Setup Instructions
 
-SDNist requires Python version 3.7 or greater. If you have installed a previous version of the SDNist library, we recommend installing v2.4 in a virtual environment. v2.4 can be installed via [Release 2.4](https://github.com/usnistgov/SDNist/releases/tag/v2.4) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
+SDNist is compatible with Python versions from 3.9 to 3.11. If you have installed a previous version of the SDNist library, we recommend installing v2.4 in a virtual environment. v2.4 can be installed via [Release 2.4](https://github.com/usnistgov/SDNist/releases/tag/v2.4) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
 
-The NIST Diverse Community Exceprt data will download on the fly.
+The NIST Diverse Community Excerpt data will download on the fly.
 
 
 
@@ -48,7 +48,7 @@ The NIST Diverse Community Exceprt data will download on the fly.
 1. The SDNist Report Tool is a part of the sdnist Python library that can be installed on a user’s MAC OS, Windows, or Linux machine.
 
 
-2. The sdnist library requires Python version 3.7 or greater to be installed on the user's machine. Check whether an installation exists on the machine by executing the following command in your terminal on Mac/Linux or powershell on Windows:
+2. The sdnist library requires Python be installed on the user's machine. It supports Python versions from 3.9 to 3.11. Check whether an installation exists on the machine by executing the following command in your terminal on Mac/Linux or powershell on Windows:
    ```
     c:\\> python -V
    ```

@@ -28,11 +28,10 @@ https://doi.org/10.18434/mds2-2895
 	author = {Task, Christine and Bhagat, Karan and Damon, Streat and Howarth, Gary},
 	collaborator = {Howarth, Gary},
 	doi = {10.18434/MDS2-2895},
-	month = dec,
 	publisher = {National Institute of Standards and Technology},
 	title = {{NIST} {Diverse} {Community} {Excerpts} {Data}},
 	url = {https://data.nist.gov/od/id/mds2-2895},
-	year = {2022}}
+	year = {2023}}
 ```
 
 
