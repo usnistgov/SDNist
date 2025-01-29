@@ -245,12 +245,15 @@ class Inconsistencies:
         ic_age = dict()
         age_violators = set()  # set of records indexes that have at least one age ic
 
+        ic_indexes = {i[GROUP]: set() for i in ic_types}
+
         age_path = Path(self.out_path, 'age')
         create_path(age_path)
         for i in ic_types:
             if i[GROUP] == 'a':  # cycle through age ic's
                 ic_age[i[NAME]] = ic_dict[i[NAME]]
                 if len(ic_dict[i[NAME]]) > 0:  # if this ic actually occurred
+                    ic_indexes[i[GROUP]].update(ic_dict[i[NAME]])
                     age_violators = age_violators.union(ic_dict[i[NAME]])
                     example_row = self.s.loc[[ic_dict[i[NAME]][0]], :]
 
@@ -281,6 +284,7 @@ class Inconsistencies:
             if i[0] == 'w':
                 ic_work[i[NAME]] = ic_dict[i[NAME]]
                 if len(ic_dict[i[NAME]]) > 0:
+                    ic_indexes[i[GROUP]].update(ic_dict[i[NAME]])
                     work_violators = work_violators.union(ic_dict[i[NAME]])
                     example_row = self.s.loc[[ic_dict[i[NAME]][0]], :]
 
@@ -310,6 +314,7 @@ class Inconsistencies:
         for i in ic_types:
             if i[0] == 'h':
                 if len(ic_dict[i[NAME]]) > 0:
+                    ic_indexes[i[GROUP]].update(ic_dict[i[NAME]])
                     ic_house[i[NAME]] = ic_dict[i[NAME]]
                     house_violators = house_violators.union(ic_dict[i[NAME]])
                     example_row = self.s.loc[[ic_dict[i[NAME]][0]], :]
@@ -346,4 +351,5 @@ class Inconsistencies:
                                         'Number of Records Inconsistent': r[1],
                                         'Percent Records Inconsistent': r[2]}
                                  for r in overall_stats]
+        return ic_indexes
 

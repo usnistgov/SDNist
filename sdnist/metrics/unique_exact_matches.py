@@ -12,7 +12,11 @@ def unique_exact_matches(target_data: pd.DataFrame, deidentified_data: pd.DataFr
     cols = td.columns.tolist()
 
     # select rows that are unique in the target data
-    u_td = td.loc[td.groupby(by=cols)[cols[0]].transform('count') == 1, :]
+    # Step 1: Mark all duplicates (considering all columns by default)
+    duplicates = td.duplicated(keep=False)
+
+    # Step 2: Filter the DataFrame to keep only unique rows
+    u_td = td[~duplicates]
 
     # target unique records
     t_unique_records = u_td.shape[0]

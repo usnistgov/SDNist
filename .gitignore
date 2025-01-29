@@ -9,6 +9,10 @@
 report.json
 **.pyc
 **.DS_Store
+/.venv/*
+/*.lprof
+/.vscode/*
+/sample_data/*
 
 .ipynb_checkpoints
 toy_synthetic_data/
