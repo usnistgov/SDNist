@@ -191,11 +191,8 @@ def privacy_score(
         k=2,
         output_directory=os.path.join(r_ui_d.output_directory, "k_disco")
     )
-    log.msg(
-        f"Target Data: {dataset.target_data.shape}, Target Data (T)ransform: {dataset.t_target_data.shape}, Target Data Binne(D): {dataset.d_target_data.shape}"
-    )
     disco_evaluator.compute_k_disco()
-    log.msg(f"Average k-disco score: {disco_evaluator.average_disco()}")
+
     disco_evaluator.plot_disco_results("disco_bar")
     disco_evaluator.plot_disco_minus_dio_heatmap("disco_heatmap")
     disco_result_plot_outfile = disco_evaluator.disco_plot_filename
@@ -232,10 +229,10 @@ def privacy_score(
             "stable_identifiers": disco_evaluator.stable_identifiers,
             "average_disco": disco_evaluator.average_disco(),
             "k": disco_evaluator.k,
-            "disco_heatmap_png": disco_heatmap_plot_outfile,
-            "disco_bar_plot_png": disco_result_plot_outfile,
-            "disco_result_data": disco_result_csv_outfile,
-            "disco_heatmap_result_data": disco_heatmap_csv_outfile
+            "disco_heatmap_png": relative_path(disco_heatmap_plot_outfile),
+            "disco_bar_plot_png": relative_path(disco_result_plot_outfile),
+            "disco_result_data": relative_path(disco_result_csv_outfile),
+            "disco_heatmap_result_data": relative_path(disco_heatmap_csv_outfile)
         },
     )
     log.end_msg()
