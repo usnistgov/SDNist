@@ -1,0 +1,268 @@
+{
+  "PUMA": {
+    "description": "Public use microdata area code",
+    "values": {
+      "25-00503": "Middlesex County--Waltham City, Lexington, Burlington, Bedford & Lincoln Towns",
+      "25-00703": "Essex County (East)--Salem, Beverly, Gloucester & Newburyport Cities",
+      "25-01000": "Peabody City, Danvers, Reading, North Reading & Lynnfield Towns",
+      "25-01300": "Billerica, Andover, Tewksbury & Wilmington Towns",
+      "25-02800": "Woburn, Melrose Cities, Saugus, Wakefield & Stoneham Towns",
+      "48-02510": "Tarrant County (North)--North Richland Hills (North) & Keller Cities",
+      "48-02102": "Johnson County",
+      "48-02101": "Ellis County",
+      "48-02515": "Tarrant County (West)--Fort Worth City (West)",
+      "48-02507": "Tarrant County (East)--Arlington City (West)--South of I-30 & East of Loop I-820",
+      "48-02516": "Tarrant County (Southwest)--Fort Worth (Southwest) & Benbrook Cities",
+      "01-01301": "Birmingham City (West)",
+      "06-07502": "San Francisco County (North & East)--North Beach & Chinatown",
+      "06-08507": "Santa Clara County (Southwest)--Cupertino, Saratoga Cities & Los Gatos Town",
+      "08-00803": "Boulder County (Central)--Boulder City",
+      "13-04600": "Atlanta Regional Commission--Fulton County (Central)--Atlanta City (Central)",
+      "17-03529": "Chicago City (South)--South Shore, Hyde Park, Woodlawn, Grand Boulevard & Douglas",
+      "17-03531": "Chicago City (South)--Auburn Gresham, Roseland, Chatham, Avalon Park & Burnside",
+      "19-01700": "Des Moines City",
+      "24-01004": "Montgomery County (South)--Bethesda, Potomac & North Bethesda",
+      "26-02702": "Washtenaw County (East Central)--Ann Arbor City Area",
+      "28-01100": "Central Region--Jackson City (East & Central)",
+      "29-01901": "St. Louis City (North)",
+      "30-00600": "East Montana (Outside Billings City)",
+      "32-00405": "Las Vegas City (Southeast)",
+      "36-03710": "NYC-Bronx Community District 1 & 2--Hunts Point, Longwood & Melrose",
+      "36-04010": "NYC-Brooklyn Community District 17--East Flatbush, Farragut & Rugby",
+      "38-00100": "West North Dakota--Minot City",
+      "40-00200": "Cherokee, Sequoyah & Adair Counties",
+      "51-01301": "Arlington County (North)",
+      "51-51255": "Alexandria City"
+    }
+  },
+  "AGEP": {
+    "description": "Person's age",
+    "values": {
+      "min": 0,
+      "max": 99
+    }
+  },
+  "SEX": {
+    "description": "Person's gender",
+    "values": {
+      "1": "Male",
+      "2": "Female"
+    }
+  },
+  "MSP": {
+    "description": "Marital Status",
+    "values": {
+      "N": "N/A (age less than 15 years)",
+      "1": "Now married, spouse present",
+      "2": "Now Married, spouse absent",
+      "3": "Widowed",
+      "4": "Divorced",
+      "5": "Separated",
+      "6": "Never married"
+    }
+  },
+  "HISP": {
+    "description": "Hispanic origin",
+    "values": {
+      "0": "Not Spanish/Hispanic/Latino",
+      "1": "Mexican",
+      "2": "Puerto Rican",
+      "3": "Cuban",
+      "4": "All other Spanish/Hispanic/Latino"
+    }
+  },
+  "RAC1P": {
+    "description": "Person's Race",
+    "values": {
+      "1": "White alone",
+      "2": "Black or African American alone",
+      "3": "American Indian alone",
+      "4": "Alaska Native alone",
+      "5": "American Indian and Alaska Native tribes specified; or American Indian or Alaska Native, not specified and no other races",
+      "6": "Asian alone",
+      "7": "Native Hawaiian and Other Pacific Islander alone",
+      "8": "Some Other Race alone",
+      "9": "Two or More Races"
+    }
+  },
+  "NOC": {
+    "description": "Number of own children in household (unweighted)",
+    "values": {
+      "N": "N/A (GQ/vacant)",
+      "0": "No own children",
+      "min": 1,
+      "max": 19
+    }
+  },
+  "NPF": {
+    "description": "Number of persons in family (unweighted)",
+    "values": {
+      "N": "N/A (GQ/vacant/non-family household",
+      "min": 2,
+      "max": 20
+    }
+  },
+  "HOUSING_TYPE": {
+    "description": "Housing unit or group quarters",
+    "values": {
+      "1": "Housing Unit",
+      "2": "Institutional Group Quarters",
+      "3": "Non-institutional Group Quarters"
+    }
+  },
+  "OWN_RENT": {
+    "description": "Housing unit rented or owned",
+    "values": {
+      "0": "Group quarters",
+      "1": "Own housing unit",
+      "2": "Rent housing unit"
+    }
+  },
+  "DENSITY": {
+    "description": "Population density among residents of each PUMA",
+    "values": {
+      "min": 16.3,
+      "max": 52864.7
+    }
+  },
+  "INDP": {
+    "description": "Industry codes",
+    "details": "There are a total of 271 possible codes for INDP, 269 of these codes appear in the Diverse Community Data Excerpts (233 in MA, 264 in Texas and National)",
+    "link": "https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2019.pdf"
+  },
+  "INDP_CAT": {
+    "description": "Industry categories",
+    "values": {
+      "N": "N/A (less than 16 years old, or last worked more than 5 years ago, or never worked)",
+      "0": "AGR: Agriculture, Forestry, Fishing and Hunting",
+      "1": "EXT: Mining, Quarrying, and Oil and Gas Extraction",
+      "2": "UTL: Utilities",
+      "3": "CON: Construction",
+      "4": "MFG: Manufacturing",
+      "5": "WHL: Wholesale Trade",
+      "6": "RET: Retail Trade",
+      "7": "TRN: Transportation and Warehousing",
+      "8": "INF: Information",
+      "9": "FIN: Finance, Insurance, Real Estate",
+      "10": "PRF: Professional, Scientific and Technical Services",
+      "11": "EDU: Educational Services",
+      "12": "MED: Health Care",
+      "13": "SCA: Social Assistance",
+      "14": "ENT: Arts, Entertainment, Accommodation, Food Services and Recreation",
+      "15": "SRV: Other Services",
+      "16": "ADM: Government, Public Administration",
+      "17": "MIL: Military",
+      "18": "UNEMPLOYED"
+    }
+  },
+  "EDU": {
+    "description": "Educational attainment",
+    "values": {
+      "N": "N/A (less than 3 years old)",
+      "1": "No schooling completed",
+      "2": "Nursery school, Preschool, or Kindergarten",
+      "3": "Grade 1 to grade 8",
+      "4": "Grade 9 to grade 12, no diploma",
+      "5": "High School diploma",
+      "6": "GED",
+      "7": "Some College, no degree",
+      "8": "Associate degree",
+      "9": "Bachelors degree",
+      "10": "Masters degree",
+      "11": "Professional degree",
+      "12": "Doctorate degree"
+    }
+  },
+  "PINCP": {
+    "description": "Person's total income in dollars",
+    "values": {
+      "N": "N/A (less than 15 years old)",
+      "min": -9000,
+      "max": 1341000
+    }
+  },
+  "PINCP_DECILE": {
+    "description": "Person's total income rank (with respect to their state) discretized into 10% bins.",
+    "values": {
+      "N": "N/A (less than 15 years old",
+      "9": "90th percentile",
+      "8": "80th percentile",
+      "7": "70th percentile",
+      "6": "60th percentile",
+      "5": "50th percentile",
+      "4": "40th percentile",
+      "3": "30th percentile",
+      "2": "20th percentile",
+      "1": "10th percentile",
+      "0": "0th percentile"
+    }
+  },
+  "POVPIP": {
+    "description": "Income-to-poverty ratio (ex: 250 = 2.5 x poverty line)",
+    "values": {
+      "N": "N/A",
+      "min": 0,
+      "max": 500,
+      "501": "income above 5 x poverty line"
+    }
+  },
+  "DVET": {
+    "description": "Veteran service connected disability rating (percentage)",
+    "values": {
+      "N": "N/A (No service-connected disability/never served in military",
+      "1": "0 percent",
+      "2": "10 or 20 percent",
+      "3": "30 or 40 percent",
+      "4": "50 or 60 percent",
+      "5": "70, 80, 90 or 100 percent",
+      "6": "Not reported"
+    }
+  },
+  "DREM": {
+    "description": "Cognitive difficulty",
+    "values": {
+      "N": "N/A (Less than 5 years old)",
+      "1": "Yes",
+      "2": "No"
+    }
+  },
+  "DPHY": {
+    "description": "Ambulatory (walking) difficulty",
+    "values": {
+      "N": "N/A (Less than 5 years old)",
+      "1": "Yes",
+      "2": "No"
+    }
+  },
+  "DEYE": {
+    "description": "Vision difficulty",
+    "values": {
+      "1": "Yes",
+      "2": "No"
+    }
+  },
+  "DEAR": {
+    "description": "Hearing difficulty",
+    "values": {
+      "1": "Yes",
+      "2": "No"
+    }
+  },
+  "WGTP": {
+    "description": "Housing unit sampling weight",
+    "link": "https://www.census.gov/content/dam/Census/library/publications/2010/acs/Chapter_11_RevisedDec2010.pdf",
+    "values": {
+      "0": "Group quarters place holder record",
+      "min": 1,
+      "max": 9999
+    }
+  },
+  "PWGTP": {
+    "description": "Person's sampling weight",
+    "link": "https://www.census.gov/content/dam/Census/library/publications/2010/acs/Chapter_11_RevisedDec2010.pdf",
+    "values": {
+      "min": 1,
+      "max": 9999
+    }
+  }
+}
