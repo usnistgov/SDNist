@@ -15,7 +15,7 @@ The benchmark data were designed with input from US Census Bureau experts in ada
 
 Effectively, we attempt to provide a model-sized version of the problem that we were trying to understand. Like a ship in a bottle: pieces small enough that they can be assembled by hand, so that we can start to see how they fit together.
 
-### Data Partitions and Area definitions
+### Data Partitions and Area Definitions
 We are currently offering three geographic regions, each contained within its own directory, containing the data and a description of each PUMA within data we call "postcards". All of the data have identical schema of 24 features that are provided in a data dictionary with accompanying notes.
 
 - `national`: 27254 records drawn from 20 PUMAs from across the United States
@@ -50,12 +50,12 @@ Different systems encode and handle null (empty) values differently; we use the 
 
 
 
-#SBO Data Excerpts 
+## SBO Data Excerpts 
 The original NIST ACS Data Excerpts released in 2023 has only 24 features and 40K records, and is designed to support the fine grained analysis of the behavior of data deidentification algorithms.  In 2025 we have added a new data set, the NIST SBO Data Excerpts, to provide a platform for stress-testing successful methods on much larger schema (130 features) features and data sets (161K records).  This data is drawn from the US Census Survey of Business Owners and includes a mix of demographic, temporal and financial features.  
 
 In particular, the NIST SBO Excerpts will support stress-testing of privacy metrics developed during the second phase of the CRC Red-teaming project. Privacy metrics that require record similarity metrics and provide easily interpretable results on small schema, often don't scale well to significantly larger schema. 
 
-## Data partitions and Area Definitions 
+### Data Partitions and Area Definitions 
 We provide two data sets of similar size, a target data and a withheld data.  Deidentified data samples from the target data will be provided for the red team participants, with the withheld data acting as an external baseline.  A broad range of geographies is represented in the excerpts:  
 
 Target Dataset States and Row Counts:
@@ -77,7 +77,7 @@ Withheld Dataset States and Row Counts:
 - NM	8658
 - NH	6715
 
-## Feature Notes: 
+### Feature Notes: 
 The Excerpts contains 130 features.  Note that many of these features have only 3 possible values ('Yes','No', and "Missing"); this prevents the data space from being infeasibly large.  These features include the following: 
 
 - FIPST - State/Territory
