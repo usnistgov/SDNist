@@ -33,6 +33,7 @@ def l1(pk: List[int], qk: List[int]):
     return div
 
 
+
 class UnivariatePlots:
     def __init__(self,
                  synthetic: pd.DataFrame,
@@ -65,6 +66,7 @@ class UnivariatePlots:
 
         self.schema = dataset.schema
         self.dataset = dataset
+        self.bin_mappings = dataset.bin_mappings
         self.o_dir = output_directory
         self.out_path = Path(self.o_dir, 'univariate')
         self.worst_univariates_to_display = worst_univariates_to_display
@@ -206,49 +208,36 @@ class UnivariatePlots:
             else:
                 plt.figure(figsize=(8, 3), dpi=100)
                 file_path = Path(o_path, f'{f}.jpg')
-                values = set(target[f].unique().tolist()).union(synthetic[f].unique().tolist())
-                values = sorted(values)
-                val_df = pd.DataFrame(values, columns=[f])
-                t_counts_df = target.groupby(by=f)[f].size().reset_index(name='count_target')
-                s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(name='count_deidentified')
-                merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
-                    .fillna(0)
-                merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
-                    .fillna(0)
-                # merged = merged.sort_values(by=f)
+                merged = self.count_values(f)
+
                 title = f"{f}: {dataset.data_dict[f]['description']}"
-                c_sort_merged = merged.sort_values(by='count_target', ascending=False)
-                c_sort_merged = c_sort_merged.reset_index(drop=True)
-
-                c_vals = c_sort_merged['count_target'].head(2).values
-                c1, c2 = c_vals[0], c_vals[1]
-
-
                 self.uni_counts[f] = {
-                    "counts": relative_path(save_data_frame(c_sort_merged.copy(),
+                    "counts": relative_path(save_data_frame(merged.copy(),
                                                             o_path,
                                                             f'{f}_counts'),
                                             level=level),
                     "plot": relative_path(file_path, level)
                 }
 
+                # if self.worst_univariates_to_display is None \
+                #         or i < self.worst_univariates_to_display:
+                #     self.feat_data[title] = dict()
+                #     if c1 >= c2*3 or f in ['PINCP']:
+                #         f_val = c_sort_merged.loc[0, f]
+                #         f_tc = c_sort_merged.loc[0, 'count_target']
+                #         f_sc = c_sort_merged.loc[0, 'count_deidentified']
+                #         c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
+                #         self.feat_data[title] = {
+                #             "excluded": {
+                #                 "feature_value": f_val,
+                #                 "target_counts": int(f_tc),
+                #                 "deidentified_counts": int(f_sc)
+                #             }
+                #         }
                 if self.worst_univariates_to_display is None \
                         or i < self.worst_univariates_to_display:
-                    self.feat_data[title] = dict()
-                    if c1 >= c2*3 or f in ['PINCP']:
-                        f_val = c_sort_merged.loc[0, f]
-                        f_tc = c_sort_merged.loc[0, 'count_target']
-                        f_sc = c_sort_merged.loc[0, 'count_deidentified']
-                        c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
-                        self.feat_data[title] = {
-                            "excluded": {
-                                "feature_value": f_val,
-                                "target_counts": int(f_tc),
-                                "deidentified_counts": int(f_sc)
-                            }
-                        }
+                    merged = self.separate_large_count_value(f, merged, title)
 
-                merged = c_sort_merged.sort_values(by=f)
 
                 x_axis = np.arange(merged.shape[0])
                 plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
@@ -257,45 +246,89 @@ class UnivariatePlots:
                 plt.ylabel('Record Counts')
                 vals = merged[f].values.tolist()
 
-                if f in ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']:
-                    updated_vals = []
-                    for v in vals:
-                        mv1 = o_tar[target[f].isin([v])][f].values.tolist()
-                        mv = mv1
-                        if len(mv) and v != -1:
-                            nv = min(mv)
-                            updated_vals.append(nv)
-                        else:
-                            updated_vals.append(v)
-                    vals = updated_vals
+                # if f in ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']:
+                #     updated_vals = []
+                #     for v in vals:
+                #         mv1 = o_tar[target[f].isin([v])][f].values.tolist()
+                #         mv = mv1
+                #         if len(mv) and v != -1:
+                #             nv = min(mv)
+                #             updated_vals.append(nv)
+                #         else:
+                #             updated_vals.append(v)
+                #     vals = updated_vals
 
                 vals = [str(v) for v in vals]
-
                 if "-1" in vals:
                     idx = vals.index("-1")
                     vals[idx] = "N"
-
-                if f == 'PUMA':
-                    f_val_dict = {i: v for i, v in enumerate(ds.schema[f]['values'])}
-                    vals = [f_val_dict[int(v)] if v != 'N' else 'N' for v in vals]
 
                 plt.gca().set_xticks(x_axis, vals)
                 plt.legend(loc='upper right')
                 plt.xticks(fontsize=8, rotation=45)
                 plt.tight_layout()
 
-                plt.title(title,
-                          fontdict={'fontsize': 12})
+                plt.title(title, fontdict={'fontsize': 12})
 
                 plt.savefig(Path(o_path, f'{f}.jpg'), bbox_inches='tight')
                 plt.close()
 
-                if self.worst_univariates_to_display is None \
-                        or i < self.worst_univariates_to_display:
-                    saved_file_paths.append(file_path)
+                if i < self.worst_univariates_to_display:
                     self.feat_data[title]['path'] = file_path
-
+                if i >= self.worst_univariates_to_display:
+                    break
         return saved_file_paths
+
+    def count_values(self, feature: str) -> pd.DataFrame:
+        t, d, f = self.tar, self.syn, feature
+        values = sorted(set(t[f].unique()).union(d[f].unique()))
+        t_counts = t[f].value_counts().reindex(values, fill_value=0)
+        d_counts = d[f].value_counts().reindex(values, fill_value=0)
+
+        merged = pd.DataFrame({f: values,
+                               'count_target': t_counts,
+                               'count_deidentified': d_counts}).fillna(0)
+        if f in self.bin_mappings:
+            merged[f] = merged[f].map(self.bin_mappings[f]).fillna(merged[f])
+        return merged
+
+    def separate_large_count_value(self, feature: str, merged: pd.DataFrame, title: str):
+        self.feat_data[title] = {}
+
+        if merged.shape[0] > 1 and merged['count_target'].iloc[0] >= \
+                merged['count_target'].iloc[1] * 3:
+            self.feat_data[title] = {
+                "excluded": {
+                    "feature_value": merged[feature].iloc[0],
+                    "target_counts": int(
+                        merged['count_target'].iloc[0]),
+                    "deidentified_counts": int(
+                        merged['count_deidentified'].iloc[0])
+                }
+            }
+            merged = merged.iloc[1:]
+        return merged
+
+    # def compute_univariate_counts(self,
+    #                               feature: str,
+    #                               target: pd.DataFrame,
+    #                               synthetic: pd.DataFrame) -> pd.DataFrame:
+    #     f = feature
+    #     values = set(target[f].unique().tolist()).union(
+    #         synthetic[f].unique().tolist())
+    #     values = sorted(values)
+    #     val_df = pd.DataFrame(values, columns=[f])
+    #     t_counts_df = target.groupby(by=f)[f].size().reset_index(
+    #         name='count_target')
+    #     s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(
+    #         name='count_deidentified')
+    #     merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left') \
+    #         .fillna(0)
+    #     merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left') \
+    #         .fillna(0)
+    #     c_sort_merged = merged.sort_values(by='count_target', ascending=False)
+    #     c_sort_merged = c_sort_merged.reset_index(drop=True)
+    #     return c_sort_merged
 
 
 def divergence(synthetic: pd.DataFrame,

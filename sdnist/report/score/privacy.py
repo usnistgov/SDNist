@@ -9,6 +9,7 @@ from sdnist.report.report_data import PrivacyScorePacket, Attachment, Attachment
 from sdnist.report.score.paragraphs import *
 from sdnist.strs import *
 from sdnist.utils import *
+from sdnist.load import TestDatasetName
 
 
 def privacy_score(
@@ -88,7 +89,10 @@ def privacy_score(
     quasi_idf = []  # list of quasi-identifier features
     excluded = []  # list of excluded features from apparent match computation
     use_apparent_match = True
-    quasi_idf = ["SEX", "MSP", "RAC1P", "OWN_RENT", "EDU", "PUMA", "INDP_CAT", "HISP"]
+    if ds.test == TestDatasetName.sbo_target:
+        quasi_idf = ["SEX1", "FIPST", "SECTOR", "VET1", "RACE1"]
+    else:
+        quasi_idf = ["SEX", "MSP", "RAC1P", "OWN_RENT", "EDU", "PUMA", "INDP_CAT", "HISP"]
     quasi_idf = list(set(ds.features).intersection(set(quasi_idf)))
     if len(quasi_idf) == 0:
         log.msg(
@@ -181,60 +185,61 @@ def privacy_score(
         )
     log.end_msg()
 
-    # DiSCO Score Attachment
-    log.msg("DiSCO Score", level=3)
-    stable_quasi_identifiers = ["RAC1P", "SEX"]
-    disco_evaluator = KDiscoEvaluator(
-        gt_df=dataset.d_target_data.copy(),
-        syn_df=dataset.d_synthetic_data.copy(),
-        stable_identifiers=stable_quasi_identifiers,
-        k=2,
-        output_directory=os.path.join(r_ui_d.output_directory, "k_disco")
-    )
-    disco_evaluator.compute_k_disco()
-
-    disco_evaluator.plot_disco_results("disco_bar")
-    disco_evaluator.plot_disco_minus_dio_heatmap("disco_heatmap")
-    disco_result_plot_outfile = disco_evaluator.disco_plot_filename
-    disco_heatmap_plot_outfile = disco_evaluator.heatmap_plot_filename
-    disco_result_csv_outfile = disco_evaluator.disco_result_outfile
-    disco_heatmap_csv_outfile = disco_evaluator.disco_heatmap_result_outfile
-    disco_para_a = Attachment(
-        name=None, _data=disco_explainer_a, _type=AttachmentType.String
-    )
-    disco_para_b = Attachment(
-        name=None, _data=disco_explainer_b, _type=AttachmentType.String
-    )
-    disco_plot_a = Attachment(
-        name=None,
-        _data=[
-            {IMAGE_NAME: "Disco Bar Plot", PATH: disco_result_plot_outfile},
-        ],
-        _type=AttachmentType.ImageLinks,
-    )
-    disco_plot_b = Attachment(
-        name=None,
-        _data=[{IMAGE_NAME: "Disco Heatmap", PATH: disco_heatmap_plot_outfile}],
-        _type=AttachmentType.ImageLinks,
-    )
-
-    r_ui_d.add(
-        PrivacyScorePacket(
-            "DiSCO Privacy Score", None, [disco_para_a, disco_para_b, disco_plot_a, disco_plot_b]
+    if ds.test != TestDatasetName.sbo_target:
+        # DiSCO Score Attachment
+        log.msg("DiSCO Score", level=3)
+        stable_quasi_identifiers = ["RAC1P", "SEX"]
+        disco_evaluator = KDiscoEvaluator(
+            gt_df=dataset.d_target_data.copy(),
+            syn_df=dataset.d_synthetic_data.copy(),
+            stable_identifiers=stable_quasi_identifiers,
+            k=2,
+            output_directory=os.path.join(r_ui_d.output_directory, "k_disco")
         )
-    )
-    rd.add(
-        "DiSCO",
-        {
-            "stable_identifiers": disco_evaluator.stable_identifiers,
-            "average_disco": disco_evaluator.average_disco(),
-            "k": disco_evaluator.k,
-            "disco_heatmap_png": relative_path(disco_heatmap_plot_outfile),
-            "disco_bar_plot_png": relative_path(disco_result_plot_outfile),
-            "disco_result_data": relative_path(disco_result_csv_outfile),
-            "disco_heatmap_result_data": relative_path(disco_heatmap_csv_outfile)
-        },
-    )
-    log.end_msg()
+        disco_evaluator.compute_k_disco()
+
+        disco_evaluator.plot_disco_results("disco_bar")
+        disco_evaluator.plot_disco_minus_dio_heatmap("disco_heatmap")
+        disco_result_plot_outfile = disco_evaluator.disco_plot_filename
+        disco_heatmap_plot_outfile = disco_evaluator.heatmap_plot_filename
+        disco_result_csv_outfile = disco_evaluator.disco_result_outfile
+        disco_heatmap_csv_outfile = disco_evaluator.disco_heatmap_result_outfile
+        disco_para_a = Attachment(
+            name=None, _data=disco_explainer_a, _type=AttachmentType.String
+        )
+        disco_para_b = Attachment(
+            name=None, _data=disco_explainer_b, _type=AttachmentType.String
+        )
+        disco_plot_a = Attachment(
+            name=None,
+            _data=[
+                {IMAGE_NAME: "Disco Bar Plot", PATH: disco_result_plot_outfile},
+            ],
+            _type=AttachmentType.ImageLinks,
+        )
+        disco_plot_b = Attachment(
+            name=None,
+            _data=[{IMAGE_NAME: "Disco Heatmap", PATH: disco_heatmap_plot_outfile}],
+            _type=AttachmentType.ImageLinks,
+        )
+
+        r_ui_d.add(
+            PrivacyScorePacket(
+                "DiSCO Privacy Score", None, [disco_para_a, disco_para_b, disco_plot_a, disco_plot_b]
+            )
+        )
+        rd.add(
+            "DiSCO",
+            {
+                "stable_identifiers": disco_evaluator.stable_identifiers,
+                "average_disco": disco_evaluator.average_disco(),
+                "k": disco_evaluator.k,
+                "disco_heatmap_png": relative_path(disco_heatmap_plot_outfile),
+                "disco_bar_plot_png": relative_path(disco_result_plot_outfile),
+                "disco_result_data": relative_path(disco_result_csv_outfile),
+                "disco_heatmap_result_data": relative_path(disco_heatmap_csv_outfile)
+            },
+        )
+        log.end_msg()
 
     return r_ui_d, rd
