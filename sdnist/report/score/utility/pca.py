@@ -9,34 +9,9 @@ from sdnist.report.report_data import \
 
 from sdnist.utils import *
 
-pca_para = "This is another approach for visualizing where the distribution of the " \
-           "deidentified data has shifted away from the target data. " \
-           "In this approach, we begin by using " \
-           "<a href='https://en.wikipedia.org/wiki/Principal_component_analysis'>" \
-           "Principle Component Analysis</a> " \
-           "to find a way of representing the target data in a lower dimensional " \
-           "space (in 5 dimensions rather than the full 22 " \
-           "dimensions of the original feature space). Descriptions " \
-           "of these new five dimensions (components) are " \
-           "given in the components table; the components will change " \
-           "depending on which target data set you're using. " \
-           "Five dimensions are better than 22, but we actually want to " \
-           "get down to two dimensions so we can plot the data " \
-           "on simple (x,y) axes the plots below show the data " \
-           "across each possible pair combination of our five components. " \
-           "You can compare how the shapes change between the target data " \
-           "and the deidentified data, and consider what that might mean in light " \
-           "of the component definitions. This is a relatively new visualization " \
-           "metric that was introduced by the " \
-           "<a href='https://pages.nist.gov/HLG-MOS_Synthetic_Data_Test_Drive/submissions.html#ipums_international'>" \
-           "IPUMS International team</a> " \
-           "during the HLG-MOS Synthetic Data Test Drive."
-pca_para_2 = "All of the plots below (for both the target data and " \
-             "the deidentified data) use the principle component axes " \
-             "taken from the target data (listed in the table). Effectively, " \
-             "we're looking at the data from the exact same angles in " \
-             "both sets of plots so we can easily compare the target " \
-             "data and the deidentified data with respect to those angles."
+pca_para = "This is another approach for visualizing where the distribution of the deidentified data has shifted away from the target data.  In this case we're directly comparing the shape of the two data distributions as two dimensional scatter plots.  Each point is a record in the data.  The goal of deidentified data is to recreate the same basic shape as the target data distribution, using different points (ie, with new or altered records).  If the fidelity of the deidentified data is bad, the shapes will be very different.  If the privacy is bad, the points will be the same."
+
+pca_para_2 = "We use Principle Component Analysis to reduce the full feature set of the original data down to these two-dimensional snapshots. Descriptions of the top five principle components are given in the components table; the components will change depending on which target data set you're using. The plots below show the data across every pair of components.  All of the plots below (for both the target data and the deidentified data) use the principle component axes taken from the target data. Effectively, we're looking at the data from the exact same angles in both sets of plots.  This visualization was introduced by the IPUMS International team during the HLG-MOS Synthetic Data Test Drive."
 
 pca_highlight_para = "The queries below explore the PCA metric results in more detail " \
                      "by zooming in on a single component-pair panel and highlighting " \
@@ -45,6 +20,7 @@ pca_highlight_para = "The queries below explore the PCA metric results in more d
                      "If the deidentified data preserves the structure and feature " \
                      "correlations of the target data, the highlighted areas should have " \
                      "similar shape. "
+
 class PCAReport:
     def __init__(self,
                  dataset: Dataset,
