@@ -30,7 +30,6 @@ build
 **/crc_notebooks/
 **/create_data/
 **/data/
-**/BenchmarkData/
 **/meta_reports/
 **/reports/
 **/states_puma_geojson/

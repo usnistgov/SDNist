@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+import strs
 from sdnist.report import ReportUIData, FILE_DIR
 from sdnist.report.report_data import \
     DatasetType, DataDescriptionPacket, ScorePacket, \
@@ -14,7 +15,8 @@ from sdnist.load import \
     TestDatasetName, load_dataset, build_name
 from sdnist.report.dataset.transform import transform
 from sdnist.report.dataset.validate import validate
-from sdnist.report.dataset.binning import *
+from sdnist.report.dataset.binning import (
+    bin_data, bin_density, get_density_bins_description)
 
 import sdnist.strs as strs
 
@@ -72,6 +74,18 @@ def feature_space_size(target_df: pd.DataFrame, data_dict: Dict):
 
     return size
 
+def merge_schema_with_datadict(schema: Dict, data_dict: Dict):
+    for f, v in schema.items():
+        data_dict[f][strs.DTYPE] = v[strs.DTYPE]
+        if strs.HAS_NULL in v:
+            data_dict[f][strs.HAS_NULL] = v[strs.HAS_NULL]
+        if strs.NULL_VALUE in v:
+            data_dict[f][strs.NULL_VALUE] = v[strs.NULL_VALUE]
+        if strs.VALUES not in data_dict[f] and strs.VALUES in v:
+            data_dict[f][strs.VALUES] = {
+                str(v): v for v in v[strs.VALUES]
+            }
+    return data_dict
 
 @dataclass
 class Dataset:
@@ -99,25 +113,27 @@ class Dataset:
             test=self.test,
             format_="csv"
         )
-        self.target_data_path = build_name(
+        self.target_data_path, self.config_path = build_name(
             challenge=strs.CENSUS,
             root=self.data_root,
             public=False,
             test=self.test
         )
+
         # raw target data
         self.raw_target_data = self.target_data.copy()
 
         self.schema = params[strs.SCHEMA]
-        configs_path = self.target_data_path.parent.parent
         # add config packaged with data and also the config package with sdnist.report package
-        config_1 = u.read_json(Path(configs_path, 'config.json'))
-        config_2 = u.read_json(Path(FILE_DIR, 'config.json'))
-        self.config = {**config_1, **config_2}
+        self.config = u.read_json(self.config_path)
 
-        self.mappings = u.read_json(Path(configs_path, 'mappings.json'))
-        self.data_dict = u.read_json(Path(configs_path, 'data_dictionary.json'))
+        self.mappings = u.read_json(Path(self.config_path.parent, 'mappings.json'))
+        self.data_dict = u.read_json(Path(self.config_path.parent, 'data_dictionary.json'))
         self.features = self.target_data.columns.tolist()
+
+        self.data_dict = merge_schema_with_datadict(self.schema, self.data_dict)
+        dtypes = {f: v[strs.DTYPE] for f, v in self.data_dict.items()}
+        # add schema values to data dictionary
 
         self.target_data_features = self.features
 
@@ -127,11 +143,10 @@ class Dataset:
                                            self.config[strs.K_MARGINAL][strs.GROUP_FEATURES])
 
         # load synthetic dataset
-        dtypes = {feature: desc["dtype"] for feature, desc in self.schema.items()}
         if not isinstance(self.synthetic_filepath, Path):
             self.synthetic_data = self.synthetic_filepath
         elif str(self.synthetic_filepath).endswith('.csv'):
-            self.synthetic_data = pd.read_csv(self.synthetic_filepath)
+            self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes)
         elif str(self.synthetic_filepath).endswith('.parquet'):
             self.synthetic_data = pd.read_parquet(self.synthetic_filepath)
         else:
@@ -172,12 +187,6 @@ class Dataset:
         self.synthetic_data = self.synthetic_data[self.features]
         self.target_data = self.target_data[self.features]
 
-        # for f in self.target_data.columns:
-        #     if f not in ['PINCP', 'INDP', 'PWGTP', 'WGTP', 'POVPIP', 'DENSITY']:
-        #         print('T', f, self.target_data[f].unique().tolist())
-        #         print('S', f, self.synthetic_data[f].unique().tolist())
-        #         print()
-
         # sort columns in the data
         self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.synthetic_data = self.synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
@@ -188,10 +197,11 @@ class Dataset:
         # bin the density feature if present in the datasets
         self.density_bin_desc = dict()
 
-        self.density_bin_desc = get_density_bins_description(self.raw_target_data,
-                                                             self.data_dict,
-                                                             self.mappings)
         if 'DENSITY' in self.features:
+            self.density_bin_desc = get_density_bins_description(
+                self.raw_target_data,
+                self.data_dict,
+                self.mappings)
             self.target_data = bin_density(self.c_target_data, self.data_dict)
             self.synthetic_data = bin_density(self.c_synthetic_data, self.data_dict)
 
@@ -203,39 +213,23 @@ class Dataset:
         self.config = unavailable_features(self.config, self.synthetic_data)
 
         # transformed data
-        self.t_target_data = transform(self.c_target_data, self.schema)
-
-        self.t_synthetic_data = transform(self.c_synthetic_data, self.schema)
+        self.t_target_data, self.t_synthetic_data, self.transform_mappings = \
+            transform(self.c_target_data, self.c_synthetic_data, self.data_dict)
 
         # binned data
-        numeric_features = ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']
-        self.d_target_data = percentile_rank_target(self.c_target_data, numeric_features)
-        self.d_target_data = add_bin_for_NA(self.d_target_data,
-                                            self.c_target_data, numeric_features)
+        self.d_target_data, self.d_synthetic_data, self.bin_mappings = \
+            bin_data(self.t_target_data, self.t_synthetic_data, self.data_dict)
 
-        self.d_synthetic_data = percentile_rank_synthetic(self.c_synthetic_data,
-                                                          self.c_target_data,
-                                                          self.d_target_data,
-                                                          numeric_features)
-
-        self.d_synthetic_data = add_bin_for_NA(self.d_synthetic_data,
-                                               self.c_synthetic_data,
-                                               numeric_features)
-
-        non_numeric = [c for c in self.features
-                       if c not in numeric_features]
-
-        self.d_target_data[non_numeric] = self.t_target_data[non_numeric]
-        self.d_synthetic_data[non_numeric] = self.t_synthetic_data[non_numeric]
-
+        self.merge_mappings()  # merge transform mapping to bin mappings
         self.config[strs.CORRELATION_FEATURES] = \
             self._fix_corr_features(self.features,
                                     self.config[strs.CORRELATION_FEATURES])
 
+
     def _fix_features(self, drop_features: List[str], group_features: List[str]):
         t_d_f = []
         for f in drop_features:
-            if f not in ['PUMA'] + group_features:
+            if f not in group_features:
                 t_d_f.append(f)
 
         drop_features = t_d_f
@@ -247,6 +241,14 @@ class Dataset:
     def _fix_corr_features(features, corr_features):
         unavailable_features = set(corr_features).difference(features)
         return list(set(corr_features).difference(unavailable_features))
+
+    def merge_mappings(self):
+        for f in self.transform_mappings:
+            rev_transform = {v: k for k, v in self.transform_mappings[f].items()}
+            if f in self.bin_mappings:
+                self.bin_mappings[f] = {**self.bin_mappings[f], **rev_transform}
+            else:
+                self.bin_mappings[f] = rev_transform
 
 
 def data_description(dataset: Dataset,

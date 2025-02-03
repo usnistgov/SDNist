@@ -147,16 +147,3 @@ class KMarginal:
 
         return self.score
 
-if __name__ == "__main__":
-    THIS_DIR = Path(__file__).parent
-    SCH_P = Path(THIS_DIR, '../../diverse_community_excerpts_data/national/na2019.csv')
-    S_P = Path(THIS_DIR,
-               '../../toy_synthetic_data/syn/teams/LostInTheNoise/national/MWEM_PGM-GirishKumar.csv')
-
-    log = utils.SimpleLogger()
-    dataset_name = load.TestDatasetName.national2019
-    d = Dataset(S_P, log, dataset_name)
-
-    km = KMarginal(d.d_target_data, d.d_synthetic_data, ['PUMA'])
-    km.compute_score()
-

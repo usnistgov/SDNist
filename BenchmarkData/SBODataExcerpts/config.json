@@ -1,0 +1,14 @@
+{
+    "drop_features": [],
+    "k_marginal": {
+        "ignore_features": [
+        ],
+        "group_features": [
+            "SECTOR"
+        ]
+    },
+    "bins": {
+    },
+    "correlation_features": [
+    ]
+}

@@ -6,8 +6,7 @@ from pathlib import Path
 from typing import Dict
 
 from sdnist.report.common import REPORTS_DIR
-import sdnist.load
-from sdnist.load import data_challenge_map
+
 from sdnist.report import \
     generate, utility_score, privacy_score,\
     ReportUIData, Dataset, ReportData
@@ -69,7 +68,8 @@ def run(synthetic_filepath: Path,
 def setup():
     bundled_datasets = {"MA": TestDatasetName.ma2019,
                         "TX": TestDatasetName.tx2019,
-                        "NATIONAL": TestDatasetName.national2019}
+                        "NATIONAL": TestDatasetName.national2019,
+                        'SBO': TestDatasetName.sbo_target}
     parser = argparse.ArgumentParser()
     parser.register('action', 'none', NoAction)
     parser.add_argument("deidentified_dataset", type=argparse.FileType("r"),

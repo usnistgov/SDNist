@@ -10,6 +10,8 @@ from sdnist.metrics.hoc import \
     TaxiHigherOrderConjunction
 from sdnist.metrics.graph_edge_map import \
     TaxiGraphEdgeMapScore
+from sdnist.load import \
+    TestDatasetName, load_dataset, build_name
 from sdnist.metrics.propensity import \
     PropensityMSE
 from sdnist.metrics.pearson_correlation import \
@@ -26,8 +28,10 @@ from sdnist.report.report_data import \
     ReportData, ReportUIData, UtilityScorePacket, Attachment, AttachmentType, \
     DatasetType, DataDescriptionPacket
 from sdnist.report.plots import \
-    UnivariatePlots, CorrelationDifferencePlot, \
+    CorrelationDifferencePlot, \
     GridPlot, PropensityDistribution, PearsonCorrelationPlot
+from sdnist.metrics.univariate import UnivariatePlots
+from sdnist.report.score.utility.univariates import UnivariatesReport
 
 import sdnist.strs as strs
 from sdnist.utils import *
@@ -369,76 +373,76 @@ def kmarginal_score_packet(k_marginal_score: int,
                                        attachments)
 
     kmarg_det_pkt = None  # k-marginal details breakdown packet
-    if group_scores is not None:
-        worst_scores, best_scores = best_worst_performing(group_scores,
-                                                          subsample_group_scores,
-                                                          dataset,
-                                                          group_features,
-                                                          feature_values)
-        all_scores = worst_scores
-        # target pumas
-        t_pumas = dataset.target_data['PUMA'].unique()
-        # synthetic pumas
-        s_pumas = dataset.synthetic_data['PUMA'].unique()
-        # usable pumas
-        usable_pumas = set(t_pumas).intersection(s_pumas)
-        default_w_b_n = 2 if len(usable_pumas) <= 6 else 5
-
-        k_marg_synop_rd['score_in_each_puma'] = \
-            relative_path(save_data_frame(pd.DataFrame(all_scores),
-                                          k_marg_synopsys_path,
-                                          'score_in_each_puma'))
-
-        # count of worst or best k-marginal pumas to select
-        worst_scores = [ws for ws in worst_scores if ws['PUMA'][0] in usable_pumas]
-        best_scores = [bs for bs in best_scores if bs['PUMA'][0] in usable_pumas]
-        w_b_n = default_w_b_n if len(worst_scores) > default_w_b_n else len(worst_scores)
-        worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
-
-        worst_break_down, k_marg_break_rd = worst_score_breakdown(worst_scores,
-                                                                  dataset,
-                                                                  ui_data,
-                                                                  report_data,
-                                                                  worst_breakdown_feature)
-
-        # all score attachment
-        as_para_a = Attachment(name=f'K-Marginal Score in Each ' + '-'.join(group_features),
-                               _data=k_marg_all_puma_para,
-                               _type=AttachmentType.String)
-
-        as_a = Attachment(name=None,
-                          _data=all_scores)
-        k_marg_break_para_a = Attachment(name=None,
-                                         _data=k_marg_break_para,
-                                         _type=AttachmentType.String)
-
-        # worst score attachment
-        ws_para_a = Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
-                               _data=worst_k_marg_para,
-                               _type=AttachmentType.String)
-        ws_a = Attachment(name=None,
-                          _data=worst_scores)
-
-        # best score attachment
-        bs_a = Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
-                          _data=best_scores)
-
-        report_data.add('worst_PUMA_breakdown', k_marg_break_rd)
-        attachments.extend([as_para_a, as_a])
-
-        metric_attachments = [k_marg_break_para_a, ws_para_a, ws_a]
-
-        gp_a = grid_plot_attachment(group_features,
-                                    group_scores,
-                                    feature_values,
-                                    ui_data.output_directory)
-        if gp_a:
-            metric_attachments.append(gp_a)
-        metric_attachments.extend(worst_break_down)
-
-        kmarg_det_pkt = UtilityScorePacket('Worst Performing PUMAs Breakdown',
-                                           None,
-                                           metric_attachments)
+    # if group_scores is not None:
+    #     worst_scores, best_scores = best_worst_performing(group_scores,
+    #                                                       subsample_group_scores,
+    #                                                       dataset,
+    #                                                       group_features,
+    #                                                       feature_values)
+    #     all_scores = worst_scores
+    #     # target pumas
+    #     t_pumas = dataset.target_data['PUMA'].unique()
+    #     # synthetic pumas
+    #     s_pumas = dataset.synthetic_data['PUMA'].unique()
+    #     # usable pumas
+    #     usable_pumas = set(t_pumas).intersection(s_pumas)
+    #     default_w_b_n = 2 if len(usable_pumas) <= 6 else 5
+    #
+    #     k_marg_synop_rd['score_in_each_puma'] = \
+    #         relative_path(save_data_frame(pd.DataFrame(all_scores),
+    #                                       k_marg_synopsys_path,
+    #                                       'score_in_each_puma'))
+    #
+    #     # count of worst or best k-marginal pumas to select
+    #     worst_scores = [ws for ws in worst_scores if ws['PUMA'][0] in usable_pumas]
+    #     best_scores = [bs for bs in best_scores if bs['PUMA'][0] in usable_pumas]
+    #     w_b_n = default_w_b_n if len(worst_scores) > default_w_b_n else len(worst_scores)
+    #     worst_scores, best_scores = worst_scores[0: w_b_n], best_scores[0: w_b_n]
+    #
+    #     worst_break_down, k_marg_break_rd = worst_score_breakdown(worst_scores,
+    #                                                               dataset,
+    #                                                               ui_data,
+    #                                                               report_data,
+    #                                                               worst_breakdown_feature)
+    #
+    #     # all score attachment
+    #     as_para_a = Attachment(name=f'K-Marginal Score in Each ' + '-'.join(group_features),
+    #                            _data=k_marg_all_puma_para,
+    #                            _type=AttachmentType.String)
+    #
+    #     as_a = Attachment(name=None,
+    #                       _data=all_scores)
+    #     k_marg_break_para_a = Attachment(name=None,
+    #                                      _data=k_marg_break_para,
+    #                                      _type=AttachmentType.String)
+    #
+    #     # worst score attachment
+    #     ws_para_a = Attachment(name=f"{len(worst_scores)} Worst Performing " + '-'.join(group_features),
+    #                            _data=worst_k_marg_para,
+    #                            _type=AttachmentType.String)
+    #     ws_a = Attachment(name=None,
+    #                       _data=worst_scores)
+    #
+    #     # best score attachment
+    #     bs_a = Attachment(name=f"{len(best_scores)} Best Performing " + '-'.join(group_features),
+    #                       _data=best_scores)
+    #
+    #     report_data.add('worst_PUMA_breakdown', k_marg_break_rd)
+    #     attachments.extend([as_para_a, as_a])
+    #
+    #     metric_attachments = [k_marg_break_para_a, ws_para_a, ws_a]
+    #
+    #     gp_a = grid_plot_attachment(group_features,
+    #                                 group_scores,
+    #                                 feature_values,
+    #                                 ui_data.output_directory)
+    #     if gp_a:
+    #         metric_attachments.append(gp_a)
+    #     metric_attachments.extend(worst_break_down)
+    #
+    #     kmarg_det_pkt = UtilityScorePacket('Worst Performing PUMAs Breakdown',
+    #                                        None,
+    #                                        metric_attachments)
 
     return kmarg_sum_pkt, kmarg_det_pkt
 
@@ -474,68 +478,17 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
     ds = dataset
     r_ui_d = ui_data  # report ui data
     rd = report_data
-
     features = ds.features
-    corr_features = ds.config[strs.CORRELATION_FEATURES]
-    corr_features = [f for f in ds.data_dict.keys() if f in corr_features]
-    # Initiated k-marginal, correlation and propensity scorer
-    # selected challenge type: census or taxi
-    if ds.challenge == strs.CENSUS:
-        log.msg('Univariates', level=3)
-        up = UnivariatePlots(ds.d_synthetic_data, ds.d_target_data,
-                             ds, r_ui_d.output_directory, ds.challenge)
-        u_feature_data = up.save()  # univariate features data
-        rd.add('Univariate', up.report_data())
 
-        u_as = []  # univariate attachments
+    log.msg('Univariates', level=3)
+    ur = UnivariatesReport(ds, r_ui_d, rd)
+    ur.compute()
+    ur.add_to_ui()
+    log.end_msg()
 
-        for k, v in u_feature_data.items():
-            u_path = v['path']
-            if len(str(u_path)) == 0:
-                continue
-            u_rel_path = "/".join(list(u_path.parts)[-2:])
-            name = k
-            a = Attachment(name=None,
-                           _data=f'h4{name}',
-                           _type=AttachmentType.String)
-            u_as.append(a)
-
-            if "excluded" in v:
-                fv = v['excluded']['feature_value']
-                tc = v['excluded']['target_counts']
-                sc = v['excluded']['deidentified_counts']
-                f_name = name.split(':')[0]
-                if k.startswith('POVPIP'):
-                    fv = '501 [Not in poverty: income above 5 x poverty line]'
-                elif fv == -1:
-                    f_detail = '[N/A]'
-                    if 'values' in ds.data_dict[f_name]:
-                        f_detail = ds.data_dict[f_name]['values']['N']
-                    fv = f'N [{f_detail}]'
-                else:
-                    f_detail = ''
-                    if 'values' in ds.data_dict[f_name]:
-                        v_data = ds.data_dict[f_name]['values']
-                        if str(fv) in v_data:
-                            f_detail = ds.data_dict[f_name]['values'][str(fv)]
-                    fv = f'{fv} [{f_detail}]'
-
-                a = Attachment(name=None,
-                               _data=f"Feature Values not shown in the chart:"
-                                     f"<br>Value: {fv}"
-                                     f"<br>Target Data Counts: {tc}"
-                                     f"<br>Deidentified Data Counts: {sc}",
-                               _type=AttachmentType.String)
-                u_as.append(a)
-
-            a = Attachment(name=None,
-                           _data=[{strs.IMAGE_NAME: Path(u_rel_path).stem,
-                                  strs.PATH: u_rel_path}],
-                           _type=AttachmentType.ImageLinks)
-            u_as.append(a)
-
-
-        log.end_msg()
+    if dataset.test != TestDatasetName.sbo_target:
+        corr_features = ds.config[strs.CORRELATION_FEATURES]
+        corr_features = [f for f in ds.data_dict.keys() if f in corr_features]
 
         log.msg('Correlations', level=3)
         cdp_saved_file_paths = []
@@ -555,157 +508,149 @@ def utility_score(dataset: Dataset, ui_data: ReportUIData, report_data: ReportDa
                                     "pearson correlation difference": pcp.report_data})
         log.end_msg()
 
-    else:
-        raise Exception(f'Unknown challenge type: {ds.challenge}')
 
-    log.msg('K-Marginal', level=3)
-    group_features = ds.config[strs.K_MARGINAL][strs.GROUP_FEATURES]
-    f_val_dict = {
-        f: {i: v for i, v in enumerate(ds.schema[f]['values'])}
-        for f in group_features
-    }
-    kmarg_sum_pkt = None   # K-marginal score summary utility score packet
-    kmarg_det_pkt = None   # K-marginal score detail utility score packet
-    prop_pkt = None  # propensity score packet
+        log.msg('K-Marginal', level=3)
+        group_features = ds.config[strs.K_MARGINAL][strs.GROUP_FEATURES]
+        f_val_dict = {
+            f: {i: v for i, v in enumerate(ds.schema[f]['values'])}
+            for f in group_features
+        }
+        kmarg_sum_pkt = None   # K-marginal score summary utility score packet
+        kmarg_det_pkt = None   # K-marginal score detail utility score packet
+        prop_pkt = None  # propensity score packet
 
-    # compute scores and plots
-    s = KMarginal(ds.d_target_data,
-                  ds.d_synthetic_data,
-                  group_features)
+        # compute scores and plots
+        s = KMarginal(ds.d_target_data,
+                      ds.d_synthetic_data,
+                      group_features)
 
-    s.compute_score()
-    metric_name = s.NAME
+        s.compute_score()
+        metric_name = s.NAME
 
-    metric_score = int(s.score)
-    metric_attachments = []
+        metric_score = int(s.score)
+        metric_attachments = []
 
-    if s.NAME == KMarginal.NAME \
-            and ds.challenge == strs.CENSUS:
-        group_scores = s.scores if hasattr(s, 'scores') and len(s.scores) else None
-        # s_puma_score: subsample puma scores
-        subsample_scores, s_puma_scores = kmarginal_subsamples(ds, KMarginal, group_features)
-        kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
-                                                              f_val_dict,
-                                                              ds,
-                                                              r_ui_d,
-                                                              rd,
-                                                              subsample_scores,
-                                                              s_puma_scores,
-                                                              'PUMA',
-                                                              group_features,
-                                                              group_scores)
-    log.end_msg()
+        if s.NAME == KMarginal.NAME \
+                and ds.challenge == strs.CENSUS:
+            group_scores = s.scores if hasattr(s, 'scores') and len(s.scores) else None
+            # s_puma_score: subsample puma scores
+            subsample_scores, s_puma_scores = kmarginal_subsamples(ds, KMarginal, group_features)
+            kmarg_sum_pkt, kmarg_det_pkt = kmarginal_score_packet(metric_score,
+                                                                  f_val_dict,
+                                                                  ds,
+                                                                  r_ui_d,
+                                                                  rd,
+                                                                  subsample_scores,
+                                                                  s_puma_scores,
+                                                                  'PUMA',
+                                                                  group_features,
+                                                                  group_scores)
+        log.end_msg()
 
-    log.msg('PropensityMSE', level=3)
-    s = PropensityMSE(ds.t_target_data,
-                      ds.t_synthetic_data,
-                      r_ui_d.output_directory,
-                      features)
-    s.compute_score()
-    metric_name = s.NAME
+        log.msg('PropensityMSE', level=3)
+        s = PropensityMSE(ds.t_target_data,
+                          ds.t_synthetic_data,
+                          r_ui_d.output_directory,
+                          features)
+        s.compute_score()
+        metric_name = s.NAME
 
-    metric_score = int(s.score) if s.score > 100 else round(s.score, 3)
+        metric_score = int(s.score) if s.score > 100 else round(s.score, 3)
 
-    p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
-    # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
-    #
+        p_dist_plot = PropensityDistribution(s.prob_dist, r_ui_d.output_directory)
+        # pps = PropensityPairPlot(s.std_two_way_scores, rd.output_directory)
+        #
 
-    p_dist_paths = p_dist_plot.save()
-    prop_rep_data = {**s.report_data, **p_dist_plot.report_data}
-    rd.add('propensity mean square error', prop_rep_data)
-    # pps_paths = pps.save('spmse',
-    #                      'Two-Way Standardized Propensity Mean Square Error')
-    rel_pd_path = ["/".join(list(p.parts)[-2:])
-                    for p in p_dist_paths]
-    # rel_pps_path = ["/".join(list(p.parts)[-2:])
-    #                 for p in pps_paths]
+        p_dist_paths = p_dist_plot.save()
+        prop_rep_data = {**s.report_data, **p_dist_plot.report_data}
+        rd.add('propensity mean square error', prop_rep_data)
+        # pps_paths = pps.save('spmse',
+        #                      'Two-Way Standardized Propensity Mean Square Error')
+        rel_pd_path = ["/".join(list(p.parts)[-2:])
+                        for p in p_dist_paths]
+        # rel_pps_path = ["/".join(list(p.parts)[-2:])
+        #                 for p in pps_paths]
 
-    # probability distribution attachment
-    pd_para_a = Attachment(name=None,
-                           _data=propensity_para,
-                           _type=AttachmentType.String)
-    pd_score_a = Attachment(name=None,
-                            _data=f"Highlight-Score: {metric_score}",
-                            _type=AttachmentType.String)
-    pd_a = Attachment(name=f'Propensities Distribution',
-                      _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                             for p in rel_pd_path],
-                      _type=AttachmentType.ImageLinks)
-
-    prop_pkt = UtilityScorePacket(metric_name,
-                                  None,
-                                  [pd_para_a, pd_score_a, pd_a])
-
-    log.end_msg()
-
-    # rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
-    #                            for p in up_saved_file_paths]
-
-
-    corr_metric_a = []
-    corr_metric_a.append(Attachment(name=None,
-                                    _data=corr_para,
-                                    _type=AttachmentType.String))
-    if len(cdp_saved_file_paths):
-        rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
-                                    for p in cdp_saved_file_paths]
-        ktc_p_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
-                               _data=kend_corr_para,
+        # probability distribution attachment
+        pd_para_a = Attachment(name=None,
+                               _data=propensity_para,
                                _type=AttachmentType.String)
-        ktc_a = Attachment(name=None,
-                           _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                                  for p in rel_cdp_saved_file_paths],
-                           _type=AttachmentType.ImageLinks)
-        corr_metric_a.append(ktc_p_a)
-        corr_metric_a.append(ktc_a)
-
-    if len(pcp_saved_file_paths):
-        rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-2:])
-                                    for p in pcp_saved_file_paths]
-        pc_para_a = Attachment(name="Pearson Correlation Coefficient Difference",
-                               _data=pear_corr_para,
-                               _type=AttachmentType.String)
-        pc_a = Attachment(name=None,
+        pd_score_a = Attachment(name=None,
+                                _data=f"Highlight-Score: {metric_score}",
+                                _type=AttachmentType.String)
+        pd_a = Attachment(name=f'Propensities Distribution',
                           _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
-                                 for p in rel_pcp_saved_file_paths],
+                                 for p in rel_pd_path],
                           _type=AttachmentType.ImageLinks)
-        corr_metric_a.append(pc_para_a)
-        corr_metric_a.append(pc_a)
+
+        prop_pkt = UtilityScorePacket(metric_name,
+                                      None,
+                                      [pd_para_a, pd_score_a, pd_a])
+
+        log.end_msg()
+
+        # rel_up_saved_file_paths = ["/".join(list(p.parts)[-2:])
+        #                            for p in up_saved_file_paths]
 
 
-    # Add metrics reports to UI
-    if kmarg_sum_pkt:
-        r_ui_d.add(kmarg_sum_pkt)
+        corr_metric_a = []
+        corr_metric_a.append(Attachment(name=None,
+                                        _data=corr_para,
+                                        _type=AttachmentType.String))
+        if len(cdp_saved_file_paths):
+            rel_cdp_saved_file_paths = ["/".join(list(p.parts)[-2:])
+                                        for p in cdp_saved_file_paths]
+            ktc_p_a = Attachment(name="Kendall Tau Correlation Coefficient Difference",
+                                   _data=kend_corr_para,
+                                   _type=AttachmentType.String)
+            ktc_a = Attachment(name=None,
+                               _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                                      for p in rel_cdp_saved_file_paths],
+                               _type=AttachmentType.ImageLinks)
+            corr_metric_a.append(ktc_p_a)
+            corr_metric_a.append(ktc_a)
 
-    r_ui_d.add(UtilityScorePacket("Univariate Distributions",
-                                  None,
-                                  [Attachment(name=None,
-                                              _data=univ_dist_para,
-                                              _type=AttachmentType.String)] + u_as))
+        if len(pcp_saved_file_paths):
+            rel_pcp_saved_file_paths = ["/".join(list(p.parts)[-2:])
+                                        for p in pcp_saved_file_paths]
+            pc_para_a = Attachment(name="Pearson Correlation Coefficient Difference",
+                                   _data=pear_corr_para,
+                                   _type=AttachmentType.String)
+            pc_a = Attachment(name=None,
+                              _data=[{strs.IMAGE_NAME: Path(p).stem, strs.PATH: p}
+                                     for p in rel_pcp_saved_file_paths],
+                              _type=AttachmentType.ImageLinks)
+            corr_metric_a.append(pc_para_a)
+            corr_metric_a.append(pc_a)
 
-    r_ui_d.add(UtilityScorePacket("Correlations",
-                                  None,
-                                  corr_metric_a))
-    log.msg('Linear Regression', level=3)
-    lgr = LinearRegressionReport(ds, r_ui_d, rd)
-    lgr.add_to_ui()
-    log.end_msg()
 
-    if prop_pkt:
-        r_ui_d.add(prop_pkt)
+        # Add metrics reports to UI
+        if kmarg_sum_pkt:
+            r_ui_d.add(kmarg_sum_pkt)
 
-    log.msg('PCA', level=3)
-    pca_r = PCAReport(ds, r_ui_d, rd)
-    pca_r.add_to_ui()
-    log.end_msg()
+        r_ui_d.add(UtilityScorePacket("Correlations",
+                                      None,
+                                      corr_metric_a))
+        log.msg('Linear Regression', level=3)
+        lgr = LinearRegressionReport(ds, r_ui_d, rd)
+        lgr.add_to_ui()
+        log.end_msg()
 
-    log.msg('Inconsistencies', level=3)
-    icr = InconsistenciesReport(ds, r_ui_d, rd)
-    icr.add_to_ui()
-    log.end_msg()
+        if prop_pkt:
+            r_ui_d.add(prop_pkt)
 
-    if kmarg_det_pkt:
-        r_ui_d.add(kmarg_det_pkt)
+        log.msg('PCA', level=3)
+        pca_r = PCAReport(ds, r_ui_d, rd)
+        pca_r.add_to_ui()
+        log.end_msg()
+
+        log.msg('Inconsistencies', level=3)
+        icr = InconsistenciesReport(ds, r_ui_d, rd)
+        icr.add_to_ui()
+        log.end_msg()
+
+    # if kmarg_det_pkt:
+    #     r_ui_d.add(kmarg_det_pkt)
 
     return r_ui_d, rd
 

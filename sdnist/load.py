@@ -16,8 +16,9 @@ import numpy as np
 
 import sdnist.strs as strs
 
-DEFAULT_DATASET = 'diverse_communities_data_excerpts'
-
+DEFAULT_DATASET = 'BenchmarkData'
+ACS_DATASET = 'ACSDataExcerpts'
+SBO_DATASET = 'SBODataExcerpts'
 
 class TestDatasetName(Enum):
     NONE = 1
@@ -29,26 +30,17 @@ class TestDatasetName(Enum):
     ma2019 = 7
     tx2019 = 8
     national2019 = 9
+    sbo_target = 10
 
 
-dataset_name_state_map = {
-    TestDatasetName.national2019.name: 'national',
-    TestDatasetName.ma2019.name: 'massachusetts',
-    TestDatasetName.tx2019.name: 'texas'
+dataset_paths = {
+    TestDatasetName.national2019.name: f'{ACS_DATASET}/national',
+    TestDatasetName.ma2019.name: f'{ACS_DATASET}/massachusetts',
+    TestDatasetName.tx2019.name: f'{ACS_DATASET}/texas',
+    TestDatasetName.sbo_target.name: f'{SBO_DATASET}',
+
 }
 
-
-data_challenge_map = {
-    TestDatasetName.NONE: None,
-    TestDatasetName.GA_NC_SC_10Y_PUMS: strs.CENSUS,
-    TestDatasetName.NY_PA_10Y_PUMS: strs.CENSUS,
-    TestDatasetName.IL_OH_10Y_PUMS: strs.CENSUS,
-    TestDatasetName.ma2019: strs.CENSUS,
-    TestDatasetName.tx2019: strs.CENSUS,
-    TestDatasetName.national2019: strs.CENSUS,
-    TestDatasetName.taxi2016: strs.TAXI,
-    TestDatasetName.taxi2020: strs.TAXI
-}
 
 
 def reporthook(count, block_size, total_size):
@@ -77,17 +69,16 @@ def error_opening_zip(zip_path):
     return False
 
 
-def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.DATA):
+def check_exists(root: Path, name: Path, download: bool, data_name: str = DEFAULT_DATASET):
     root = root.expanduser()
     if not name.exists():
         print(f"{name} does not exist.")
         zip_path = Path(root.parent, 'data.zip')
-        version = "2.3.0"
+        version = "2.4.0"
 
         version_v = f"v{version}"
-        sdnist_version = DEFAULT_DATASET
 
-        download_link = f"https://github.com/usnistgov/SDNist/releases/download/{version_v}/{sdnist_version}.zip"
+        download_link = f"https://github.com/usnistgov/SDNist/releases/download/{version_v}/{data_name}.zip"
         if zip_path.exists() and error_opening_zip(zip_path):
             os.remove(zip_path)
 
@@ -122,7 +113,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = strs.D
             # delete zipfile
             os.remove(zip_path)
             print()
-            copy_from_path = str(Path(extract_path, sdnist_version))
+            copy_from_path = str(Path(extract_path, data_name))
             copy_to_path = str(Path(root))
             print(f"Copying {copy_from_path} to {copy_to_path} ...")
             copy_tree(copy_from_path, copy_to_path)
@@ -160,7 +151,6 @@ def build_name(challenge: str,
             fname = test.name
         else:
             fname = TestDatasetName.NY_PA_10Y_PUMS.name
-
     elif challenge == "taxi":
         if public:
             fname = "taxi"
@@ -174,12 +164,12 @@ def build_name(challenge: str,
             fname = test.name
         else:
             fname = TestDatasetName.taxi2020.name
-
     else:
         raise ValueError(f"Unrecognized challenge {challenge}")
-    if fname in dataset_name_state_map.keys():
-        fname = Path(dataset_name_state_map[fname], fname)
-    return directory / fname
+    config_path = Path(dataset_paths[fname].split('/')[0], 'config.json')
+    if fname in dataset_paths.keys():
+        fname = Path(dataset_paths[fname], fname)
+    return directory / fname, directory / config_path
 
 
 def load_parameters(challenge: str,
@@ -188,7 +178,7 @@ def load_parameters(challenge: str,
                     test: TestDatasetName = TestDatasetName.NONE,
                     download: bool = True,
                     data_name: str = DEFAULT_DATASET) -> dict:
-    dataset_path = build_name(challenge=challenge, root=root,
+    dataset_path, config_path = build_name(challenge=challenge, root=root,
                               public=public, test=test, data_name=data_name)
     dataset_parameters = dataset_path.with_suffix('.json')
     check_exists(root, dataset_parameters, download, data_name=data_name)
@@ -203,7 +193,7 @@ def load_config(challenge: str,
                 public: bool = True,
                 test: TestDatasetName = TestDatasetName.NONE,
                 download: bool = True) -> dict:
-    dataset_path = build_name(challenge=challenge, root=root, public=public, test=test)
+    dataset_path, config_path = build_name(challenge=challenge, root=root, public=public, test=test)
     dataset_config_path = dataset_path.with_suffix('.config.json')
     check_exists(root, dataset_config_path, download)
 
@@ -220,7 +210,7 @@ def load_config(challenge: str,
 
 
 def load_dataset(challenge: str,
-                 root: Path = Path("data"),
+                 root: Path = Path(DEFAULT_DATASET),
                  public: bool = True,
                  test: TestDatasetName = TestDatasetName.NONE,
                  download: bool = True,
@@ -263,7 +253,7 @@ def load_dataset(challenge: str,
     if public and test != TestDatasetName.NONE:
         raise ValueError("A public test dataset does not make sense.")
 
-    name = build_name(challenge, root, public, test, data_name)
+    name, config_name = build_name(challenge, root, public, test, data_name)
     name.parent.mkdir(exist_ok=True, parents=True)
 
     # Load schema
@@ -285,7 +275,6 @@ def load_dataset(challenge: str,
         columns = {name : params[strs.SCHEMA][name]["dtype"]
                    for name in params[strs.SCHEMA]}
         dataset = pd.read_csv(dataset_name, dtype=columns)
-
     else:
         raise ValueError(f"Unknown format {format_}")
 

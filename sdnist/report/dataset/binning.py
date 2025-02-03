@@ -1,7 +1,135 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple, Union
 import pandas as pd
 import numpy as np
 import math
+
+import sdnist.strs as strs
+from sdnist.report.dataset.validate import get_feature_type
+from sdnist.report.dataset.transform import (
+    parse_numeric_value, get_str_codes, get_null_codes)
+
+
+def bin_continuous_feature(t_f: pd.DataFrame,
+                           d_f: pd.DataFrame,
+                           data_dict: Dict,
+                           n_bins) \
+        -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, dict]]:
+    t_f = t_f.copy()
+    d_f = d_f.copy()
+    bin_mappings = dict()
+    f = t_f.columns.tolist()[0]
+    f_values = list(data_dict[f][strs.VALUES])
+
+    f_min = parse_numeric_value(data_dict[f][strs.VALUES][strs.MIN])
+    f_max = parse_numeric_value(data_dict[f][strs.VALUES][strs.MAX])
+    if f_max - f_min <= n_bins:
+        return t_f, d_f, bin_mappings
+
+    null_codes = get_null_codes(f, data_dict)
+
+    if f == 'POVPIP':
+        null_codes[501] = 501
+
+    # find values to leave out of binning
+    no_bin_vals = list(null_codes.values())
+
+    # target and deid unique vals
+    tuv = t_f[~t_f[f].isin(no_bin_vals)][f].unique().tolist()
+    duv = d_f[~d_f[f].isin(no_bin_vals)][f].unique().tolist()
+    d_max_val = max(duv)  # deid data max value
+    t_max_val = max(tuv)
+    d_min_val = min(duv)  # deid data min value
+    t_min_val = min(tuv)
+
+    # total bins to create after leaving off other values
+    n_bins = n_bins - len(no_bin_vals)
+    extra_bin_edges = [t_max_val]
+
+    # if deid data has the absolute max, then create another top bin
+    # with deid max value
+    if d_max_val > t_max_val:
+        n_bins = n_bins - 1
+        extra_bin_edges.append(d_max_val)
+
+    if d_min_val < t_min_val:
+        extra_bin_edges = [d_min_val] + extra_bin_edges
+        n_bins = n_bins - 1
+
+    # create bin percentiles
+    bins = [i * (100 / n_bins) for i in range(n_bins)]
+
+    tv = t_f[~t_f[f].isin(no_bin_vals)][f].values.tolist()
+    bin_edges = list(np.unique(np.percentile(tv, bins, method='higher'))) + extra_bin_edges
+
+    if bin_edges[-1] == bin_edges[-2]:
+        bin_edges = bin_edges[:-1]
+    # update lowest bin to be the minimum values of target or deid data
+    # min_val = d_min_val if d_min_val < t_min_val else t_min_val
+    # bin_edges[0] = min_val
+    mapping = {i: int(bin_edges[i]) for i, bv in enumerate(bin_edges)}
+    # create reverse string and null codes mapping
+    rev_null_codes = {v: k for k, v in null_codes.items()}
+
+    for nv in null_codes:
+        if nv in rev_null_codes:
+            mapping[nv] = rev_null_codes[nv]
+        else:
+            mapping[nv] = nv
+
+    dtype = t_f[f].dtype
+    tna = t_f[t_f[f].isin(no_bin_vals)]
+    dna = d_f[d_f[f].isin(no_bin_vals)]
+    tnna = t_f[~t_f[f].isin(no_bin_vals)]
+    dnna = d_f[~d_f[f].isin(no_bin_vals)]
+    tnna.loc[:, f] = (pd.cut(tnna[f], bins=bin_edges, labels=False,
+                            include_lowest=True, duplicates='drop')
+                      .astype(dtype))
+    dnna.loc[:, f] = (pd.cut(dnna[f], bins=bin_edges, labels=False,
+                            include_lowest=True, duplicates='drop')
+                      .astype(dtype))
+    tb = pd.concat([tnna, tna])
+    db = pd.concat([dnna, dna])
+    tb = tb.reindex(t_f.index)
+    db = db.reindex(d_f.index)
+    t_f[f], d_f[f] = tb[f], db[f]
+    bin_mappings[f] = mapping
+
+    return t_f, d_f, bin_mappings
+
+
+def bin_data(t: pd.DataFrame,
+             d: pd.DataFrame,
+             ddict: Dict,
+             n_bins: int = 20) \
+        -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Dict]]:
+    """
+    Bin numerical features and categorical features with range.
+    Features is list of lists. Each sub list contains features
+    that are to binned at same time using min and max values
+    from all features in a group.
+    :param t: target
+    :param d: deid data
+    :param ddict: data dictionary
+    :param features: feature groups to bin
+    :param n_bins: number of bins to create
+    :param binning_method: method used to bin values: equal frequency
+        or equal width
+    :return: binned target, binned deid data, bin to orig edge value mappings
+    """
+    tb = t.copy()
+    db = d.copy()
+
+    bin_mappings = dict()
+    continuous_features = [f for f in ddict
+                          if get_feature_type(ddict, f) == strs.CONTINUOUS]
+    for f in continuous_features:
+        tb_n, db_n, mappings = bin_continuous_feature(tb[[f]],
+                                                      db[[f]],
+                                                      ddict, n_bins)
+        tb[f], db[f] = tb_n[f], db_n[f]
+        bin_mappings.update(mappings)
+    return tb, db, bin_mappings
+
 
 
 def percentile_rank_target(data: pd.DataFrame, features: List[str]):
@@ -103,10 +231,10 @@ def bin_density(data: pd.DataFrame, data_dict: Dict, update: bool = True) -> pd.
     d.loc[d['DENSITY'] > n_max, 'DENSITY'] = float(n_max) - 100
 
     if update:
-        d['DENSITY'] = pd.cut(d['DENSITY'], bins=bins, labels=labels)
+        d['DENSITY'] = pd.cut(d['DENSITY'], bins=bins, labels=labels).astype(int)
         return d
     else:
-        d['binned_density'] = pd.cut(d['DENSITY'], bins=bins, labels=labels)
+        d['binned_density'] = pd.cut(d['DENSITY'], bins=bins, labels=labels).astype(int)
 
         d['bin_range'] = d['binned_density'].apply(lambda x: get_bin_range_log(x))
         return d

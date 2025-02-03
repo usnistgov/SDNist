@@ -1,0 +1,48 @@
+{
+    "drop_features": [],
+    "k_marginal": {
+        "ignore_features": [
+        ],
+        "group_features": [
+            "PUMA"
+        ]
+    },
+    "bins": {
+        "AGEP": {
+            "first_bin_max": 0,
+            "last_bin_min": 99,
+            "bin_size": 5
+        },
+        "PINCP": {
+            "first_bin_max": 0,
+            "last_bin_min": 300000,
+            "bin_size": 20000
+        },
+        "POVPIP": {
+            "first_bin_max": 0,
+            "last_bin_min": 501,
+            "bin_size": 20
+        }
+    },
+    "correlation_features": [
+        "PUMA",
+        "SEX",
+        "AGEP",
+        "MSP",
+        "HISP",
+        "RAC1P",
+        "NOC",
+        "NPF",
+        "HOUSING_TYPE",
+        "OWN_RENT",
+        "EDU",
+        "INDP_CAT",
+        "PINCP_DECILE",
+        "DVET",
+        "DEAR",
+        "DPHY",
+        "DEYE",
+        "DREM",
+        "DENSITY"
+    ]
+}
