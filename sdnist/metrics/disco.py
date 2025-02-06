@@ -1,7 +1,7 @@
 """
 Author: Damon Streat
 Implementation of DiSCO Metric with slight adjustments for our use case.
-Reference: https://arxiv.org/abs/2406.16826
+Reference:  Raab GM, Nowok B, and Dibben C. 2024. Practical privacy metrics for synthetic data. https://doi.org/10.48550/arXiv.2406.16826
 """
 
 import argparse
