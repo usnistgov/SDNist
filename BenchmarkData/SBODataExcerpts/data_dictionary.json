@@ -1,0 +1,1254 @@
+{
+    "FIPST": {
+        "description": "FIPS STATE CODE 00 - 56 , * ",
+        "values": {
+            "01": "Alabama/AL",
+            "02": "Alaska/AK",
+            "04": "Arizona/AZ",
+            "05": "Arkansas/AR",
+            "06": "California/CA",
+            "08": "Colorado/CO",
+            "09": "Connecticut/CT",
+            "10": "Delaware/DE",
+            "11": "District of Columbia/DC",
+            "12": "Florida/FL",
+            "13": "Georgia/GA",
+            "15": "Hawaii/HI",
+            "16": "Idaho/ID",
+            "17": "Illinois/IL",
+            "18": "Indianna/IN",
+            "19": "Iowa/IA",
+            "20": "Kansas/KS",
+            "21": "Kentucky/KY",
+            "22": "Louisiana/LA",
+            "23": "Maine/ME",
+            "24": "Maryland/MD",
+            "25": "Massachusetts/MA",
+            "26": "Michigan/MI",
+            "27": "Minnesota/MN",
+            "28": "Mississippi/MS",
+            "29": "Missouri/MO",
+            "30": "Montana/MT",
+            "31": "Nebraska/NE",
+            "32": "Nevada/NV",
+            "33": "New Hampshire/NH",
+            "34": "New Jersey/NJ",
+            "35": "New Mexico/NM",
+            "36": "New York/NY",
+            "37": "North Carolina/NC",
+            "38": "North Dakota/ND",
+            "39": "Ohio/OH",
+            "40": "Oklahoma/OK",
+            "41": "Oregon/OR",
+            "42": "Pennsylvania/PA",
+            "44": "Rhode Island/RI",
+            "45": "South Carolina/SC",
+            "46": "South Dakota/SD",
+            "47": "Tennessee/TN",
+            "48": "Texas/TX",
+            "49": "Utah/UT",
+            "50": "Vermont/VT",
+            "51": "Virginia/VA",
+            "53": "Washington/WA",
+            "54": "West Virginia/WV",
+            "55": "Wisconsin/WI",
+            "56": "Wyoming/WY",
+            "S1": "Alaska and Wyoming",
+            "S2": "Delaware and District of Columbia",
+            "S3": "North Dakota and South Dakota",
+            "S4": "Rhode Island and Vermont",
+            "72": "Puerto Rico/PR"
+        }
+    },
+    "SECTOR": {
+        "description": "NAICS SECTOR FOR ESTABLISHMENT 00 - 99 ",
+        "values": {
+            "11": "Agriculture,Forestry,FishingandHunting",
+            "21": "Mining,Quarrying,andOilandGasExtraction",
+            "22": "Utilities",
+            "23": "Construction",
+            "31": "Manufacturing",
+            "42": "WholesaleTrade",
+            "44": "RetailTrade",
+            "48": "TransportationandWarehousing",
+            "51": "Information",
+            "52": "FinanceandInsurance",
+            "53": "RealEstateandRentalandLeasing",
+            "54": "Professional,Scientific,andTechnicalServices",
+            "55": "ManagementofCompaniesandEnterprises",
+            "56": "AdministrativeandSupportandWasteManagementandRemediationServices",
+            "61": "EducationalServices",
+            "62": "HealthCareandSocialAssistance",
+            "71": "Arts,Entertainment,andRecreation",
+            "72": "AccommodationandFoodServices",
+            "81": "OtherServices(exceptPublicAdministration)",
+            "99": "Unknown"
+        }
+    },
+    "N07_EMPLOYER": {
+        "description": "EMPLOYER STATUS FOR TABULATION E, N ",
+        "values": {
+            "E": "Employer",
+            "N": "Non employer"
+        }
+    },
+    "RG": {
+        "description": "RANDOM GROUP 0 - 10 ",
+        "values": {
+            "min": 0,
+            "max": 10,
+            "step_size": 1
+        }
+    },
+    "TABWGT": {
+        "description": "TABULATION WEIGHT 0.000 - 999.999 ",
+        "values": {
+            "min": 0,
+            "max": 999.999,
+            "step_size": 0.001
+        }
+    },
+    "EMPLOYMENT_NOISY": {
+        "description": "ESTABLISHMENT EMPLOYMENT (NOISY) 0 - 999,999,999 ",
+        "values": {
+            "min": 0,
+            "max": 999999999,
+            "step_size": 1
+        }
+    },
+    "PAYROLL_NOISY": {
+        "description": "ESTABLISHMENT PAYROLL (NOISY) 0 - 999,999,999 ",
+        "values": {
+            "min": 0,
+            "max": 999999999,
+            "step_size": 1
+        }
+    },
+    "RECEIPTS_NOISY": {
+        "description": "ESTABLISHMENT RECEIPTS (NOISY) 0 - 999,999,999 ",
+        "values": {
+            "min": 0,
+            "max": 999999999,
+            "step_size": 1
+        }
+    },
+    "PCT1": {
+        "description": "OWNER 1 PERCENTAGE FINAL 0 - 100 ",
+        "values": {
+            "min": 0,
+            "max": 100,
+            "step_size": 1
+        }
+    },
+    "ETH1": {
+        "description": "OWNER 1 ETHNICITY ** ",
+        "values": {
+            "H": "HISPANIC",
+            "N": "NONHISPANIC",
+            "NOT REPORTED": "NOT REPORTED"
+        }
+    },
+    "RACE1": {
+        "description": "OWNER 1 RACE *** ",
+        "values": {
+            "W": "WHITE only",
+            " B": "BLACK only",
+            "B": "BLACK only",
+            "  I": "AIAN only",
+            "I": "AIAN only",
+            "   A": "ASIAN only:",
+            "A": "ASIAN only:",
+            "    P": "NHOPI only",
+            "P": "NHOPI only",
+            "     S": "SOME OTHER RACE only",
+            "S": "SOME OTHER RACE only",
+            "WB": "WHITE and other races",
+            "WBI": "WHITE and other races",
+            "WBIA": "WHITE and other races",
+            "WBIAP": "WHITE and other races",
+            "WBIAPS": "WHITE and other races",
+            "WBIA S": "WHITE and other races",
+            "WBI P": "WHITE and other races",
+            "WBI PS": "WHITE and other races",
+            "WBI  S": "WHITE and other races",
+            "WB A": "WHITE and other races",
+            "WB AP": "WHITE and other races",
+            "WB APS": "WHITE and other races",
+            "WB A S": "WHITE and other races",
+            "WB  P": "WHITE and other races",
+            "WB  PS": "WHITE and other races",
+            "WB   S": "WHITE and other races",
+            "W I": "WHITE and other races",
+            "W IA": "WHITE and other races",
+            "W IAP": "WHITE and other races",
+            "W IAPS": "WHITE and other races",
+            "W IA S": "WHITE and other races",
+            "W I P": "WHITE and other races",
+            "W I PS": "WHITE and other races",
+            "W I  S": "WHITE and other races",
+            "W  A": "WHITE and other races",
+            "W  AP": "WHITE and other races",
+            "W  APS": "WHITE and other races",
+            "W  A S": "WHITE and other races",
+            "W   P": "WHITE and other races",
+            "W   PS": "WHITE and other races",
+            "W    S": "WHITE and other races",
+            " BI": "Non-White 2 or more races",
+            " BIA": "Non-White 2 or more races",
+            " BIAP": "Non-White 2 or more races",
+            " BIAPS": "Non-White 2 or more races",
+            " BIA S": "Non-White 2 or more races",
+            " BI P": "Non-White 2 or more races",
+            " BI PS": "Non-White 2 or more races",
+            " BI  S": "Non-White 2 or more races",
+            " B A": "Non-White 2 or more races",
+            " B AP": "Non-White 2 or more races",
+            " B APS": "Non-White 2 or more races",
+            " B A S": "Non-White 2 or more races",
+            " B  P": "Non-White 2 or more races",
+            " B  PS": "Non-White 2 or more races",
+            " B   S": "Non-White 2 or more races",
+            "  IA": "Non-White 2 or more races",
+            "  IAP": "Non-White 2 or more races",
+            "  IAPS": "Non-White 2 or more races",
+            "  IA S": "Non-White 2 or more races",
+            "  I P": "Non-White 2 or more races",
+            "  I PS": "Non-White 2 or more races",
+            "  I  S": "Non-White 2 or more races",
+            "   AP": "Non-White 2 or more races",
+            "   APS": "Non-White 2 or more races",
+            "   A S": "Non-White 2 or more races",
+            "    PS": "Non-White 2 or more races",
+            "BI": "Non-White 2 or more races",
+            "BIA": "Non-White 2 or more races",
+            "BIAP": "Non-White 2 or more races",
+            "BIAPS": "Non-White 2 or more races",
+            "BIA S": "Non-White 2 or more races",
+            "BI P": "Non-White 2 or more races",
+            "BI PS": "Non-White 2 or more races",
+            "BI  S": "Non-White 2 or more races",
+            "B A": "Non-White 2 or more races",
+            "B AP": "Non-White 2 or more races",
+            "B APS": "Non-White 2 or more races",
+            "B A S": "Non-White 2 or more races",
+            "B  P": "Non-White 2 or more races",
+            "B  PS": "Non-White 2 or more races",
+            "B   S": "Non-White 2 or more races",
+            "IA": "Non-White 2 or more races",
+            "IAP": "Non-White 2 or more races",
+            "IAPS": "Non-White 2 or more races",
+            "IA S": "Non-White 2 or more races",
+            "I P": "Non-White 2 or more races",
+            "I PS": "Non-White 2 or more races",
+            "I  S": "Non-White 2 or more races",
+            "AP": "Non-White 2 or more races",
+            "APS": "Non-White 2 or more races",
+            "A S": "Non-White 2 or more races",
+            "PS": "Non-White 2 or more races"
+        }
+    },
+    "SEX1": {
+        "description": "OWNER 1 SEX F, M ",
+        "values": {
+            "M": "Male",
+            "F": "Female"
+        }
+    },
+    "VET1": {
+        "description": "OWNER 1 VETERAN STATUS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FOUNDED1": {
+        "description": "OWNER 1 FOUNDED THE BUSINESS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "PURCHASED1": {
+        "description": "OWNER 1 PURCHASED THE BUSINESS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "INHERITED1": {
+        "description": "OWNER 1 INHERITED THE BUSINESS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "RECEIVED1": {
+        "description": "OWNER 1 RECEIVED TRANSFER OR GIFT OF BUSINESS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ACQUIRENR1": {
+        "description": "OWNER 1 ACQUIRE NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ACQYR1": {
+        "description": "OWNER 1 YEAR ACQUIRED **** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "BEFORE 1980",
+            "2": "1980 TO 1989",
+            "3": "1990 TO 1999",
+            "4": "2000 TO 2004",
+            "5": "2005",
+            "6": "2006",
+            "7": "2007",
+            "8": "DO NOT KNOW"
+        }
+    },
+    "PROVIDE1": {
+        "description": "OWNER 1 PROVIDED SERVICES / PRODUCED GOODS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "MANAGE1": {
+        "description": "OWNER 1 MANAGED 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FINANCIAL1": {
+        "description": "OWNER 1 HAD FINANCIAL CONTROL 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FNCTNABV1": {
+        "description": "OWNER 1 FUNCTION NONE OF THE ABOVE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FNCTNR1": {
+        "description": "OWNER 1 FUNCTION NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "HOURS1": {
+        "description": "OWNER 1 HOURS SPENT MANAGING OR WORKING **** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "NONE",
+            "2": "LESS THAN 20",
+            "3": "20 TO 39",
+            "4": "40",
+            "5": "41 TO 59",
+            "6": "60 OR MORE"
+        }
+    },
+    "PRMINC1": {
+        "description": "OWNER 1 PRIMARY SOURCE OF INCOME 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SELFEMP1": {
+        "description": "OWNER 1 PREVIOUSLY SELF-EMPLOYED 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "EDUC1": {
+        "description": "OWNER 1 EDUCATION LEVEL **** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "LESS THAN HIGH SCHOOL",
+            "2": "HIGH SCHOOL",
+            "3": "TECHNICAL SCHOOL",
+            "4": "SOME COLLEGE",
+            "5": "ASSOCIATES",
+            "6": "BACHELORS",
+            "7": "MASTERS +"
+        }
+    },
+    "AGE1": {
+        "description": "OWNER 1 AGE **** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "UNDER 25",
+            "2": "25 TO 34",
+            "3": "35 TO 44",
+            "4": "45 TO 54",
+            "5": "55 TO 64",
+            "6": "65 OR OVER"
+        }
+    },
+    "BORNUS1": {
+        "description": "OWNER 1 BORN IN THE UNITED STATES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "DISVET1": {
+        "description": "OWNER 1 SERVICE-DISABLED VETERAN 0 (NOT REPORTED), 1 (YES), 2 (NO), 3 (NOT APPLICABLE) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO",
+            "3": "NOT APPLICABLE"
+        }
+    },
+    "ESTABLISHED": {
+        "description": "YEAR BUSINESS ESTABLISHED ***** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "BEFORE 1980",
+            "2": "1980 TO 1989",
+            "3": "1990 TO 1999",
+            "4": "2000 TO 2002",
+            "5": "2003",
+            "6": "2004",
+            "7": "2005",
+            "8": "2006",
+            "9": "2007",
+            "A": "DO NOT KNOW"
+        }
+    },
+    "SCSAVINGS": {
+        "description": "SOURCE OF STARTUP CAPITAL: PERSONAL SAVINGS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCASSETS": {
+        "description": "SOURCE OF STARTUP CAPITAL: OTHER PERSONAL ASSETS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCEQUITY": {
+        "description": "SOURCE OF STARTUP CAPITAL: HOME EQUITY 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCCREDIT": {
+        "description": "SOURCE OF STARTUP CAPITAL: CREDIT CARDS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCGOVTLOAN": {
+        "description": "SOURCE OF STARTUP CAPITAL: GOV'T LOAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCGOVTGUAR": {
+        "description": "SOURCE OF STARTUP CAPITAL: GOV'T GUARANTEED BANK LOAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCBANKLOAN": {
+        "description": "SOURCE OF STARTUP CAPITAL: BANK LOAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCFAMLOAN": {
+        "description": "SOURCE OF STARTUP CAPITAL: LOAN FROM FAMILY/FRIENDS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCVENTURE": {
+        "description": "SOURCE OF STARTUP CAPITAL: VENTURE CAPITALIST 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCGRANT": {
+        "description": "SOURCE OF STARTUP CAPITAL: GRANT 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCOTHER": {
+        "description": "SOURCE OF STARTUP CAPITAL: OTHER 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCDONTKNOW": {
+        "description": "SOURCE OF STARTUP CAPITAL: DON'T KNOW 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCNONENEEDED": {
+        "description": "SOURCE OF STARTUP CAPITAL: NONE NEEDED 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCNOTREPORTED": {
+        "description": "SOURCE OF STARTUP CAPITAL: NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SCAMOUNT": {
+        "description": "AMOUNT OF STARTUP CAPITAL ***** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "LESS THAN $5000",
+            "2": "$5,000 TO $9,999",
+            "3": "$10,000 TO $24,999",
+            "4": "$25,000 TO $49,999",
+            "5": "$50,000 TO $99,999",
+            "6": "$100,000 TO $249,999",
+            "7": "$250,000 TO $999,999",
+            "8": "$1,000,000 OR MORE",
+            "9": "DO NOT KNOW",
+            "A": "NOT APPLICABLE"
+        }
+    },
+    "HOMEBASED": {
+        "description": "HOME-BASED BUSINESS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FRANCHISE": {
+        "description": "OPERATED AS A FRANCHISE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FRANCHISER50": {
+        "description": "FRANCHISER OWNED 50%+ 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECSAVINGS": {
+        "description": "SOURCE OF EXPANSION CAPITAL: PERSONAL SAVINGS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECASSETS": {
+        "description": "SOURCE OF EXPANSION CAPITAL: OTHER PERSONAL ASSETS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECEQUITY": {
+        "description": "SOURCE OF EXPANSION CAPITAL: HOME EQUITY 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECCREDIT": {
+        "description": "SOURCE OF EXPANSION CAPITAL: CREDIT CARDS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECGOVTLOAN": {
+        "description": "SOURCE OF EXPANSION CAPITAL: GOV'T LOAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECGOVTGUAR": {
+        "description": "SOURCE OF EXPANSION CAPITAL: GOV'T GUARANTEED BANK LOAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECBANKLOAN": {
+        "description": "SOURCE OF EXPANSION CAPITAL: BANK LOAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECFAMLOAN": {
+        "description": "SOURCE OF EXPANSION CAPITAL: LOAN FROM FAMILY/FRIENDS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECVENTURE": {
+        "description": "SOURCE OF EXPANSION CAPITAL: VENTURE CAPITALIST 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECPROFITS": {
+        "description": "SOURCE OF EXPANSION CAPITAL: BUSINESS PROFITS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECGRANT": {
+        "description": "SOURCE OF EXPANSION CAPITAL: GRANT 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECOTHER": {
+        "description": "SOURCE OF EXPANSION CAPITAL: OTHER 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECDONTKNOW": {
+        "description": "SOURCE OF EXPANSION CAPITAL: DON'T KNOW 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECNOACCESS": {
+        "description": "SOURCE OF EXPANSION CAPITAL: NO ACCESS TO CAPITAL 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECNOEXPAND": {
+        "description": "SOURCE OF EXPANSION CAPITAL: DID NOT EXPAND 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECNOTREPORTED": {
+        "description": "SOURCE OF EXPANSION CAPITAL: NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FEDERAL": {
+        "description": "FEDERAL GOV'T IS 10%+ OF SALES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "STATELOCAL": {
+        "description": "STATE/LOCAL GOV'T IS 10%+ OF SALES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "OTHERBUS": {
+        "description": "OTHER BUSINESSES ARE 10%+ OF SALES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "INDIVIDUALS": {
+        "description": "INDIVIDUALS ARE 10%+ OF SALES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "CUSTNR": {
+        "description": "CUSTOMER TYPES NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "EXPORTS": {
+        "description": "EXPORTS AS % OF TOTAL SALES ***** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "NONE",
+            "2": "LESS THAN 1%",
+            "3": "1% TO 4%",
+            "4": "5% TO 9%",
+            "5": "10% TO 19%",
+            "6": "20% TO 49%",
+            "7": "50% TO 99%",
+            "8": "100%",
+            "9": "DO NOT KNOW"
+        }
+    },
+    "OPSOUTSIDE": {
+        "description": "ESTABLISHED OPERATIONS OUTSIDE THE UNITED STATES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "OUTSOURCE": {
+        "description": "OUTSOURCED BUSINESS FUNCTIONS OUT OF THE UNITED STATES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ENGLISH": {
+        "description": "CONDUCTED TRANSACTIONS IN ENGLISH 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ARABIC": {
+        "description": "CONDUCTED TRANSACTIONS IN ARABIC 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "CHINESE": {
+        "description": "CONDUCTED TRANSACTIONS IN CHINESE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FRENCH": {
+        "description": "CONDUCTED TRANSACTIONS IN FRENCH 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "GERMAN": {
+        "description": "CONDUCTED TRANSACTIONS IN GERMAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "GREEK": {
+        "description": "CONDUCTED TRANSACTIONS IN GREEK 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "HINDI": {
+        "description": "CONDUCTED TRANSACTIONS IN HINDI 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ITALIAN": {
+        "description": "CONDUCTED TRANSACTIONS IN ITALIAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "JAPANESE": {
+        "description": "CONDUCTED TRANSACTIONS IN JAPANESE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "KOREAN": {
+        "description": "CONDUCTED TRANSACTIONS IN KOREAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "POLISH": {
+        "description": "CONDUCTED TRANSACTIONS IN POLISH 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "PORTUGUESE": {
+        "description": "CONDUCTED TRANSACTIONS IN PORTUGUESE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "RUSSIAN": {
+        "description": "CONDUCTED TRANSACTIONS IN RUSSIAN 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SPANISH": {
+        "description": "CONDUCTED TRANSACTIONS IN SPANISH 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "TAGALOG": {
+        "description": "CONDUCTED TRANSACTIONS IN TAGALOG 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "VIETNAMESE": {
+        "description": "CONDUCTED TRANSACTIONS IN VIETNAMESE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "LANGOTHER": {
+        "description": "CONDUCTED TRANSACTIONS IN OTHER LANGUAGE(S) 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "LANGNR": {
+        "description": "LANGUAGE NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "FULLTIME": {
+        "description": "USED FULL-TIME EMPLOYEES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "PARTTIME": {
+        "description": " USED PART-TIME EMPLOYEES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "DAYLABOR": {
+        "description": "USED DAY LABORERS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "TEMPSTAFF": {
+        "description": "USED TEMPORARY STAFF 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "LEASED": {
+        "description": "USED LEASED STAFF 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "CONTRACTORS": {
+        "description": "USED CONTRACTORS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "EMPNR": {
+        "description": "EMPLOYEE TYPES NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "HEALTHINS": {
+        "description": "PROVIDED HEALTH INSURANCE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "RETIREMENT": {
+        "description": "PROVIDED RETIREMENT BENEFITS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "PROFITSHARE": {
+        "description": "PROVIDED PROFIT SHARING 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "HOLIDAYS": {
+        "description": "PROVIDED PAID HOLIDAYS / VACATION 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "BENENABV": {
+        "description": "PROVIDED NONE OF THE ABOVE BENEFITS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "BENENR": {
+        "description": "BENEFITS NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "WEBSITE": {
+        "description": "BUSINESS HAD A WEBSITE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECOMMERCE": {
+        "description": "ECOMMERCE SALES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ECOMMPCT": {
+        "description": "ECOMMERCE SALES AS % OF TOTAL SALES ***** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "NONE",
+            "2": "LESS THAN 1%",
+            "3": "1% TO 4%",
+            "4": "5% TO 9%",
+            "5": "10% TO 19%",
+            "6": "20% TO 49%",
+            "7": "50% TO 99%",
+            "8": "100%",
+            "9": "DO NOT KNOW"
+        }
+    },
+    "ONLINEPURCH": {
+        "description": "MADE PURCHASES ONLINE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "LT40HOURS": {
+        "description": "OPERATED LESS THAN 40 HOURS PER WEEK 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "LT12MONTHS": {
+        "description": "OPERATED LESS THAN 12 MONTHS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SEASONAL": {
+        "description": "SEASONAL BUSINESS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "OCCASIONALLY": {
+        "description": "OPERATED OCCASIONALLY 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ACTIVITYNABV": {
+        "description": "BUSINESS ACTIVITY NONE OF THE ABOVE 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ACTIVITYNR": {
+        "description": "BUSINESS ACTIVITY NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "OPERATING": {
+        "description": "BUSINESS CURRENTLY OPERATING 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "RETIRED": {
+        "description": "OWNER RETIRED 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "DECEASED": {
+        "description": "OWNER DIED 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "ONETIME": {
+        "description": "OPERATED FOR ONE-TIME EVENT 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "LOWSALES": {
+        "description": "INADEQUATE CASH FLOW OR LOW SALES 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "NOBUSCRED": {
+        "description": "LACK OF BUSINESS LOANS/CREDIT 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "NOPERSCRED": {
+        "description": "LACK OF PERSONAL LOANS/CREDIT 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "STARTANOTHER": {
+        "description": "STARTED ANOTHER BUSINESS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "SOLDBUS": {
+        "description": "SOLD THIS BUSINESS 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "CEASEOTHER": {
+        "description": "CEASED OPERATIONS FOR ANOTHER REASON 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "CEASENR": {
+        "description": "CEASED OPERATIONS NOT REPORTED 1 (YES), 2 (NO) ",
+        "values": {
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "CEASENA": {
+        "description": "CEASED OPERATIONS NOT APPLICABLE 1 (YES), 2 (NO) ",
+        "values": {
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "HUSBWIFE": {
+        "description": "JOINTLY OWNED BY HUSBAND AND WIFE ***** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES, EQUALLY OPERATED",
+            "2": "YES, PRIMARILY HUSBAND",
+            "3": "YES, PRIMARILY WIFE",
+            "4": "NO"
+        }
+    },
+    "FAMILYBUS": {
+        "description": "FAMILY OWNED 0 (NOT REPORTED), 1 (YES), 2 (NO) ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "YES",
+            "2": "NO"
+        }
+    },
+    "NUMOWNERS": {
+        "description": "NUMBER OF OWNERS ***** ",
+        "values": {
+            "0": "NOT REPORTED",
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5 TO 9",
+            "6": "10 TO 49",
+            "7": "50 OR MORE",
+            "8": "UNKNOWN"
+        }
+    }
+}

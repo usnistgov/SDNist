@@ -1,0 +1,128 @@
+{
+  "PUMA": {
+    "25-00503": {
+        "name": "Middlesex County--Waltham City, Lexington, Burlington, Bedford & Lincoln Towns",
+        "link": "https://censusreporter.org/profiles/79500US2500503-middlesex-county-waltham-city-lexington-burlington-bedford-lincoln-towns-puma-ma/"
+    },
+    "25-00703": {
+      "name": "Essex County (East)--Salem, Beverly, Gloucester & Newburyport Cities",
+      "link": "https://censusreporter.org/profiles/79500US2500703-essex-county-east-salem-beverly-gloucester-newburyport-cities-puma-ma/"
+    },
+    "25-01000": {
+      "name": "Peabody City, Danvers, Reading, North Reading & Lynnfield Towns",
+      "link": "https://censusreporter.org/profiles/79500US2501000-peabody-city-danvers-reading-north-reading-lynnfield-towns-puma-ma/"
+    },
+    "25-01300": {
+      "name": "Billerica, Andover, Tewksbury & Wilmington Towns",
+      "link": "https://censusreporter.org/profiles/79500US2501300-billerica-andover-tewksbury-wilmington-towns-puma-ma/"
+    },
+    "25-02800": {
+      "name": "Woburn, Melrose Cities, Saugus, Wakefield & Stoneham Towns",
+      "link": "https://censusreporter.org/profiles/79500US2502800-woburn-melrose-cities-saugus-wakefield-stoneham-towns-puma-ma/"
+    },
+    "48-02510": {
+      "name": "Tarrant County (North)--North Richland Hills (North) & Keller Cities",
+      "link": "https://censusreporter.org/profiles/79500US4802510-tarrant-county-north-north-richland-hills-north-keller-cities-puma-tx/"
+    },
+    "48-02102": {
+      "name": "Johnson County",
+      "link": "https://censusreporter.org/profiles/79500US4802102-johnson-county-puma-tx/"
+    },
+    "48-02101": {
+      "name": "Ellis County",
+      "link": "https://censusreporter.org/profiles/79500US4802101-ellis-county-puma-tx/"
+    },
+    "48-02515": {
+      "name": "Tarrant County (West)--Fort Worth City (West)",
+      "link": "https://censusreporter.org/profiles/79500US4802515-tarrant-county-west-fort-worth-city-west-puma-tx/"
+    },
+    "48-02507": {
+      "name": "Tarrant County (East)--Arlington City (West)--South of I-30 & East of Loop I-820",
+      "link": "https://censusreporter.org/profiles/79500US4802507-tarrant-county-east-arlington-city-west-south-of-i-30-east-of-loop-i-820-puma-tx/"
+    },
+    "48-02516": {
+      "name": "Tarrant County (Southwest)--Fort Worth (Southwest) & Benbrook Cities",
+      "link": "https://censusreporter.org/profiles/79500US4802514-tarrant-county-southwest-fort-worth-southwest-benbrook-cities-puma-tx/"
+    },
+    "01-01301": {
+      "name": "Birmingham City (West)",
+      "link": "https://censusreporter.org/profiles/79500US0101301-birmingham-city-west-puma-al/"
+    },
+    "06-07502": {
+      "name": "San Francisco County (North & East)--North Beach & Chinatown",
+      "link": "https://censusreporter.org/profiles/79500US0607502-san-francisco-county-north-east-north-beach-chinatown-puma-ca/"
+    },
+    "06-08507": {
+      "name": "Santa Clara County (Southwest)--Cupertino, Saratoga Cities & Los Gatos Town",
+      "link": "https://censusreporter.org/profiles/79500US0608507-santa-clara-county-southwest-cupertino-saratoga-cities-los-gatos-town-puma-ca/"
+    },
+    "08-00803": {
+      "name": "Boulder County (Central)--Boulder City",
+      "link": "https://censusreporter.org/profiles/79500US0800803-boulder-county-central-boulder-city-puma-co/"
+    },
+    "13-04600": {
+      "name": "Atlanta Regional Commission--Fulton County (Central)--Atlanta City (Central)",
+      "link": "https://censusreporter.org/profiles/79500US1304600-atlanta-regional-commission-fulton-county-central-atlanta-city-central-puma-ga/"
+    },
+    "17-03529": {
+      "name": "Chicago City (South)--South Shore, Hyde Park, Woodlawn, Grand Boulevard & Douglas",
+      "link": "https://censusreporter.org/profiles/79500US1703529-chicago-city-south-south-shore-hyde-park-woodlawn-grand-boulevard-douglas-puma-il/"
+    },
+    "17-03531": {
+      "name": "Chicago City (South)--Auburn Gresham, Roseland, Chatham, Avalon Park & Burnside",
+      "link": "https://censusreporter.org/profiles/79500US1703531-chicago-city-south-auburn-gresham-roseland-chatham-avalon-park-burnside-puma-il/"
+    },
+    "19-01700": {
+      "name": "Des Moines City",
+      "link": "https://censusreporter.org/profiles/79500US1901700-des-moines-city-puma-ia/"
+    },
+    "24-01004": {
+      "name": "Montgomery County (South)--Bethesda, Potomac & North Bethesda",
+      "link": "https://censusreporter.org/profiles/79500US2401004-montgomery-county-south-bethesda-potomac-north-bethesda-puma-md/"
+    },
+    "26-02702": {
+      "name": "Washtenaw County (East Central)--Ann Arbor City Area",
+      "link": "https://censusreporter.org/profiles/79500US2602702-washtenaw-county-east-central-ann-arbor-city-area-puma-mi/"
+    },
+    "28-01100": {
+      "name": "Central Region--Jackson City (East & Central)",
+      "link": "https://censusreporter.org/profiles/79500US2801100-central-region-jackson-city-east-central-puma-ms/"
+    },
+    "29-01901": {
+      "name": "St. Louis City (North)",
+      "link": "https://censusreporter.org/profiles/79500US2901901-st-louis-city-north-puma-mo/"
+    },
+    "30-00600": {
+      "name": "East Montana (Outside Billings City)",
+      "link": "https://censusreporter.org/profiles/79500US3000600-east-montana-outside-billings-city-puma-mt/"
+    },
+    "32-00405": {
+      "name": "Las Vegas City (Southeast)",
+      "link": "https://censusreporter.org/profiles/79500US3200405-las-vegas-city-southeast-puma-nv/"
+    },
+    "36-03710": {
+      "name": "NYC-Bronx Community District 1 & 2--Hunts Point, Longwood & Melrose",
+      "link": "https://censusreporter.org/profiles/79500US3603710-nyc-bronx-community-district-1-2-hunts-point-longwood-melrose-puma-ny/"
+    },
+    "36-04010": {
+      "name": "NYC-Brooklyn Community District 17--East Flatbush, Farragut & Rugby",
+      "link": "https://censusreporter.org/profiles/79500US3604010-nyc-brooklyn-community-district-17-east-flatbush-farragut-rugby-puma-ny/"
+    },
+    "38-00100": {
+      "name": "West North Dakota--Minot City",
+      "link": "https://censusreporter.org/profiles/79500US3800100-west-north-dakota-minot-city-puma-nd/"
+    },
+    "40-00200": {
+      "name": "Cherokee, Sequoyah & Adair Counties",
+      "link": "https://censusreporter.org/profiles/79500US4000200-cherokee-sequoyah-adair-counties-puma-ok/"
+    },
+    "51-01301": {
+      "name": "Arlington County (North)",
+      "link": "https://censusreporter.org/profiles/79500US5101301-arlington-county-north-puma-va/"
+    },
+    "51-51255": {
+      "name": "Alexandria City",
+      "link": "https://censusreporter.org/profiles/79500US5151255-alexandria-city-puma-va/"
+    }
+  }
+}

@@ -1,0 +1,1355 @@
+{
+    "schema": {
+        "FIPST": {
+            "values": [
+                "01",
+                "17",
+                "25",
+                "40",
+                "48",
+                "S1"
+            ],
+            "dtype": "object"
+        },
+        "SECTOR": {
+            "values": [
+                11,
+                21,
+                22,
+                23,
+                31,
+                42,
+                44,
+                48,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                61,
+                62,
+                71,
+                72,
+                81,
+                99
+            ],
+            "dtype": "int64"
+        },
+        "N07_EMPLOYER": {
+            "values": [
+                "E"
+            ],
+            "dtype": "object"
+        },
+        "RG": {
+            "values": {
+                "min": 0,
+                "max": 10,
+                "step_size": 1
+            },
+            "dtype": "int64"
+        },
+        "TABWGT": {
+            "values": {
+                "min": 0,
+                "max": 999.999,
+                "step_size": 0.001
+            },
+            "dtype": "float64"
+        },
+        "EMPLOYMENT_NOISY": {
+            "values": {
+                "min": 0,
+                "max": 52000,
+                "step_size": 1
+            },
+            "dtype": "int64"
+        },
+        "PAYROLL_NOISY": {
+            "values": {
+                "min": 0,
+                "max": 1100000,
+                "step_size": 1
+            },
+            "dtype": "int64"
+        },
+        "RECEIPTS_NOISY": {
+            "values": {
+                "min": 0,
+                "max": 14000000,
+                "step_size": 1
+            },
+            "dtype": "int64"
+        },
+        "PCT1": {
+            "values": {
+                "min": 0,
+                "max": 100,
+                "step_size": 1
+            },
+            "dtype": "int64"
+        },
+        "ETH1": {
+            "values": [
+                "H",
+                "N"
+            ],
+            "dtype": "object"
+        },
+        "RACE1": {
+            "values": [
+                "A",
+                "A S",
+                "AP",
+                "B",
+                "B   S",
+                "B A",
+                "BI",
+                "I",
+                "I  S",
+                "IA",
+                "P",
+                "S",
+                "W",
+                "W    S",
+                "W   P",
+                "W  A",
+                "W I",
+                "WB"
+            ],
+            "dtype": "object"
+        },
+        "SEX1": {
+            "values": [
+                "F",
+                "M"
+            ],
+            "dtype": "object"
+        },
+        "VET1": {
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "int64"
+        },
+        "FOUNDED1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "PURCHASED1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "INHERITED1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "RECEIVED1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ACQUIRENR1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ACQYR1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "dtype": "float64"
+        },
+        "PROVIDE1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "MANAGE1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "FINANCIAL1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "FNCTNABV1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "FNCTNR1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "HOURS1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "dtype": "float64"
+        },
+        "PRMINC1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SELFEMP1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "EDUC1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "dtype": "float64"
+        },
+        "AGE1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "dtype": "float64"
+        },
+        "BORNUS1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "DISVET1": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "dtype": "float64"
+        },
+        "ESTABLISHED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "A"
+            ],
+            "dtype": "object"
+        },
+        "SCSAVINGS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCASSETS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCEQUITY": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCCREDIT": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCGOVTLOAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCGOVTGUAR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCBANKLOAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCFAMLOAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCVENTURE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCGRANT": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCOTHER": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCDONTKNOW": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCNONENEEDED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCNOTREPORTED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SCAMOUNT": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "A"
+            ],
+            "dtype": "object"
+        },
+        "HOMEBASED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "FRANCHISE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "FRANCHISER50": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECSAVINGS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECASSETS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECEQUITY": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECCREDIT": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECGOVTLOAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECGOVTGUAR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECBANKLOAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECFAMLOAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECVENTURE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECPROFITS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECGRANT": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECOTHER": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECDONTKNOW": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECNOACCESS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECNOEXPAND": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECNOTREPORTED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "FEDERAL": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "STATELOCAL": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "OTHERBUS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "INDIVIDUALS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "CUSTNR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "EXPORTS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+            ],
+            "dtype": "float64"
+        },
+        "OPSOUTSIDE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "OUTSOURCE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ENGLISH": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ARABIC": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "CHINESE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "FRENCH": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "GERMAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "GREEK": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "HINDI": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ITALIAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "JAPANESE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "KOREAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "POLISH": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "PORTUGUESE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "RUSSIAN": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SPANISH": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "TAGALOG": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "VIETNAMESE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "LANGOTHER": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "LANGNR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "FULLTIME": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "PARTTIME": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "DAYLABOR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "TEMPSTAFF": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "LEASED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "CONTRACTORS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "EMPNR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "HEALTHINS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "RETIREMENT": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "PROFITSHARE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "HOLIDAYS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "BENENABV": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "BENENR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "WEBSITE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECOMMERCE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ECOMMPCT": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+            ],
+            "dtype": "float64"
+        },
+        "ONLINEPURCH": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "LT40HOURS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "LT12MONTHS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SEASONAL": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "OCCASIONALLY": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ACTIVITYNABV": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ACTIVITYNR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "OPERATING": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "RETIRED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "DECEASED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "ONETIME": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "LOWSALES": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "NOBUSCRED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "NOPERSCRED": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "STARTANOTHER": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "SOLDBUS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "CEASEOTHER": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "CEASENR": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "CEASENA": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "HUSBWIFE": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "dtype": "float64"
+        },
+        "FAMILYBUS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2
+            ],
+            "dtype": "float64"
+        },
+        "NUMOWNERS": {
+            "null_value": "",
+            "has_null": true,
+            "values": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "dtype": "float64"
+        }
+    }
+}

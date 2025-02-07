@@ -1,0 +1,34 @@
+{
+    "drop_features": [],
+    "k_marginal": {
+        "ignore_features": [
+        ],
+        "stable_feature_1": "PUMA"
+    },
+    "pca": {
+        "log_scale_continuous_features": false
+    },
+    "bins": {
+    },
+    "correlation_features": [
+        "PUMA",
+        "SEX",
+        "AGEP",
+        "MSP",
+        "HISP",
+        "RAC1P",
+        "NOC",
+        "NPF",
+        "HOUSING_TYPE",
+        "OWN_RENT",
+        "EDU",
+        "INDP_CAT",
+        "PINCP_DECILE",
+        "DVET",
+        "DEAR",
+        "DPHY",
+        "DEYE",
+        "DREM",
+        "DENSITY"
+    ]
+}

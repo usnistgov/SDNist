@@ -1,0 +1,16 @@
+{
+    "drop_features": [],
+    "k_marginal": {
+        "ignore_features": [
+        ],
+        "stable_feature_1": "SECTOR",
+        "stable_feature_2": "FIPST"
+    },
+    "pca": {
+        "log_scale_continuous_features": true
+    },
+    "bins": {
+    },
+    "correlation_features": [
+    ]
+}
