@@ -1,22 +1,32 @@
 from typing import List, Optional
 import pandas as pd
-from pathlib import Path
-
-from sdnist.report.dataset import Dataset
-import sdnist.load as load
-import sdnist.utils as utils
+import numpy as np
 
 def compute_marginal_densities(data, marginals):
     counts = data.groupby(marginals).size()
     return counts / data.shape[0]
 
+def get_marginal_pairs(marginals: List[str],
+                       permutations: int,
+                       seed: int):
+    if len(marginals) == 1:
+        return [(marginals[0], marginals[0])]
+    if len(marginals) < 30:
+        return [(f1, f2) for i, f1 in enumerate(marginals)
+                for j, f2 in enumerate(marginals) if i < j]
+    else:
+        random_state = np.random.default_rng(seed=seed)
+        pair_marginals = []
+        for _ in range(permutations):
+            pair_marginals.append(list(random_state.choice(marginals, size=2)))
+        return pair_marginals
 
 class KMarginal:
     """
     [t1, t2, t3, t4] are target densities.   t1 = count / tN
     [s1, s2, s3, s4] are synthetic densities. s1 = count /sN
     Sum(ti) = 1.   Sum (si) = 1
-     |(t1 - s1)| + |(t2 - s2)| + |(t3-s3)| + |(t4-s4)|  \in range [0, 2]
+     |(t1 - s1)| + |(t2 - s2)| + |(t3-s3)| + |(t4-s4)|  in range [0, 2]
 
     Puma A = (1,2),  Puma B = (3,4)
     total pop of Puma A is: (t1 + t2)*N
@@ -48,23 +58,20 @@ class KMarginal:
     because the target population size for every PUMA is reasonable)
     """
     NAME = 'K-Marginal'
+    N_PERMUTATIONS = 200
+
     def __init__(self,
                  target_data: pd.DataFrame,
                  deidentified_data: pd.DataFrame,
-                 group_features: Optional[List[str]] = None):
+                 group_feature: Optional[str] = None,
+                 seed: int = 0):
         self.td = target_data
         self.deid = deidentified_data
-        self.group_features = group_features or []
+        self.group_features = [group_feature] if group_feature else []
         self.features = self.td.columns.tolist()
-        marg_cols = list(set(self.features).difference(['PUMA', 'INDP']))
+        marg_cols = list(set(self.features).difference(set(self.group_features)))
         marg_cols = sorted(marg_cols)
-        if len(marg_cols) == 1:
-            self.marginals = [(marg_cols[0], marg_cols[0])]
-        else:
-            self.marginals = [(f1, f2)
-                               for i, f1 in enumerate(marg_cols)
-                               for j, f2 in enumerate(marg_cols)
-                               if i < j]
+        self.marginals = get_marginal_pairs(marg_cols, self.N_PERMUTATIONS, seed)
 
     def marginal_pairs(self):
         for _ in self.marginals:

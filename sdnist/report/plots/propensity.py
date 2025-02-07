@@ -1,9 +1,3 @@
-from typing import List
-import os
-from pathlib import Path
-import numpy as np
-
-import pandas as pd
 import matplotlib.pyplot as plt
 
 from sdnist.utils import *
@@ -28,7 +22,7 @@ class PropensityDistribution:
             os.mkdir(self.o_path)
 
     def save(self,
-             filename: str = 'propensity_distribution',
+             filename: str = 'dist',
              title: str = 'Distribution of data samples over 100 propensity bins') \
             -> List[Path]:
         file_path = Path(self.o_path, f'{filename}.jpg')
@@ -39,8 +33,18 @@ class PropensityDistribution:
                               alpha=0.8,
                               lw=2,
                               figsize=(12, 6))
+
+        ax.set_title(title, fontsize=12)
+        ax.set_xlabel("100 Propensity Bins", fontsize=10)
+        ax.set_ylabel("Record Counts", fontsize=10)
+
+        ax.tick_params(axis='x', labelsize=10)
+        ax.tick_params(axis='y', labelsize=10)
+        ax.legend(prop={'size': 10})
+
         fig = ax.get_figure()
         fig.savefig(file_path)
+        plt.close(fig)
         self.report_data['plot'] = relative_path(file_path)
         return [file_path]
 

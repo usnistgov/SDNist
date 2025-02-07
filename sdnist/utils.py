@@ -206,7 +206,7 @@ def df_filter(data: pd.DataFrame, filters: Optional[List] = None) -> pd.DataFram
 
 
 class SimpleLogger:
-    ptrn = '/*\*/'  # separator pattern
+    ptrn = '/*\\*/'  # separator pattern
 
     def __init__(self):
         self.level_messages = dict()
@@ -231,6 +231,8 @@ class SimpleLogger:
         level_indent = ''
         if msg_type == 'error':
             level_indent = Fore.RED + 'Error: '
+        elif msg_type == 'warn':
+            level_indent = Fore.YELLOW + 'Warning: '
         elif level == 0:
             level_indent = Fore.BLUE
         elif level == 1:

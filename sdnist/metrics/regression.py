@@ -5,7 +5,7 @@ import pandas as pd
 from scipy import stats
 
 import matplotlib.pyplot as plt
-plt.style.use('seaborn-deep')
+plt.style.use('seaborn-v0_8-deep')
 
 from sdnist.utils import *
 
@@ -46,8 +46,7 @@ def normalize_on_x(counts_matrix_df: pd.DataFrame) -> pd.DataFrame:
     """
     Normalize counts matrix along each row.
     """
-    cm_df = counts_matrix_df
-
+    cm_df = counts_matrix_df.astype(float)
     for i, row in cm_df.iterrows():
         r_sum = sum(row)
         if r_sum and r_sum >= 20:
@@ -198,16 +197,21 @@ class LinearRegressionMetric:
         ax1.plot(r_sx_df['x'],
                  r_sx_df['y'], color='green', label='Deid.')
 
-        ax0.set_xlabel(self.xc)
-        ax0.set_ylabel(self.yc)
-        ax1.set_xlabel(self.xc)
+        ax0.set_xlabel(self.xc, fontsize=10)
+        ax0.set_ylabel(self.yc, fontsize=10)
+        ax1.set_xlabel(self.xc, fontsize=10)
+        ax0.tick_params(axis='x', labelsize=10)
+        ax0.tick_params(axis='y', labelsize=10)
 
-        ax0.set_title('Target Distribution Density')
-        ax1.set_title('Diff. Between Target and Deid. Density')
-        fig.legend(loc=7, title='Regression')
+        ax1.tick_params(axis='x', labelsize=10)
+        ax1.tick_params(axis='y', labelsize=10)
+
+        ax0.set_title('Target Distribution Density', fontsize=12)
+        ax1.set_title('Diff. Between Target and Deid. Density', fontsize=12)
+        fig.legend(loc=7, title='Regression', fontsize=10)
         plt.tight_layout()
         fig.subplots_adjust(right=0.88)
-        file_path = Path(self.o_path, 'density_plot.svg')
+        file_path = Path(self.o_path, 'density.svg')
         plt.savefig(file_path, bbox_inches='tight', dpi=100)
         plt.suptitle('Comparison between ')
         plt.close()
@@ -216,10 +220,10 @@ class LinearRegressionMetric:
         self.report_data = {
             "target_counts": relative_path(save_data_frame(self.tcm,
                                                            self.o_path,
-                                                           'target_counts'), level=3),
+                                                           'target'), level=3),
             "target_deidentified_counts_difference": relative_path(save_data_frame(self.diff,
                                                                 self.o_path,
-                                                                "target_deidentified_counts_difference"),
+                                                                "diff"),
                                                                    level=3),
             "target_deidentified_difference_plot": relative_path(file_path, level=3),
             "target_regression_slope_and_intercept": (self.t_slope, self.t_intercept),

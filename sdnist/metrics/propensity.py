@@ -97,5 +97,5 @@ class PropensityMSE:
         self.report_data["pmse_score"] = self.pmse_score
         self.report_data["propensity_distribution"] = relative_path(save_data_frame(self.prob_dist,
                                                                                     self.o_path,
-                                                                                    'propensity_distribution'))
+                                                                                    'dist'))
         return self.pmse_score
