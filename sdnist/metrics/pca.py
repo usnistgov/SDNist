@@ -68,9 +68,9 @@ class PCAMetric:
         if self.log_scale_continuous:
             for c in self.continuous_features:
                 self.tar[c] = np.sign(self.tar[c]) * np.log1p(
-                    np.abs(self.tar[c]))
+                    np.abs(self.tar[c].astype('float64')))
                 self.syn[c] = np.sign(self.syn[c]) * np.log1p(
-                    np.abs(self.syn[c]))
+                    np.abs(self.syn[c].astype('float64')))
 
         tdf_v = self.tar.values
         sdf_v = self.syn.values
