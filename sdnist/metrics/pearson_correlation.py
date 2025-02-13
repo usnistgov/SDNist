@@ -1,5 +1,6 @@
 from typing import Optional, List
 import pandas as pd
+import numpy as np
 
 from scipy.stats import pearsonr
 
@@ -34,7 +35,13 @@ class PearsonCorrelationDifference:
         for f_a in self.features:
             f_corr = []
             for f_b in self.features:
-                corr, _ = pearsonr(data[f_a], data[f_b])
-                f_corr.append(corr)
+                x, y = data[f_a].values, data[f_b].values
+                if f_a == f_b:
+                    f_corr.append(0)
+                elif np.all(x == x[0]) or np.all(y == y[0]):
+                    f_corr.append(0)
+                else:
+                    corr, _ = pearsonr(data[f_a], data[f_b])
+                    f_corr.append(corr)
             corr_list.append(f_corr)
         return pd.DataFrame(corr_list, columns=self.features, index=self.features)

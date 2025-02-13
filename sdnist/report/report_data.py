@@ -1,7 +1,7 @@
 import json
 import time
 from typing import List, Dict, Optional
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from enum import Enum
 from pathlib import Path
 import datetime
@@ -33,6 +33,17 @@ class AttachmentType(Enum):
     ParaAndImage = 'para_and_image'
 
 
+@dataclass
+class DictMixin:
+    def to_dict(self):
+        return asdict(self)
+
+
+@dataclass
+class ValidationData(DictMixin):
+    feature: str
+    out_of_bound_values: List[str]
+    row_count: int
 
 @dataclass
 class Attachment:
@@ -96,7 +107,7 @@ class DataDescriptionPacket:
     records: int
     columns: int
     labels: Dict = field(default_factory=dict)
-    validations: Dict = field(default_factory=dict)
+    validations: Dict[str, ValidationData] = field(default_factory=dict)
 
     @property
     def data(self) -> Dict[str, any]:
@@ -126,14 +137,14 @@ class DataDescriptionPacket:
         v_list = []
         dd_dict['validations'] = v_list
         if self.validations is not None:
-            if 'values_out_of_bound' in self.validations:
-                for k, v in self.validations['values_out_of_bound'].items():
-                    v = str(v) if len(v) <= 5 \
-                        else str(v + [f' and other {len(v) - 5} values'])
-                    v = v[1:-1]
+                for k, v in self.validations.items():
+                    vob = v.out_of_bound_values
+                    counts = v.row_count
+                    v = str(vob)
                     v_list.append({
                         'Dropped Feature': k,
-                        'Out of Bound Values': v
+                        'Out of Bound Values': v,
+                        'Invalid Rows': counts
                     })
         dd_dict['validations'] = v_list
 

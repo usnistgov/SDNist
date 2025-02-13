@@ -1,17 +1,11 @@
-import os
-from typing import Dict, List, Optional
-from pathlib import Path
-
+from typing import Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from scipy.stats import entropy
 
 from sdnist.report import Dataset
 from sdnist.strs import *
 from sdnist.utils import *
 
-plt.style.use('seaborn-deep')
+plt.style.use('seaborn-v0_8-deep')
 
 
 def l1(pk: List[int], qk: List[int]):
@@ -68,7 +62,7 @@ class UnivariatePlots:
         self.dataset = dataset
         self.bin_mappings = dataset.bin_mappings
         self.o_dir = output_directory
-        self.out_path = Path(self.o_dir, 'univariate')
+        self.out_path = Path(self.o_dir, 'univars')
         self.worst_univariates_to_display = worst_univariates_to_display
         self.challenge = challenge
         self.feat_data = dict()
@@ -85,7 +79,7 @@ class UnivariatePlots:
     def report_data(self, level=2):
         return {"divergence": relative_path(save_data_frame(self.div_data,
                                                             self.out_path,
-                                                            'divergence'),
+                                                            'div'),
                                             level=level),
                 "counts": self.uni_counts}
 
@@ -136,14 +130,12 @@ class UnivariatePlots:
                 all_sectors = o_tar[INDP_CAT].unique().tolist()
                 set(all_sectors).update(set(o_syn[INDP_CAT].unique().tolist()))
                 selected = []
-                # print(all_sectors)
                 for s in all_sectors:
                     if s == 'N':
                         continue
                     st_df = o_tar[o_tar[INDP_CAT].isin([s])].copy()
                     st_df.loc[:, f] = pd.to_numeric(st_df[f]).astype(int)
-                    ss_df = o_syn[o_syn[INDP_CAT].isin([int(s)])]
-
+                    ss_df = o_syn[o_syn[INDP_CAT].isin([int(s), s])]
                     unique_ind_codes = st_df[f].unique().tolist()
                     set(unique_ind_codes).update(set(ss_df[f].unique().tolist()))
                     unique_ind_codes = list(unique_ind_codes)
@@ -173,10 +165,10 @@ class UnivariatePlots:
                     plt.figure(figsize=(8, 3), dpi=100)
                     plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
                     plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
-                    plt.xlabel('Feature Values')
-                    plt.ylabel('Record Counts')
+                    plt.xlabel('Feature Values', fontsize=10)
+                    plt.ylabel('Record Counts', fontsize=10)
                     plt.gca().set_xticks(x_axis, merged[f].values.tolist())
-                    plt.legend(loc='upper right')
+                    plt.legend(loc='upper right', fontsize=10)
                     if merged.shape[0] > 30:
                         plt.xticks(fontsize=6, rotation=90)
                     else:
@@ -187,7 +179,7 @@ class UnivariatePlots:
                     plt.title(title,
                               fontdict={'fontsize': 12})
 
-                    file_path = Path(o_path, f'indp_indp_cat_{s}.jpg')
+                    file_path = Path(o_path, f'indpcat_{s}.jpg')
                     plt.savefig(file_path, bbox_inches='tight')
 
                     plt.close()
@@ -195,7 +187,7 @@ class UnivariatePlots:
                         "divergence": div,
                         "counts": relative_path(save_data_frame(merged,
                                                 o_path,
-                                                f"Industry Category {s}"),
+                                                f"indp_cat_{s}"),
                                                 level=level),
                         "plot": relative_path(file_path, level=level)
                     }
@@ -212,28 +204,14 @@ class UnivariatePlots:
 
                 title = f"{f}: {dataset.data_dict[f]['description']}"
                 self.uni_counts[f] = {
+                    "divergence": self.div_data[self.div_data[FEATURE] == f][DIVERGENCE].values[0],
                     "counts": relative_path(save_data_frame(merged.copy(),
                                                             o_path,
-                                                            f'{f}_counts'),
+                                                            f'{f}'),
                                             level=level),
                     "plot": relative_path(file_path, level)
                 }
 
-                # if self.worst_univariates_to_display is None \
-                #         or i < self.worst_univariates_to_display:
-                #     self.feat_data[title] = dict()
-                #     if c1 >= c2*3 or f in ['PINCP']:
-                #         f_val = c_sort_merged.loc[0, f]
-                #         f_tc = c_sort_merged.loc[0, 'count_target']
-                #         f_sc = c_sort_merged.loc[0, 'count_deidentified']
-                #         c_sort_merged = c_sort_merged[~c_sort_merged[f].isin([f_val])]
-                #         self.feat_data[title] = {
-                #             "excluded": {
-                #                 "feature_value": f_val,
-                #                 "target_counts": int(f_tc),
-                #                 "deidentified_counts": int(f_sc)
-                #             }
-                #         }
                 if self.worst_univariates_to_display is None \
                         or i < self.worst_univariates_to_display:
                     merged = self.separate_large_count_value(f, merged, title)
@@ -242,21 +220,10 @@ class UnivariatePlots:
                 x_axis = np.arange(merged.shape[0])
                 plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
                 plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
-                plt.xlabel('Feature Values')
-                plt.ylabel('Record Counts')
+                plt.xlabel('Feature Values', fontsize=10)
+                plt.ylabel('Record Counts', fontsize=10)
                 vals = merged[f].values.tolist()
 
-                # if f in ['AGEP', 'POVPIP', 'PINCP', 'PWGTP', 'WGTP']:
-                #     updated_vals = []
-                #     for v in vals:
-                #         mv1 = o_tar[target[f].isin([v])][f].values.tolist()
-                #         mv = mv1
-                #         if len(mv) and v != -1:
-                #             nv = min(mv)
-                #             updated_vals.append(nv)
-                #         else:
-                #             updated_vals.append(v)
-                #     vals = updated_vals
 
                 vals = [str(v) for v in vals]
                 if "-1" in vals:
@@ -264,8 +231,9 @@ class UnivariatePlots:
                     vals[idx] = "N"
 
                 plt.gca().set_xticks(x_axis, vals)
-                plt.legend(loc='upper right')
+                plt.legend(loc='upper right', fontsize=10)
                 plt.xticks(fontsize=8, rotation=45)
+                plt.yticks(fontsize=10)
                 plt.tight_layout()
 
                 plt.title(title, fontdict={'fontsize': 12})
@@ -288,47 +256,33 @@ class UnivariatePlots:
         merged = pd.DataFrame({f: values,
                                'count_target': t_counts,
                                'count_deidentified': d_counts}).fillna(0)
+
         if f in self.bin_mappings:
             merged[f] = merged[f].map(self.bin_mappings[f]).fillna(merged[f])
         return merged
 
-    def separate_large_count_value(self, feature: str, merged: pd.DataFrame, title: str):
+    def separate_large_count_value(self,
+                                   feature: str,
+                                   merged: pd.DataFrame, title: str):
         self.feat_data[title] = {}
-
-        if merged.shape[0] > 1 and merged['count_target'].iloc[0] >= \
-                merged['count_target'].iloc[1] * 3:
+        s_merged = merged.sort_values(by='count_target', ascending=False)
+        if s_merged.shape[0] > 1 and s_merged['count_target'].iloc[0] >= \
+                s_merged['count_target'].iloc[1] * 3:
+            val = s_merged[feature].iloc[0]
             self.feat_data[title] = {
                 "excluded": {
-                    "feature_value": merged[feature].iloc[0],
+                    "feature_value": s_merged[feature].iloc[0],
                     "target_counts": int(
-                        merged['count_target'].iloc[0]),
+                        s_merged['count_target'].iloc[0]),
                     "deidentified_counts": int(
-                        merged['count_deidentified'].iloc[0])
+                        s_merged['count_deidentified'].iloc[0])
                 }
             }
-            merged = merged.iloc[1:]
+            # remove val from merged
+            merged = merged[~merged[feature].isin([val])]
         return merged
 
-    # def compute_univariate_counts(self,
-    #                               feature: str,
-    #                               target: pd.DataFrame,
-    #                               synthetic: pd.DataFrame) -> pd.DataFrame:
-    #     f = feature
-    #     values = set(target[f].unique().tolist()).union(
-    #         synthetic[f].unique().tolist())
-    #     values = sorted(values)
-    #     val_df = pd.DataFrame(values, columns=[f])
-    #     t_counts_df = target.groupby(by=f)[f].size().reset_index(
-    #         name='count_target')
-    #     s_counts_df = synthetic.groupby(by=f)[f].size().reset_index(
-    #         name='count_deidentified')
-    #     merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left') \
-    #         .fillna(0)
-    #     merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left') \
-    #         .fillna(0)
-    #     c_sort_merged = merged.sort_values(by='count_target', ascending=False)
-    #     c_sort_merged = c_sort_merged.reset_index(drop=True)
-    #     return c_sort_merged
+
 
 
 def divergence(synthetic: pd.DataFrame,

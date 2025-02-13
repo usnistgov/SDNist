@@ -1,13 +1,9 @@
-import math
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
-import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 
-import strs
-from sdnist.report import ReportUIData, FILE_DIR
+from sdnist.report import ReportUIData
 from sdnist.report.report_data import \
     DatasetType, DataDescriptionPacket, ScorePacket, \
     Attachment, AttachmentType, ReportData
@@ -57,7 +53,7 @@ def unavailable_features(config: Dict, synthetic_data: pd.DataFrame):
     return cnf
 
 
-def feature_space_size(target_df: pd.DataFrame, data_dict: Dict):
+def feature_space_size_acs(target_df: pd.DataFrame, data_dict: Dict):
     size = 1
 
     for col in target_df.columns:
@@ -71,8 +67,40 @@ def feature_space_size(target_df: pd.DataFrame, data_dict: Dict):
             size = size * len(target_df[col].unique())
         elif col in ['NOC', 'NPF', 'INDP']:
             size = size * len(target_df[col].unique())
-
     return size
+
+
+def feature_space_size_sbo(target_df: pd.DataFrame,
+                           continuous_features: List[str],
+                           data_dict: Dict):
+    size = 1
+    for col in target_df.columns:
+        counts = 0
+        if strs.HAS_NULL in data_dict[col] and data_dict[col][strs.HAS_NULL]:
+            counts += 1
+        if col in continuous_features:
+            size = size * (counts + 100)
+        else:
+            counts += len(target_df[col].unique())
+            size = size * counts
+    return size
+
+
+def get_stable_features(config: Dict, avialable_features) -> Optional[List[str]]:
+    stable_features_key = [k for k in config[strs.K_MARGINAL]
+                        if k.startswith(strs.STABLE_FEATURE)]
+    if len(stable_features_key) == 0:
+        return None
+    stable_features_key = sorted(stable_features_key)
+    stable_features = []
+    for sf_k in stable_features_key:
+        sf = config[strs.K_MARGINAL][sf_k]
+        stable_features.append(sf)
+    stable_features = list(set(stable_features).intersection(avialable_features))
+    if len(stable_features):
+        return stable_features
+    return None
+
 
 def merge_schema_with_datadict(schema: Dict, data_dict: Dict):
     for f, v in schema.items():
@@ -84,6 +112,12 @@ def merge_schema_with_datadict(schema: Dict, data_dict: Dict):
         if strs.VALUES not in data_dict[f] and strs.VALUES in v:
             data_dict[f][strs.VALUES] = {
                 str(v): v for v in v[strs.VALUES]
+            }
+        if f in ['PUMA']:
+            data_dict[f][strs.VALUES] = {
+                k: _v
+                for k, _v in data_dict[f][strs.VALUES].items()
+                if k in v[strs.VALUES]
             }
     return data_dict
 
@@ -132,76 +166,64 @@ class Dataset:
         self.features = self.target_data.columns.tolist()
 
         self.data_dict = merge_schema_with_datadict(self.schema, self.data_dict)
-        dtypes = {f: v[strs.DTYPE] for f, v in self.data_dict.items()}
         # add schema values to data dictionary
 
+        self.synthetic_data = self.load_synthetic_data()
+        self.remove_unknown_features()
+        self.features = self.synthetic_data.columns.tolist()
         self.target_data_features = self.features
-
         drop_features = self.config[strs.DROP_FEATURES] \
             if strs.DROP_FEATURES in self.config else []
         self.features = self._fix_features(drop_features,
-                                           self.config[strs.K_MARGINAL][strs.GROUP_FEATURES])
-
-        # load synthetic dataset
-        if not isinstance(self.synthetic_filepath, Path):
-            self.synthetic_data = self.synthetic_filepath
-        elif str(self.synthetic_filepath).endswith('.csv'):
-            self.synthetic_data = pd.read_csv(self.synthetic_filepath, dtype=dtypes)
-        elif str(self.synthetic_filepath).endswith('.parquet'):
-            self.synthetic_data = pd.read_parquet(self.synthetic_filepath)
-        else:
-            raise Exception(f'Unknown synthetic data file type: {self.synthetic_filepath}')
-
-        common_columns = list(set(self.synthetic_data.columns.tolist()).intersection(
-            set(self.target_data.columns.tolist())
-        ))
-
-        if 'Unnamed: 0' in self.target_data.columns:
-            self.target_data = self.target_data.drop(columns=['Unnamed: 0'])
-
-        if 'Unnamed: 0' in self.synthetic_data.columns:
-            self.synthetic_data = self.synthetic_data.drop(columns=['Unnamed: 0'])
-
-        self.target_data = self.target_data[common_columns]
-        self.synthetic_data = self.synthetic_data[common_columns]
-
-        ind_features = [c for c in self.target_data.columns.tolist()
-                        if c.startswith('IND_')]
-        self.features = list(set(self.features).difference(set(ind_features)))
-        self.features = list(set(self.features).intersection(list(common_columns)))
+                                           get_stable_features(self.config, self.target_data.columns.tolist()))
 
         # raw subset data
         self.target_data = self.target_data[self.features]
         self.synthetic_data = self.synthetic_data[self.features]
-
-        self.feature_space = feature_space_size(self.target_data, self.data_dict)
 
         # validation and clean data
         self.c_synthetic_data, self.validation_log = \
             validate(self.synthetic_data, self.data_dict, self.features, self.log)
         self.c_target_data, _ = \
             validate(self.target_data, self.data_dict, self.features, self.log)
+        out_of_bound_features = [f for f in self.validation_log.keys()]
+
         self.features = self.c_synthetic_data.columns.tolist()
+        self.features = list(set(self.features).difference(set(out_of_bound_features)))
 
         # update data after validation and cleaning
         self.synthetic_data = self.synthetic_data[self.features]
         self.target_data = self.target_data[self.features]
+        self.c_synthetic_data = self.c_synthetic_data[self.features]
+        self.c_target_data = self.c_target_data[self.features]
 
         # sort columns in the data
         self.target_data = self.target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.synthetic_data = self.synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
         self.c_synthetic_data = self.c_synthetic_data.reindex(sorted(self.target_data.columns), axis=1)
         self.c_target_data = self.c_target_data.reindex(sorted(self.target_data.columns), axis=1)
-        self.features = self.synthetic_data.columns.tolist()
+        self.features = [f for f in self.data_dict.keys() if f in self.features]
+        self.corr_features =  self.config[strs.CORRELATION_FEATURES]
+        self.corr_features = [f for f in self.features
+                              if f in self.corr_features]
 
+        self.continuous_features = [f for f in self.features
+                                    if 'max' in self.data_dict[f][strs.VALUES]]
+        if self.test == TestDatasetName.sbo_target:
+            self.feature_space = feature_space_size_sbo(self.target_data,
+                                                        self.continuous_features,
+                                                        self.data_dict)
+        else:
+            self.feature_space = feature_space_size_acs(self.target_data, self.data_dict)
         # bin the density feature if present in the datasets
         self.density_bin_desc = dict()
-
+        self.bin_mappings = {}
         if 'DENSITY' in self.features:
-            self.density_bin_desc = get_density_bins_description(
+            self.density_bin_desc, density_bins = get_density_bins_description(
                 self.raw_target_data,
                 self.data_dict,
                 self.mappings)
+            self.bin_mappings['DENSITY'] = density_bins
             self.target_data = bin_density(self.c_target_data, self.data_dict)
             self.synthetic_data = bin_density(self.c_synthetic_data, self.data_dict)
 
@@ -217,14 +239,38 @@ class Dataset:
             transform(self.c_target_data, self.c_synthetic_data, self.data_dict)
 
         # binned data
-        self.d_target_data, self.d_synthetic_data, self.bin_mappings = \
+        self.d_target_data, self.d_synthetic_data, new_bin_mappings = \
             bin_data(self.t_target_data, self.t_synthetic_data, self.data_dict)
-
+        self.bin_mappings.update(new_bin_mappings)
         self.merge_mappings()  # merge transform mapping to bin mappings
         self.config[strs.CORRELATION_FEATURES] = \
             self._fix_corr_features(self.features,
                                     self.config[strs.CORRELATION_FEATURES])
 
+    def load_synthetic_data(self):
+        # load synthetic dataset
+        sd = None
+        dtypes = {f: v[strs.DTYPE] for f, v in self.data_dict.items()}
+        if not isinstance(self.synthetic_filepath, Path):
+            sd = self.synthetic_filepath
+        elif str(self.synthetic_filepath).endswith('.csv'):
+            try:
+                sd = pd.read_csv(self.synthetic_filepath, dtype=dtypes)
+            except Exception as e:
+                sd = pd.read_csv(self.synthetic_filepath)
+            sd = fix_dataset(sd, self.test)
+        elif str(self.synthetic_filepath).endswith('.parquet'):
+            sd = pd.read_parquet(self.synthetic_filepath)
+        else:
+            raise Exception(f'Unknown synthetic data file type: {self.synthetic_filepath}')
+        return sd
+
+    def remove_unknown_features(self):
+        all_features = list(self.data_dict.keys())
+        synthetic_features = self.synthetic_data.columns.tolist()
+        valid_feature = list(set(all_features).intersection(set(synthetic_features)))
+        self.target_data = self.target_data[valid_feature]
+        self.synthetic_data = self.synthetic_data[valid_feature]
 
     def _fix_features(self, drop_features: List[str], group_features: List[str]):
         t_d_f = []
@@ -251,6 +297,17 @@ class Dataset:
                 self.bin_mappings[f] = rev_transform
 
 
+def fix_dataset(data: pd.DataFrame, target_name: TestDatasetName):
+    if target_name != TestDatasetName.sbo_target:
+        return data
+    if 'FIPST' in data.columns:
+        data['FIPST'] = data['FIPST'].astype(str).replace({'1': '01',
+                                                       '2': '02',
+                                           '4': '04', '5': '05',
+                                           '6': '06', '8': '08',
+                                           '9': '09'}).str.zfill(2)
+    return data
+
 def data_description(dataset: Dataset,
                      ui_data: ReportUIData,
                      report_data: ReportData,
@@ -270,7 +327,8 @@ def data_description(dataset: Dataset,
                                 target_desc)
     dataset_report['target'] = {"filename": ds.target_data_path.stem,
                                 "records": ds.target_data.shape[0],
-                                "features": len(ds.target_data_features)}
+                                "features": len(ds.target_data_features),
+                                "feature_space_size": ds.feature_space}
 
     deid_desc = DataDescriptionPacket(ds.synthetic_filepath.stem,
                                                       ds.synthetic_data.shape[0],
@@ -283,7 +341,8 @@ def data_description(dataset: Dataset,
                               "records": ds.synthetic_data.shape[0],
                               "features": ds.synthetic_data.shape[1],
                               "labels": labels,
-                              "validations": ds.validation_log}
+                              "validations":
+                                  {f: v.to_dict() for f, v in ds.validation_log.items()}}
 
     f = dataset.features
     f = [_ for _ in dataset.data_dict.keys() if _ in f]
@@ -342,7 +401,7 @@ def data_description(dataset: Dataset,
                 for bin, bdata in dataset.density_bin_desc.items():
                     bdc = bdata[1].columns.tolist()  # bin data columns
                     # report bin data: bin data format for report
-                    rbd = [{c: row[j] for j, c in enumerate(bdc)}
+                    rbd = [{c: row.iloc[j] for j, c in enumerate(bdc)}
                            for i, row in bdata[1].iterrows()]
                     dd_as.append(Attachment(name=None,
                                             _data=f'<b>Density Bin: {bin} | Bin Range: {bdata[0]}</b>',

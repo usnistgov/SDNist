@@ -1,7 +1,4 @@
 from typing import Dict
-from pathlib import Path
-
-import pandas as pd
 
 from sdnist.metrics.regression import LinearRegressionMetric
 from sdnist.report import Dataset
@@ -62,7 +59,7 @@ class LinearRegressionReport:
         self.rd = report_data
 
         self.labels = {
-            'total_population': ['Total Population', []],
+            'all': ['Total Population', []],
             'white_men': ['White Men', [['RAC1P', [1]], ['SEX', [1]]]],
             'white_women': ['White Women', [['RAC1P', [1]], ['SEX', [2]]]],
             'black_men': ['Black Men', [['RAC1P', [2]], ['SEX', [1]]]],
@@ -80,7 +77,7 @@ class LinearRegressionReport:
         # compute linear regression and pair counts
         if not self.can_compute():
             return
-        o_path = Path(self.r_ui_d.output_directory, 'linear_regression')
+        o_path = Path(self.r_ui_d.output_directory, 'lin_reg')
         create_path(o_path)
         for k, v in self.labels.items():
             if k != 'total_population' and not self.can_compute_demographics():

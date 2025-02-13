@@ -1,7 +1,3 @@
-from typing import Tuple, Dict
-from pathlib import Path
-import pandas as pd
-
 from sdnist.metrics.inconsistency import Inconsistencies
 from sdnist.report import Dataset
 from sdnist.report.report_data import \

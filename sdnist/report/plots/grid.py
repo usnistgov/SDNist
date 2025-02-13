@@ -1,16 +1,11 @@
 import os
-import math
-from typing import List, Dict, Tuple
+from typing import List, Dict
 from pathlib import Path
-
-import matplotlib.cm
 import matplotlib.pyplot as plt
-from matplotlib import colors
-
 import pandas as pd
 import numpy as np
 
-plt.style.use('seaborn-deep')
+plt.style.use('seaborn-v0_8-deep')
 
 
 class GridPlot:

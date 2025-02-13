@@ -9,7 +9,7 @@ import sys
 import time
 import zipfile
 from tqdm import tqdm
-from distutils.dir_util import copy_tree
+from shutil import copytree
 
 import pandas as pd
 import numpy as np
@@ -116,7 +116,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = DEFAUL
             copy_from_path = str(Path(extract_path, data_name))
             copy_to_path = str(Path(root))
             print(f"Copying {copy_from_path} to {copy_to_path} ...")
-            copy_tree(copy_from_path, copy_to_path)
+            copytree(copy_from_path, copy_to_path, dirs_exist_ok=True)
             shutil.rmtree(extract_path)
         else:
             raise ValueError(f"{name} does not exist.")

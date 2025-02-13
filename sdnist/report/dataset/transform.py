@@ -1,41 +1,10 @@
-from typing import Dict, Union
-import pandas as pd
-
-
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, Union
 import pandas as pd
 import numpy as np
 
-from sdnist.report.dataset.validate import dtype_to_python_type
-# from .data_dict import (get_null_codes,
-#                         get_str_codes, deduce_code_type,
-#                         code_type_to_python_type)
+from sdnist.report.dataset.data_dict import (
+    is_numeric, parse_numeric_value, deduce_code_type)
 import sdnist.strs as strs
-from strs import NULL_VALUE
-
-def is_numeric(s: str) -> bool:
-    if not isinstance(s, str):
-        s = str(s)
-    s = s.strip()
-    if not s:
-        return False
-
-    try:
-        float(s)  # If this succeeds, s is numeric (int or float, positive or negative)
-        return True
-    except ValueError:
-        return False
-
-
-def parse_numeric_value(value) -> Union[int, float, str]:
-    try:
-        float_value = float(value)
-        if float_value.is_integer():
-            return int(float_value)
-        else:
-            return float_value
-    except (ValueError, TypeError):
-        return value
 
 
 def create_null_value_map(null_code: any,
@@ -88,7 +57,7 @@ def get_null_codes(feature: str, data_dict: Dict[str, Dict]) \
     """
     fd = data_dict[feature]
     values = fd.get(strs.VALUES, [])
-    null_value_code = fd.get(NULL_VALUE, None)
+    null_value_code = fd.get(strs.NULL_VALUE, None)
     min_val = 0
     if strs.MIN in values:
         min_val = parse_numeric_value(values[strs.MIN])
@@ -107,44 +76,6 @@ def get_null_codes(feature: str, data_dict: Dict[str, Dict]) \
 
     return null_codes
 
-def deduce_code_type(feature: str, data_dict: Dict[str, any]) -> any:
-    """
-    Deduce code type based on the values.
-    """
-    values = data_dict[feature].get(strs.VALUES, [])
-    code_type = data_dict[feature].get(strs.DTYPE, None)
-    if code_type in ['int64', 'int32', 'float64']:
-        return dtype_to_python_type(code_type)
-
-    all_types = [type(parse_numeric_value(v)) for v in values
-                 if str(v).isnumeric()]
-
-    if float in all_types:
-        return float
-    elif int in all_types:
-        return int
-    else:
-        # since all values are string these
-        # all will be converted to ints
-        return int
-
-def string_to_numeric(s, ctype: type):
-    if ctype not in (int, float):
-        raise ValueError("ctype must be either 'int' or 'float'")
-    try:
-        if ctype == int:
-            if '.' not in s:
-                return int(s)
-            else:
-                return int(float(s))
-        elif ctype == float:
-            return float(s)
-    except ValueError:
-        pass
-
-    # Return the original string if conversion fails
-    return s
-
 def feature_space_size(target_df: pd.DataFrame):
     size = 1
 
@@ -159,13 +90,16 @@ def transform(t: pd.DataFrame, d: pd.DataFrame, ddict: Dict) \
     tt = t.copy()  # transformed target data
     dt = d.copy()  # transformed deid data
     # replace np.nan with string nan
-    tt = tt.fillna('nan')
-    dt = dt.fillna('nan')
+    with pd.option_context("future.no_silent_downcasting", True):
+        tt = tt.fillna('nan')
+        dt = dt.fillna('nan')
     mappings = dict()  # mappings for transformed values
     for f in t.columns.tolist():  # for each feature transform
         fd = ddict[f]  # feature dictionary
         # deduce if feature values are int or float
         c_type = deduce_code_type(f, ddict)
+        if c_type is str:
+            c_type = int
         # find null/nan codes and get the null codes mappings
         null_codes = get_null_codes(f, ddict)
         # find string codes and get the string codes mappings
@@ -189,8 +123,7 @@ def transform(t: pd.DataFrame, d: pd.DataFrame, ddict: Dict) \
 
         # Map the keys in the value_to_code dict to its values
         mapper = np.vectorize(
-            lambda x: value_to_code.get(x, string_to_numeric(x, c_type)
-                                        if isinstance(x, str) else x)
+            lambda x: value_to_code.get(x, x)
         )
 
         # Update the dataframe with transformed values
@@ -207,27 +140,29 @@ def transform_old(data: pd.DataFrame, schema: Dict):
     data = data.copy()
     for c in data.columns.tolist():
         desc = schema[c]
-        if "values" in desc:
-            if "has_null" in desc:
-                null_val = desc["null_value"]
-                data[c] = data[c].replace(null_val, -1)
-        elif "min" in desc:
-            if "has_null" in desc:
-                null_val = desc["null_value"]
-                nna_mask = data[~data[c].isin(['N'])].index  # not na mask
-                if c == 'PINCP':
-                    data[c] = data[c].replace(null_val, 9999999)
-                    data[c] = pd.to_numeric(data[c]).astype(float)
-                elif c == 'POVPIP':
-                    data[c] = data[c].replace(null_val, 999)
-                    data[c] = pd.to_numeric(data[c]).astype(int)
-                else:
-                    data[c] = pd.to_numeric(data[c]).astype(int)
-        if c == 'PUMA':
-            data[c] = data[c].astype(pd.CategoricalDtype(desc["values"])).cat.codes
-            if "N" in desc['values']:
-                data[c] = data[c].replace(0, -1)
-        else:
-            data[c] = pd.to_numeric(data[c]).astype(int)
+        with pd.option_context("future.no_silent_downcasting", True):
+            if "values" in desc and not 'min' in desc["values"]:
+                if "has_null" in desc:
+                    null_val = desc["null_value"]
+                    data[c] = data[c].replace(null_val, -1)
+            elif "min" in desc["values"]:
+                if "has_null" in desc:
+                    null_val = desc["null_value"]
+                    nna_mask = data[~data[c].isin(['N'])].index  # not na mask
+                    if c == 'PINCP':
+                        data[c] = data[c].replace(null_val, 9999999)
+                        data[c] = pd.to_numeric(data[c]).astype(float)
+                    elif c == 'POVPIP':
+                        data[c] = data[c].replace(null_val, 999)
+                        data[c] = pd.to_numeric(data[c]).astype(int)
+                    else:
+                        data[c] = data[c].replace(null_val, -1)
+                        data[c] = pd.to_numeric(data[c]).astype(int)
+            if c == 'PUMA':
+                data[c] = data[c].astype(pd.CategoricalDtype(desc["values"])).cat.codes
+                if "N" in desc['values']:
+                    data[c] = data[c].replace(0, -1)
+            else:
+                data[c] = pd.to_numeric(data[c]).astype(int)
 
     return data

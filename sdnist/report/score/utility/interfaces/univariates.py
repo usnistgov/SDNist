@@ -1,4 +1,3 @@
-from pyexpat import features
 from typing import List, Optional
 from pathlib import Path
 
@@ -8,7 +7,7 @@ from sdnist.report.report_data import (
     ReportData, ReportUIData, Attachment, AttachmentType,
     UtilityScorePacket
 )
-from sdnist.report.score.paragraphs import univ_dist_para
+from sdnist.report.score.paragraphs import univ_dist_para, univ_dist_worst_para
 
 import sdnist.strs as strs
 
@@ -27,7 +26,6 @@ class UnivariatesReport:
         self.rd = report_data
         self.stable_feature = stable_feature
         self.worst_stable_feature_values = worst_stable_feature_values
-
         t = self.ds.d_target_data
         s = self.ds.d_synthetic_data
 
@@ -44,18 +42,37 @@ class UnivariatesReport:
         self.features_data = dict()
         self.compute()
 
-    def compute(self):
-        self.features_data = self.up.save()  # univariate features data
+    def compute(self, level=2):
+        self.features_data = self.up.save(level)  # univariate features data
+
+    def is_worst_kmarginal_output(self) -> bool:
+        return (self.stable_feature is not None
+                and self.worst_stable_feature_values
+                and len(self.worst_stable_feature_values))
 
     def add_to_ui(self):
-        self.rd.add('Univariate', self.up.report_data())
-
         u_as = []  # univariate attachments
+        if self.is_worst_kmarginal_output():
+            u_as.append(Attachment(name=None,
+                                   _data=f"h3Univariate Distribution of Worst "
+                                         f"Performing Features with least fidelity "
+                                         + self.stable_feature,
+                                   _type=AttachmentType.String))
+            u_as.append(Attachment(name=None,
+                                   _data=univ_dist_worst_para
+                                   .replace(strs.STABLE_FEATURE,
+                                            self.stable_feature),
+                                   _type=AttachmentType.String))
+        else:
+            self.rd.add('Univariate', self.up.report_data())
+
+        relative_path_level = 2 if not self.is_worst_kmarginal_output() else 3
+
         for k, v in self.features_data.items():
             u_path = v['path']
             if len(str(u_path)) == 0:
                 continue
-            u_rel_path = "/".join(list(u_path.parts)[-2:])
+            u_rel_path = "/".join(list(u_path.parts)[-relative_path_level:])
             name = k
             a = Attachment(name=None,
                            _data=f'h4{name}',
@@ -96,6 +113,12 @@ class UnivariatesReport:
                                   strs.PATH: u_rel_path}],
                            _type=AttachmentType.ImageLinks)
             u_as.append(a)
+
+        # if this is intended for kmarginal breakdown section then
+        # don't create a separate utility score packet, instead return
+        # the univariate metrics attachments as it is.
+        if self.is_worst_kmarginal_output():
+            return u_as
 
         self.ui_data.add(
             UtilityScorePacket("Univariate Distributions",

@@ -202,7 +202,7 @@ class Inconsistencies:
 
             # -------------------housing and family related inconsistencies---------------
             if ("NOC" in fl) and ("NPF" in fl) and (r["NOC"] != "N") and (r["NPF"] != "N"):
-                if not (int(r["NOC"]) < int(r["NPF"])):
+                if not (int(float(r["NOC"])) < int(float(r["NPF"]))):
                     ic_dict["too_many_children"].append(i)
 
             # if group quarters (according to HOUSING_TYPE)
@@ -296,7 +296,7 @@ class Inconsistencies:
                     row_path = Path(age_path, f'{i[NAME]}_example.csv')
                     example_row.to_csv(row_path)
                     ic_data[4] = row_path
-                    self.report_data['age']['inconsistencies'].append(
+                    self.report_data['work']['inconsistencies'].append(
                         {'inconsistency_name': ic_data[0],
                          'inconsistency_description': ic_data[1],
                          'inconsistency_features': ic_data[2],
@@ -327,7 +327,7 @@ class Inconsistencies:
                     row_path = Path(age_path, f'{i[NAME]}_example.csv')
                     example_row.to_csv(row_path)
                     ic_data[4] = row_path
-                    self.report_data['age']['inconsistencies'].append(
+                    self.report_data['housing']['inconsistencies'].append(
                         {'inconsistency_name': ic_data[0],
                          'inconsistency_description': ic_data[1],
                          'inconsistency_features': ic_data[2],
