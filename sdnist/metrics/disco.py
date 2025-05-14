@@ -10,6 +10,7 @@ import os.path
 import time
 from pathlib import Path
 from pprint import pprint
+from tqdm import tqdm
 from typing import Dict, List, Tuple, Union
 
 import matplotlib
@@ -133,7 +134,6 @@ class KDiscoEvaluator:
             if gt_target_match.shape[0] > 0
             else 0
         )
-
         return disco_count / self.gt_df.shape[0] if self.gt_df.shape[0] > 0 else 0
 
     def compute_dio(self, quasi_identifiers: List[str], target: str) -> float:
@@ -208,19 +208,31 @@ class KDiscoEvaluator:
             raise ValueError(f"No potential targets found")
 
         # --- Precompute QID columns ---
-        for target_col in potential_targets:
-            other_cols = list(potential_targets - {target_col})
-            for qid_combo in itertools.combinations(list(other_cols), self.k):
-                qids = tuple(sorted(stable_ids + list(qid_combo)))
-                qid_str = quasi_identifier_column_name(sorted(list(qids)))
-                if qid_str not in self.gt_df.columns:
-                    self.gt_df[qid_str] = compute_quasi_identifiers(
-                        self.gt_df, list(qids)
-                    )
-                if qid_str not in self.syn_df.columns:
-                    self.syn_df[qid_str] = compute_quasi_identifiers(
-                        self.syn_df, list(qids)
-                    )
+
+        gt_new_cols = {}
+        syn_new_cols = {}
+        qid_combos = [(t, qid_combo)
+                      for t in potential_targets
+                      for qid_combo in itertools.combinations(
+                list(potential_targets - {t}), self.k)]
+        for target_col, qid_combo in tqdm(qid_combos,
+                                          desc="Precompute kDiSCO QID Columns"):
+            qids = tuple(sorted(stable_ids + list(qid_combo)))
+            qid_str = quasi_identifier_column_name(sorted(list(qids)))
+
+            if qid_str not in gt_new_cols:
+                gt_new_cols[qid_str] = compute_quasi_identifiers(self.gt_df,
+                                                                 list(qids))
+            if qid_str not in syn_new_cols:
+                syn_new_cols[qid_str] = compute_quasi_identifiers(
+                    self.syn_df, list(qids))
+
+        if gt_new_cols:
+            new_gt_df = pd.DataFrame(gt_new_cols, index=self.gt_df.index)
+            self.gt_df = pd.concat([self.gt_df, new_gt_df], axis=1)
+        if syn_new_cols:
+            new_syn_df = pd.DataFrame(syn_new_cols, index=self.syn_df.index)
+            self.syn_df = pd.concat([self.syn_df, new_syn_df], axis=1)
 
         total_combinations = len(
             [col for col in self.gt_df.columns if col.startswith("qid")]
@@ -228,40 +240,40 @@ class KDiscoEvaluator:
         total_computed = 0
 
         # --- Compute DiSCO, DiO scores ---
-        for target_col in potential_targets:
+        for target_col, qid_combo in tqdm(qid_combos,
+                                          desc="Compute DiSCO, DiO Scores"):
             # Initialize
-            self.disco_metric_results[target_col] = {}
-            self.dio_metric_results[target_col] = {}
-            self.disco_minus_dio_metric_results[target_col] = {}
-            other_cols = list(potential_targets - {target_col})
-            qid_combinations = itertools.combinations(list(other_cols), self.k)
+            if target_col not in self.disco_metric_results:
+                self.disco_metric_results[target_col] = {}
+                self.dio_metric_results[target_col] = {}
+                self.disco_minus_dio_metric_results[target_col] = {}
+
+                if __name__ == "__main__":
+                    print(f"Computing disco scores for target: {target_col}")
+
+            qids = list(stable_ids) + list(qid_combo)
+            if __name__ == "__main__":
+                print(f"\t{qids}: ({total_computed} / {total_combinations})")
+                total_computed += 1
+            compute_start_time = time.time()
+            disco_risk_metric = self.compute_disco(
+                quasi_identifiers=qids, target=target_col
+            )
+            dio_risk_metric = self.compute_dio(
+                quasi_identifiers=qids, target=target_col
+            )
 
             if __name__ == "__main__":
-                print(f"Computing disco scores for target: {target_col}")
-            for i, qid_combo in enumerate(qid_combinations):
-                qids = list(stable_ids) + list(qid_combo)
-                if __name__ == "__main__":
-                    print(f"\t{qids}: ({total_computed} / {total_combinations})")
-                    total_computed += 1
-                compute_start_time = time.time()
-                disco_risk_metric = self.compute_disco(
-                    quasi_identifiers=qids, target=target_col
-                )
-                dio_risk_metric = self.compute_dio(
-                    quasi_identifiers=qids, target=target_col
-                )
-
-                if __name__ == "__main__":
-                    print(f"\t\tTook {time.time() - compute_start_time} seconds")
-                self.disco_metric_results[target_col][tuple(sorted(qids))] = (
-                    disco_risk_metric
-                )
-                self.dio_metric_results[target_col][tuple(sorted(qids))] = (
-                    dio_risk_metric
-                )
-                self.disco_minus_dio_metric_results[target_col][tuple(sorted(qids))] = (
+                print(f"\t\tTook {time.time() - compute_start_time} seconds")
+            self.disco_metric_results[target_col][tuple(sorted(qids))] = (
+                disco_risk_metric
+            )
+            self.dio_metric_results[target_col][tuple(sorted(qids))] = (
+                dio_risk_metric
+            )
+            self.disco_minus_dio_metric_results[target_col][tuple(sorted(qids))] = (
                     disco_risk_metric - dio_risk_metric
-                )
+            )
 
     def average_disco(self) -> float:
         """
@@ -311,7 +323,7 @@ class KDiscoEvaluator:
         :return:
         """
         # Output Path
-        output_path = os.path.join(self.output_directory, f"{name}-bar-plot.png")
+        output_path = os.path.join(self.output_directory, f"{name}.png")
 
         data = [
             {"Target": target, "QID Combination": str(qid), "DiSCO Score": score}
@@ -319,7 +331,7 @@ class KDiscoEvaluator:
             for qid, score in qid_scores.items()
         ]
         df = pd.DataFrame(data)
-        self.disco_result_outfile  = os.path.join(self.output_directory, f"{name}-result.csv")
+        self.disco_result_outfile  = os.path.join(self.output_directory, f"{name}.csv")
         df.round(4).to_csv(self.disco_result_outfile)
 
         self.disco_plot_filename = output_path
@@ -358,9 +370,9 @@ class KDiscoEvaluator:
         :param output_path: The path to save the heatmap to.
         """
         # Output
-        output_path = os.path.join(self.output_directory, f"{name}-heatmap.png")
+        output_path = os.path.join(self.output_directory, f"{name}.png")
         self.heatmap_plot_filename = output_path
-        self.disco_heatmap_result_outfile = os.path.join(self.output_directory, f"{name}-heatmap-data.csv")
+        self.disco_heatmap_result_outfile = os.path.join(self.output_directory, f"{name}.csv")
 
         # Get average of each qid's DiSCO - DiO score per target
         disco_dio_qid_avg = self.compute_disco_dio_qid_avg()
@@ -388,7 +400,8 @@ class KDiscoEvaluator:
         plt.xticks(range(heatmap_data.shape[1]), heatmap_data.columns, fontsize=10)
         plt.ylabel("Quasi-Identifier Feature", fontsize=10)
         plt.yticks(range(heatmap_data.shape[0]), heatmap_data.index, fontsize=10)
-        plt.colorbar(heatmap, fraction=0.046, pad=0.04)
+        cbar = plt.colorbar(heatmap, fraction=0.046, pad=0.04)
+        cbar.ax.tick_params(labelsize=10)
         plt.hlines(
             y=np.arange(0, heatmap_data.shape[1]) + 0.5,
             xmin=np.full(heatmap_data.shape[1], 0) - 0.5,

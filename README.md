@@ -1,3 +1,5 @@
+![Python Version](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
+
 # SDNist v2.4: Deidentified Data Report Tool
 
 ## [SDNist is the offical software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
@@ -6,7 +8,7 @@ Welcome! SDNist is a python package that provides benchmark data and evaluation 
 
 The deidentified data report evaluates utility and privacy of a given deidentified dataset and generates a summary quality report with performance of a deidentified dataset enumerated and illustrated for each utility and privacy metric.
 
-[Preview sample reports produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports)
+[//]: # ([Preview sample reports produced by the tool here.]&#40;https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports&#41;)
 
 This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues]  if you catch a bug or would like have feature suggestions. 
 
@@ -40,7 +42,7 @@ Setting Up the SDNIST Report Tool
 
 ### Brief Setup Instructions
 
-SDNist is compatible with Python versions from 3.9 to 3.11. If you have installed a previous version of the SDNist library, we recommend installing v2.4 in a virtual environment. v2.4 can be installed via [Release 2.4](https://github.com/usnistgov/SDNist/releases/tag/v2.4) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
+SDNist is compatible with Python versions from 3.9 to 3.12. If you have installed a previous version of the SDNist library, we recommend installing v2.4 in a virtual environment. v2.4 can be installed via [Release 2.4](https://github.com/usnistgov/SDNist/releases/tag/v2.4) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
 
 The NIST ACS Data Excerpt data will download on the fly.
 
@@ -51,7 +53,7 @@ The NIST ACS Data Excerpt data will download on the fly.
 1. The SDNist Report Tool is a part of the sdnist Python library that can be installed on a user’s MAC OS, Windows, or Linux machine.
 
 
-2. The sdnist library requires Python be installed on the user's machine. It supports Python versions from 3.9 to 3.11. Check whether an installation exists on the machine by executing the following command in your terminal on Mac/Linux or powershell on Windows:
+2. The sdnist library requires Python be installed on the user's machine. It supports Python versions from 3.9 to 3.12. Check whether an installation exists on the machine by executing the following command in your terminal on Mac/Linux or powershell on Windows:
    ```
     c:\\> python -V
    ```
@@ -148,6 +150,7 @@ The NIST ACS Data Excerpt data will download on the fly.
           MA                    ma2019
           TX                    tx2019
           NATIONAL              national2019
+          SBO                   sbo_target
        ```
 
 9. These instructions install sdnist into a virtual environment. The virtual environment must be activated (step 9) each time a new terminal window is used with sdnist.
@@ -188,7 +191,13 @@ Generate Data Quality Report
       ```
       (venv) c:\\sdnist-project> python -m sdnist.report syn_national.csv NATIONAL
       ```
-6.  Starting from version 2.1, SDNist allow users to add labels for the deidentified dataset used to generate report:
+    
+6. Use the following command to generate a data quality report for the example deidentified dataset (syn_sbo.csv) that is generated using the bundled dataset SBO:
+      ```
+      (venv) c:\\sdnist-project> python -m sdnist.report syn_sbo.csv SBO 
+      ```   
+    
+7. Starting from version 2.1, SDNist allow users to add labels for the deidentified dataset used to generate report:
     * To add single string label to the report, use command line option **--labels** followed by a string as given in the following example command:
       ```
       (venv) c:\\sdnist-project> python -m sdnist.report syn_national.csv NATIONAL --labels used_epsilon_1
@@ -210,13 +219,14 @@ Generate Data Quality Report
       ```
       This is how the *example_labels.json* will appear in the report:
      ![multiple labels in report](readme_resource/multiple_labels.png)
-7.  The following are all the parameters offered by the sdnist.report package:
+8. The following are all the parameters offered by the sdnist.report package:
 
      - **PATH_DEIDENTIFIED_DATASET**: The absolute or relative path to the deidentified dataset .csv or parquet file. If the provided path is relative, it should be relative to the current working directory. This guide assumes the current working directory is sdnist-project.
      - **TARGET_DATASET_NAME**: This should be the name of one of the datasets bundled with the sdnist.report package. It is the name of the dataset from which the input deidentified dataset is generated, and it can be one of the following:
        - MA
        - TX
        - NATIONAL
+       - SBO
 
      - **--data-root**: The absolute or relative path to the directory containing the bundled dataset, or the directory where the bundled dataset should be downloaded to if it is not available locally. The default directory is set to **BenchmarkData**.
      - **--labels**: This argument is used to add meta-data to help identify which deidentified data was was evaluated in the report.  The argument can be a string that is a plain text label for the file, or it can be a file path to a json file containing label, value pairs. 

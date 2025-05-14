@@ -15,7 +15,7 @@ import matplotlib.image as mpimg
 import sdnist.strs as strs
 from sdnist.utils import *
 
-plt.style.use('seaborn-deep')
+plt.style.use('seaborn-v0_8-deep')
 
 
 class PCAMetric:
@@ -29,9 +29,27 @@ class PCAMetric:
         ('MSP', 'MSP_N', 'Children (AGEP < 15)', [['MSP', [-1]]], ['MSP'], [0, 1])
     ]
 
-    def __init__(self, target: pd.DataFrame, synthetic: pd.DataFrame,):
+    def __init__(self,
+                 target: pd.DataFrame,
+                 synthetic: pd.DataFrame,
+                 continuous_features: Optional[List[str]] = None,
+                 log_scale_continuous: bool = False):
         self.tar = target
         self.syn = synthetic
+        # ff = []
+        # for c in self.tar.columns:
+        #     uni = self.tar[c].unique().tolist()
+        #     if len(uni) < 50:
+        #         print(f'PCA: {c} :: {self.tar[c].unique().tolist()} ')
+        #         print(f'PCA: {c} :: {self.syn[c].unique().tolist()} ')
+        #         ff.append(c)
+        # print(ff)
+        # print(sorted(self.tar['POVPIP'].unique().tolist()))
+        # self.tar = self.tar[ff]
+        # self.syn = self.syn[ff]
+        self.continuous_features = continuous_features or []
+        self.log_scale_continuous = log_scale_continuous
+
         self.t_pdf = None
         self.s_pdf = None
         self.t_pdf_s = None  # pca target data minmax scaled
@@ -46,6 +64,13 @@ class PCAMetric:
     def compute_pca(self):
         cc = 5 if self.tar.shape[1] > 5 else self.tar.shape[1]
         t_pca = PCA(n_components=cc)
+
+        if self.log_scale_continuous:
+            for c in self.continuous_features:
+                self.tar[c] = np.sign(self.tar[c]) * np.log1p(
+                    np.abs(self.tar[c].astype('float64')))
+                self.syn[c] = np.sign(self.syn[c]) * np.log1p(
+                    np.abs(self.syn[c].astype('float64')))
 
         tdf_v = self.tar.values
         sdf_v = self.syn.values
@@ -103,7 +128,7 @@ class PCAMetric:
         create_path(s_cp_o_path)
 
         tar_path = Path(o_path, 'target.png')
-        syn_path = Path(o_path, 'deidentified.png')
+        syn_path = Path(o_path, 'deid.png')
 
         plot_all_components_pairs('Target Dataset', self.t_pdf_s, tar_path, t_cp_o_path,
                                   color='#5373d8')
@@ -125,8 +150,8 @@ class PCAMetric:
             if not all(f in cols for f in hf):
                 continue
 
-            h_t_cp_o_path = Path(o_path, f'target_highlighted_{h_type}')
-            h_s_cp_o_path = Path(o_path, f'deidentified_highlighted_{h_type}')
+            h_t_cp_o_path = Path(o_path, f'target_{h_type}')
+            h_s_cp_o_path = Path(o_path, f'deid_{h_type}')
 
             create_path(h_t_cp_o_path)
             create_path(h_s_cp_o_path)
@@ -193,7 +218,7 @@ def plot_all_components_pairs(title: str,
                 ax_t = ax[i, j]
             if pc_i == pc_j:
                 ax_t.text(0.5, 0.5, pc_i,
-                          ha='center', va='center', color='black', fontsize=30)
+                          ha='center', va='center', color='black', fontsize=25)
             else:
                 img = mpimg.imread(Path(cp_path, f'{pc_j}_{pc_i}.png'))
                 ax_t.imshow(img)
@@ -203,7 +228,7 @@ def plot_all_components_pairs(title: str,
             ax_t.set_yticklabels([])
             ax_t.tick_params(length=0)
 
-    plt.suptitle(title)
+    plt.suptitle(title, fontsize=10)
     plt.tight_layout()
     plt.savefig(f_path, bbox_inches='tight', dpi=100)
     plt.close(fig)
@@ -226,12 +251,12 @@ def plot_single_component_pair(title: str,
     img = plt.imread(Path(components_pairs_path, f'{pc_x}_{pc_y}.png'))
     ax.imshow(img, extent=[-0.02, 1.02, -0.02, 1.02])
     ax.scatter(d[pc_x], d[pc_y], s=30, color='#fa5757')
-    ax.set_xlabel(pc_x)
-    ax.set_ylabel(pc_y)
+    ax.set_xlabel(pc_x, fontsize=10)
+    ax.set_ylabel(pc_y, fontsize=10)
     ax.set_xticklabels([])
     ax.set_yticklabels([])
     ax.tick_params(length=0)
-    plt.title(title)
+    plt.title(title, fontsize=12)
     plt.savefig(file_path, dpi=100)
     plt.close(fig)
     return file_path

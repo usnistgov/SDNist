@@ -14,8 +14,12 @@ sub_sample_para = (
     "deidentifying data compare to the shift that would occur from subsampling the target data?"
 )
 
-k_marg_all_puma_para = (
-    "Different geographical regions have different data distributions.  How much has each been altered by deidentification?"
+k_marg_all_geo_para = (
+    "Different geographical regions have different data distributions. How much has each been altered by deidentification?"
+)
+
+k_marg_sector_para = (
+    "Different industries (ex: agriculture, retail, science & engineering) have different data distributions. How much has each been altered during deidentification? "
 )
 
 univ_dist_para = (
@@ -26,16 +30,17 @@ univ_dist_para = (
 )
 
 corr_para = (
-    "<p>A key goal of deidentified data is to preserve the feature correlations from the target data, "
+    "<p style=\"white-space: normal;\">A key goal of deidentified data is to preserve the feature correlations from the target data, "
     "so that analyses performed on the deidentified data provide meaningful insight about the target "
-    "population.Which correlations are the deidentified data preserving, and which are being altered during deidentification?</p>"
-    "<p>The charts below show absolute difference of pairwise feature correlations. Darker highlighting "
+    "population.Which correlations are the deidentified data preserving, and which are being altered during deidentification?<br>"
+    "The charts below show absolute difference of pairwise feature correlations. Darker highlighting "
     "indicates pairs of features whose correlations were not well preserved in the deidentified data.</p>"
 )
 
 
 pear_corr_para = (
-    "The Pearson Correlation difference was a popular utility metric during the HLG-MOS Synthetic Data Test Drive"
+    "The Pearson Correlation difference was a popular utility metric during the "
+    "<a href=\"https://pages.nist.gov/HLG-MOS_Synthetic_Data_Test_Drive/index.html\">HLG-MOS Synthetic Data Test Drive</a>"
 )
 
 kend_corr_para = (
@@ -44,12 +49,11 @@ kend_corr_para = (
 )
 
 propensity_para = (
-
-    "<p>Can a decision tree classifier tell the difference between the target data and the deidentified data? If a classifier is trained to distinguish between the two data sets, but it performs very poorly on the task when tested, then the deidentified data must look very similar to the target data. Propensity based metrics have been developed by Joshua Snoke and Gillian Raab and Claire Bowen, all of whom have participated on the NIST Synthetic Data Challenges SME panels.</p>"
-    "<p>We test the classifier by giving it an unlabeled mix of original target records and deidentified records; it has to guess which is which. If the classifier is 100% confident that a given record was deidentified (not in the original target data), then it predicts '100'. If it's perfectly confident it's a target record, it predicts '0'. </p>"
-    "<p>In the graph below we show the separated results-- the blue line shows the distribution of predictions the classifier gave for records that were really in the target data.  The green line shows the predictions for records from the deidentified data.  If the classifier could easily distinguish the two data sets, it will predict 100 for all deid records and 0 for all target records, and you'll see a sharp green spike on the right side of the chart and a sharp blue spike on the left side of the graph. </p>"
-    "<p>If the classifier was completely confused (the two data sets had extremely similar distributions), you'll see the blue and green lines combine in a single spike at 50. </p>"
-    "<p>But data is complicated, and often you'll see a variety of smaller spikes spread across the chart, as the deidentified data does a good job of capturing some parts of the target data's distribution and a poor job on other parts. </p>"
+    "<p style=\"white-space: normal;\">Can a decision tree classifier tell the difference between the target data and the deidentified data? If a classifier is trained to distinguish between the two data sets, but it performs very poorly on the task when tested, then the deidentified data must look very similar to the target data. Propensity based metrics have been developed by <a href=\"https://pennstate.pure.elsevier.com/en/publications/general-and-specific-utility-measures-for-synthetic-data\">Joshua Snoke and Gillian Raab</a> and <a href=\"https://www.researchgate.net/publication/323867757_STatistical_Election_to_Partition_Sequentially_STEPS_and_Its_Application_in_Differentially_Private_Release_and_Analysis_of_Youth_Voter_Registration_Data\">Claire Bowen</a>, all of whom have participated on the NIST Synthetic Data Challenges SME panels.<br>"
+    "We test the classifier by giving it an unlabeled mix of original target records and deidentified records; it has to guess which is which. If the classifier is 100% confident that a given record was deidentified (not in the original target data), then it predicts '100'. If it's perfectly confident it's a target record, it predicts '0'. <br>"
+    "In the graph below we show the separated results-- the blue line shows the distribution of predictions the classifier gave for records that were really in the target data.  The green line shows the predictions for records from the deidentified data.  If the classifier could easily distinguish the two data sets, it will predict 100 for all deid records and 0 for all target records, and you'll see a sharp green spike on the right side of the chart and a sharp blue spike on the left side of the graph. <br>"
+    "If the classifier was completely confused (the two data sets had extremely similar distributions), you'll see the blue and green lines combine in a single spike at 50. <br>"
+    "But data is complicated, and often you'll see a variety of smaller spikes. If the blue and green lines overlap perfectly, the classifier still can't distinguish the target data from the deidentified data (even if it imagines that it can). Where the blue or green spikes occur separately, though, the deidentified data has done a poor job of recreating the distribution for some subset of records. A green spike means the deidentification algorithm has made some weird looking records that the classifier knows aren't in the target data. A blue spike means a portion of the target data has been overlooked or erased, and no similar records exist in the deidentified data.</p>"
 )
 
 k_marg_break_para = (
@@ -99,18 +103,6 @@ percn_matched_para = (
 
 unique_exact_match_para_1 = (
     "Unique Exact Match (UEM) is a simple privacy metric that counts the percentage of singleton records in the target data that are also present in the deidentified data; these uniquely identifiable individuals leaked through the deidentification process."
-)
-
-unique_exact_match_para_2 = (
-    ""
-)
-
-unique_exact_match_para_3 = (
-    ""
-)
-
-unique_exact_match_para_4 = (
-    ""
 )
 
 # Explainer paragraphs for DiSCO Metric

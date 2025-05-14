@@ -1,63 +1,32 @@
 from typing import Dict, Optional, List, Any
 import pandas as pd
-import numpy as np
-from dataclasses import dataclass, asdict
 
-import strs
+from sdnist.report.report_data import ValidationData
+from sdnist.report.dataset.transform import deduce_code_type
+from sdnist.report.dataset.data_dict import (
+    get_feature_type, dtype_to_python_type, safe_isnan)
 from sdnist.utils import SimpleLogger
+import sdnist.strs as strs
 
-def get_feature_type(data_dict: Dict, feature: str) -> str:
-    f_dict = data_dict[feature]
-    if 'min' in f_dict[strs.VALUES] and 'max' in f_dict[strs.VALUES]:
-        return strs.CONTINUOUS
-    else:
-        return strs.CATEGORICAL
-
-def dtype_to_python_type(dtype: str) -> type:
-    if dtype in ['int64', 'int32']:
-        return int
-    elif dtype == 'float64':
-        return float
-    else:
-        return str
-
-def safe_isnan(value: Any):
-    try:
-        return np.isnan(value)
-    except TypeError:
-        return False
 
 def console_out(log: SimpleLogger, text: str):
     if log is not None:
         log.msg(text, level=3, timed=False, msg_type='error')
 
 
-@dataclass
-class DictMixin:
-    def to_dict(self):
-        return asdict(self)
-
-
-@dataclass
-class ValidationData(DictMixin):
-    feature: str
-    out_of_bound_values: List[str]
-    row_count: int
-
-
 def validate_categorical_feature(
-    deid_data: pd.DataFrame,
+    data: pd.DataFrame,
     data_dict: Dict[str, any],
     feature: str
 ):
-    dd = deid_data
+    d = data
     f = feature
     fd: Dict = data_dict[f]
     f_vals: List[str] = list(fd[strs.VALUES].keys())
     f_type = strs.CATEGORICAL
-    c_type = data_dict[f][strs.DTYPE]
-    c_type = dtype_to_python_type(c_type)
-    f_vals = [c_type(v) for v in f_vals]
+    # c_type = data_dict[f][strs.DTYPE]
+    # c_type = dtype_to_python_type(c_type)
+    # f_vals = [c_type(v) for v in f_vals]
     null_value_code = fd.get(strs.NULL_VALUE, None)
     if null_value_code == '':
         if '' in f_vals:
@@ -67,28 +36,22 @@ def validate_categorical_feature(
           and null_value_code not in f_vals):
         f_vals.append(null_value_code)
 
-    f_uniques = dd[f].unique().tolist()
+    f_uniques = d[f].astype(str).unique().tolist()
     f_uniques = ['nan' if safe_isnan(v) else v
                  for v in f_uniques]
-    # print(f_vals)
-    # print(f_uniques)
     vob_values = list(set(f_uniques) - set(f_vals))
-    # print(f, f_uniques)
-    # print(f, f_vals)
-    # print(f, vob_values)
-    # print()
     return vob_values
 
 
-def validate_continuous_feature(deid_data: pd.DataFrame,
+def validate_continuous_feature(data: pd.DataFrame,
                                 data_dict: Dict,
                                 feature: str):
-    dd = deid_data
+    d = data
     f = feature
     fd: Dict = data_dict[f]
-    num_vals = pd.to_numeric(dd[f], errors='coerce')
+    num_vals = pd.to_numeric(d[f], errors='coerce')
     mask = num_vals.isna()
-    df_non_numeric_or_nan = dd[mask]
+    df_non_numeric_or_nan = d[mask]
     f_vals = df_non_numeric_or_nan[f].unique().tolist()
     null_value_code = fd.get(strs.NULL_VALUE, None)
 
@@ -100,31 +63,37 @@ def validate_continuous_feature(deid_data: pd.DataFrame,
     return vob_values
 
 
-def validate(deid_data: pd.DataFrame,
+def validate(data: pd.DataFrame,
              data_dict: Dict,
              features: List[str],
              log: Optional[SimpleLogger] = None):
     "Remove columns with invalid values."
     validation_log = dict()
-    d = deid_data.copy()
+    d = data.copy()
     vob_features = []   # features with out of bound values
     for f in features:
         f_type = get_feature_type(data_dict, f)
+        dc_type = deduce_code_type(f, data_dict)
+        if dc_type is int and f not in ['FIPST']:
+            with pd.option_context("future.no_silent_downcasting", True):
+                d[f] = pd.to_numeric(d[f], errors='coerce').round().astype('Int64').astype(
+                    object).fillna(d[f].astype(str))
         if f_type == strs.CATEGORICAL:
             vob_vals = validate_categorical_feature(d, data_dict, f)
         else:
             vob_vals = validate_continuous_feature(d, data_dict, f)
-
         if len(vob_vals):
+            has_nan_vob = 'nan' in vob_vals
+            nan_vob_row_counts = len(d[d[f].isna()]) if has_nan_vob else 0
             vob_row_count = len(d[d[f].isin(vob_vals)])
-            d = d[~d[f].isin(vob_vals)]
+            vob_row_count = vob_row_count + nan_vob_row_counts
             if any([v for v in vob_vals if safe_isnan(v)]):
                 d = d[~d[f].isna()]
             vob_features.append((f, ValidationData(f, vob_vals, vob_row_count)))
             console_out(log,
                         f'Value out of bound for feature {f}, '
                         f'out of bound values: {vob_vals}. '
-                        f'Dropped {vob_row_count} rows from evaluation.')
+                        f'Dropped {f} from evaluation.')
     validation_log = dict(vob_features)
 
     return d, validation_log

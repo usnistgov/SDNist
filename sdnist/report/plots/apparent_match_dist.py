@@ -1,16 +1,8 @@
-import os
-
 from typing import List
-from pathlib import Path
-
 import matplotlib.pyplot as plt
-import pandas as pd
 
 from sdnist.metrics.apparent_match_dist import cellchange
 from sdnist.utils import *
-
-# plt.style.use('seaborn-deep')
-
 
 def plot_apparent_match_dist(match_percentages: pd.Series,
                              output_directory: Path) -> Path:
@@ -25,11 +17,13 @@ def plot_apparent_match_dist(match_percentages: pd.Series,
     ax = plt.gca()
     ax.grid(False)
     ax.locator_params(axis='y', integer=True)
-    plt.xlabel('Match Percentage', fontsize=14)
-    plt.ylabel('Record Counts', fontsize=14)
+    plt.xlabel('Match Percentage', fontsize=10)
+    plt.ylabel('Record Counts', fontsize=10)
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
     plt.title(
-        'Percentage of Matched Records')
-    out_file = Path(output_directory, f'apparent_match_distribution.jpg')
+        'Percentage of Matched Records', fontsize=12)
+    out_file = Path(output_directory, f'dist.jpg')
     x1, x2, y1, y2 = plt.axis()
     plt.axis((x1 - 2, x2 + 2, y1, y2 + 0.05))
     fig.tight_layout()
@@ -65,7 +59,7 @@ class ApparentMatchDistributionPlot:
         self.syn = synthetic
         self.tar = target
         self.o_dir = output_directory
-        self.o_path = Path(self.o_dir, 'apparent_match_distribution')
+        self.o_path = Path(self.o_dir, 'apparent_match_dist')
         self.quasi_features = quasi_features
         self.exclude_features = exclude_features
         self.quasi_matched_df = pd.DataFrame()
@@ -88,7 +82,7 @@ class ApparentMatchDistributionPlot:
                                                   self.o_path)
         mu['percent_match'] = percents
         self.report_data['unique_matched_percents'] = \
-            relative_path(save_data_frame(mu, self.o_path, 'unique_matched_percents'))
+            relative_path(save_data_frame(mu, self.o_path, 'result'))
         self.report_data['plot'] = relative_path(save_file_path)
 
         return [save_file_path]

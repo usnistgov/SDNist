@@ -1,12 +1,12 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 import pandas as pd
 import numpy as np
 import math
 
 import sdnist.strs as strs
-from sdnist.report.dataset.validate import get_feature_type
+from sdnist.report.dataset.data_dict import get_feature_type
 from sdnist.report.dataset.transform import (
-    parse_numeric_value, get_str_codes, get_null_codes)
+    parse_numeric_value, get_null_codes)
 
 
 def bin_continuous_feature(t_f: pd.DataFrame,
@@ -27,19 +27,16 @@ def bin_continuous_feature(t_f: pd.DataFrame,
 
     null_codes = get_null_codes(f, data_dict)
 
-    if f == 'POVPIP':
-        null_codes[501] = 501
-
     # find values to leave out of binning
     no_bin_vals = list(null_codes.values())
-
     # target and deid unique vals
     tuv = t_f[~t_f[f].isin(no_bin_vals)][f].unique().tolist()
     duv = d_f[~d_f[f].isin(no_bin_vals)][f].unique().tolist()
-    d_max_val = max(duv)  # deid data max value
     t_max_val = max(tuv)
-    d_min_val = min(duv)  # deid data min value
     t_min_val = min(tuv)
+    d_max_val = max(duv) if len(duv) else t_max_val  # deid data max value
+    d_min_val = min(duv) if len(duv) else t_min_val  # deid data min value
+
 
     # total bins to create after leaving off other values
     n_bins = n_bins - len(no_bin_vals)
@@ -63,6 +60,7 @@ def bin_continuous_feature(t_f: pd.DataFrame,
 
     if bin_edges[-1] == bin_edges[-2]:
         bin_edges = bin_edges[:-1]
+    bin_edges = sorted(bin_edges)
     # update lowest bin to be the minimum values of target or deid data
     # min_val = d_min_val if d_min_val < t_min_val else t_min_val
     # bin_edges[0] = min_val
@@ -118,18 +116,25 @@ def bin_data(t: pd.DataFrame,
     """
     tb = t.copy()
     db = d.copy()
-
+    no_binning = ['DENSITY']
     bin_mappings = dict()
-    continuous_features = [f for f in ddict
+    continuous_features = [f for f in tb.columns
                           if get_feature_type(ddict, f) == strs.CONTINUOUS]
     for f in continuous_features:
+        if f in no_binning:
+            continue
         tb_n, db_n, mappings = bin_continuous_feature(tb[[f]],
                                                       db[[f]],
                                                       ddict, n_bins)
         tb[f], db[f] = tb_n[f], db_n[f]
         bin_mappings.update(mappings)
-    return tb, db, bin_mappings
 
+    for f in tb.columns:
+        if f not in bin_mappings and f not in no_binning:
+            unique_vals = sorted(set(tb[f].unique().tolist())
+                                 .union(set(db[f].unique().tolist())))
+            bin_mappings[f] = {v: v for v in unique_vals}
+    return tb, db, bin_mappings
 
 
 def percentile_rank_target(data: pd.DataFrame, features: List[str]):
@@ -207,7 +212,7 @@ def bin_density(data: pd.DataFrame, data_dict: Dict, update: bool = True) -> pd.
     def get_bin_range_log(x):
         for i, v in enumerate(bins):
             if i == x:
-                return f'({round(v, 2)}, {round(bins[i + 1], 2)}]'
+                return round(v, 2), round(bins[i + 1], 2)
     d = data
     dd = data_dict
     base = 10
@@ -242,25 +247,25 @@ def bin_density(data: pd.DataFrame, data_dict: Dict, update: bool = True) -> pd.
 
 def get_density_bins_description(data: pd.DataFrame,
                                  data_dict: Dict,
-                                 mappings: Dict) -> Dict:
+                                 mappings: Dict) -> Tuple[Dict, Dict]:
     bin_desc = dict()
     # If puma is not available in the features, return empty description dictionary
     if 'PUMA' not in data:
         return bin_desc
 
     d = bin_density(data.copy(), data_dict, update=False)
-
+    bin_mappings = {}
     for dbin, g in d.groupby(by='binned_density'):
         if g.shape[0] == 0:
             continue
-
         density_range = g['bin_range'].unique()[0]
         bin_data = []
         for puma, pg in g.groupby(by='PUMA'):
             density = pg['DENSITY'].unique()[0]
             bin_data.append([puma, density, mappings["PUMA"][puma]["name"]])
         bin_df = pd.DataFrame(bin_data, columns=['PUMA', 'DENSITY', 'PUMA NAME'])
-        bin_desc[dbin] = (density_range, bin_df)
+        bin_desc[dbin] = (str(density_range), bin_df)
+        bin_mappings[dbin] = density_range[0]
     del d
     # print(bin_desc)
-    return bin_desc
+    return bin_desc, bin_mappings

@@ -187,6 +187,8 @@
                             <td><p>{{ out }}: {{ val[1] }}</p></td>
                         {% elif val[2] %}
                             <td>{{ val }}</td>
+                        {% elif val[0] %}
+                            <td>{{ out }}</td>
                         {% endif %}
                     {% elif _ == "min_idx" %}
                     {% else %}

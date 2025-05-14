@@ -1,4 +1,3 @@
-import os
 from typing import Tuple
 
 from sdnist.report import Dataset, ReportData, ReportUIData
@@ -25,19 +24,10 @@ def privacy_score(
         perc_t_rec_matched,
         unique_target_records,
         perc_unique_target_records,
-    ) = unique_exact_matches(ds.c_target_data, ds.c_synthetic_data)
+    ) = unique_exact_matches(ds.t_target_data, ds.t_synthetic_data)
     perc_t_rec_matched = perc_t_rec_matched
     uem_para1_a = Attachment(
         name=None, _data=unique_exact_match_para_1, _type=AttachmentType.String
-    )
-    uem_para2_a = Attachment(
-        name=None, _data=unique_exact_match_para_2, _type=AttachmentType.String
-    )
-    uem_para3_a = Attachment(
-        name=None, _data=unique_exact_match_para_3, _type=AttachmentType.String
-    )
-    uem_para4_a = Attachment(
-        name=None, _data=unique_exact_match_para_4, _type=AttachmentType.String
     )
 
     feat_space_str = "{:0.3e}".format(ds.feature_space)
@@ -64,9 +54,6 @@ def privacy_score(
             None,
             [
                 uem_para1_a,
-                uem_para2_a,
-                uem_para3_a,
-                uem_para4_a,
                 target_matched_a,
                 deid_matched_a,
             ],
@@ -83,38 +70,39 @@ def privacy_score(
     )
 
     log.end_msg()
-
-    # Apparent Match Distribution Packet
-    log.msg("Apparent Match Distribution", level=3)
     quasi_idf = []  # list of quasi-identifier features
     excluded = []  # list of excluded features from apparent match computation
     use_apparent_match = True
     if ds.test == TestDatasetName.sbo_target:
         quasi_idf = ["SEX1", "FIPST", "SECTOR", "VET1", "RACE1"]
     else:
-        quasi_idf = ["SEX", "MSP", "RAC1P", "OWN_RENT", "EDU", "PUMA", "INDP_CAT", "HISP"]
+        quasi_idf = ["SEX", "MSP", "RAC1P", "OWN_RENT", "EDU", "PUMA",
+                     "INDP_CAT", "HISP"]
     quasi_idf = list(set(ds.features).intersection(set(quasi_idf)))
     if len(quasi_idf) == 0:
         log.msg(
             "No quasi-identifier feature found in the dataset. Skipping Apparent Match Distribution.",
             level=2,
             timed=False,
-            msg_type="error",
+            msg_type="warn",
         )
         use_apparent_match = False
 
-    amd_para_a = Attachment(
-        name=None, _data=app_match_para, _type=AttachmentType.String
-    )
-    # Quasi-identifier list as attachment
-    quasi_para_a = Attachment(
-        name="Quasi-Identifiers", _data=quasi_idf_para, _type=AttachmentType.String
-    )
-    quasi_list_atch = Attachment(
-        name=None, _data=", ".join(quasi_idf), _type=AttachmentType.String
-    )
+    if use_apparent_match and ds.test != TestDatasetName.sbo_target:
+        # Apparent Match Distribution Packet
+        log.msg("Apparent Match Distribution", level=3)
 
-    if use_apparent_match:
+        amd_para_a = Attachment(
+            name=None, _data=app_match_para, _type=AttachmentType.String
+        )
+        # Quasi-identifier list as attachment
+        quasi_para_a = Attachment(
+            name="Quasi-Identifiers", _data=quasi_idf_para, _type=AttachmentType.String
+        )
+        quasi_list_atch = Attachment(
+            name=None, _data=", ".join(quasi_idf), _type=AttachmentType.String
+        )
+
         excluded = []
         amd_plot = ApparentMatchDistributionPlot(
             ds.c_synthetic_data,
@@ -175,31 +163,27 @@ def privacy_score(
                 ],
             )
         )
-    else:
-        r_ui_d.add(
-            PrivacyScorePacket(
-                "Apparent Match Distribution",
-                None,
-                [amd_para_a, quasi_para_a, quasi_list_atch],
-            )
-        )
-    log.end_msg()
+        log.end_msg()
 
-    if ds.test != TestDatasetName.sbo_target:
+    stable_quasi_identifiers = ["RAC1P", "SEX"]
+
+    can_compute_kdisco = set(stable_quasi_identifiers).issubset(set(ds.features))
+
+    if ds.test != TestDatasetName.sbo_target and can_compute_kdisco:
         # DiSCO Score Attachment
         log.msg("DiSCO Score", level=3)
-        stable_quasi_identifiers = ["RAC1P", "SEX"]
+
         disco_evaluator = KDiscoEvaluator(
             gt_df=dataset.d_target_data.copy(),
             syn_df=dataset.d_synthetic_data.copy(),
             stable_identifiers=stable_quasi_identifiers,
             k=2,
-            output_directory=os.path.join(r_ui_d.output_directory, "k_disco")
+            output_directory=os.path.join(r_ui_d.output_directory, "kdisco")
         )
         disco_evaluator.compute_k_disco()
 
-        disco_evaluator.plot_disco_results("disco_bar")
-        disco_evaluator.plot_disco_minus_dio_heatmap("disco_heatmap")
+        disco_evaluator.plot_disco_results("barplot")
+        disco_evaluator.plot_disco_minus_dio_heatmap("heatmap")
         disco_result_plot_outfile = disco_evaluator.disco_plot_filename
         disco_heatmap_plot_outfile = disco_evaluator.heatmap_plot_filename
         disco_result_csv_outfile = disco_evaluator.disco_result_outfile
@@ -213,13 +197,13 @@ def privacy_score(
         disco_plot_a = Attachment(
             name=None,
             _data=[
-                {IMAGE_NAME: "Disco Bar Plot", PATH: disco_result_plot_outfile},
+                {IMAGE_NAME: "Disco Bar Plot", PATH: relative_path(disco_result_plot_outfile)},
             ],
             _type=AttachmentType.ImageLinks,
         )
         disco_plot_b = Attachment(
             name=None,
-            _data=[{IMAGE_NAME: "Disco Heatmap", PATH: disco_heatmap_plot_outfile}],
+            _data=[{IMAGE_NAME: "Disco Heatmap", PATH: relative_path(disco_heatmap_plot_outfile)}],
             _type=AttachmentType.ImageLinks,
         )
 
