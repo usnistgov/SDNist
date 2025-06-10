@@ -35,7 +35,7 @@ setup(
         "numpy==1.26.4",
         "pandas==2.2.0",
         "pyarrow==17.0.0",
-        "requests==2.32.3",
+        "requests==2.32.4",
         "scikit-learn==1.6.1",
         "scipy==1.13.1",
         "tqdm==4.67.1",
