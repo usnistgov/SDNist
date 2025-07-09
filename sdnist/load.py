@@ -74,7 +74,7 @@ def check_exists(root: Path, name: Path, download: bool, data_name: str = DEFAUL
     if not name.exists():
         print(f"{name} does not exist.")
         zip_path = Path(root.parent, 'data.zip')
-        version = "2.4.0"
+        version = "2.5.0"
 
         version_v = f"v{version}"
 

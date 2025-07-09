@@ -2,16 +2,15 @@
 
 # SDNist v2.5: Deidentified Data Report Tool
 
-## [SDNist is the offical software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
+## [SDNist is the official software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
 
 Welcome! SDNist is a python package that provides benchmark data and evaluation metrics for deidentified data generators. This version of SDNist only supports using the [NIST ACS Data Excerpts](https://github.com/usnistgov/SDNist/tree/main/BenchmarkData), a geographically partitioned, limited feature data set.  Future versions of SDNist will be extended to support additional NIST Excerpt Benchmark data sets. 
 
 The deidentified data report evaluates utility and privacy of a given deidentified dataset and generates a summary quality report with performance of a deidentified dataset enumerated and illustrated for each utility and privacy metric.
 
-[//]: # ([Preview sample reports produced by the tool here.]&#40;https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports&#41;)
+# [Preview sample reports produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sample-reports)
 
-This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues]  if you catch a bug or would like have feature suggestions. 
-
+This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues]  if you catch a bug or would like have feature suggestions.
 
 
 ### Project Team  
