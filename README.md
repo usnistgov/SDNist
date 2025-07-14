@@ -1,17 +1,16 @@
 ![Python Version](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 
-# SDNist v2.4: Deidentified Data Report Tool
+# SDNist v2.5: Deidentified Data Report Tool
 
-## [SDNist is the offical software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
+## [SDNist is the official software package for engaging in the NIST Collaborative Research Cycle](https://pages.nist.gov/privacy_collaborative_research_cycle)
 
 Welcome! SDNist is a python package that provides benchmark data and evaluation metrics for deidentified data generators. This version of SDNist only supports using the [NIST ACS Data Excerpts](https://github.com/usnistgov/SDNist/tree/main/BenchmarkData), a geographically partitioned, limited feature data set.  Future versions of SDNist will be extended to support additional NIST Excerpt Benchmark data sets. 
 
 The deidentified data report evaluates utility and privacy of a given deidentified dataset and generates a summary quality report with performance of a deidentified dataset enumerated and illustrated for each utility and privacy metric.
 
-[//]: # ([Preview sample reports produced by the tool here.]&#40;https://github.com/usnistgov/SDNist/tree/main/sdnist/report/sample-reports&#41;)
+# [Preview sample reports produced by the tool here.](https://github.com/usnistgov/SDNist/tree/main/sample-reports)
 
-This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues]  if you catch a bug or would like have feature suggestions. 
-
+This tool is being actively developed. Please (raise an Issue)[https://github.com/usnistgov/SDNist/issues]  if you catch a bug or would like have feature suggestions.
 
 
 ### Project Team  
@@ -42,7 +41,7 @@ Setting Up the SDNIST Report Tool
 
 ### Brief Setup Instructions
 
-SDNist is compatible with Python versions from 3.9 to 3.12. If you have installed a previous version of the SDNist library, we recommend installing v2.4 in a virtual environment. v2.4 can be installed via [Release 2.4](https://github.com/usnistgov/SDNist/releases/tag/v2.4) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
+SDNist is compatible with Python versions from 3.9 to 3.12. If you have installed a previous version of the SDNist library, we recommend installing v2.5 in a virtual environment. v2.5 can be installed via [Release 2.5](https://github.com/usnistgov/SDNist/releases/tag/v2.5.0) or via the Pypi server: `pip install sdnist` or, if you already have a version installed, `pip install --upgrade sdnist`.
 
 The NIST ACS Data Excerpt data will download on the fly.
 
