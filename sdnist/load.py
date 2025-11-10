@@ -19,6 +19,7 @@ import sdnist.strs as strs
 DEFAULT_DATASET = 'BenchmarkData'
 ACS_DATASET = 'ACSDataExcerpts'
 SBO_DATASET = 'SBODataExcerpts'
+CENSUS1940_DATASET = '1940CensusExcerpts'
 
 class TestDatasetName(Enum):
     NONE = 1
@@ -31,16 +32,30 @@ class TestDatasetName(Enum):
     tx2019 = 8
     national2019 = 9
     sbo_target = 10
+    _1940CENSUS_AZ_TestKitStrata_BLUE = 11
+    _1940CENSUS_AZ_TestKitStrata_GREEN = 12
+    _1940CENSUS_AZ_TestKitStrata_RED = 13
+    ma2018 = 14
+    tx2018 = 15
+    national2018 = 16
 
+    @property
+    def name(self) -> str:
+        """Return the member name without a leading underscore, if any."""
+        return self._name_.lstrip('_')
 
 dataset_paths = {
     TestDatasetName.national2019.name: f'{ACS_DATASET}/national',
     TestDatasetName.ma2019.name: f'{ACS_DATASET}/massachusetts',
     TestDatasetName.tx2019.name: f'{ACS_DATASET}/texas',
+    TestDatasetName.national2018.name: f'{ACS_DATASET}/national',
+    TestDatasetName.ma2018.name: f'{ACS_DATASET}/massachusetts',
+    TestDatasetName.tx2018.name: f'{ACS_DATASET}/texas',
     TestDatasetName.sbo_target.name: f'{SBO_DATASET}',
-
+    TestDatasetName._1940CENSUS_AZ_TestKitStrata_BLUE.name: f'{CENSUS1940_DATASET}/AZ_blue_strata',
+    TestDatasetName._1940CENSUS_AZ_TestKitStrata_GREEN.name: f'{CENSUS1940_DATASET}/AZ_green_strata',
+    TestDatasetName._1940CENSUS_AZ_TestKitStrata_RED.name: f'{CENSUS1940_DATASET}/AZ_red_strata',
 }
-
 
 
 def reporthook(count, block_size, total_size):

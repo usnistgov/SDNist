@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
+import math
 
 from sdnist.report import Dataset
 from sdnist.strs import *
@@ -27,6 +28,8 @@ def l1(pk: List[int], qk: List[int]):
     return div
 
 
+INDP = 'INDP'
+INDP_CAT = "INDP_CAT"
 
 class UnivariatePlots:
     def __init__(self,
@@ -84,23 +87,17 @@ class UnivariatePlots:
                 "counts": self.uni_counts}
 
     def save(self, level=2) -> Dict:
-        if self.challenge == CENSUS:
-            ignore_features = ['YEAR']
-        elif self.challenge == TAXI:
-            ignore_features = ['pickup_community_area', 'shift', 'company_id']
-        else:
-            raise Exception(f'Invalid Challenge Name: {self.challenge}. '
-                            f'Unable to save univariate plots')
+        ignore_features = []
         # divergence dataframe
         div_df = divergence(self.syn,
                             self.tar,
-                            self.schema, ignore_features)
+                            self.schema,
+                            ignore_features)
         self.div_data = div_df
         # select 3 features with worst divergence
         # div_df = div_df.head(3)
 
-        self.save_distribution_plot(self.dataset,
-                                    self.syn,
+        self.save_distribution_plot(self.syn,
                                     self.tar,
                                     div_df[FEATURE].tolist(),
                                     self.out_path,
@@ -108,18 +105,16 @@ class UnivariatePlots:
         return self.feat_data
 
     def save_distribution_plot(self,
-                               dataset: Dataset,
                                synthetic: pd.DataFrame,
                                target: pd.DataFrame,
                                features: List,
                                output_directory: Path,
                                level=2):
-        ds = dataset
+        ds = self.dataset
         o_path = output_directory
         bar_width = 0.4
         saved_file_paths = []
-        INDP = 'INDP'
-        INDP_CAT = "INDP_CAT"
+
         o_tar = ds.target_data.loc[target.index]
         o_syn = ds.c_synthetic_data.loc[synthetic.index]
         schema = ds.schema
@@ -127,82 +122,17 @@ class UnivariatePlots:
         for i, f in enumerate(features):
             self.uni_counts[f] = dict()
             if f == INDP and INDP_CAT in target.columns.tolist():
-                all_sectors = o_tar[INDP_CAT].unique().tolist()
-                set(all_sectors).update(set(o_syn[INDP_CAT].unique().tolist()))
-                selected = []
-                for s in all_sectors:
-                    if s == 'N':
-                        continue
-                    st_df = o_tar[o_tar[INDP_CAT].isin([s])].copy()
-                    st_df.loc[:, f] = pd.to_numeric(st_df[f]).astype(int)
-                    ss_df = o_syn[o_syn[INDP_CAT].isin([int(s), s])]
-                    unique_ind_codes = st_df[f].unique().tolist()
-                    set(unique_ind_codes).update(set(ss_df[f].unique().tolist()))
-                    unique_ind_codes = list(unique_ind_codes)
-                    val_df = pd.DataFrame(unique_ind_codes, columns=[f])
-                    val_df[f] = val_df.astype(str)
-
-                    t_counts_df = st_df.groupby(by=f)[f].size().reset_index(name='count_target')
-                    s_counts_df = ss_df.groupby(by=f)[f].size().reset_index(name='count_deidentified')
-                    t_counts_df[f] = t_counts_df[f].astype(str)
-                    s_counts_df[f] = s_counts_df[f].astype(str)
-
-                    merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left')\
-                        .fillna(0)
-                    merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left')\
-                        .fillna(0)
-                    div = l1(pk=merged['count_target'], qk=merged['count_deidentified'])
-
-                    selected.append([merged, div, s])
-                selected = sorted(selected, key=lambda l: l[1], reverse=True)
-
-                for j, data in enumerate(selected):
-                    merged = data[0]
-                    div = data[1]
-                    s = data[2]
-                    merged = merged.sort_values(by=f)
-                    x_axis = np.arange(merged.shape[0])
-                    plt.figure(figsize=(8, 3), dpi=100)
-                    plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
-                    plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
-                    plt.xlabel('Feature Values', fontsize=10)
-                    plt.ylabel('Record Counts', fontsize=10)
-                    plt.gca().set_xticks(x_axis, merged[f].values.tolist())
-                    plt.legend(loc='upper right', fontsize=10)
-                    if merged.shape[0] > 30:
-                        plt.xticks(fontsize=6, rotation=90)
-                    else:
-                        plt.xticks(fontsize=8, rotation=45)
-                    plt.tight_layout()
-                    title = f'Industries in Industry Category ' \
-                            f'{dataset.data_dict["INDP_CAT"]["values"][str(s)]}'
-                    plt.title(title,
-                              fontdict={'fontsize': 12})
-
-                    file_path = Path(o_path, f'indpcat_{s}.jpg')
-                    plt.savefig(file_path, bbox_inches='tight')
-
-                    plt.close()
-                    self.uni_counts[f][f"Industry Category {s}"] = {
-                        "divergence": div,
-                        "counts": relative_path(save_data_frame(merged,
-                                                o_path,
-                                                f"indp_cat_{s}"),
-                                                level=level),
-                        "plot": relative_path(file_path, level=level)
-                    }
-                    # if j < 2:
-                    saved_file_paths.append(file_path)
-
-                    self.feat_data[title] = {
-                        "path": ''
-                    }
+                saved_path = self.univariate_indp_features(f, o_tar,
+                                                           o_syn,
+                                                           bar_width,
+                                                           level,
+                                                           o_path)
+                saved_file_paths.extend(saved_path)
             else:
-                plt.figure(figsize=(8, 3), dpi=100)
                 file_path = Path(o_path, f'{f}.jpg')
                 merged = self.count_values(f)
 
-                title = f"{f}: {dataset.data_dict[f]['description']}"
+                title = f"{f}: {ds.data_dict[f]['description']}"
                 self.uni_counts[f] = {
                     "divergence": self.div_data[self.div_data[FEATURE] == f][DIVERGENCE].values[0],
                     "counts": relative_path(save_data_frame(merged.copy(),
@@ -216,30 +146,19 @@ class UnivariatePlots:
                         or i < self.worst_univariates_to_display:
                     merged = self.separate_large_count_value(f, merged, title)
 
+                test_path = Path('check')
+                if not test_path.exists():
+                    test_path.mkdir(parents=True, exist_ok=True)
+                merged.to_csv(Path(test_path, f'{f}.csv'), index=False)
 
-                x_axis = np.arange(merged.shape[0])
-                plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width, label='Target')
-                plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width, label='Deidentified')
-                plt.xlabel('Feature Values', fontsize=10)
-                plt.ylabel('Record Counts', fontsize=10)
-                vals = merged[f].values.tolist()
-
-
-                vals = [str(v) for v in vals]
-                if "-1" in vals:
-                    idx = vals.index("-1")
-                    vals[idx] = "N"
-
-                plt.gca().set_xticks(x_axis, vals)
-                plt.legend(loc='upper right', fontsize=10)
-                plt.xticks(fontsize=8, rotation=45)
-                plt.yticks(fontsize=10)
-                plt.tight_layout()
-
-                plt.title(title, fontdict={'fontsize': 12})
-
-                plt.savefig(Path(o_path, f'{f}.jpg'), bbox_inches='tight')
-                plt.close()
+                bar_charts(
+                    merged,
+                    feature=f,
+                    bar_width=bar_width,
+                    title=title,
+                    out_dir=o_path,
+                    dpi=100
+                )
 
                 if i < self.worst_univariates_to_display:
                     self.feat_data[title]['path'] = file_path
@@ -258,7 +177,8 @@ class UnivariatePlots:
                                'count_deidentified': d_counts}).fillna(0)
 
         if f in self.bin_mappings:
-            merged[f] = merged[f].map(self.bin_mappings[f]).fillna(merged[f])
+            with pd.option_context("future.no_silent_downcasting", True):
+                merged[f] = merged[f].map(self.bin_mappings[f]).fillna(merged[f])
         return merged
 
     def separate_large_count_value(self,
@@ -283,6 +203,166 @@ class UnivariatePlots:
         return merged
 
 
+    def univariate_indp_features(self,
+                                 feature,
+                                 target,
+                                 synthetic,
+                                 bar_width,
+                                 level,
+                                 output_path):
+        ds = self.dataset
+        o_tar = target
+        o_syn = synthetic
+        f = feature
+        o_path = output_path
+        saved_file_paths = []
+
+        all_sectors = o_tar[INDP_CAT].unique().tolist()
+        set(all_sectors).update(set(o_syn[INDP_CAT].unique().tolist()))
+        selected = []
+        for s in all_sectors:
+            if s == 'N':
+                continue
+            st_df = o_tar[o_tar[INDP_CAT].isin([s])].copy()
+            st_df.loc[:, f] = pd.to_numeric(st_df[f]).astype(int)
+            ss_df = o_syn[o_syn[INDP_CAT].isin([int(s), s])]
+            unique_ind_codes = st_df[f].unique().tolist()
+            set(unique_ind_codes).update(set(ss_df[f].unique().tolist()))
+            unique_ind_codes = list(unique_ind_codes)
+            val_df = pd.DataFrame(unique_ind_codes, columns=[f])
+            val_df[f] = val_df.astype(str)
+
+            t_counts_df = st_df.groupby(by=f)[f].size().reset_index(
+                name='count_target')
+            s_counts_df = ss_df.groupby(by=f)[f].size().reset_index(
+                name='count_deidentified')
+            t_counts_df[f] = t_counts_df[f].astype(str)
+            s_counts_df[f] = s_counts_df[f].astype(str)
+
+            merged = pd.merge(left=val_df, right=t_counts_df, on=f, how='left') \
+                .fillna(0)
+            merged = pd.merge(left=merged, right=s_counts_df, on=f, how='left') \
+                .fillna(0)
+            div = l1(pk=merged['count_target'], qk=merged['count_deidentified'])
+
+            selected.append([merged, div, s])
+        selected = sorted(selected, key=lambda l: l[1], reverse=True)
+
+        for j, data in enumerate(selected):
+            merged = data[0]
+            div = data[1]
+            s = data[2]
+            merged = merged.sort_values(by=f)
+            x_axis = np.arange(merged.shape[0])
+            plt.figure(figsize=(8, 3), dpi=100)
+            plt.bar(x_axis - 0.2, merged['count_target'], width=bar_width,
+                    label='Target')
+            plt.bar(x_axis + 0.2, merged['count_deidentified'], width=bar_width,
+                    label='Deidentified')
+            plt.xlabel('Feature Values', fontsize=10)
+            plt.ylabel('Record Counts', fontsize=10)
+            plt.gca().set_xticks(x_axis, merged[f].values.tolist())
+            plt.legend(loc='upper right', fontsize=10)
+            if merged.shape[0] > 30:
+                plt.xticks(fontsize=6, rotation=90)
+            else:
+                plt.xticks(fontsize=8, rotation=45)
+            plt.tight_layout()
+            title = f'Industries in Industry Category ' \
+                    f'{ds.data_dict["INDP_CAT"]["values"][str(s)]}'
+            plt.title(title,
+                      fontdict={'fontsize': 12})
+
+            file_path = Path(o_path, f'indpcat_{s}.jpg')
+            plt.savefig(file_path, bbox_inches='tight')
+
+            plt.close()
+            self.uni_counts[f][f"Industry Category {s}"] = {
+                "divergence": div,
+                "counts": relative_path(save_data_frame(merged,
+                                                        o_path,
+                                                        f"indp_cat_{s}"),
+                                        level=level),
+                "plot": relative_path(file_path, level=level)
+            }
+            saved_file_paths.append(file_path)
+
+            self.feat_data[title] = {
+                "path": ''
+            }
+        return saved_file_paths
+
+
+def bar_charts(
+    merged: pd.DataFrame,
+    feature: str,
+    bar_width: float = 0.4,
+    chunk_size: int = 30,
+    title: str = "",
+    out_dir: Path | str = ".",
+    dpi: int = 100,
+):
+        out_dir = Path(out_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        n_rows = len(merged)
+        n_chunks = math.ceil(n_rows / chunk_size)
+
+        fig, axes = plt.subplots(
+            n_chunks,
+            1,
+            figsize=(8, 3 * n_chunks),
+            dpi=dpi,
+            squeeze=False,
+        )
+        max_counts = max(
+            merged["count_target"].max(),
+            merged["count_deidentified"].max(),
+        )
+        for chunk_idx in range(n_chunks):
+            start = chunk_idx * chunk_size
+            stop = min(start + chunk_size, len(merged))
+            chunk = merged.iloc[start:stop]
+            chunk_max_counts = max(
+                chunk["count_target"].max(),
+                chunk["count_deidentified"].max(),
+            )
+            ax = axes[chunk_idx, 0]
+            x_axis = np.arange(len(chunk))
+            ax.bar(
+                x_axis - bar_width / 2,
+                chunk["count_target"],
+                width=bar_width,
+                label="Target" if chunk_idx == 0 else None,
+            )
+            ax.bar(
+                x_axis + bar_width / 2,
+                chunk["count_deidentified"],
+                width=bar_width,
+                label="Deidentified" if chunk_idx == 0 else None,
+            )
+            if chunk_max_counts * 3 < max_counts:
+                ax.set_ylim(0, chunk_max_counts * 2)
+            else:
+                ax.set_ylim(0, max_counts * 1.1)  # add some space above bars
+            # Clean up -1 sentinel values
+            labels = chunk[feature].astype(str).replace("-1", "N")
+
+            ax.set_xticks(x_axis, labels)
+            if chunk_idx == n_chunks - 1:  # last chunk only (avoids clutter)
+                ax.set_xlabel("Feature Values", fontsize=10)
+            ax.set_ylabel("Record Counts", fontsize=10)
+            ax.tick_params(axis="x", labelrotation=45, labelsize=8)
+            ax.tick_params(axis="y", labelsize=10)
+            if chunk_idx == 0:
+                ax.legend(loc="upper right", fontsize=10)
+
+        title = wrap_title(title, max_width=70)
+        fig.suptitle(title, fontsize=12)
+        fig.tight_layout(rect=(0, 0, 1, 0.99))  # leave space for suptitle
+        outfile = out_dir / f"{feature}.jpg"
+        fig.savefig(outfile, bbox_inches="tight")
+        plt.close(fig)
 
 
 def divergence(synthetic: pd.DataFrame,
@@ -317,3 +397,22 @@ def divergence(synthetic: pd.DataFrame,
 
     return pd.DataFrame(div_data, columns=[FEATURE, DIVERGENCE])\
         .sort_values(by=DIVERGENCE, ascending=False)
+
+
+def wrap_title(title: str, max_width: int = 70) -> str:
+    words = title.split()
+    lines = []
+    current_line = ""
+
+    for word in words:
+        # Try to add word to current line
+        if len(current_line) + len(word) + (1 if current_line else 0) <= max_width:
+            current_line += (" " if current_line else "") + word
+        else:
+            lines.append(current_line)
+            current_line = word
+
+    if current_line:
+        lines.append(current_line)
+
+    return "\n".join(lines)

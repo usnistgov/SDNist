@@ -8,9 +8,14 @@ def compute_marginal_densities(data, marginals):
 
 def get_marginal_pairs(marginals: List[str],
                        permutations: int,
+                       ignore_features: List[str],
                        seed: int):
     if len(marginals) == 1:
         return [(marginals[0], marginals[0])]
+
+    if len(ignore_features):
+        marginals = [f for f in marginals if f not in ignore_features]
+
     if len(marginals) < 30:
         return [(f1, f2) for i, f1 in enumerate(marginals)
                 for j, f2 in enumerate(marginals) if i < j]
@@ -63,6 +68,7 @@ class KMarginal:
     def __init__(self,
                  target_data: pd.DataFrame,
                  deidentified_data: pd.DataFrame,
+                 ignore_features: List[str],
                  group_feature: Optional[str] = None,
                  seed: int = 0):
         self.td = target_data
@@ -71,7 +77,7 @@ class KMarginal:
         self.features = self.td.columns.tolist()
         marg_cols = list(set(self.features).difference(set(self.group_features)))
         marg_cols = sorted(marg_cols)
-        self.marginals = get_marginal_pairs(marg_cols, self.N_PERMUTATIONS, seed)
+        self.marginals = get_marginal_pairs(marg_cols, self.N_PERMUTATIONS, ignore_features, seed)
 
     def marginal_pairs(self):
         for _ in self.marginals:

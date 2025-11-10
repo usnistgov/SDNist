@@ -71,7 +71,11 @@ def setup():
     bundled_datasets = {"MA": TestDatasetName.ma2019,
                         "TX": TestDatasetName.tx2019,
                         "NATIONAL": TestDatasetName.national2019,
-                        'SBO': TestDatasetName.sbo_target}
+                        'SBO': TestDatasetName.sbo_target,
+                        '1940CENSUS_AZ_BLUE': TestDatasetName._1940CENSUS_AZ_TestKitStrata_BLUE,
+                        '1940CENSUS_AZ_RED': TestDatasetName._1940CENSUS_AZ_TestKitStrata_RED,
+                        '1940CENSUS_AZ_GREEN': TestDatasetName._1940CENSUS_AZ_TestKitStrata_GREEN,}
+
     parser = argparse.ArgumentParser()
     parser.register('action', 'none', NoAction)
     parser.add_argument("deidentified_dataset", type=argparse.FileType("r"),
@@ -151,6 +155,5 @@ class NoAction(argparse.Action):
 
 
 if __name__ == "__main__":
-
     input_cnf = setup()
     run(**input_cnf)

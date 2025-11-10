@@ -17,7 +17,7 @@ class UnivariatesReport:
                  dataset: Dataset,
                  ui_data: ReportUIData,
                  report_data: ReportData,
-                 worst_univariates_to_display=24,
+                 worst_univariates_to_display=50,
                  out_dir: Optional[Path] = None,
                  stable_feature: Optional[str] = None,
                  worst_stable_feature_values: Optional[List[str]] = None):

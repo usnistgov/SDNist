@@ -32,15 +32,18 @@ class PearsonCorrelationPlot:
         }
         cd = self.cd
         cd = cd.abs()
-        fig = plt.figure(figsize=(6, 6), dpi=100)
+
+        fts = 10 if cd.shape[0] < 25 else 8
+        size = 8 if cd.shape[0] < 50 else 11
+        fig = plt.figure(figsize=(size, size), dpi=100)
         v_max = 0.15
         plt.imshow(cd, cmap='Blues', interpolation='none', vmin=0, vmax=v_max)
         im_ratio = cd.shape[0] / cd.shape[1]
         cbar = plt.colorbar(fraction=0.04 * im_ratio)
         cbar.ax.tick_params(labelsize=10)
         plt.xticks(range(cd.shape[1]), cd.columns)
-        plt.xticks(rotation=90, fontsize=10)
-        plt.yticks(range(cd.shape[0]), cd.index, fontsize=10)
+        plt.xticks(rotation=90, fontsize=fts)
+        plt.yticks(range(cd.shape[0]), cd.index, fontsize=fts)
         plt.title('Pearson Correlation Diff. Between Target and Deid. Data', fontsize=12)
         fig.tight_layout()
         plt.savefig(file_path, bbox_inches='tight')

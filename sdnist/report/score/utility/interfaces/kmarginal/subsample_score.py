@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 import pandas as pd
 
@@ -11,6 +11,7 @@ def create_subsample(data: pd.DataFrame, frac: float):
 
 
 def kmarginal_stable_feature_subsamples(target: pd.DataFrame,
+                                        ignore_features: List[str],
                                         stable_feature: Optional[str]) \
         -> pd.DataFrame:
     ss_km_runs: int = 5  # subsample kmarginal runs
@@ -20,6 +21,7 @@ def kmarginal_stable_feature_subsamples(target: pd.DataFrame,
             s_sd = create_subsample(target, frac=0.4)
             s_kmarg = KMarginal(target,
                                 s_sd,
+                                ignore_features,
                                 stable_feature)
             s_kmarg.compute_score()
             scores = s_kmarg.scores
@@ -32,6 +34,7 @@ def kmarginal_stable_feature_subsamples(target: pd.DataFrame,
 
 
 def kmarginal_subsamples(target: pd.DataFrame,
+                         ignore_features: List[str],
                          stable_feature: Optional[str] = None) \
         -> Dict[float, int]:
     # mapping of subsample frac to k-marginal score of fraction
@@ -43,6 +46,7 @@ def kmarginal_subsamples(target: pd.DataFrame,
         s_sd = create_subsample(target, frac= i * 0.01)
         s_kmarg = KMarginal(target,
                             s_sd,
+                            ignore_features,
                             stable_feature)
         s_kmarg.compute_score()
         s_score = int(s_kmarg.score)

@@ -1,5 +1,14 @@
 {
     "drop_features": [],
+    "metrics": [
+        "Kmarginal",
+        "Univariates",
+        "PropensityMSE",
+        "PredictiveUtility",
+        "PCA",
+        "Correlations",
+        "Unique Exact Matches"
+    ],
     "k_marginal": {
         "ignore_features": [
         ],
@@ -12,5 +21,63 @@
     "bins": {
     },
     "correlation_features": [
-    ]
+        "FIPST",
+        "SECTOR",
+        "ETH1",
+        "RACE1",
+        "SEX1",
+        "VET1",
+        "ESTABLISHED",
+        "HOMEBASED",
+        "FRANCHISE",
+        "OPSOUTSIDE",
+        "OUTSOURCE",
+        "FULLTIME",
+        "PARTTIME",
+        "HEALTHINS",
+        "RETIREMENT",
+        "PROFITSHARE",
+        "HOLIDAYS",
+        "WEBSITE",
+        "SEASONAL",
+        "OCCASIONALLY",
+        "OPERATING",
+        "RETIRED",
+        "DECEASED",
+        "SOLDBUS",
+        "HUSBWIFE",
+        "FAMILYBUS",
+        "PAYROLL_NOISY",
+        "RECEIPTS_NOISY"
+    ],
+    "apparent_match_distribution": {
+        "quasi_identifier_features": [
+            "FIPST",
+            "SECTOR",
+            "ETH1",
+            "RACE1",
+            "SEX1",
+            "VET1",
+            "ESTABLISHED",
+            "HOMEBASED",
+            "FRANCHISE",
+            "OPSOUTSIDE",
+            "OUTSOURCE",
+            "FULLTIME",
+            "PARTTIME",
+            "HEALTHINS",
+            "RETIREMENT",
+            "PROFITSHARE",
+            "HOLIDAYS",
+            "WEBSITE",
+            "SEASONAL",
+            "OCCASIONALLY",
+            "OPERATING",
+            "RETIRED",
+            "DECEASED",
+            "SOLDBUS",
+            "HUSBWIFE",
+            "FAMILYBUS"
+        ]
+    }
 }

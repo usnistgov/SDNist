@@ -8,6 +8,16 @@
             size: A4 portrait;
             margin: 2cm;
         }
+        @media print {
+            img {
+                max-width: 100% !important;
+                page-break-inside: avoid;
+            }
+            .attachment-div-no-break {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+        }
         :root {
             --mgin: 10%;  /* defautl table left right margin */
             --theme-color: #6280BA;
@@ -39,6 +49,10 @@
         }
         .attachment-div-break {
             page-break-before: always;
+        }
+        .attachment-div-no-break {
+            page-break-inside: avoid;
+            margin-bottom: 10px;
         }
         .content-area {
             margin-left: 10%;
@@ -88,7 +102,14 @@
             margin-right: 50px;
         }
         .img-div {
-
+            page-break-inside: avoid;
+            margin-bottom: 15px;
+            display: inline-block;
+            width: 100%;
+        }
+        .img-div img {
+            max-width: 100%;
+            height: auto;
         }
         .main-title {
             text-align: center;
@@ -390,7 +411,12 @@
         <div>
             {% for i, a in enumerate(attachments) %}
                 {% if a.type == 'image_links' and i > 0 %}
-                    {% set style = 'attachment-div-break' %}
+                    {# Check if previous attachment was also an image - if so, don't break #}
+                    {% if attachments[i-1].type == 'image_links' %}
+                        {% set style = 'attachment-div-no-break' %}
+                    {% else %}
+                        {% set style = 'attachment-div-break' %}
+                    {% endif %}
                 {% else %}
                     {% set style = 'attachment-div' %}
                 {% endif %}

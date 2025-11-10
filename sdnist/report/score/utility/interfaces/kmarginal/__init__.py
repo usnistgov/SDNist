@@ -1,3 +1,4 @@
+import copy
 from typing import Dict, List, Optional
 import pandas as pd
 from pathlib import Path
@@ -55,7 +56,7 @@ class KMarginalReport:
 
         # number of worst stable feature values to show on the report
         self.default_worst_stable_feature_values = 2
-
+        self.ignore_features = self.ds.config['k_marginal']['ignore_features']
         self.main_table_name = 'all_groups'
         self.stable_feature_table_name = 'stable_feature'
 
@@ -69,6 +70,7 @@ class KMarginalReport:
 
         k_marginal = KMarginal(self.ds.d_target_data,
                                self.ds.d_synthetic_data,
+                               self.ignore_features,
                                sf)
         k_marginal.compute_score()
         self.kmarginal_score = int(k_marginal.score)
@@ -91,9 +93,11 @@ class KMarginalReport:
 
     def compute_subsample_kmarginal_scores(self, stable_feature: Optional[str]):
 
-        subsample_scores = kmarginal_subsamples(self.ds.d_target_data, stable_feature)
+        subsample_scores = kmarginal_subsamples(self.ds.d_target_data,
+                                                self.ignore_features,
+                                                stable_feature)
         subsample_stable_feature_score = kmarginal_stable_feature_subsamples(
-            self.ds.d_target_data, stable_feature)
+            self.ds.d_target_data, self.ignore_features, stable_feature)
         return subsample_scores, subsample_stable_feature_score
 
     def get_stable_feature_values(self, index: int):
@@ -113,6 +117,7 @@ class KMarginalReport:
             stable_feature_values = self.get_stable_feature_values(i + 1)
             k_marginal = KMarginal(self.ds.d_target_data,
                                    self.ds.d_synthetic_data,
+                                   self.ignore_features,
                                    sf)
             k_marginal.compute_score()
             stable_feature_scores = k_marginal.scores
@@ -144,7 +149,6 @@ class KMarginalReport:
         # default worst best
         default_w_b_n = self.default_worst_stable_feature_values \
             if len(usable_group_values) <= 6 else 5
-
         # count of worst or best k-marginal pumas to select
         worst_scores = [ws for ws in self.stable_feature_worst_scores
                         if ws[self.stable_features[0]][0] in usable_group_values]
@@ -236,17 +240,33 @@ class KMarginalReport:
         attachments = [kmp_a, kms_a, ss_para_a, ssf_a, sed_a]
 
         if self.stable_features:
+            sf = self.stable_features[0]
             # all score attachment
+            preprocessed_f = ['PUMA', 'FIPST']
             k_para = k_marg_all_geo_para \
                 if self.stable_features[0] in ['PUMA', 'FIPST'] \
                 else k_marg_sector_para
+            is_categorical = 'min' not in self.ds.data_dict[sf][
+                'values']
+            worst_score = copy.deepcopy(self.stable_feature_worst_scores)
+            if sf in self.ds.data_dict and is_categorical and sf not in preprocessed_f:
+                # replace stable feature code with description in case of
+                for i, d in enumerate(worst_score):
+                    code = str(d[sf][0])
+                    code_desc = code
+                    if code in self.ds.data_dict[sf]['values']:
+                        code_desc = self.ds.data_dict[sf]['values'][code]
+                        code_desc = f'({code})-{code_desc}'
+                    d[sf][0] = code_desc
+                    worst_score[i] = d
+
             as_para_a = Attachment(name=f'K-Marginal Score in Each '
                                         + '- ' + self.stable_features[0],
                                    _data=k_para
                                    .replace(strs.STABLE_FEATURE, self.stable_features[0]),
                                    _type=AttachmentType.String)
             as_a = Attachment(name=None,
-                              _data=self.stable_feature_worst_scores)
+                              _data=worst_score)
 
             attachments.extend([as_para_a, as_a])
 
@@ -256,6 +276,10 @@ class KMarginalReport:
                 k_para = k_marg_all_geo_para \
                     if self.stable_features[0] in ['PUMA', 'FIPST'] \
                     else k_marg_sector_para
+
+                # replace stable feature code with description in case of
+                # categorical features
+
                 osf_para_a = Attachment(name=f'K-Marginal Score in Each '
                                              + '- ' + sf,
                                         _data=k_para

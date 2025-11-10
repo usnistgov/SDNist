@@ -156,8 +156,8 @@
             "B": "BLACK only",
             "  I": "AIAN only",
             "I": "AIAN only",
-            "   A": "ASIAN only:",
-            "A": "ASIAN only:",
+            "   A": "ASIAN only",
+            "A": "ASIAN only",
             "    P": "NHOPI only",
             "P": "NHOPI only",
             "     S": "SOME OTHER RACE only",
@@ -398,7 +398,7 @@
     "AGE1": {
         "description": "OWNER 1 AGE **** ",
         "values": {
-            "0": "NOT REPORTED",
+            "0": "AGE NOT REPORTED",
             "1": "UNDER 25",
             "2": "25 TO 34",
             "3": "35 TO 44",

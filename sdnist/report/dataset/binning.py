@@ -6,7 +6,8 @@ import math
 import sdnist.strs as strs
 from sdnist.report.dataset.data_dict import get_feature_type
 from sdnist.report.dataset.transform import (
-    parse_numeric_value, get_null_codes)
+    parse_numeric_value, get_null_codes, deduce_code_type, is_numeric)
+
 
 
 def bin_continuous_feature(t_f: pd.DataFrame,
@@ -18,8 +19,8 @@ def bin_continuous_feature(t_f: pd.DataFrame,
     d_f = d_f.copy()
     bin_mappings = dict()
     f = t_f.columns.tolist()[0]
-    f_values = list(data_dict[f][strs.VALUES])
-
+    f_values = list(data_dict[f][strs.VALUES].keys())
+    code_type = deduce_code_type(f, data_dict)
     f_min = parse_numeric_value(data_dict[f][strs.VALUES][strs.MIN])
     f_max = parse_numeric_value(data_dict[f][strs.VALUES][strs.MAX])
     if f_max - f_min <= n_bins:
@@ -29,6 +30,12 @@ def bin_continuous_feature(t_f: pd.DataFrame,
 
     # find values to leave out of binning
     no_bin_vals = list(null_codes.values())
+    non_continuous_vals = [v for v in f_values
+                           if v not in [strs.MIN, strs.MAX, strs.STEP_SIZE, "step size"]]
+    non_continuous_vals = [code_type(v) for v in non_continuous_vals
+                           if is_numeric(v)]
+    no_bin_vals = no_bin_vals + non_continuous_vals
+
     # target and deid unique vals
     tuv = t_f[~t_f[f].isin(no_bin_vals)][f].unique().tolist()
     duv = d_f[~d_f[f].isin(no_bin_vals)][f].unique().tolist()
@@ -54,10 +61,8 @@ def bin_continuous_feature(t_f: pd.DataFrame,
 
     # create bin percentiles
     bins = [i * (100 / n_bins) for i in range(n_bins)]
-
     tv = t_f[~t_f[f].isin(no_bin_vals)][f].values.tolist()
     bin_edges = list(np.unique(np.percentile(tv, bins, method='higher'))) + extra_bin_edges
-
     if bin_edges[-1] == bin_edges[-2]:
         bin_edges = bin_edges[:-1]
     bin_edges = sorted(bin_edges)
@@ -68,11 +73,16 @@ def bin_continuous_feature(t_f: pd.DataFrame,
     # create reverse string and null codes mapping
     rev_null_codes = {v: k for k, v in null_codes.items()}
 
+     # add null codes to bin mapping
     for nv in null_codes:
         if nv in rev_null_codes:
             mapping[nv] = rev_null_codes[nv]
         else:
             mapping[nv] = nv
+
+    # add non-continuous values to bin mapping
+    for v in non_continuous_vals:
+        mapping[v] = v
 
     dtype = t_f[f].dtype
     tna = t_f[t_f[f].isin(no_bin_vals)]
@@ -91,7 +101,6 @@ def bin_continuous_feature(t_f: pd.DataFrame,
     db = db.reindex(d_f.index)
     t_f[f], d_f[f] = tb[f], db[f]
     bin_mappings[f] = mapping
-
     return t_f, d_f, bin_mappings
 
 

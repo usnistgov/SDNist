@@ -1,5 +1,18 @@
 {
     "drop_features": [],
+    "metrics": [
+        "Kmarginal",
+        "Kmarginal Breakdown",
+        "Univariates",
+        "PropensityMSE",
+        "PCA",
+        "Inconsistencies",
+        "Correlations",
+        "Linear Regression",
+        "Unique Exact Matches",
+        "Apparent Match Distribution",
+        "KDisco"
+    ],
     "k_marginal": {
         "ignore_features": [
         ],
@@ -30,5 +43,10 @@
         "DEYE",
         "DREM",
         "DENSITY"
-    ]
+    ],
+    "apparent_match_distribution": {
+        "quasi_identifier_features": [
+            "SEX", "MSP", "RAC1P", "OWN_RENT", "EDU", "PUMA",
+            "INDP_CAT", "HISP"]
+    }
 }

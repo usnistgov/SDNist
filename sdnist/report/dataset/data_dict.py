@@ -58,8 +58,10 @@ def deduce_code_type(feature: str, data_dict: Dict[str, any]) -> any:
 
     # if code_type in ['int64', 'int32', 'float64']:
     #     return dtype_to_python_type(code_type)
+
     if is_continuous:
-        all_types = [type(parse_numeric_value(v)) for v in values.values()]
+        cont_vals = [v for k, v in values.items() if k in ['min', 'max', 'step size']]
+        all_types = [type(parse_numeric_value(v)) for v in cont_vals]
     else:
         all_types = [type(parse_numeric_value(v)) for v in values
                      if str(v).isnumeric()]

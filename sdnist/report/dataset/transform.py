@@ -94,7 +94,7 @@ def transform(t: pd.DataFrame, d: pd.DataFrame, ddict: Dict) \
         tt = tt.fillna('nan')
         dt = dt.fillna('nan')
     mappings = dict()  # mappings for transformed values
-    for f in t.columns.tolist():  # for each feature transform
+    for f in t.columns.tolist():  # for each feature, transform
         fd = ddict[f]  # feature dictionary
         # deduce if feature values are int or float
         c_type = deduce_code_type(f, ddict)

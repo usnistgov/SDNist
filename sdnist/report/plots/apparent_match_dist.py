@@ -63,6 +63,7 @@ class ApparentMatchDistributionPlot:
         self.quasi_features = quasi_features
         self.exclude_features = exclude_features
         self.quasi_matched_df = pd.DataFrame()
+        self.unique_qid_rows = 0
         self.report_data = dict()
         self._setup()
 
@@ -77,12 +78,12 @@ class ApparentMatchDistributionPlot:
                                           self.quasi_features,
                                           self.exclude_features)
         self.quasi_matched_df = mu
-
+        self.unique_qid_rows = u2.shape[0]
         save_file_path = plot_apparent_match_dist(percents,
                                                   self.o_path)
         mu['percent_match'] = percents
         self.report_data['unique_matched_percents'] = \
             relative_path(save_data_frame(mu, self.o_path, 'result'))
         self.report_data['plot'] = relative_path(save_file_path)
-
+        self.report_data['unique_qid_rows'] = self.unique_qid_rows
         return [save_file_path]

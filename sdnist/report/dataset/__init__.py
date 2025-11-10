@@ -70,19 +70,10 @@ def feature_space_size_acs(target_df: pd.DataFrame, data_dict: Dict):
     return size
 
 
-def feature_space_size_sbo(target_df: pd.DataFrame,
-                           continuous_features: List[str],
-                           data_dict: Dict):
+def feature_space_size(target_df: pd.DataFrame):
     size = 1
     for col in target_df.columns:
-        counts = 0
-        if strs.HAS_NULL in data_dict[col] and data_dict[col][strs.HAS_NULL]:
-            counts += 1
-        if col in continuous_features:
-            size = size * (counts + 100)
-        else:
-            counts += len(target_df[col].unique())
-            size = size * counts
+        size = size * len(target_df[col].unique())
     return size
 
 
@@ -165,11 +156,12 @@ class Dataset:
         self.data_dict = u.read_json(Path(self.config_path.parent, 'data_dictionary.json'))
         self.features = self.target_data.columns.tolist()
 
-        self.data_dict = merge_schema_with_datadict(self.schema, self.data_dict)
         # add schema values to data dictionary
+        self.data_dict = merge_schema_with_datadict(self.schema, self.data_dict)
 
         self.synthetic_data = self.load_synthetic_data()
         self.remove_unknown_features()
+
         self.features = self.synthetic_data.columns.tolist()
         self.target_data_features = self.features
         drop_features = self.config[strs.DROP_FEATURES] \
@@ -189,7 +181,7 @@ class Dataset:
         out_of_bound_features = [f for f in self.validation_log.keys()]
 
         self.features = self.c_synthetic_data.columns.tolist()
-        self.features = list(set(self.features).difference(set(out_of_bound_features)))
+        # self.features = list(set(self.features).difference(set(out_of_bound_features)))
 
         # update data after validation and cleaning
         self.synthetic_data = self.synthetic_data[self.features]
@@ -204,17 +196,19 @@ class Dataset:
         self.c_target_data = self.c_target_data.reindex(sorted(self.target_data.columns), axis=1)
         self.features = [f for f in self.data_dict.keys() if f in self.features]
         self.corr_features =  self.config[strs.CORRELATION_FEATURES]
-        self.corr_features = [f for f in self.features
-                              if f in self.corr_features]
+        if len(self.corr_features):
+            self.corr_features = [f for f in self.features
+                                  if f in self.corr_features]
+        else:
+            self.corr_features = [f for f in self.features]
 
         self.continuous_features = [f for f in self.features
                                     if 'max' in self.data_dict[f][strs.VALUES]]
-        if self.test == TestDatasetName.sbo_target:
-            self.feature_space = feature_space_size_sbo(self.target_data,
-                                                        self.continuous_features,
-                                                        self.data_dict)
-        else:
+        if self.test in [TestDatasetName.ma2019, TestDatasetName.tx2019, TestDatasetName.national2019]:
             self.feature_space = feature_space_size_acs(self.target_data, self.data_dict)
+        else:
+            self.feature_space = feature_space_size(self.target_data)
+
         # bin the density feature if present in the datasets
         self.density_bin_desc = dict()
         self.bin_mappings = {}
